@@ -3,8 +3,8 @@
 ## 1. 文档地位
 
 - 输入基线：用户提供的《FlowTracer 技术设计文档 Alpha v0.1》。
-- 当前阶段：BE-1 工程基线已冻结；等待 Docker/WSL 2 环境，BE-1 尚未准入。
-- 当前结论：Alpha 架构与 BE-1 工程基线已冻结；外部运行环境尚未满足，后端业务实现未准入。
+- 当前阶段：Backend Phase BE-1 基础骨架与本地基础设施，已准入。
+- 当前结论：Alpha 架构、BE-1 工程基线和本地运行环境已通过门禁；Backend 只可执行 BE-1。
 - 项目正式名称：FlowTracer。
 - Radar 是 FlowTracer 的核心领域对象，不再作为项目名称使用。
 
@@ -61,6 +61,8 @@
 - 原始内容、标准化内容、AI 产物分层保存，禁止覆盖原始证据。
 - 密钥只能来自环境变量或密钥管理，不得进入代码库或数据库明文日志。
 - Alpha 优先验证端到端价值，不提前实现后续版本能力。
+- 所有开发必须经过任务规划、开发分支、commit、push、Pull Request、Review 和 Merge。
+- 禁止直接向 `main` push；未经总控明确 Review 和授权，GitHub 管理角色不得合并。
 
 ## 5. 里程碑与阶段闸门
 
@@ -102,8 +104,8 @@
 
 ## 7. 当前状态
 
-- 已完成：产品愿景、Alpha 范围、核心架构与后端契约初步冻结、Backend 任务包、BE-0 验收。
-- 进行中：Docker Desktop / WSL 2 环境前置条件准备。
-- 尚未准入：BE-1 及后续 Backend Phase、Frontend、Integration、Release。
-- 当前代码状态：工作区尚无业务代码；Git 已初始化在 `main`，尚无提交和远程。
+- 已完成：产品愿景、Alpha 范围、核心架构与后端契约初步冻结、Backend 任务包、BE-0 验收、BE-1 工程基线、本地环境复核和 BE-1 准入。
+- 进行中：Backend Phase BE-1 基础骨架与本地基础设施。
+- 尚未准入：BE-2 及后续 Backend Phase、Frontend、Integration、Release。
+- 当前代码状态：`main` 跟踪 `origin/main`；尚无后端业务实现。
 

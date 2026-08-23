@@ -4,7 +4,7 @@
 
 **M0：架构初步冻结 — 已完成**
 
-**当前阶段：BE-1 工程基线已冻结；等待 Docker/WSL 2 环境（BE-1 尚未准入）**
+**当前阶段：Backend Phase BE-1 — 基础骨架与本地基础设施（已准入）**
 
 ## 工作项
 
@@ -21,8 +21,9 @@
 | PM-001 | Backend 执行任务包 | 总控 | 完成 | ARC-003..008 | `10-BACKEND-WORK-PACKAGE.md` |
 | BE-0 | 工程盘点与实施计划 | Backend | 完成（已验收） | PM-001 | `11-BE-0-ACCEPTANCE.md` |
 | PM-002 | BE-1 工程基线 | 总控 | 完成 | BE-0 | `04-BE1-ENGINEERING-BASELINE.md` |
-| ENV-001 | Docker Desktop / WSL 2 环境 | 用户 / 总控 | 阻塞 | PM-002 | `docker version`、`docker compose version`、`hello-world` |
-| BE-1 | 基础骨架与本地基础设施 | Backend | 未准入 | PM-002、ENV-001 | 代码、空迁移、测试、Compose 与阶段报告 |
+| ENV-001 | Docker Desktop / WSL 2 环境 | 用户 / 总控 | 完成 | PM-002 | Docker/Compose/WSL 2/`hello-world` 复核通过 |
+| PM-003 | BE-1 阶段准入 | 总控 | 完成 | PM-002、ENV-001 | `12-BE-1-ADMISSION.md` |
+| BE-1 | 基础骨架与本地基础设施 | Backend | 已准入 | PM-003 | 代码、空迁移、测试、Compose 与阶段报告 |
 | BE-2..BE-8 | 后端业务闭环与稳定化 | Backend | 未准入 | 前一 Backend Phase 经总控验收 | 代码、迁移、测试、OpenAPI 与阶段报告 |
 | FE-001 | 前端实现 | Frontend | 未准入 | BE-8 经总控验收，后端契约稳定 | 桌面端与前端测试 |
 | INT-001 | 集成与缺陷修复 | Integration | 未准入 | BE-8、FE-001 | E2E 报告与缺陷闭环 |

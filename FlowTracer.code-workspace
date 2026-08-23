@@ -1,0 +1,20 @@
+{
+  "folders": [
+    {
+      "name": "FlowTracer",
+      "path": "."
+    }
+  ],
+  "settings": {
+    "files.eol": "\n",
+    "files.insertFinalNewline": true,
+    "editor.formatOnSave": true,
+    "editor.rulers": [100],
+    "search.exclude": {
+      "**/.git": true,
+      "**/node_modules": true,
+      "**/target": true
+    }
+  }
+}
+

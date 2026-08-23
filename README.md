@@ -11,9 +11,9 @@ Radar 是 FlowTracer 的核心领域对象，不是项目名称。
 ### Alpha v0.1 与当前阶段
 
 - 当前发布目标：**Alpha v0.1**
-- 当前阶段：**BE-1 工程基线已冻结；等待 Docker/WSL 2 环境**
-- 阶段准入：BE-1 及后续后端阶段、Frontend、Integration、Release 均未准入。
-- BE-0 已完成且通过验收，BE-1 工程基线已冻结；在 Docker/WSL 2 环境通过复核且总控明确签发许可前，仍不允许安装项目依赖、编写业务代码或创建数据库迁移。
+- 当前阶段：**Backend Phase BE-1 — 基础骨架与本地基础设施**
+- 阶段准入：仅 BE-1 已获批准；BE-2 及后续后端阶段、Frontend、Integration、Release 均未准入。
+- BE-0、BE-1 工程基线和本地环境复核已经通过；Backend 必须在独立开发分支严格执行 BE-1，并在完成后停点提交报告和 PR。
 
 固定交付顺序：架构冻结 → 后端开发 → 前端开发 → 前后端集成测试 → GitHub 上传与 Alpha 发布。
 
@@ -46,7 +46,7 @@ FlowTracer/
 
 ### 开发状态与正式文档
 
-架构、领域模型、状态机、REST API 范围、WebSocket 事件、评分规则和 Backend 任务包已完成初步冻结，BE-0 已通过验收。BE-1 工程基线已经冻结，当前等待 Docker/WSL 2 环境复核；业务实现尚未获准开始。
+架构、领域模型、状态机、REST API 范围、WebSocket 事件、评分规则和 Backend 任务包已完成初步冻结，BE-0 与本地环境复核已经通过。Backend 当前只获准执行 BE-1 基础骨架与本地基础设施。
 
 - [项目总控基线](docs/00-PROJECT-CONTROL.md)
 - [架构决策记录](docs/01-ARCHITECTURE-DECISIONS.md)
@@ -55,6 +55,7 @@ FlowTracer/
 - [BE-1 工程基线](docs/04-BE1-ENGINEERING-BASELINE.md)
 - [Backend 正式任务包](docs/10-BACKEND-WORK-PACKAGE.md)
 - [BE-0 验收报告](docs/11-BE-0-ACCEPTANCE.md)
+- [BE-1 准入许可](docs/12-BE-1-ADMISSION.md)
 
 ### Alpha 技术栈
 
@@ -67,7 +68,7 @@ FlowTracer/
 - Communication：REST `/api/v1` + WebSocket
 - Testing：Pytest + 前端单元测试 + E2E
 - Local Infrastructure：Docker Compose
-Backend workspace initialized.
+
 ---
 
 ## English
@@ -81,9 +82,9 @@ Radar is FlowTracer's core domain object, not the project name.
 ### Alpha v0.1 and Current Stage
 
 - Current release target: **Alpha v0.1**
-- Current stage: **BE-1 engineering baseline frozen; Docker/WSL 2 environment pending**
-- Stage admission: BE-1 and later backend phases, Frontend, Integration, and Release are not admitted.
-- BE-0 is complete and accepted, and the BE-1 engineering baseline is frozen. Project dependency installation, business-code implementation, and database migrations remain prohibited until Docker/WSL 2 verification passes and the controller explicitly admits BE-1.
+- Current stage: **Backend Phase BE-1 — Foundation and Local Infrastructure**
+- Stage admission: only BE-1 is approved; BE-2 and later backend phases, Frontend, Integration, and Release are not admitted.
+- BE-0, the BE-1 engineering baseline, and the local environment review have passed. Backend must implement BE-1 on an independent development branch and stop for a report and PR when complete.
 
 The fixed delivery sequence is: architecture freeze → backend development → frontend development → frontend/backend integration testing → GitHub upload and Alpha release.
 
@@ -116,7 +117,7 @@ FlowTracer/
 
 ### Development Status and Authoritative Documents
 
-The architecture, domain model, state machine, REST API scope, WebSocket events, scoring rules, and Backend work package have completed their initial freeze, and BE-0 has been accepted. The BE-1 engineering baseline is frozen and Docker/WSL 2 verification is pending; business implementation has not been admitted.
+The architecture, domain model, state machine, REST API scope, WebSocket events, scoring rules, and Backend work package have completed their initial freeze. BE-0 and the local environment review have passed. Backend is currently admitted only for the BE-1 foundation and local infrastructure phase.
 
 - [Project control baseline](docs/00-PROJECT-CONTROL.md)
 - [Architecture decision records](docs/01-ARCHITECTURE-DECISIONS.md)
@@ -125,6 +126,7 @@ The architecture, domain model, state machine, REST API scope, WebSocket events,
 - [BE-1 engineering baseline](docs/04-BE1-ENGINEERING-BASELINE.md)
 - [Backend formal work package](docs/10-BACKEND-WORK-PACKAGE.md)
 - [BE-0 acceptance report](docs/11-BE-0-ACCEPTANCE.md)
+- [BE-1 admission](docs/12-BE-1-ADMISSION.md)
 
 ### Alpha Technology Stack
 

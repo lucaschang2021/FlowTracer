@@ -67,7 +67,7 @@ FlowTracer/
 - Communication：REST `/api/v1` + WebSocket
 - Testing：Pytest + 前端单元测试 + E2E
 - Local Infrastructure：Docker Compose
-
+Backend workspace initialized.
 ---
 
 ## English

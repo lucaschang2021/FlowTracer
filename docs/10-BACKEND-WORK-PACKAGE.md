@@ -8,6 +8,7 @@
 - `docs/01-ARCHITECTURE-DECISIONS.md`
 - `docs/03-BACKEND-CONTRACT-BASELINE.md`
 - `docs/04-BE1-ENGINEERING-BASELINE.md`
+- `docs/05-BE2-DATA-AUTH-BASELINE.md`
 - 本任务包
 
 按 Phase 顺序执行。每个 Phase 完成后停止并提交阶段报告，等待总控验收后再进入下一阶段。不得开发前端、上传 GitHub、引入未批准的数据库或微服务，也不得提前实现 v0.2+ 功能。
@@ -76,6 +77,8 @@ Phase：
 - 报告后停止，等待总控批准 BE-2。
 
 ## Phase BE-2：数据模型、迁移、认证与用户
+
+> 本阶段必须遵循 `docs/05-BE2-DATA-AUTH-BASELINE.md` 与 `docs/13-BE-2-ADMISSION.md`；准入文件所在 PR 未合并时不得开始。
 
 ### 目标
 

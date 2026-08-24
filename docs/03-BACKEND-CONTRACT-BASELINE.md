@@ -113,3 +113,9 @@ pending -> cleaning -> deduplicating -> analyzing -> embedding -> ready
 - Liveness 不检查外部依赖；Readiness 检查 PostgreSQL 和 Redis。
 - Readiness 异常返回 HTTP 503 和 `service_not_ready` 统一错误，不泄露连接信息。
 - 每个 API 请求接受或生成 UUID `X-Request-ID`，响应回传该 Header。
+
+## 9. BE-2 数据与认证契约补充
+
+- 全部 Alpha 实体的字段类型、可空性、约束、索引、外键删除策略与枚举以 `docs/05-BE2-DATA-AUTH-BASELINE.md` 为准。
+- Auth/User 的请求响应、状态码、JWT Claims、Refresh Token 轮换与安全要求以该文件为准。
+- BE-2 只开放 Auth/User API；Radar 及后续业务接口仍按 Phase 门禁实施。

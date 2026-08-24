@@ -88,13 +88,20 @@
 - 决策：Liveness 不访问外部依赖；Readiness 检查 PostgreSQL 与 Redis，并在异常时返回统一 503 错误。
 - 追踪：API 接受或生成 UUID `X-Request-ID`；HTTP 与 Celery 日志使用结构化字段和 correlation ID。
 - 详细规格：`docs/04-BE1-ENGINEERING-BASELINE.md`。
+
+## ADR-014：BE-2 数据模型与认证契约冻结
+
+- 状态：Accepted
+- 决策：全部 Alpha 关系实体在 BE-2 一次性落地；字段类型、约束、索引、删除策略和枚举以 `docs/05-BE2-DATA-AUTH-BASELINE.md` 为准。
+- 认证：密码使用 Argon2id；Access Token 使用 15 分钟 HS256 JWT；Refresh Token 使用 30 天可撤销、单次轮换的 opaque Token，数据库只保存 SHA-256。
+- 约束：BE-2 只实现 Auth/User API；其他实体仅建立模型与迁移，不提前实现 BE-3+ 业务。
+
 ## 后续阶段前仍需补齐的工程规格
 
 以下事项不改变 Alpha 架构初步冻结结论，但必须由总控在对应实现阶段准入前补齐，不得由 Backend 擅自决定：
 
-- 实体字段、唯一约束、索引、删除策略和数据保留规则。
 - 采集与分析状态机、错误码、重试次数及死信处理。
-- API 请求/响应模型、分页、筛选、排序和统一错误格式。
+- BE-3+ API 请求/响应模型、筛选和排序细节。
 - WebSocket 鉴权、事件 Envelope、顺序与重复处理规则。
 - 四维评分的范围、默认权重、阈值及解释字段。
 - Prompt、模型输出 JSON Schema 和降级处理。

@@ -183,6 +183,7 @@ async def test_me_patch_empty_patch_and_auth_boundaries(auth_client: AsyncClient
     headers = {"Authorization": f"Bearer {body['tokens']['access_token']}"}
     me = await auth_client.get("/api/v1/users/me", headers=headers)
     assert me.status_code == 200
+    previous_updated_at = datetime.fromisoformat(me.json()["updated_at"])
     patched = await auth_client.patch(
         "/api/v1/users/me",
         headers=headers,
@@ -190,6 +191,7 @@ async def test_me_patch_empty_patch_and_auth_boundaries(auth_client: AsyncClient
     )
     assert patched.status_code == 200
     assert patched.json()["profile"] == {"theme": "dark"}
+    assert datetime.fromisoformat(patched.json()["updated_at"]) > previous_updated_at
     empty = await auth_client.patch("/api/v1/users/me", headers=headers, json={})
     assert empty.status_code == 422
     assert empty.json()["error"]["code"] == "invalid_request"

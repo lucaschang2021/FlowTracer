@@ -54,3 +54,16 @@ def test_missing_jwt_secret_fails_fast_without_value(
         load_settings()
     assert "JWT_SECRET" in str(error.value)
     assert "unit-test-jwt-secret" not in str(error.value)
+
+
+def test_multiple_missing_variables_are_comma_separated_and_value_free(
+    monkeypatch: pytest.MonkeyPatch,
+    test_environment: None,
+) -> None:
+    monkeypatch.delenv("DATABASE_URL")
+    monkeypatch.delenv("JWT_SECRET")
+    with pytest.raises(ConfigurationError) as error:
+        load_settings()
+    assert str(error.value) == (
+        "Invalid or missing configuration variables: DATABASE_URL, JWT_SECRET"
+    )

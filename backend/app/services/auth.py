@@ -22,12 +22,13 @@ from app.core.security import (
 from app.models.entities import RefreshToken, User
 from app.schemas.auth import TokenResponse
 
-INVALID_CREDENTIALS = AppError(
-    status_code=401, code="invalid_credentials", message="Invalid credentials"
-)
-INVALID_REFRESH = AppError(
-    status_code=401, code="invalid_refresh_token", message="Invalid refresh token"
-)
+
+def invalid_credentials_error() -> AppError:
+    return AppError(status_code=401, code="invalid_credentials", message="Invalid credentials")
+
+
+def invalid_refresh_error() -> AppError:
+    return AppError(status_code=401, code="invalid_refresh_token", message="Invalid refresh token")
 
 
 def _new_tokens(
@@ -86,7 +87,7 @@ async def login_user(
         select(User).where(User.email == email, User.deleted_at.is_(None), User.is_active.is_(True))
     )
     if user is None or not verify_password(user.password_hash, password):
-        raise INVALID_CREDENTIALS
+        raise invalid_credentials_error()
     if password_needs_rehash(user.password_hash):
         user.password_hash = hash_password(password)
     tokens, record = _new_tokens(user, settings, datetime.now(UTC))
@@ -105,7 +106,7 @@ async def refresh_tokens(
     try:
         token_id = parse_refresh_token(refresh_value)
     except ValueError:
-        raise INVALID_REFRESH from None
+        raise invalid_refresh_error() from None
     record = await session.scalar(
         select(RefreshToken).where(RefreshToken.id == token_id).with_for_update()
     )
@@ -117,7 +118,7 @@ async def refresh_tokens(
         or not secrets.compare_digest(record.token_hash, hash_refresh_value(refresh_value))
     ):
         await session.rollback()
-        raise INVALID_REFRESH
+        raise invalid_refresh_error()
     user = await session.scalar(
         select(User).where(
             User.id == record.user_id, User.deleted_at.is_(None), User.is_active.is_(True)
@@ -125,7 +126,7 @@ async def refresh_tokens(
     )
     if user is None:
         await session.rollback()
-        raise INVALID_REFRESH
+        raise invalid_refresh_error()
     tokens, replacement = _new_tokens(user, settings, now)
     record.revoked_at = now
     session.add(replacement)

@@ -66,7 +66,7 @@ def load_settings() -> Settings:
     except ValidationError as exc:
         variables = sorted({str(error["loc"][0]) for error in exc.errors()})
         raise ConfigurationError(
-            f"Invalid or missing configuration variables: {'', ''.join(variables)}"
+            f"Invalid or missing configuration variables: {', '.join(variables)}"
         ) from None
 
 

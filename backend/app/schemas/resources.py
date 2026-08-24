@@ -141,7 +141,15 @@ class RadarPage(BaseModel):
 
 
 def validate_config(value: dict[str, Any]) -> dict[str, Any]:
-    serialized = json.dumps(value, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    try:
+        serialized = json.dumps(
+            value,
+            separators=(",", ":"),
+            ensure_ascii=False,
+            allow_nan=False,
+        ).encode("utf-8")
+    except (TypeError, ValueError, OverflowError):
+        raise ValueError("config must contain only standard JSON values") from None
     if len(serialized) > 16 * 1024:
         raise ValueError("config must not exceed 16 KiB")
     return value

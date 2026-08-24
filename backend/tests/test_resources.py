@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import os
 from collections.abc import AsyncIterator
 from datetime import datetime
@@ -237,6 +238,60 @@ async def test_radar_boundaries_conflicts_and_user_scope(resource_client: AsyncC
         payload[field] = value
         response = await resource_client.post("/api/v1/radars", headers=first, json=payload)
         assert response.status_code == 422
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "invalid_value",
+    [float("nan"), float("inf"), float("-inf")],
+    ids=["nan", "infinity", "negative-infinity"],
+)
+async def test_source_config_rejects_non_finite_numbers_without_database_writes(
+    resource_client: AsyncClient,
+    resource_engine: AsyncEngine,
+    invalid_value: float,
+) -> None:
+    headers = await headers_for(resource_client, f"non-finite-{invalid_value!r}@example.com")
+    existing = await create_source(
+        resource_client,
+        headers,
+        "Existing",
+        "https://existing.example/feed",
+    )
+    source_id = existing.json()["id"]
+
+    json_headers = {**headers, "Content-Type": "application/json"}
+    rejected_create = await resource_client.post(
+        "/api/v1/sources",
+        headers=json_headers,
+        content=json.dumps(
+            {
+                **source_payload("Rejected", "https://rejected.example/feed"),
+                "config": {"x": invalid_value},
+            },
+            allow_nan=True,
+        ),
+    )
+    rejected_update = await resource_client.patch(
+        f"/api/v1/sources/{source_id}",
+        headers=json_headers,
+        content=json.dumps({"config": {"x": invalid_value}}, allow_nan=True),
+    )
+
+    for response in (rejected_create, rejected_update):
+        assert response.status_code == 422
+        assert response.json()["error"]["code"] == "invalid_request"
+        assert response.headers["X-Request-ID"] == response.json()["error"]["request_id"]
+        safe_body = response.text.lower()
+        for forbidden in ("asyncpg", "sqlalchemy", "jsonb", "database", "traceback"):
+            assert forbidden not in safe_body
+
+    factory = async_sessionmaker(resource_engine, expire_on_commit=False)
+    async with factory() as session:
+        assert len((await session.scalars(select(Source))).all()) == 1
+        stored = await session.get(Source, UUID(source_id))
+        assert stored is not None
+        assert stored.config == {"label": "public"}
 
 
 @pytest.mark.asyncio

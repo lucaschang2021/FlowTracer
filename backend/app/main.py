@@ -12,7 +12,7 @@ from app.core.config import Settings, get_settings
 from app.core.errors import install_exception_handlers
 from app.core.logging import configure_logging, get_logger
 from app.core.middleware import RequestContextMiddleware
-from app.db.session import create_database_engine
+from app.db.session import create_database_engine, create_session_factory
 from app.services.readiness import ReadinessService, build_readiness_service
 
 
@@ -30,6 +30,7 @@ def create_app(
         redis_client: Redis | None = None
         if readiness_service is None:
             engine = create_database_engine(resolved_settings)
+            application.state.session_factory = create_session_factory(engine)
             redis_client = Redis.from_url(
                 resolved_settings.redis_url.get_secret_value(),
                 decode_responses=True,

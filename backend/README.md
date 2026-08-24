@@ -1,6 +1,7 @@
-# Backend
+# FlowTracer backend
 
-Reserved for the FastAPI API service and Celery workers.
+FastAPI API and Celery worker for FlowTracer Alpha v0.1.
 
-Implementation begins after the M0 architecture gate and the Backend work package are approved.
+BE-2 provides the full Alpha relational schema and the secure Auth/User loop. See
+`DEVELOPMENT.md` for configuration, migration, test-database, and local run commands.
 

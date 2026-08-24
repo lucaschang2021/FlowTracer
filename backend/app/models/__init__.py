@@ -1,1 +1,31 @@
-"""Model boundary; business models begin in BE-2."""
+from app.models.entities import (
+    AIUsageRecord,
+    Analysis,
+    Bookmark,
+    CollectionRun,
+    Document,
+    DocumentChunk,
+    Notification,
+    Radar,
+    RadarSource,
+    RawItem,
+    RefreshToken,
+    Source,
+    User,
+)
+
+__all__ = [
+    "AIUsageRecord",
+    "Analysis",
+    "Bookmark",
+    "CollectionRun",
+    "Document",
+    "DocumentChunk",
+    "Notification",
+    "Radar",
+    "RadarSource",
+    "RawItem",
+    "RefreshToken",
+    "Source",
+    "User",
+]

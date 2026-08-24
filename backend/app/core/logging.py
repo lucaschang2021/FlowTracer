@@ -16,6 +16,7 @@ SENSITIVE_KEY_PARTS = (
     "password",
     "token",
     "api_key",
+    "secret",
     "database_url",
     "redis_url",
     "content",

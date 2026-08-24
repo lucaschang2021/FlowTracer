@@ -1,0 +1,105 @@
+name: flowtracer
+
+services:
+  api:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    image: flowtracer-backend:be1
+    command:
+      - uvicorn
+      - app.main:app
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8000"
+      - --no-access-log
+    environment: &backend-environment
+      FLOWTRACER_ENV: development
+      FLOWTRACER_LOG_LEVEL: INFO
+      FLOWTRACER_APP_VERSION: 0.1.0
+      FLOWTRACER_API_HOST: 0.0.0.0
+      FLOWTRACER_API_PORT: "8000"
+      DATABASE_URL: postgresql+asyncpg://flowtracer:${POSTGRES_PASSWORD:-flowtracer-local-only}@postgres:5432/flowtracer
+      REDIS_URL: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health/live', timeout=2)"
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  worker:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    image: flowtracer-backend:be1
+    command:
+      - celery
+      - --quiet
+      - -A
+      - app.tasks.celery_app:celery_app
+      - worker
+      - --loglevel=WARNING
+    environment: *backend-environment
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - "celery -A app.tasks.celery_app:celery_app inspect ping -d celery@$${HOSTNAME} --timeout 4 | grep -q pong"
+      interval: 10s
+      timeout: 6s
+      retries: 10
+      start_period: 10s
+
+  postgres:
+    image: pgvector/pgvector:0.8.6-pg16-bookworm
+    environment:
+      POSTGRES_DB: flowtracer
+      POSTGRES_USER: flowtracer
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-flowtracer-local-only}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U flowtracer -d flowtracer"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  redis:
+    image: redis:7.4.11-alpine3.21
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 3s
+
+volumes:
+  postgres_data:
+  redis_data:

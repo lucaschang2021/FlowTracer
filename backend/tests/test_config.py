@@ -43,3 +43,14 @@ def test_invalid_secret_configuration_is_safely_reported(
 def test_test_database_name_is_explicit(test_environment: None) -> None:
     settings = Settings()
     assert "_test" in settings.database_url.get_secret_value().rsplit("/", maxsplit=1)[-1]
+
+
+def test_missing_jwt_secret_fails_fast_without_value(
+    monkeypatch: pytest.MonkeyPatch,
+    test_environment: None,
+) -> None:
+    monkeypatch.delenv("JWT_SECRET")
+    with pytest.raises(ConfigurationError) as error:
+        load_settings()
+    assert "JWT_SECRET" in str(error.value)
+    assert "unit-test-jwt-secret" not in str(error.value)

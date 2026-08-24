@@ -11,10 +11,16 @@ TEST_ENV = {
     "FLOWTRACER_APP_VERSION": "0.1.0",
     "FLOWTRACER_API_HOST": "127.0.0.1",
     "FLOWTRACER_API_PORT": "8000",
-    "DATABASE_URL": "postgresql+asyncpg://flowtracer:unit-test@localhost:5432/flowtracer_test",
+    "DATABASE_URL": "postgresql+asyncpg://flowtracer:flowtracer-local-only@localhost:5432/flowtracer_test",
+    "TEST_DATABASE_URL": "postgresql+asyncpg://flowtracer:flowtracer-local-only@localhost:5432/flowtracer_test",
     "REDIS_URL": "redis://localhost:6379/15",
     "CELERY_BROKER_URL": "redis://localhost:6379/15",
     "CELERY_RESULT_BACKEND": "redis://localhost:6379/14",
+    "JWT_SECRET": "unit-test-jwt-secret-at-least-32-bytes-long",
+    "ACCESS_TOKEN_TTL_MINUTES": "15",
+    "REFRESH_TOKEN_TTL_DAYS": "30",
+    "JWT_ISSUER": "flowtracer-api",
+    "JWT_AUDIENCE": "flowtracer-desktop",
 }
 
 for key, value in TEST_ENV.items():

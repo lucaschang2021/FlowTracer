@@ -20,6 +20,7 @@ def test_structured_logging_contract_and_redaction(
         message="Checking redaction",
         authorization=f"Bearer {secret}",
         database_url=f"postgresql://user:{secret}@db/name",
+        jwt_secret=secret,
         nested={"api_key": secret, "safe": "visible"},
     )
 
@@ -28,6 +29,7 @@ def test_structured_logging_contract_and_redaction(
     assert secret not in output
     assert record["authorization"] == "[REDACTED]"
     assert record["database_url"] == "[REDACTED]"
+    assert record["jwt_secret"] == "[REDACTED]"  # noqa: S105
     assert record["nested"] == {"api_key": "[REDACTED]", "safe": "visible"}
     assert {
         "timestamp",

@@ -119,3 +119,9 @@ pending -> cleaning -> deduplicating -> analyzing -> embedding -> ready
 - 全部 Alpha 实体的字段类型、可空性、约束、索引、外键删除策略与枚举以 `docs/05-BE2-DATA-AUTH-BASELINE.md` 为准。
 - Auth/User 的请求响应、状态码、JWT Claims、Refresh Token 轮换与安全要求以该文件为准。
 - BE-2 只开放 Auth/User API；Radar 及后续业务接口仍按 Phase 门禁实施。
+
+## 10. BE-3 Radar/Source 契约补充
+
+- Radar、Source、状态与绑定 Endpoint 的请求响应、分页筛选、状态码和错误码以 `docs/06-BE3-RADAR-SOURCE-BASELINE.md` 为准。
+- Source URL 规范化在 BE-3 只用于身份和去重，不发起网络请求；BE-4 仍必须实施完整 SSRF 防护。
+- BE-3 不创建 CollectionRun、RawItem 或采集任务，不实现后续 Pipeline。

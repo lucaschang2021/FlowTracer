@@ -96,12 +96,20 @@
 - 认证：密码使用 Argon2id；Access Token 使用 15 分钟 HS256 JWT；Refresh Token 使用 30 天可撤销、单次轮换的 opaque Token，数据库只保存 SHA-256。
 - 约束：BE-2 只实现 Auth/User API；其他实体仅建立模型与迁移，不提前实现 BE-3+ 业务。
 
+## ADR-015：BE-3 Radar/Source 资源与 URL 身份契约
+
+- 状态：Accepted
+- 决策：Radar、Source 与绑定 API、分页筛选、状态转换、所有权、软删除及错误码以 `docs/06-BE3-RADAR-SOURCE-BASELINE.md` 为准。
+- URL 身份：BE-3 使用确定性纯函数生成 `normalized_url` 并完成用户内去重，不访问网络；SSRF 与重定向逐跳校验仍属于 BE-4。
+- 删除：Radar/Source 软删除并物理清理绑定，不级联删除另一侧资源。
+
+
 ## 后续阶段前仍需补齐的工程规格
 
 以下事项不改变 Alpha 架构初步冻结结论，但必须由总控在对应实现阶段准入前补齐，不得由 Backend 擅自决定：
 
 - 采集与分析状态机、错误码、重试次数及死信处理。
-- BE-3+ API 请求/响应模型、筛选和排序细节。
+- BE-4+ API 请求/响应模型、筛选和排序细节。
 - WebSocket 鉴权、事件 Envelope、顺序与重复处理规则。
 - 四维评分的范围、默认权重、阈值及解释字段。
 - Prompt、模型输出 JSON Schema 和降级处理。

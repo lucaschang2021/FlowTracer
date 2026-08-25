@@ -51,6 +51,7 @@
 - Market/Business/Policy 等领域专用分析器。
 - 大规模通用爬虫、浏览器自动化反爬对抗。
 - 移动端、网页端和 AgentOS 集成。
+- Obsidian 双向同步、知识图谱自动维护、跨 Agent 长期上下文编译等高级 Knowledge Layer 能力。
 
 ## 4. 工程原则
 
@@ -109,3 +110,121 @@
 - 尚未准入：BE-2 及后续 Backend Phase、Frontend、Integration、Release。
 - 当前代码状态：`main` 跟踪 `origin/main`；尚无后端业务实现。
 
+## 8. Memory 演进边界（接任总控必须遵守）
+
+### 8.1 Alpha Memory 定义
+
+FlowTracer 的 Memory 是核心产品能力，不是后续附加功能。Alpha 继续严格实现已经冻结的内部 Memory：
+
+```text
+Document / Analysis
+      ↓
+DocumentChunk + Embedding
+      ↓
+PostgreSQL + pgvector
+      ↓
+Bookmark + /memory/search
+      ↓
+基础知识库 UI
+```
+
+Alpha 阶段 PostgreSQL + pgvector 是唯一事实数据源（Source of Truth）。不得因为 Obsidian、Notion、Logseq 或其他外部知识工具的出现而替换、绕过或削弱现有内部 Memory 数据模型与检索契约。
+
+### 8.2 Memory 分层模型
+
+接任总控将 FlowTracer Memory 视为三层演进，而不是单一“知识库页面”：
+
+```text
+L1 Raw / Evidence Memory
+- RawItem
+- Document
+- Analysis
+- DocumentChunk
+- Embedding
+
+L2 Semantic / User Memory
+- Bookmark
+- User Notes
+- Semantic Search
+- Related Content
+- Personal Knowledge Base
+
+L3 Knowledge Memory（Future）
+- Topic
+- Entity
+- Value Thread
+- Research Idea
+- Backlinks
+- Knowledge Projection
+- Agent Context
+```
+
+Alpha v0.1 仅交付 L1 + L2 所需能力；L3 仅允许设计和记录，不得越过阶段门禁提前实现。
+
+### 8.3 Obsidian 的正式定位
+
+Obsidian 不作为 FlowTracer 的运行时依赖，也不替代内部数据库和 Memory Engine。
+
+正式定位为：**FlowTracer Knowledge Projection / Export Target**。
+
+目标关系：
+
+```text
+Internet
+  ↓
+FlowTracer Acquisition
+  ↓
+Intelligence Engine
+  ↓
+Memory Engine
+  ├─ Internal Memory → PostgreSQL + pgvector
+  └─ Knowledge Projection → Markdown / Obsidian（Future）
+```
+
+原则：
+
+- PostgreSQL + pgvector 始终保存机器可检索、可验证、可隔离的核心事实与向量数据。
+- Obsidian 负责面向人的长期知识表达与整理，不保存 FlowTracer 业务状态的唯一副本。
+- 第一阶段优先实现通用 `Markdown Export`，而不是直接绑定 Obsidian API 或插件。
+- Obsidian-compatible 能力建立在 Markdown 之上，包括 YAML frontmatter、`[[wikilinks]]`、tags、Daily Notes、Topics、Entities、Value Threads 等。
+- 任何未来 Obsidian 集成都必须通过独立 Adapter / Exporter 边界接入，不得将 Obsidian 特有逻辑渗透到 Intelligence、Ingestion、Database 等核心领域模块。
+
+### 8.4 后续推荐演进顺序
+
+在 Alpha v0.1 完成并通过发布门禁之后，接任总控可按以下顺序评估：
+
+1. `KnowledgeExporter` 抽象接口。
+2. 通用 `MarkdownExporter`。
+3. Obsidian-compatible Markdown：双链、frontmatter、tags、Daily Notes。
+4. Topics / Entities / Value Threads 等结构化知识投影。
+5. Obsidian 单向导出与增量更新。
+6. 在明确需求、冲突策略和安全边界后，再评估 Obsidian → FlowTracer 双向读取。
+7. 最后再评估将个人知识作为 GPT/Codex 等 Agent 的 Context Source，实现长期 Agent Context。
+
+不得将第 5–7 项提前纳入 Alpha。
+
+### 8.5 与外部 Claude/Codex + Obsidian 项目的关系
+
+可研究现有 Claude/Codex + Obsidian 开源项目的知识组织方式，包括 source note、实体页、双链、笔记更新策略和 Agent 检索方式，但原则上只吸收经过验证的设计思想，不直接将第三方项目作为 FlowTracer 核心 Memory 的替代品。
+
+FlowTracer 的差异化边界保持为：
+
+```text
+外部知识工具：用户提供内容 → AI 整理和记忆
+FlowTracer：主动发现内容 → AI 判断价值 → 形成情报 → 进入长期 Memory
+```
+
+因此，未来 Obsidian 集成应增强 FlowTracer 的长期知识沉淀能力，而不能改变 FlowTracer 作为“主动发现与理解信息”的核心定位。
+
+## 9. 接任总控的变更禁令
+
+除非重新走正式 ADR、影响分析与阶段准入流程，否则接任总控不得：
+
+- 为接入 Obsidian 重构 Alpha 数据闭环。
+- 用 Obsidian/Markdown 替代 PostgreSQL + pgvector。
+- 提前实现知识图谱、Neo4j 或复杂实体关系系统。
+- 在 Alpha 阶段增加 GPT/Codex/AgentOS 运行时耦合。
+- 因新发现的第三方开源项目改变已冻结的 Backend Phase 交付顺序。
+- 将 Knowledge Projection 与核心业务数据库做不可逆双向耦合。
+
+任何未来 Memory / Obsidian 提案必须首先回答：是否保持 Alpha Source of Truth、是否通过 Adapter 边界、是否影响当前阶段、是否有真实用户验证。

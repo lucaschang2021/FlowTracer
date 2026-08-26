@@ -1,0 +1,5 @@
+# FlowTracer 项目级默认设置：保持旗舰开发质量，通过流程瘦身降低消耗。
+model = "gpt-5.6-sol"
+model_reasoning_effort = "medium"
+model_verbosity = "low"
+model_reasoning_summary = "concise"

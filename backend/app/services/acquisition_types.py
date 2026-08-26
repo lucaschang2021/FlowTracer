@@ -30,6 +30,7 @@ class RawCandidate:
     title: str | None = None
     published_at: datetime | None = None
     metadata: dict[str, Any] = field(default_factory=dict)
+    dedupe_by_canonical: bool = True
 
 
 @dataclass(frozen=True, slots=True)

@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import asyncio
+import gc
 import gzip
+import tracemalloc
 
 import pytest
 
@@ -10,6 +12,7 @@ from app.services.acquisition_types import CollectionError
 from app.services.safe_fetcher import (
     MAX_REDIRECTS,
     MAX_RESPONSE_BYTES,
+    WIRE_READ_CHUNK,
     SafeFetcher,
     WireResponse,
     _decode_body,
@@ -152,6 +155,91 @@ async def test_decoded_body_accepts_exact_five_mib_boundary() -> None:
     reader.feed_data(body)
     reader.feed_eof()
     assert await _decode_body(reader, {}) == body
+
+    compressed_reader = asyncio.StreamReader()
+    compressed_reader.feed_data(gzip.compress(body))
+    compressed_reader.feed_eof()
+    assert await _decode_body(compressed_reader, {"content-encoding": "gzip"}) == body
+
+
+@pytest.mark.asyncio
+async def test_compression_bomb_is_bounded_and_stops_wire_read_early() -> None:
+    compressed = gzip.compress(b"x" * (80 * 1024 * 1024))
+
+    class TrackingReader:
+        def __init__(self, body: bytes) -> None:
+            self.body = body
+            self.position = 0
+            self.read_sizes: list[int] = []
+
+        async def read(self, size: int = -1) -> bytes:
+            self.read_sizes.append(size)
+            if self.position >= len(self.body):
+                return b""
+            end = min(self.position + size, len(self.body))
+            chunk = self.body[self.position : end]
+            self.position = end
+            return chunk
+
+    reader = TrackingReader(compressed)
+    gc.collect()
+    tracemalloc.start()
+    try:
+        with pytest.raises(CollectionError) as raised:
+            await _decode_body(  # type: ignore[arg-type]
+                reader,
+                {"content-encoding": "gzip"},
+            )
+        _current, peak = tracemalloc.get_traced_memory()
+    finally:
+        tracemalloc.stop()
+    assert raised.value.code == "response_too_large"
+    assert peak < 16 * 1024 * 1024
+    assert reader.position < len(compressed)
+    assert max(reader.read_sizes) <= WIRE_READ_CHUNK
+
+
+@pytest.mark.asyncio
+async def test_giant_chunk_declaration_never_requests_a_giant_readexactly() -> None:
+    class GiantChunkReader:
+        def __init__(self) -> None:
+            self.read_sizes: list[int] = []
+
+        async def readline(self) -> bytes:
+            return b"ffffffff\r\n"
+
+        async def readexactly(self, size: int) -> bytes:
+            self.read_sizes.append(size)
+            raise AssertionError("wire budget must reject before reading")
+
+    reader = GiantChunkReader()
+    with pytest.raises(CollectionError) as raised:
+        await _decode_body(  # type: ignore[arg-type]
+            reader,
+            {"transfer-encoding": "chunked"},
+        )
+    assert raised.value.code == "response_too_large"
+    assert reader.read_sizes == []
+
+
+@pytest.mark.asyncio
+async def test_valid_chunk_body_is_read_in_fixed_size_segments() -> None:
+    class RecordingReader(asyncio.StreamReader):
+        def __init__(self) -> None:
+            super().__init__()
+            self.read_sizes: list[int] = []
+
+        async def readexactly(self, size: int) -> bytes:
+            self.read_sizes.append(size)
+            return await super().readexactly(size)
+
+    body = b"x" * (WIRE_READ_CHUNK * 2 + 17)
+    reader = RecordingReader()
+    reader.feed_data(f"{len(body):x}\r\n".encode() + body + b"\r\n0\r\n\r\n")
+    reader.feed_eof()
+    assert await _decode_body(reader, {"transfer-encoding": "chunked"}) == body
+    body_reads = [size for size in reader.read_sizes if size != 2]
+    assert body_reads == [WIRE_READ_CHUNK, WIRE_READ_CHUNK, 17]
 
 
 @pytest.mark.asyncio

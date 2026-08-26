@@ -15,6 +15,8 @@ from app.services.acquisition_types import CollectionError, FetchResponse
 
 USER_AGENT = "FlowTracer-Alpha/0.1 (+controlled-acquisition)"
 MAX_RESPONSE_BYTES = 5 * 1024 * 1024
+MAX_WIRE_BYTES = 10 * 1024 * 1024
+WIRE_READ_CHUNK = 64 * 1024
 MAX_REDIRECTS = 5
 CONNECT_TIMEOUT = 5.0
 READ_TIMEOUT = 15.0
@@ -137,39 +139,95 @@ def _body_decoder(encoding: str) -> Any:
 async def _decode_body(reader: asyncio.StreamReader, headers: dict[str, str]) -> bytes:
     decoder = _body_decoder(headers.get("content-encoding", ""))
     output = bytearray()
+    wire_bytes = 0
 
-    def append(chunk: bytes, *, final: bool = False) -> None:
+    def append(chunk: bytes) -> None:
+        nonlocal wire_bytes
+        wire_bytes += len(chunk)
+        if wire_bytes > MAX_WIRE_BYTES:
+            raise CollectionError("response_too_large", "Response wire size is too large")
+        if decoder is None:
+            remaining_plus_one = MAX_RESPONSE_BYTES - len(output) + 1
+            output.extend(chunk[:remaining_plus_one])
+            if len(output) > MAX_RESPONSE_BYTES:
+                raise CollectionError("response_too_large", "Response exceeds 5 MiB")
+            return
+
+        pending = chunk
         try:
-            decoded = (
-                decoder.flush()
-                if final and decoder
-                else decoder.decompress(chunk)
-                if decoder
-                else chunk
-            )
+            while pending:
+                remaining_plus_one = MAX_RESPONSE_BYTES - len(output) + 1
+                decoded = decoder.decompress(pending, remaining_plus_one)
+                output.extend(decoded)
+                if len(output) > MAX_RESPONSE_BYTES:
+                    raise CollectionError("response_too_large", "Response exceeds 5 MiB")
+                if decoder.unused_data:
+                    raise CollectionError("http_error", "Compressed response has trailing data")
+                tail = decoder.unconsumed_tail
+                if tail == pending and not decoded:
+                    raise CollectionError("http_error", "Response decompression made no progress")
+                pending = tail
         except zlib.error:
             raise CollectionError("http_error", "Response decompression failed") from None
-        output.extend(decoded)
-        if len(output) > MAX_RESPONSE_BYTES:
-            raise CollectionError("response_too_large", "Response exceeds 5 MiB")
 
     if headers.get("transfer-encoding", "").lower() == "chunked":
         while True:
             line = await asyncio.wait_for(reader.readline(), timeout=READ_TIMEOUT)
+            if len(line) > 128:
+                raise CollectionError("http_error", "Malformed chunked response")
             try:
                 length = int(line.split(b";", 1)[0].strip(), 16)
             except ValueError:
                 raise CollectionError("http_error", "Malformed chunked response") from None
             if length == 0:
-                await asyncio.wait_for(reader.readline(), timeout=READ_TIMEOUT)
+                trailer_bytes = 0
+                while True:
+                    trailer = await asyncio.wait_for(reader.readline(), timeout=READ_TIMEOUT)
+                    trailer_bytes += len(trailer)
+                    if trailer_bytes > 64 * 1024:
+                        raise CollectionError("http_error", "Chunk trailers are too large")
+                    if trailer in {b"\r\n", b"\n", b""}:
+                        break
                 break
-            chunk = await asyncio.wait_for(reader.readexactly(length), timeout=READ_TIMEOUT)
-            await asyncio.wait_for(reader.readexactly(2), timeout=READ_TIMEOUT)
-            append(chunk)
+            if length < 0 or wire_bytes + length > MAX_WIRE_BYTES:
+                raise CollectionError("response_too_large", "Response wire size is too large")
+            remaining = length
+            while remaining:
+                read_size = min(remaining, WIRE_READ_CHUNK)
+                chunk = await asyncio.wait_for(reader.readexactly(read_size), timeout=READ_TIMEOUT)
+                append(chunk)
+                remaining -= len(chunk)
+            terminator = await asyncio.wait_for(reader.readexactly(2), timeout=READ_TIMEOUT)
+            if terminator != b"\r\n":
+                raise CollectionError("http_error", "Malformed chunked response")
     else:
-        while chunk := await _read_with_timeout(reader, 64 * 1024):
+        content_length = headers.get("content-length")
+        if content_length is not None:
+            try:
+                declared_length = int(content_length)
+            except ValueError:
+                raise CollectionError("http_error", "Malformed Content-Length") from None
+            if declared_length < 0:
+                raise CollectionError("http_error", "Malformed Content-Length")
+            if declared_length > MAX_WIRE_BYTES:
+                raise CollectionError("response_too_large", "Response wire size is too large")
+        while chunk := await _read_with_timeout(reader, WIRE_READ_CHUNK):
             append(chunk)
-    append(b"", final=True)
+
+    if decoder is not None:
+        if not decoder.eof:
+            raise CollectionError("http_error", "Compressed response is incomplete")
+        try:
+            flush_size = min(
+                MAX_RESPONSE_BYTES - len(output) + 1,
+                WIRE_READ_CHUNK,
+            )
+            flushed = decoder.flush(flush_size)
+        except zlib.error:
+            raise CollectionError("http_error", "Response decompression failed") from None
+        output.extend(flushed)
+        if len(output) > MAX_RESPONSE_BYTES:
+            raise CollectionError("response_too_large", "Response exceeds 5 MiB")
     return bytes(output)
 
 

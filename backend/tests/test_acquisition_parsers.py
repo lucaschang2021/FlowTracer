@@ -48,6 +48,8 @@ def test_rss_and_atom_extract_stable_fields_and_partial_failures() -> None:
     )
     candidate = parse_feed(without_id_or_link).candidates[0]
     assert candidate.external_id == hashlib.sha256(b"hash me").hexdigest()
+    assert candidate.canonical_url == "https://example.com/feed/index.xml"
+    assert not candidate.dedupe_by_canonical
 
 
 @pytest.mark.parametrize(

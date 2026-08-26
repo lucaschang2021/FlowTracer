@@ -401,6 +401,59 @@ async def test_worker_is_idempotent_partial_and_applies_three_level_deduplicatio
 
 
 @pytest.mark.asyncio
+async def test_feed_entries_without_links_remain_distinct_and_repeat_deduplicates(
+    acquisition_client: tuple[AsyncClient, list[tuple[str, str]]],
+    acquisition_engine: AsyncEngine,
+) -> None:
+    client, _ = acquisition_client
+    headers = await auth_headers(client, "linkless-feed@example.com")
+    source_id = await create_source(client, headers)
+    factory = async_sessionmaker(acquisition_engine, expire_on_commit=False)
+
+    async def create_run(key: str) -> UUID:
+        response = await client.post(
+            f"/api/v1/sources/{source_id}/collect",
+            headers={**headers, "Idempotency-Key": key},
+        )
+        assert response.status_code == 202
+        return UUID(response.json()["run_id"])
+
+    feed = b"""<rss><channel>
+      <item><guid>guid-a</guid><description>guid content A</description></item>
+      <item><guid>guid-b</guid><description>guid content B</description></item>
+      <item><description>hash content C</description></item>
+      <item><description>hash content D</description></item>
+    </channel></rss>"""
+    first_run_id = await create_run("linkless-first")
+    second_run_id = await create_run("linkless-second")
+    assert await execute_run(
+        factory,
+        first_run_id,
+        fetcher=StaticFetcher(feed),  # type: ignore[arg-type]
+    )
+    assert await execute_run(
+        factory,
+        second_run_id,
+        fetcher=StaticFetcher(feed),  # type: ignore[arg-type]
+    )
+
+    async with AsyncSession(acquisition_engine) as session:
+        first = await session.get(CollectionRun, first_run_id)
+        second = await session.get(CollectionRun, second_run_id)
+        items = list(
+            (
+                await session.scalars(select(RawItem).where(RawItem.source_id == UUID(source_id)))
+            ).all()
+        )
+        assert first is not None and second is not None
+        assert (first.created_count, first.duplicate_count) == (4, 0)
+        assert (second.created_count, second.duplicate_count) == (0, 4)
+        assert len(items) == 4
+        assert len({item.external_id for item in items}) == 4
+        assert {item.canonical_url for item in items} == {"https://example.com/feed.xml"}
+
+
+@pytest.mark.asyncio
 async def test_scheduler_multi_instance_creates_one_run_per_minute(
     acquisition_client: tuple[AsyncClient, list[tuple[str, str]]],
     acquisition_engine: AsyncEngine,

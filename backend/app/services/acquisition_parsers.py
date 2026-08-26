@@ -112,6 +112,7 @@ def parse_feed(response: FetchResponse) -> ParseResult:
                     title=title,
                     published_at=_published(published_value),
                     metadata=metadata,
+                    dedupe_by_canonical=link is not None,
                 )
             )
         except CollectionError:

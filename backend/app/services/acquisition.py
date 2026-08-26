@@ -334,14 +334,14 @@ async def execute_run(
             duplicates = 0
             for candidate in parsed.candidates:
                 content_hash = hashlib.sha256(candidate.raw_text.encode("utf-8")).hexdigest()
+                dedupe_predicates = [RawItem.external_id == candidate.external_id]
+                if candidate.dedupe_by_canonical:
+                    dedupe_predicates.append(RawItem.canonical_url == candidate.canonical_url)
+                dedupe_predicates.append(RawItem.content_hash == content_hash)
                 duplicate = await session.scalar(
                     select(RawItem.id).where(
                         RawItem.source_id == source.id,
-                        or_(
-                            RawItem.external_id == candidate.external_id,
-                            RawItem.canonical_url == candidate.canonical_url,
-                            RawItem.content_hash == content_hash,
-                        ),
+                        or_(*dedupe_predicates),
                     )
                 )
                 if duplicate is not None:

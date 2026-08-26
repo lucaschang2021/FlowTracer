@@ -243,6 +243,62 @@ async def test_valid_chunk_body_is_read_in_fixed_size_segments() -> None:
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("declared", "code"),
+    [
+        ("invalid", "http_error"),
+        ("-1", "http_error"),
+        (str(10 * 1024 * 1024 + 1), "response_too_large"),
+    ],
+)
+async def test_content_length_wire_defense_rejects_invalid_or_oversized_values(
+    declared: str,
+    code: str,
+) -> None:
+    reader = asyncio.StreamReader()
+    reader.feed_eof()
+    with pytest.raises(CollectionError) as raised:
+        await _decode_body(reader, {"content-length": declared})
+    assert raised.value.code == code
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "body",
+    [
+        gzip.compress(b"content")[:-3],
+        gzip.compress(b"content") + b"trailing",
+    ],
+)
+async def test_compressed_stream_must_be_complete_and_have_no_trailing_data(
+    body: bytes,
+) -> None:
+    reader = asyncio.StreamReader()
+    reader.feed_data(body)
+    reader.feed_eof()
+    with pytest.raises(CollectionError) as raised:
+        await _decode_body(reader, {"content-encoding": "gzip"})
+    assert raised.value.code == "http_error"
+
+
+@pytest.mark.asyncio
+async def test_chunk_framing_rejects_oversized_header_and_invalid_terminator() -> None:
+    oversized_header = asyncio.StreamReader()
+    oversized_header.feed_data(b"1" * 129 + b"\r\n")
+    oversized_header.feed_eof()
+    with pytest.raises(CollectionError) as header_error:
+        await _decode_body(oversized_header, {"transfer-encoding": "chunked"})
+    assert header_error.value.code == "http_error"
+
+    invalid_terminator = asyncio.StreamReader()
+    invalid_terminator.feed_data(b"1\r\nxZZ0\r\n\r\n")
+    invalid_terminator.feed_eof()
+    with pytest.raises(CollectionError) as terminator_error:
+        await _decode_body(invalid_terminator, {"transfer-encoding": "chunked"})
+    assert terminator_error.value.code == "http_error"
+
+
+@pytest.mark.asyncio
 async def test_transient_retries_use_frozen_backoff() -> None:
     attempts = 0
     delays: list[float] = []

@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from app.api.v1.routes.auth import router as auth_router
+from app.api.v1.routes.collection_runs import router as collection_runs_router
 from app.api.v1.routes.health import router as health_router
 from app.api.v1.routes.radars import router as radars_router
 from app.api.v1.routes.sources import router as sources_router
@@ -12,3 +13,8 @@ api_router.include_router(auth_router, prefix="/auth", tags=["auth"])
 api_router.include_router(users_router, prefix="/users", tags=["users"])
 api_router.include_router(radars_router, prefix="/radars", tags=["radars"])
 api_router.include_router(sources_router, prefix="/sources", tags=["sources"])
+api_router.include_router(
+    collection_runs_router,
+    prefix="/collection-runs",
+    tags=["collection-runs"],
+)

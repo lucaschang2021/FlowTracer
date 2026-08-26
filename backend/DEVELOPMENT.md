@@ -1,7 +1,8 @@
 # Backend development
 
-BE-2 adds the complete Alpha relational model plus the Auth/User API. Radar, Source, collection,
-AI, embedding, notification, and WebSocket business APIs remain out of scope.
+BE-4 adds RSS/Atom and single-page URL acquisition to the existing Auth/User and Radar/Source
+APIs. Document cleaning, AI, embedding, notification, WebSocket, deep crawling, and manual retry
+remain out of scope.
 
 ## Requirements
 
@@ -25,7 +26,7 @@ checked-in value is only a local example.
 
 ```powershell
 uv run uvicorn app.main:app --host 127.0.0.1 --port 8000 --no-access-log
-uv run celery -A app.tasks.celery_app:celery_app worker --loglevel=INFO
+uv run celery -A app.tasks.celery_app:celery_app worker --beat --loglevel=INFO
 ```
 
 Apply and verify migrations:
@@ -50,4 +51,22 @@ Auth/User endpoints:
 - `GET /api/v1/users/me`
 - `PATCH /api/v1/users/me`
 
-Health endpoints and request-ID behavior from BE-1 remain unchanged.
+Acquisition endpoints:
+
+- `POST /api/v1/sources/{source_id}/collect`
+- `GET /api/v1/sources/{source_id}/runs`
+- `GET /api/v1/collection-runs/{run_id}`
+- `GET /api/v1/collection-runs/{run_id}/items`
+
+The optional `Idempotency-Key` header on manual collection is printable ASCII, trimmed, and
+limited to 128 characters. The API commits a queued run before broker dispatch; the periodic
+dispatcher recovers queued runs after transient broker failures.
+
+All acquisition requests go through the controlled fetcher: only HTTP(S) ports 80/443 are
+allowed, every redirect is DNS/IP revalidated, the validated IP is bound to the connection, and
+responses enforce fixed time and post-decompression size limits. Tests inject resolvers and
+transports and never access public networks. Source config, credentials, URL query strings, and
+response bodies must never be logged.
+
+BE-4 does not add a database migration. Health endpoints and request-ID behavior from BE-1 remain
+unchanged.

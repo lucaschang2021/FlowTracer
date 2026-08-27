@@ -137,3 +137,10 @@ pending -> cleaning -> deduplicating -> analyzing -> embedding -> ready
 - BE-5 开放 `GET /intelligence`、`GET /intelligence/{analysis_id}` 与 `POST /analyses/{analysis_id}/retry`；所有查询必须经 Radar 所有权隔离。
 - 固定 `pipeline_version=alpha-v1`、`prompt_version=intelligence-v1`；模型不提供综合分和 Recommendation，服务端按冻结 Decimal 公式计算。
 - BE-5 终点为 `Document.status=embedding`；DocumentChunk、Embedding、Memory、Bookmark、Notification 和 WebSocket 仍未准入。
+
+## 13. BE-6 Vector Memory 契约补充
+
+- 切块、Embedding Provider、1536 维校验、Chunk 幂等、HNSW cosine 索引、错误和恢复边界以 `docs/09-BE6-MEMORY-BASELINE.md` 为准。
+- BE-6 开放 Bookmark CRUD 与 `POST /memory/search`，并为 Intelligence 响应增加 `bookmarked`；查询结果以 Analysis 为单位，Top-K 最大 50。
+- 普通访问通过当前用户 Radar 的 completed Analysis 获得；合法创建的 Bookmark 形成用户对 Document 的持久知识库授权。所有权必须在 SQL 查询中实施。
+- BE-6 终点为 `Document.status=ready`；Notification、WebSocket、CollectionRun retry 和 BE-7+ 仍未准入。

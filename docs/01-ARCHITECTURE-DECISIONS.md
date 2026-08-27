@@ -111,16 +111,22 @@
 - 可靠性：API 先持久化运行再投递，dispatcher 补偿遗留 queued 运行；scheduler 和 worker 必须能承受重复投递与多实例并发。
 - 边界：BE-4 只产生 RawItem，不创建 Document；手动运行重试接口与后续 Pipeline 延后。
 
+## ADR-017：BE-5 Intelligence Pipeline、Provider 与评分契约
+
+- 状态：Accepted
+- 决策：BE-5 的清洗、Document 全局强哈希去重、Analysis 状态机、Provider 接口、严格输出 Schema、评分/成本算法、Intelligence API 与错误码以 `docs/08-BE5-INTELLIGENCE-BASELINE.md` 为准。
+- Provider：业务层只依赖统一 Protocol；Alpha 仅实现确定性 Fake Provider 与一个 Operator 配置的 OpenAI-compatible 远程 Provider，不引入模型 Router 或自动回退。
+- 可靠性：RawItem、Document 和 Analysis 以数据库锁、唯一约束、dispatcher 与失联恢复实现至少一次投递下的幂等；远程 AI 调用不得发生在数据库事务内。
+- 评分：模型只返回四维整数和解释；综合分、Recommendation、通知阈值资格及成本均由服务端以 Decimal 确定性计算。
+- 边界：BE-5 完成后 Document 进入 `embedding`，不创建 DocumentChunk、向量、Notification 或 WebSocket 事件。
+
 
 ## 后续阶段前仍需补齐的工程规格
 
 以下事项不改变 Alpha 架构初步冻结结论，但必须由总控在对应实现阶段准入前补齐，不得由 Backend 擅自决定：
 
-- 分析状态机、错误码、重试次数及死信处理。
-- BE-5+ API 请求/响应模型、筛选和排序细节。
+- BE-6+ API 请求/响应模型、筛选和排序细节。
 - WebSocket 鉴权、事件 Envelope、顺序与重复处理规则。
-- 四维评分的范围、默认权重、阈值及解释字段。
-- Prompt、模型输出 JSON Schema 和降级处理。
 - 检索查询流程、Top-K、用户隔离及召回验收指标。
 - 本地配置矩阵、端口、健康检查和可观测性字段。
 

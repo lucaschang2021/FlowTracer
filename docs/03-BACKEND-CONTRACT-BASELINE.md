@@ -130,3 +130,10 @@ pending -> cleaning -> deduplicating -> analyzing -> embedding -> ready
 
 - RSS、单页 URL、运行与 RawItem API、调度、状态、去重、错误和安全边界以 `docs/07-BE4-ACQUISITION-BASELINE.md` 为准。
 - BE-4 只创建 RawItem，不创建 Document；清洗、AI、Embedding、通知、WebSocket 和手动 retry Endpoint 仍未准入。
+
+## 12. BE-5 Intelligence 契约补充
+
+- RawItem 清洗、Document 强哈希去重、Analysis 状态机、Provider、Prompt/输出 Schema、评分、成本、错误和恢复边界以 `docs/08-BE5-INTELLIGENCE-BASELINE.md` 为准。
+- BE-5 开放 `GET /intelligence`、`GET /intelligence/{analysis_id}` 与 `POST /analyses/{analysis_id}/retry`；所有查询必须经 Radar 所有权隔离。
+- 固定 `pipeline_version=alpha-v1`、`prompt_version=intelligence-v1`；模型不提供综合分和 Recommendation，服务端按冻结 Decimal 公式计算。
+- BE-5 终点为 `Document.status=embedding`；DocumentChunk、Embedding、Memory、Bookmark、Notification 和 WebSocket 仍未准入。

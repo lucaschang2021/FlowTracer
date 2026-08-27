@@ -5,7 +5,7 @@ services:
     build:
       context: ../backend
       dockerfile: Dockerfile
-    image: flowtracer-backend:be2
+    image: flowtracer-backend:be4
     command:
       - uvicorn
       - app.main:app
@@ -51,13 +51,14 @@ services:
     build:
       context: ../backend
       dockerfile: Dockerfile
-    image: flowtracer-backend:be2
+    image: flowtracer-backend:be4
     command:
       - celery
       - --quiet
       - -A
       - app.tasks.celery_app:celery_app
       - worker
+      - --beat
       - --loglevel=WARNING
     environment: *backend-environment
     depends_on:

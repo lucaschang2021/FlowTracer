@@ -8,6 +8,7 @@ dependencies = [
   "alembic>=1.16,<2",
   "asyncpg>=0.30,<1",
   "celery[redis]>=5.5,<6",
+  "defusedxml>=0.7,<1",
   "fastapi>=0.116,<1",
   "argon2-cffi>=25,<26",
   "email-validator>=2.2,<3",
@@ -73,5 +74,5 @@ module = ["celery.*"]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
-module = ["asyncpg.*", "argon2.*"]
+module = ["asyncpg.*", "argon2.*", "defusedxml.*"]
 ignore_missing_imports = true

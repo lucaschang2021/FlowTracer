@@ -1,13 +1,24 @@
+import asyncio
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query, Response, status
+from fastapi import APIRouter, Depends, Header, Query, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import get_current_user, get_session
-from app.models.entities import ResourceStatus, Source, SourceType, User
+from app.core.context import correlation_id_context
+from app.core.errors import AppError
+from app.models.entities import (
+    CollectionRunStatus,
+    CollectionTriggerType,
+    ResourceStatus,
+    Source,
+    SourceType,
+    User,
+)
+from app.schemas.acquisition import CollectionQueuedResponse, CollectionRunPage
 from app.schemas.errors import documented_error
 from app.schemas.resources import SourceCreate, SourcePage, SourceResponse, SourceUpdate
-from app.services import resources
+from app.services import acquisition, resources
 
 router = APIRouter(
     responses={
@@ -15,6 +26,7 @@ router = APIRouter(
         404: documented_error("Resource not found"),
         409: documented_error("Resource conflict"),
         422: documented_error("Invalid request"),
+        503: documented_error("Collection queue unavailable"),
     }
 )
 
@@ -100,4 +112,70 @@ async def resume_source(
 ) -> Source:
     return await resources.set_source_status(
         session, user_id=user.id, source_id=source_id, target=ResourceStatus.ACTIVE
+    )
+
+
+@router.post(
+    "/{source_id}/collect",
+    response_model=CollectionQueuedResponse,
+    status_code=status.HTTP_202_ACCEPTED,
+)
+async def collect_source(
+    source_id: UUID,
+    request: Request,
+    response: Response,
+    idempotency_key: str | None = Header(None, alias="Idempotency-Key"),
+    user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+) -> CollectionQueuedResponse:
+    run, _created = await acquisition.create_manual_run(
+        session,
+        user_id=user.id,
+        source_id=source_id,
+        idempotency_key=idempotency_key,
+    )
+    response.headers["Location"] = f"/api/v1/collection-runs/{run.id}"
+    if run.status == CollectionRunStatus.QUEUED:
+        try:
+            dispatcher = getattr(request.app.state, "collection_dispatcher", None)
+            if dispatcher is None:
+                from app.tasks.acquisition import enqueue_collection
+
+                dispatcher = enqueue_collection
+            await asyncio.to_thread(
+                dispatcher,
+                str(run.id),
+                correlation_id_context.get() or str(run.id),
+            )
+        except Exception:
+            await acquisition.mark_queue_failure(session, run.id)
+            raise AppError(
+                status_code=503,
+                code="collection_queue_unavailable",
+                message="Collection queue is temporarily unavailable",
+            ) from None
+    return CollectionQueuedResponse(run_id=run.id, status=run.status)
+
+
+@router.get("/{source_id}/runs", response_model=CollectionRunPage)
+async def list_source_runs(
+    source_id: UUID,
+    page: int = Query(1, ge=1),
+    page_size: int = Query(20, ge=1, le=100),
+    status_filter: CollectionRunStatus | None = Query(None, alias="status"),
+    trigger_type: CollectionTriggerType | None = None,
+    user: User = Depends(get_current_user),
+    session: AsyncSession = Depends(get_session),
+) -> CollectionRunPage:
+    items, total = await acquisition.list_source_runs(
+        session,
+        user_id=user.id,
+        source_id=source_id,
+        page=page,
+        page_size=page_size,
+        status=status_filter,
+        trigger_type=trigger_type,
+    )
+    return CollectionRunPage.model_validate(
+        {"items": items, "page": page, "page_size": page_size, "total": total}
     )

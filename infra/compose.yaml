@@ -5,7 +5,7 @@ services:
     build:
       context: ../backend
       dockerfile: Dockerfile
-    image: flowtracer-backend:be5
+    image: flowtracer-backend:be6
     command:
       - uvicorn
       - app.main:app
@@ -33,6 +33,11 @@ services:
       AI_MODEL: flowtracer-fake-v1
       AI_INPUT_COST_PER_MILLION: "0"
       AI_OUTPUT_COST_PER_MILLION: "0"
+      EMBEDDING_PROVIDER: fake
+      EMBEDDING_MODEL: flowtracer-fake-embedding-v1
+      EMBEDDING_INPUT_COST_PER_MILLION: "0"
+      EMBEDDING_CHUNK_SIZE: "1200"
+      EMBEDDING_CHUNK_OVERLAP: "200"
     ports:
       - "8000:8000"
     depends_on:
@@ -55,7 +60,7 @@ services:
     build:
       context: ../backend
       dockerfile: Dockerfile
-    image: flowtracer-backend:be5
+    image: flowtracer-backend:be6
     command:
       - celery
       - --quiet

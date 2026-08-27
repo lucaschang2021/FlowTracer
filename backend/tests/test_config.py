@@ -92,3 +92,23 @@ def test_ai_rates_must_be_finite(
         load_settings()
     assert "AI_INPUT_COST_PER_MILLION" in str(error.value)
     assert value not in str(error.value)
+
+
+def test_embedding_configuration_is_conditional_safe_and_bounded(
+    monkeypatch: pytest.MonkeyPatch, test_environment: None
+) -> None:
+    monkeypatch.setenv("EMBEDDING_PROVIDER", "openai_compatible")
+    monkeypatch.delenv("EMBEDDING_BASE_URL", raising=False)
+    monkeypatch.delenv("EMBEDDING_API_KEY", raising=False)
+    with pytest.raises(ConfigurationError) as error:
+        load_settings()
+    assert str(error.value) == (
+        "Invalid or missing configuration variables: EMBEDDING_API_KEY, EMBEDDING_BASE_URL"
+    )
+    monkeypatch.setenv("EMBEDDING_PROVIDER", "fake")
+    monkeypatch.setenv("EMBEDDING_CHUNK_SIZE", "256")
+    monkeypatch.setenv("EMBEDDING_CHUNK_OVERLAP", "256")
+    with pytest.raises(ConfigurationError) as error:
+        load_settings()
+    assert "EMBEDDING_CHUNK_OVERLAP" in str(error.value)
+    assert "256" not in str(error.value)

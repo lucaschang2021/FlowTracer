@@ -5,6 +5,7 @@ from app.api.v1.routes.collection_runs import router as collection_runs_router
 from app.api.v1.routes.health import router as health_router
 from app.api.v1.routes.intelligence import analyses_router
 from app.api.v1.routes.intelligence import router as intelligence_router
+from app.api.v1.routes.memory import bookmark_router, memory_router
 from app.api.v1.routes.radars import router as radars_router
 from app.api.v1.routes.sources import router as sources_router
 from app.api.v1.routes.users import router as users_router
@@ -22,3 +23,5 @@ api_router.include_router(
 )
 api_router.include_router(intelligence_router, prefix="/intelligence", tags=["intelligence"])
 api_router.include_router(analyses_router, prefix="/analyses", tags=["analyses"])
+api_router.include_router(bookmark_router, prefix="/bookmarks", tags=["bookmarks"])
+api_router.include_router(memory_router, prefix="/memory", tags=["memory"])

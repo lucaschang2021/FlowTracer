@@ -9,12 +9,14 @@ from app.core.context import bind_context, reset_context
 from app.core.logging import get_logger
 from app.db.session import create_database_engine, create_session_factory
 from app.providers.analysis import build_provider
+from app.providers.embedding import build_embedding_provider
 from app.services.cleaning import clean_raw_item, dispatch_fetched_raw_items
 from app.services.intelligence import (
     dispatch_pending_analyses,
     recover_stale_analyses,
     run_analysis,
 )
+from app.services.memory import dispatch_embedding_documents, run_embedding
 from app.tasks.celery_app import celery_app
 
 
@@ -32,6 +34,10 @@ def enqueue_raw_item(raw_item_id: str, correlation_id: str) -> None:
 
 def enqueue_analysis(analysis_id: str, correlation_id: str) -> None:
     analyze_document.apply_async(args=[analysis_id], kwargs={"correlation_id": correlation_id})
+
+
+def enqueue_embedding(document_id: str, correlation_id: str) -> None:
+    embed_document.apply_async(args=[document_id], kwargs={"correlation_id": correlation_id})
 
 
 @celery_app.task(bind=True, name="flowtracer.tasks.intelligence.process_raw_item")  # type: ignore[untyped-decorator]
@@ -90,6 +96,29 @@ def analyze_document(self: Any, analysis_id: str, correlation_id: str | None = N
         reset_context(tokens)
 
 
+@celery_app.task(
+    bind=True,
+    name="flowtracer.tasks.intelligence.embed_document",
+    soft_time_limit=120,
+    time_limit=150,
+)  # type: ignore[untyped-decorator]
+def embed_document(self: Any, document_id: str, correlation_id: str | None = None) -> bool:
+    resolved = correlation_id or str(self.request.id)
+    tokens = bind_context(request_id=resolved, correlation_id=resolved)
+    try:
+        settings = get_settings()
+        provider = build_embedding_provider(settings)
+        return bool(
+            asyncio.run(
+                _with_database(
+                    lambda factory: run_embedding(factory, UUID(document_id), provider, settings)
+                )
+            )
+        )
+    finally:
+        reset_context(tokens)
+
+
 @celery_app.task(name="flowtracer.tasks.intelligence.dispatch_fetched_raw_items")  # type: ignore[untyped-decorator]
 def dispatch_raw_items() -> int:
     return int(
@@ -111,3 +140,12 @@ def dispatch_analyses() -> int:
 @celery_app.task(name="flowtracer.tasks.intelligence.recover_stale_analyses")  # type: ignore[untyped-decorator]
 def recover_analyses() -> int:
     return int(asyncio.run(_with_database(recover_stale_analyses)))
+
+
+@celery_app.task(name="flowtracer.tasks.intelligence.dispatch_embedding_documents")  # type: ignore[untyped-decorator]
+def dispatch_embeddings() -> int:
+    return int(
+        asyncio.run(
+            _with_database(lambda factory: dispatch_embedding_documents(factory, enqueue_embedding))
+        )
+    )

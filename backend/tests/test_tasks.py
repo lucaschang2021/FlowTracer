@@ -67,6 +67,7 @@ async def test_acquisition_database_wrapper_always_disposes(
 def test_intelligence_task_wrappers_and_dispatch(monkeypatch: pytest.MonkeyPatch) -> None:
     raw_sent: list[tuple[list[str], dict[str, str]]] = []
     analysis_sent: list[tuple[list[str], dict[str, str]]] = []
+    embedding_sent: list[tuple[list[str], dict[str, str]]] = []
     monkeypatch.setattr(
         intelligence.process_raw_item,
         "apply_async",
@@ -77,12 +78,20 @@ def test_intelligence_task_wrappers_and_dispatch(monkeypatch: pytest.MonkeyPatch
         "apply_async",
         lambda args, kwargs: analysis_sent.append((args, kwargs)),
     )
+    monkeypatch.setattr(
+        intelligence.embed_document,
+        "apply_async",
+        lambda args, kwargs: embedding_sent.append((args, kwargs)),
+    )
     item_id = str(uuid4())
     analysis_id = str(uuid4())
+    document_id = str(uuid4())
     intelligence.enqueue_raw_item(item_id, "raw-correlation")
     intelligence.enqueue_analysis(analysis_id, "analysis-correlation")
+    intelligence.enqueue_embedding(document_id, "embedding-correlation")
     assert raw_sent == [([item_id], {"correlation_id": "raw-correlation"})]
     assert analysis_sent == [([analysis_id], {"correlation_id": "analysis-correlation"})]
+    assert embedding_sent == [([document_id], {"correlation_id": "embedding-correlation"})]
 
     async def return_one(_operation: object) -> int:
         return 1
@@ -90,9 +99,11 @@ def test_intelligence_task_wrappers_and_dispatch(monkeypatch: pytest.MonkeyPatch
     monkeypatch.setattr(intelligence, "_with_database", return_one)
     assert intelligence.process_raw_item.apply(args=[item_id]).get() is True
     assert intelligence.analyze_document.apply(args=[analysis_id]).get() is True
+    assert intelligence.embed_document.apply(args=[document_id]).get() is True
     assert intelligence.dispatch_raw_items.apply().get() == 1
     assert intelligence.dispatch_analyses.apply().get() == 1
     assert intelligence.recover_analyses.apply().get() == 1
+    assert intelligence.dispatch_embeddings.apply().get() == 1
 
 
 @pytest.mark.asyncio

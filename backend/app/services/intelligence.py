@@ -11,7 +11,7 @@ from typing import Any
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
-from sqlalchemy import func, select, update
+from sqlalchemy import exists, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.core.config import Settings
@@ -21,6 +21,7 @@ from app.models.entities import (
     AIUsageRecord,
     Analysis,
     AnalysisStatus,
+    Bookmark,
     Document,
     DocumentStatus,
     Radar,
@@ -504,7 +505,15 @@ async def list_intelligence(
         predicates.append(Analysis.category == category)
     if min_score is not None:
         predicates.append(Analysis.radar_score >= min_score)
-    statement = _owned_statement(user_id).where(*predicates)
+    bookmarked = exists(
+        select(Bookmark.id).where(
+            Bookmark.user_id == user_id,
+            Bookmark.document_id == Document.id,
+        )
+    )
+    statement = (
+        _owned_statement(user_id).add_columns(bookmarked.label("bookmarked")).where(*predicates)
+    )
     count_statement = (
         select(func.count())
         .select_from(Analysis)
@@ -520,12 +529,18 @@ async def list_intelligence(
         )
     ).all()
     return [
-        _response_data(row.Analysis, row.Document, include_content=False) for row in rows
+        _response_data(
+            row.Analysis,
+            row.Document,
+            include_content=False,
+            bookmarked=bool(row.bookmarked),
+        )
+        for row in rows
     ], total
 
 
 def _response_data(
-    analysis: Analysis, document: Document, *, include_content: bool
+    analysis: Analysis, document: Document, *, include_content: bool, bookmarked: bool
 ) -> dict[str, Any]:
     data = {
         "id": analysis.id,
@@ -549,6 +564,7 @@ def _response_data(
         "prompt_version": analysis.prompt_version,
         "provider": analysis.provider,
         "model": analysis.model,
+        "bookmarked": bookmarked,
         "created_at": analysis.created_at,
         "updated_at": analysis.updated_at,
     }
@@ -568,7 +584,19 @@ async def intelligence_detail(
     analysis, document, _radar = await get_owned_analysis(
         session, user_id=user_id, analysis_id=analysis_id
     )
-    return _response_data(analysis, document, include_content=True)
+    bookmarked = bool(
+        await session.scalar(
+            select(
+                exists(
+                    select(Bookmark.id).where(
+                        Bookmark.user_id == user_id,
+                        Bookmark.document_id == document.id,
+                    )
+                )
+            )
+        )
+    )
+    return _response_data(analysis, document, include_content=True, bookmarked=bookmarked)
 
 
 async def retry_analysis(session: AsyncSession, *, user_id: UUID, analysis_id: UUID) -> Analysis:

@@ -40,12 +40,19 @@ def collect_source(self: Any, run_id: str, correlation_id: str | None = None) ->
                         UUID(run_id),
                         correlation_id=resolved_correlation_id,
                         task_id=str(self.request.id),
+                        raw_dispatch=_enqueue_raw_item,
                     )
                 )
             )
         )
     finally:
         reset_context(tokens)
+
+
+def _enqueue_raw_item(raw_item_id: str, correlation_id: str) -> None:
+    from app.tasks.intelligence import enqueue_raw_item
+
+    enqueue_raw_item(raw_item_id, correlation_id)
 
 
 @celery_app.task(name="flowtracer.tasks.acquisition.schedule_due_sources")  # type: ignore[untyped-decorator]

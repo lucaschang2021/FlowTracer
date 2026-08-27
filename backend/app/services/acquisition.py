@@ -307,6 +307,7 @@ async def execute_run(
     fetcher: SafeFetcher | None = None,
     correlation_id: str | None = None,
     task_id: str | None = None,
+    raw_dispatch: Dispatch | None = None,
 ) -> bool:
     started = time.monotonic()
     source = await _claim_run(factory, run_id)
@@ -331,6 +332,7 @@ async def execute_run(
                 await session.rollback()
                 return False
             created = 0
+            created_raw_items: list[RawItem] = []
             duplicates = 0
             for candidate in parsed.candidates:
                 content_hash = hashlib.sha256(candidate.raw_text.encode("utf-8")).hexdigest()
@@ -347,22 +349,22 @@ async def execute_run(
                 if duplicate is not None:
                     duplicates += 1
                     continue
-                session.add(
-                    RawItem(
-                        source_id=source.id,
-                        collection_run_id=run.id,
-                        external_id=candidate.external_id,
-                        canonical_url=candidate.canonical_url,
-                        title=candidate.title,
-                        published_at=candidate.published_at,
-                        fetched_at=datetime.now(UTC),
-                        content_type=candidate.content_type,
-                        raw_text=candidate.raw_text,
-                        content_hash=content_hash,
-                        item_metadata=candidate.metadata,
-                        status=RawItemStatus.FETCHED,
-                    )
+                raw_item = RawItem(
+                    source_id=source.id,
+                    collection_run_id=run.id,
+                    external_id=candidate.external_id,
+                    canonical_url=candidate.canonical_url,
+                    title=candidate.title,
+                    published_at=candidate.published_at,
+                    fetched_at=datetime.now(UTC),
+                    content_type=candidate.content_type,
+                    raw_text=candidate.raw_text,
+                    content_hash=content_hash,
+                    item_metadata=candidate.metadata,
+                    status=RawItemStatus.FETCHED,
                 )
+                session.add(raw_item)
+                created_raw_items.append(raw_item)
                 created += 1
             run.fetched_count = parsed.fetched_count
             run.created_count = created
@@ -378,6 +380,18 @@ async def execute_run(
             run.error_message = None
             locked_source.last_fetched_at = run.finished_at
             await session.commit()
+        if raw_dispatch is not None:
+            for raw_item in created_raw_items:
+                try:
+                    raw_dispatch(str(raw_item.id), correlation_id or str(raw_item.id))
+                except Exception:
+                    get_logger().warning(
+                        "cleaning_queue_unavailable",
+                        message="Cleaning queue is temporarily unavailable",
+                        raw_item_id=str(raw_item.id),
+                        correlation_id=correlation_id,
+                        error_code="analysis_queue_unavailable",
+                    )
         get_logger().info(
             "collection_completed",
             message="Collection run completed",

@@ -21,6 +21,10 @@ TEST_ENV = {
     "REFRESH_TOKEN_TTL_DAYS": "30",
     "JWT_ISSUER": "flowtracer-api",
     "JWT_AUDIENCE": "flowtracer-desktop",
+    "AI_PROVIDER": "fake",
+    "AI_MODEL": "flowtracer-fake-v1",
+    "AI_INPUT_COST_PER_MILLION": "0",
+    "AI_OUTPUT_COST_PER_MILLION": "0",
 }
 
 for key, value in TEST_ENV.items():

@@ -5,7 +5,7 @@ services:
     build:
       context: ../backend
       dockerfile: Dockerfile
-    image: flowtracer-backend:be4
+    image: flowtracer-backend:be5
     command:
       - uvicorn
       - app.main:app
@@ -29,6 +29,10 @@ services:
       REFRESH_TOKEN_TTL_DAYS: "30"
       JWT_ISSUER: flowtracer-api
       JWT_AUDIENCE: flowtracer-desktop
+      AI_PROVIDER: fake
+      AI_MODEL: flowtracer-fake-v1
+      AI_INPUT_COST_PER_MILLION: "0"
+      AI_OUTPUT_COST_PER_MILLION: "0"
     ports:
       - "8000:8000"
     depends_on:
@@ -51,7 +55,7 @@ services:
     build:
       context: ../backend
       dockerfile: Dockerfile
-    image: flowtracer-backend:be4
+    image: flowtracer-backend:be5
     command:
       - celery
       - --quiet

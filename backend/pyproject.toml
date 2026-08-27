@@ -10,6 +10,7 @@ dependencies = [
   "celery[redis]>=5.5,<6",
   "defusedxml>=0.7,<1",
   "fastapi>=0.116,<1",
+  "httpx>=0.28,<1",
   "argon2-cffi>=25,<26",
   "email-validator>=2.2,<3",
   "pyjwt>=2.10,<3",
@@ -24,7 +25,6 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-  "httpx>=0.28,<1",
   "mypy>=1.16,<2",
   "pytest>=8.4,<10",
   "pytest-asyncio>=1,<2",

@@ -225,11 +225,15 @@ def _usage_int(value: Any) -> int:
 def _parse_response(content: bytes, expected: int) -> EmbeddingResponse:
     try:
         envelope = json.loads(content.decode("utf-8"), parse_constant=_reject_constant)
+        if not isinstance(envelope, dict):
+            raise ValueError("invalid envelope")
         data = envelope["data"]
         if not isinstance(data, list) or len(data) != expected:
             raise ValueError("invalid count")
         indexed: dict[int, tuple[float, ...]] = {}
         for item in data:
+            if not isinstance(item, dict):
+                raise ValueError("invalid data item")
             index = item["index"]
             if isinstance(index, bool) or not isinstance(index, int) or index in indexed:
                 raise ValueError("invalid index")
@@ -237,6 +241,8 @@ def _parse_response(content: bytes, expected: int) -> EmbeddingResponse:
         if set(indexed) != set(range(expected)):
             raise ValueError("invalid indexes")
         usage = envelope.get("usage", {})
+        if not isinstance(usage, dict):
+            raise ValueError("invalid usage")
         input_tokens = _usage_int(usage.get("prompt_tokens", 0))
         total_tokens = _usage_int(usage.get("total_tokens", input_tokens))
         if total_tokens < input_tokens:

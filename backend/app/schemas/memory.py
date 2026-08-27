@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 from decimal import Decimal
 from uuid import UUID
 
@@ -66,13 +66,19 @@ class MemorySearchRequest(StrictModel):
     date_to: datetime | None = None
     bookmarked_only: bool = False
 
-    @field_validator("query")
+    @field_validator("query", mode="before")
     @classmethod
-    def normalize_query(cls, value: str) -> str:
-        normalized = value.strip()
-        if not normalized:
-            raise ValueError("query must not be blank")
-        return normalized
+    def normalize_query(cls, value: object) -> object:
+        return value.strip() if isinstance(value, str) else value
+
+    @field_validator("date_from", "date_to")
+    @classmethod
+    def normalize_date(cls, value: datetime | None) -> datetime | None:
+        if value is None:
+            return None
+        if value.tzinfo is None or value.utcoffset() is None:
+            raise ValueError("date filters must include a UTC offset")
+        return value.astimezone(UTC)
 
     @model_validator(mode="after")
     def validate_dates(self) -> MemorySearchRequest:

@@ -46,6 +46,7 @@ from app.providers.embedding import (
     EmbeddingUsage,
     FakeEmbeddingProvider,
 )
+from app.schemas.memory import MemorySearchRequest
 from app.services.chunking import chunk_text
 from app.services.memory import (
     create_bookmark,
@@ -65,6 +66,18 @@ TABLES = (
 
 async def healthy_probe() -> None:
     return None
+
+
+def test_memory_search_dates_normalize_to_utc() -> None:
+    request = MemorySearchRequest.model_validate(
+        {
+            "query": "query",
+            "date_from": "2026-08-27T08:00:00+08:00",
+            "date_to": "2026-08-27T01:00:00+00:00",
+        }
+    )
+    assert request.date_from == datetime(2026, 8, 27, tzinfo=UTC)
+    assert request.date_to == datetime(2026, 8, 27, 1, tzinfo=UTC)
 
 
 @pytest.fixture
@@ -639,12 +652,18 @@ async def test_memory_search_topk_stable_multi_radar_date_and_similarity_boundar
     assert len(await search(top_k=1)) == 1
     radar_results = await search(radar_id=first_radar_id)
     assert [item["analysis_id"] for item in radar_results] == [first_analysis_id]
+    assert await search(radar_id=first_radar_id, bookmarked_only=True) == []
     bounded = await search(date_from=occurred_at, date_to=occurred_at)
     assert len(bounded) == 2
     assert await search(bookmarked_only=True) == []
     async with AsyncSession(memory_engine) as session:
         await create_bookmark(session, user_id=owner_id, document_id=document_id, note=None)
     assert len(await search(bookmarked_only=True)) == 2
+    combined = await search(radar_id=first_radar_id, bookmarked_only=True)
+    assert [item["analysis_id"] for item in combined] == [first_analysis_id]
+    with pytest.raises(AppError) as foreign:
+        await search(user_id=uuid4(), radar_id=first_radar_id, bookmarked_only=True)
+    assert foreign.value.status_code == 404 and foreign.value.code == "resource_not_found"
     query_vector = (await provider.embed(["identical-query"])).vectors[0]
     async with AsyncSession(memory_engine) as session:
         chunks = list(
@@ -684,7 +703,7 @@ async def test_memory_api_bookmark_lifecycle_filters_and_openapi(
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         owner_headers, owner_id = await register(client, "memory-api-owner@example.com")
         stranger_headers, _ = await register(client, "memory-api-stranger@example.com")
-        document_id, analysis_id, _, _ = await create_graph(
+        document_id, analysis_id, radar_id, _ = await create_graph(
             memory_engine,
             user_id=owner_id,
             published_at=datetime.now(UTC) - timedelta(days=1),
@@ -732,6 +751,26 @@ async def test_memory_api_bookmark_lifecycle_filters_and_openapi(
         assert searched.status_code == 200
         assert searched.json()["query"] == private_query
         assert searched.json()["items"][0]["analysis_id"] == str(analysis_id)
+        combined = await client.post(
+            "/api/v1/memory/search",
+            headers=owner_headers,
+            json={
+                "query": "memory content",
+                "radar_id": str(radar_id),
+                "bookmarked_only": True,
+            },
+        )
+        foreign_combined = await client.post(
+            "/api/v1/memory/search",
+            headers=stranger_headers,
+            json={
+                "query": "memory content",
+                "radar_id": str(radar_id),
+                "bookmarked_only": True,
+            },
+        )
+        assert combined.status_code == 200 and len(combined.json()["items"]) == 1
+        assert foreign_combined.status_code == 404
         invalid = await client.post(
             "/api/v1/memory/search",
             headers=owner_headers,
@@ -746,7 +785,57 @@ async def test_memory_api_bookmark_lifecycle_filters_and_openapi(
                 "date_to": "2026-08-27T00:00:00Z",
             },
         )
-        assert invalid.status_code == bad_dates.status_code == 422
+        query_at_limit = await client.post(
+            "/api/v1/memory/search",
+            headers=owner_headers,
+            json={"query": f"  {'x' * 4000}  "},
+        )
+        invalid_queries = [
+            await client.post(
+                "/api/v1/memory/search",
+                headers=owner_headers,
+                json={"query": "   "},
+            ),
+            await client.post(
+                "/api/v1/memory/search",
+                headers=owner_headers,
+                json={"query": f"  {'x' * 4001}  "},
+            ),
+        ]
+        invalid_dates = [
+            await client.post(
+                "/api/v1/memory/search",
+                headers=owner_headers,
+                json={"query": "x", "date_from": "2026-08-27T00:00:00"},
+            ),
+            await client.post(
+                "/api/v1/memory/search",
+                headers=owner_headers,
+                json={
+                    "query": "x",
+                    "date_from": "2026-08-27T00:00:00",
+                    "date_to": "2026-08-28T00:00:00Z",
+                },
+            ),
+        ]
+        valid_offset_dates = await client.post(
+            "/api/v1/memory/search",
+            headers=owner_headers,
+            json={
+                "query": "x",
+                "date_from": "2026-08-27T08:00:00+08:00",
+                "date_to": "2026-08-28T00:00:00Z",
+            },
+        )
+        assert query_at_limit.status_code == 200
+        assert query_at_limit.json()["query"] == "x" * 4000
+        assert valid_offset_dates.status_code == 200
+        validation_failures = [invalid, bad_dates, *invalid_queries, *invalid_dates]
+        assert all(response.status_code == 422 for response in validation_failures)
+        assert all(
+            response.json()["error"]["code"] == "invalid_request"
+            for response in validation_failures
+        )
         deleted = await client.delete(f"/api/v1/bookmarks/{bookmark_id}", headers=owner_headers)
         hidden_delete = await client.delete(
             f"/api/v1/bookmarks/{bookmark_id}", headers=stranger_headers

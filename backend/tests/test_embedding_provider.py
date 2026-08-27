@@ -158,7 +158,11 @@ async def test_openai_embedding_rejects_invalid_vectors(
 @pytest.mark.parametrize(
     "payload",
     [
+        None,
+        [],
         {"data": []},
+        {"data": [None]},
+        {"data": [[]]},
         {"data": [{"index": 1, "embedding": vector()}]},
         {"data": [{"index": True, "embedding": vector()}]},
         {
@@ -172,10 +176,13 @@ async def test_openai_embedding_rejects_invalid_vectors(
             "data": [{"index": 0, "embedding": vector()}],
             "usage": {"prompt_tokens": 2, "total_tokens": 1},
         },
+        {"data": [{"index": 0, "embedding": vector()}], "usage": None},
+        {"data": [{"index": 0, "embedding": vector()}], "usage": []},
+        {"data": [{"index": 0, "embedding": vector()}], "usage": "invalid"},
     ],
 )
 async def test_openai_embedding_rejects_count_index_and_usage_contract(
-    monkeypatch: pytest.MonkeyPatch, payload: dict[str, object]
+    monkeypatch: pytest.MonkeyPatch, payload: object
 ) -> None:
     body = json.dumps(payload).encode()
     client = httpx.AsyncClient(
@@ -188,6 +195,8 @@ async def test_openai_embedding_rejects_count_index_and_usage_contract(
         await provider.embed(["content"])
     await client.aclose()
     assert raised.value.code == "embedding_invalid_output"
+    assert raised.value.retryable is False
+    assert raised.value.safe_message == "Embedding returned invalid output"
 
 
 @pytest.mark.asyncio

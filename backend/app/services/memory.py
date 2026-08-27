@@ -571,9 +571,9 @@ async def search_memory(
         ]
         if radar_id is not None:
             conditions.extend([Analysis.radar_id == radar_id, Radar.deleted_at.is_(None)])
-        elif bookmarked_only:
+        if bookmarked_only:
             conditions.append(bookmark_exists)
-        else:
+        elif radar_id is None:
             conditions.append(or_(Radar.deleted_at.is_(None), bookmark_exists))
         if date_from is not None:
             conditions.append(occurred_at >= date_from)

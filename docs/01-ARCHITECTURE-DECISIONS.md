@@ -120,13 +120,21 @@
 - 评分：模型只返回四维整数和解释；综合分、Recommendation、通知阈值资格及成本均由服务端以 Decimal 确定性计算。
 - 边界：BE-5 完成后 Document 进入 `embedding`，不创建 DocumentChunk、向量、Notification 或 WebSocket 事件。
 
+## ADR-018：BE-6 Vector Memory、持久授权与检索契约
+
+- 状态：Accepted
+- 决策：BE-6 的确定性切块、Embedding Provider、向量校验、HNSW cosine 索引、Bookmark 与 Memory Search 以 `docs/09-BE6-MEMORY-BASELINE.md` 为准。
+- Provider：Embedding 与 Analysis 使用独立配置和 Protocol；Alpha 仅实现确定性 Fake 与一个 Operator 配置的 OpenAI-compatible Adapter，固定 1536 维，不引入 Router 或第二向量数据库。
+- 可靠性：Chunk 集合原子写入；重复投递以 session advisory lock、Document 状态和唯一约束幂等。远程调用不得发生在数据库事务或行锁内。
+- 权限：普通访问来自用户当前 Radar 的 completed Analysis；Bookmark 在创建时校验访问权，并形成该用户对 Document 的持久知识库授权。向量检索必须在 SQL 中应用所有权条件。
+- 检索：PostgreSQL + pgvector 使用 cosine distance 与 HNSW `vector_cosine_ops`；Top-K 最大 50，结果以 Analysis 为单位稳定排序。
+- 边界：BE-6 不创建 Notification、不发送 WebSocket 事件、不实现 BE-7+ 恢复接口。
+
 
 ## 后续阶段前仍需补齐的工程规格
 
 以下事项不改变 Alpha 架构初步冻结结论，但必须由总控在对应实现阶段准入前补齐，不得由 Backend 擅自决定：
 
-- BE-6+ API 请求/响应模型、筛选和排序细节。
 - WebSocket 鉴权、事件 Envelope、顺序与重复处理规则。
-- 检索查询流程、Top-K、用户隔离及召回验收指标。
 - 本地配置矩阵、端口、健康检查和可观测性字段。
 

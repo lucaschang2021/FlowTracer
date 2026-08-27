@@ -582,11 +582,20 @@ async def retry_analysis(session: AsyncSession, *, user_id: UUID, analysis_id: U
             code="analysis_not_retryable",
             message="Completed analysis cannot be retried",
         )
+    document = await session.scalar(
+        select(Document).where(Document.id == analysis.document_id).with_for_update()
+    )
+    if document is None:
+        await session.rollback()
+        raise AppError(status_code=404, code="resource_not_found", message="Resource not found")
     if analysis.status == AnalysisStatus.FAILED:
         analysis.status = AnalysisStatus.PENDING
         analysis.error_code = None
         analysis.error_message = None
         analysis.updated_at = datetime.now(UTC)
+    document.status = DocumentStatus.ANALYZING
+    document.error_code = None
+    document.error_message = None
     await session.commit()
     await session.refresh(analysis)
     return analysis

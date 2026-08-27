@@ -55,6 +55,7 @@ from app.services.intelligence import (
     qualifies_for_notification,
     recommendation_for,
     recover_stale_analyses,
+    retry_analysis,
     run_analysis,
     validate_output,
 )
@@ -369,6 +370,55 @@ async def test_concurrent_analysis_claim_calls_provider_once_and_all_failed_docu
         == 0
     )
     assert failures == []
+
+
+@pytest.mark.asyncio
+async def test_retry_restores_document_for_failed_pending_running_and_concurrency(
+    intelligence_engine: AsyncEngine,
+) -> None:
+    raw_id, _, user_id = await create_raw(intelligence_engine, raw_text="Retry state machine")
+    factory = async_sessionmaker(intelligence_engine, expire_on_commit=False)
+    cleaned = await clean_raw_item(factory, raw_id)
+    analysis_id = cleaned.analysis_ids[0]
+
+    async def force_state(status: AnalysisStatus) -> None:
+        async with AsyncSession(intelligence_engine) as session:
+            analysis = await session.get(Analysis, analysis_id)
+            document = await session.get(Document, cleaned.document_id)
+            assert analysis is not None and document is not None
+            analysis.status = status
+            analysis.error_code = "ai_timeout"
+            analysis.error_message = "AI request timed out"
+            document.status = DocumentStatus.FAILED
+            document.error_code = "internal_analysis_error"
+            document.error_message = "All analyses failed"
+            await session.commit()
+
+    async def retry_once() -> AnalysisStatus:
+        async with AsyncSession(intelligence_engine) as session:
+            result = await retry_analysis(session, user_id=user_id, analysis_id=analysis_id)
+            return result.status
+
+    await force_state(AnalysisStatus.FAILED)
+    assert await asyncio.gather(retry_once(), retry_once()) == [
+        AnalysisStatus.PENDING,
+        AnalysisStatus.PENDING,
+    ]
+    async with AsyncSession(intelligence_engine) as session:
+        analysis = await session.get(Analysis, analysis_id)
+        document = await session.get(Document, cleaned.document_id)
+        assert analysis is not None and analysis.status == AnalysisStatus.PENDING
+        assert analysis.error_code is None and analysis.error_message is None
+        assert document is not None and document.status == DocumentStatus.ANALYZING
+        assert document.error_code is None and document.error_message is None
+
+    for replay_status in (AnalysisStatus.PENDING, AnalysisStatus.RUNNING):
+        await force_state(replay_status)
+        assert await retry_once() == replay_status
+        async with AsyncSession(intelligence_engine) as session:
+            document = await session.get(Document, cleaned.document_id)
+            assert document is not None and document.status == DocumentStatus.ANALYZING
+            assert document.error_code is None and document.error_message is None
 
 
 @pytest.mark.parametrize(

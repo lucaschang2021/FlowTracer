@@ -10,6 +10,7 @@ import httpx
 from app.core.config import Settings
 
 MAX_AI_RESPONSE_BYTES = 256 * 1024
+MAX_AI_RAW_READ_BYTES = MAX_AI_RESPONSE_BYTES + 1
 MAX_PROMPT_CONTENT_CHARS = 24_000
 
 STRICT_OUTPUT_SCHEMA: dict[str, Any] = {
@@ -171,6 +172,7 @@ class OpenAICompatibleProvider:
                 self._url,
                 headers={
                     "Authorization": f"Bearer {self._api_key}",
+                    "Accept-Encoding": "identity",
                     "Content-Type": "application/json",
                     "User-Agent": "FlowTracer/0.1",
                 },
@@ -194,9 +196,31 @@ class OpenAICompatibleProvider:
                         "AI provider rejected the request",
                         retryable=False,
                     )
+                content_encoding = response.headers.get("content-encoding")
+                if content_encoding and content_encoding.strip().lower() != "identity":
+                    raise ProviderError(
+                        "ai_invalid_output",
+                        "AI response uses unsupported content encoding",
+                        retryable=False,
+                    )
+                content_length = response.headers.get("content-length")
+                if content_length is not None:
+                    normalized_length = content_length.strip()
+                    if not normalized_length.isascii() or not normalized_length.isdecimal():
+                        raise ProviderError(
+                            "ai_invalid_output",
+                            "AI response has an invalid content length",
+                            retryable=False,
+                        )
+                    if int(normalized_length) > MAX_AI_RESPONSE_BYTES:
+                        raise ProviderError(
+                            "ai_response_too_large",
+                            "AI response is too large",
+                            retryable=False,
+                        )
                 chunks: list[bytes] = []
                 size = 0
-                async for chunk in response.aiter_bytes():
+                async for chunk in response.aiter_raw(chunk_size=MAX_AI_RAW_READ_BYTES):
                     size += len(chunk)
                     if size > MAX_AI_RESPONSE_BYTES:
                         raise ProviderError(

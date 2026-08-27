@@ -1,14 +1,14 @@
 # FlowTracer 当前阶段闸门
 
-更新时间：2026-08-26。
+更新时间：2026-08-27。
 
-- 当前稳定基准：`main`，`722fc51`；BE-3 PR #8 已验收并合并，控制文档 PR #9 已合并。
-- 当前阶段：PM-006，BE-4 采集契约冻结与准入控制。
-- 准入：BE-4 仅在包含 `docs/07-BE4-ACQUISITION-BASELINE.md` 与 `docs/15-BE-4-ADMISSION.md` 的控制 PR 合并后生效；在此之前 Backend 不得正式开工。
-- 当前控制分支/PR：待创建 `chore/pm-be4-admission`；Backend 目标分支为 `feat/be-4`。
+- 当前稳定基准：`main@7955906259a64f34bc91f4db1eec30e807f3f29c`；BE-4 PR #11 已验收并合并。
+- 当前阶段：PM-007，BE-5 Intelligence 契约冻结与准入控制。
+- 准入：BE-5 仅在包含 `docs/08-BE5-INTELLIGENCE-BASELINE.md` 与 `docs/16-BE-5-ADMISSION.md` 的控制 PR 合并后生效；此前 Backend 必须停点。
+- 当前控制分支：`chore/pm-be5-admission`，GitHub PR #12（OPEN）；Backend 目标分支为 `feat/be-5`。
 
-开始任何后续任务前仅读取：本文件、`docs/02-DELIVERY-BOARD.md`、对应 Phase 的准入与基线文件；涉及接口/数据模型时追加 `docs/03-BACKEND-CONTRACT-BASELINE.md` 与相应 ADR。
+后续任务开始时只读取：本文件、`docs/02-DELIVERY-BOARD.md`、`docs/08-BE5-INTELLIGENCE-BASELINE.md`、`docs/16-BE-5-ADMISSION.md`、`docs/03-BACKEND-CONTRACT-BASELINE.md`、`docs/01-ARCHITECTURE-DECISIONS.md` 中 ADR-017，以及本次改动文件。无需回读全部历史基线。
 
-验收命令（仅在获准的最终待审 commit 上执行）：`py -m uv sync --locked`、`py -m uv run ruff check .`、`py -m uv run ruff format --check .`、`py -m uv run mypy app`、`py -m uv run pytest -q`、`py -m uv run alembic check`、`docker compose -f infra/compose.yaml config --quiet`；按阶段风险补充真实服务探活。
+最终候选验收：`py -m uv sync --locked`、`py -m uv run ruff check .`、`py -m uv run ruff format --check .`、`py -m uv run mypy app`、`py -m uv run pytest -q`、使用隔离测试库执行 `py -m uv run alembic check`、`docker compose -f infra/compose.yaml config --quiet`、`git diff --check`；补充无公网 Fake Provider、真实 PostgreSQL/Redis/Celery、无 Beat Worker、live/ready、同镜像非 root 复验。
 
-下一步：提交并合并 PM-006 控制 PR；随后创建全新的 Backend BE-4 任务，从最新 `origin/main` 建立 `feat/be-4`，完成后直接向总控汇报。BE-5、Frontend、Integration、Release 均未准入。
+下一步：Review 并合并 PM-007 控制文档 PR #12。合并后才可在现有 Backend 任务中从最新 `origin/main` 建立 `feat/be-5`，完成后直接向总控汇报。BE-6、Frontend、Integration、Release 均未准入。

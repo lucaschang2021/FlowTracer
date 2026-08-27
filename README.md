@@ -59,7 +59,7 @@ BE-6 的 Embedding、HNSW、Bookmark 和 Memory Search 目前属于已准入开�
 | Backend | Python 3.13、FastAPI、Pydantic、Celery |
 | 数据与迁移 | PostgreSQL、pgvector、SQLAlchemy 2.x Async、Alembic |
 | 任务与缓存 | Redis、Celery Worker/Beat |
-| 采集 | RSS、受控 HTTP(S) fetcher、Scrapling 页面提取 |
+| 采集 | RSS/Atom、受控 HTTP(S) fetcher、安全 HTML 解析 |
 | Intelligence | Provider 抽象、离线 Fake Provider、OpenAI-compatible Adapter |
 | API | REST `/api/v1`；WebSocket 属于未准入的 BE-7 |
 | Desktop 目标 | Tauri 2、React、TypeScript；Frontend 尚未准入 |
@@ -87,7 +87,10 @@ FlowTracer/
 ```bash
 git clone https://github.com/lucaschang2021/FlowTracer.git
 cd FlowTracer
-docker compose -f infra/compose.yaml up --build
+docker compose -f infra/compose.yaml build api
+docker compose -f infra/compose.yaml up -d --wait postgres redis
+docker compose -f infra/compose.yaml run --rm api alembic upgrade head
+docker compose -f infra/compose.yaml up -d api worker
 ```
 
 API 启动后可检查存活状态：
@@ -191,7 +194,7 @@ BE-6 embeddings, HNSW, Bookmark, and Memory Search are admitted development scop
 | Backend | Python 3.13, FastAPI, Pydantic, Celery |
 | Data and migrations | PostgreSQL, pgvector, SQLAlchemy 2.x Async, Alembic |
 | Tasks and cache | Redis, Celery Worker/Beat |
-| Acquisition | RSS, controlled HTTP(S) fetcher, Scrapling page extraction |
+| Acquisition | RSS/Atom, controlled HTTP(S) fetcher, secure HTML parsing |
 | Intelligence | Provider abstraction, offline Fake Provider, OpenAI-compatible adapter |
 | API | REST `/api/v1`; WebSocket belongs to the not-yet-admitted BE-7 phase |
 | Desktop target | Tauri 2, React, TypeScript; Frontend is not admitted |
@@ -219,7 +222,10 @@ Requirements: Git, Docker Desktop with Linux containers, and Docker Compose.
 ```bash
 git clone https://github.com/lucaschang2021/FlowTracer.git
 cd FlowTracer
-docker compose -f infra/compose.yaml up --build
+docker compose -f infra/compose.yaml build api
+docker compose -f infra/compose.yaml up -d --wait postgres redis
+docker compose -f infra/compose.yaml run --rm api alembic upgrade head
+docker compose -f infra/compose.yaml up -d api worker
 ```
 
 After the API starts, check liveness:

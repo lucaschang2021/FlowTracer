@@ -314,12 +314,24 @@ async def test_worker_is_idempotent_partial_and_applies_three_level_deduplicatio
       <link>https://example.com/canonical-1</link><description>same content</description>
       </item></channel></rss>"""
     first_fetcher = StaticFetcher(first_feed)
+    raw_dispatches: list[str] = []
     outcomes = await asyncio.gather(
-        execute_run(factory, first_run, fetcher=first_fetcher),  # type: ignore[arg-type]
-        execute_run(factory, first_run, fetcher=first_fetcher),  # type: ignore[arg-type]
+        execute_run(
+            factory,
+            first_run,
+            fetcher=first_fetcher,  # type: ignore[arg-type]
+            raw_dispatch=lambda value, _correlation: raw_dispatches.append(value),
+        ),
+        execute_run(
+            factory,
+            first_run,
+            fetcher=first_fetcher,  # type: ignore[arg-type]
+            raw_dispatch=lambda value, _correlation: raw_dispatches.append(value),
+        ),
     )
     assert sorted(outcomes) == [False, True]
     assert first_fetcher.urls == ["https://example.com/feed.xml"]
+    assert len(raw_dispatches) == 1
 
     second_run = await new_run("worker-two")
     second_feed = b"""<rss><channel>

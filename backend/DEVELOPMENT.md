@@ -1,8 +1,9 @@
 # Backend development
 
-BE-4 adds RSS/Atom and single-page URL acquisition to the existing Auth/User and Radar/Source
-APIs. Document cleaning, AI, embedding, notification, WebSocket, deep crawling, and manual retry
-remain out of scope.
+BE-5 extends acquisition with deterministic cleaning, global Document deduplication, versioned
+Analysis processing, AI usage audit, retry/recovery, and Intelligence query APIs. Embedding,
+DocumentChunk generation, vector search, Bookmark, Notification, WebSocket, and BE-6+ remain out
+of scope.
 
 ## Requirements
 
@@ -23,6 +24,12 @@ uv run pytest
 Export the variables in `backend/.env.example` before starting host processes. Configuration is
 fail-fast and does not load `.env` implicitly. `JWT_SECRET` must contain at least 32 bytes; the
 checked-in value is only a local example.
+
+`AI_PROVIDER=fake` is deterministic and offline for local development and tests. The
+`openai_compatible` provider additionally requires `AI_BASE_URL` and `AI_API_KEY`; non-test URLs
+must use HTTPS without userinfo, query, fragment, or redirects. `AI_MODEL` and both non-negative
+per-million token rates are always explicit. Provider credentials, prompts, document content, and
+raw model responses must never be logged.
 
 ```powershell
 uv run uvicorn app.main:app --host 127.0.0.1 --port 8000 --no-access-log
@@ -58,6 +65,12 @@ Acquisition endpoints:
 - `GET /api/v1/collection-runs/{run_id}`
 - `GET /api/v1/collection-runs/{run_id}/items`
 
+Intelligence endpoints:
+
+- `GET /api/v1/intelligence`
+- `GET /api/v1/intelligence/{analysis_id}`
+- `POST /api/v1/analyses/{analysis_id}/retry`
+
 The optional `Idempotency-Key` header on manual collection is printable ASCII, trimmed, and
 limited to 128 characters. The API commits a queued run before broker dispatch; the periodic
 dispatcher recovers queued runs after transient broker failures.
@@ -70,3 +83,9 @@ response bodies must never be logged.
 
 BE-4 does not add a database migration. Health endpoints and request-ID behavior from BE-1 remain
 unchanged.
+
+BE-5 also adds 60-second compensation dispatchers for fetched RawItems and pending Analyses, plus
+recovery of Analysis rows left running for more than ten minutes. Analysis workers have a
+120-second soft and 150-second hard task limit; the provider call budget is 90 seconds. Cleaning
+and database state transitions commit before any AI request, and every actual provider call writes
+an independent AI usage record. BE-5 does not add a migration and stops Documents at `embedding`.

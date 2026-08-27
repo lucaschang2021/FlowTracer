@@ -4,7 +4,7 @@
 
 **M0：架构初步冻结 — 已完成**
 
-**当前阶段：Backend Phase BE-5 — Intelligence 契约冻结与准入控制**
+**当前阶段：Backend Phase BE-5 — 清洗、AI 分析、评分与成本实现**
 
 ## 工作项
 
@@ -30,8 +30,8 @@
 | BE-3 | Radar 与 Source 管理 | Backend | 完成（已验收、已合并） | PM-005 | PR #8、CRUD、绑定、URL 规范化、测试、OpenAPI 与阶段报告 |
 | PM-006 | BE-4 采集基线及准入 | 总控 | 完成 | BE-3 | `07-BE4-ACQUISITION-BASELINE.md`、`15-BE-4-ADMISSION.md`、PR #10 |
 | BE-4 | RSS、URL 采集与任务调度 | Backend | 完成（已验收、已合并） | PM-006 | PR #11、采集 Pipeline、测试、安全复审与阶段报告 |
-| PM-007 | BE-5 Intelligence 基线及准入 | 总控 | PR #12 待 Review/合并 | BE-4 | `08-BE5-INTELLIGENCE-BASELINE.md`、`16-BE-5-ADMISSION.md`、PR #12 |
-| BE-5 | 清洗、AI 分析、评分与成本 | Backend | 未准入（等待 PM-007 合并） | PM-007 | Document/Analysis、Provider、评分、Usage、Intelligence API、测试与阶段报告 |
+| PM-007 | BE-5 Intelligence 基线及准入 | 总控 | 完成 | BE-4 | `08-BE5-INTELLIGENCE-BASELINE.md`、`16-BE-5-ADMISSION.md`、PR #12 |
+| BE-5 | 清洗、AI 分析、评分与成本 | Backend | 已准入（开发进行中） | PM-007 | Document/Analysis、Provider、评分、Usage、Intelligence API、测试与阶段报告 |
 | BE-6..BE-8 | 后端 Memory、通知与稳定化 | Backend | 未准入 | 前一 Backend Phase 经总控验收 | 代码、迁移、测试、OpenAPI 与阶段报告 |
 | FE-001 | 前端实现 | Frontend | 未准入 | BE-8 经总控验收，后端契约稳定 | 桌面端与前端测试 |
 | INT-001 | 集成与缺陷修复 | Integration | 未准入 | BE-8、FE-001 | E2E 报告与缺陷闭环 |

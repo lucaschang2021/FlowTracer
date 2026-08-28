@@ -201,25 +201,29 @@ Phase：
 
 ### 目标
 
-为桌面端提供可靠的高价值事件和后台任务恢复能力。
+在不改变数据库 Schema 的前提下，为桌面端提供可恢复的 Notification 事实、按用户隔离的 WebSocket 在线事件与采集运行重试。
 
 ### 任务
 
-- 达到 Radar 阈值时幂等创建 Notification。
-- 实现通知列表、单条已读和全部已读。
-- 实现带 Access Token 鉴权的 `/api/v1/ws`。
-- 发送 `collection.updated`、`analysis.completed`、`notification.created`。
-- 实现统一 Event Envelope 和事件 ID。
-- 实现采集运行和分析的所有者手动重试接口。
-- 确保 WebSocket 断线不影响事实数据，REST 可以恢复状态。
+> 本阶段必须遵循 `docs/18-BE7-NOTIFICATION-WS-BASELINE.md` 与 `docs/19-BE-7-ADMISSION.md`；准入文件所在控制 PR 未合并时不得开始。
+
+- 按 active Radar 当前阈值、冻结优先级与既有唯一约束幂等创建 Notification，并以 60 秒 dispatcher 补偿遗漏。
+- 实现 Notification 列表筛选、稳定分页、单条幂等已读和同一 UTC 时间的 read-all；严格所有权与统一 404。
+- 实现只接受握手 Authorization Bearer Access Token 的 `/api/v1/ws`，覆盖 Token 到期、停用/删除用户、多连接与 4401。
+- 使用现有 Redis 按用户隔离 Pub/Sub；每连接队列固定 100，Redis 或背压失败关闭 1013，禁止全局广播后在 Python 过滤。
+- 在数据库提交后发布稳定 event ID 的 `collection.updated`、`analysis.completed`、`notification.created` 最小 Envelope；发布失败不回滚事实。
+- 新增所有者 `POST /collection-runs/{run_id}/retry`，创建新的 manual queued run，以 `retry:<original_run_id>` 实现并发和重复请求幂等。
+- 保持既有 Analysis retry 公开契约，补齐通知/事件衔接和完整回归；不得复制第二 Analysis retry Endpoint。
+- 复用现有 Notification、CollectionRun、Analysis 与 Redis，不新增表、列、枚举或迁移；若确需 Schema 变化先停点提交 ADR。
 
 ### 验收与停点
 
-- 同一 Analysis 不会产生重复通知。
-- 未认证 WebSocket 被拒绝，跨用户事件不可见。
-- 断线重连可通过 REST 补齐。
-- 重试具备所有权检查和审计日志。
-- 报告后停止，等待总控批准 BE-8。
+- Notification 阈值/优先级边界、并发唯一、历史补偿、REST、所有权及 Broker/Redis 失败测试通过。
+- WebSocket Header 鉴权、Token 到期、同用户多连接、两用户隔离、稳定 event ID、严格事件 Schema、100 队列背压与断线 REST 恢复通过。
+- CollectionRun retry 的原运行不变、新运行链式幂等、并发、失败链、状态/Source/所有权和 503 补偿通过；Analysis retry 全回归。
+- locked sync、Ruff/format/Mypy/Pytest 覆盖率不低于 85%、Alembic 零漂移且无迁移、Compose、真实 PostgreSQL/Redis/Celery、OpenAPI 与秘密扫描全部通过。
+- API/Worker 同镜像且非 root；使用无 Beat Worker 完成 Celery pong、live/ready 与真实 Redis Pub/Sub 复验。
+- 提交阶段报告后停止；未经总控书面许可不得合并或进入 BE-8。
 
 ## Phase BE-8：稳定化与前端交接
 

@@ -144,3 +144,12 @@ pending -> cleaning -> deduplicating -> analyzing -> embedding -> ready
 - BE-6 开放 Bookmark CRUD 与 `POST /memory/search`，并为 Intelligence 响应增加 `bookmarked`；查询结果以 Analysis 为单位，Top-K 最大 50。
 - 普通访问通过当前用户 Radar 的 completed Analysis 获得；合法创建的 Bookmark 形成用户对 Document 的持久知识库授权。所有权必须在 SQL 查询中实施。
 - BE-6 终点为 `Document.status=ready`；Notification、WebSocket、CollectionRun retry 和 BE-7+ 仍未准入。
+
+## 14. BE-7 Notification、WebSocket 与恢复契约补充
+
+- Notification 资格、优先级、字段、幂等、补偿 dispatcher、REST 和所有权以 `docs/18-BE7-NOTIFICATION-WS-BASELINE.md` 为准；只为达到当前 active Radar 阈值的 completed Analysis 创建事实记录。
+- WebSocket 固定为 `/api/v1/ws`，只接受握手 Authorization Bearer Access Token；Redis Pub/Sub 按用户隔离，Envelope 为 `{event_id,event_type,occurred_at,data}`，仅允许 `collection.updated`、`analysis.completed`、`notification.created`。
+- WebSocket 是 best-effort 在线信号，不持久化、不保证全局顺序；每连接队列上限 100，Redis/背压失败关闭 1013，认证失败或 Token 到期关闭 4401，客户端重连后通过 REST 恢复。
+- BE-7 新增 `POST /collection-runs/{run_id}/retry`，以新 manual queued run 和 `retry:<original_run_id>` 实现链式幂等；既有 `POST /analyses/{analysis_id}/retry` 契约保持兼容并补齐事件/通知回归。
+- 所有事件均在数据库事务提交后发布，发布或 Broker 失败不得回滚数据库事实；日志不得记录 payload、正文、Source config、Token、向量或异常堆栈。
+- BE-7 复用既有实体、约束和 Redis，不新增 Schema 或迁移；Tauri 原生通知、外部推送、邮件、Outbox/Kafka、团队权限和 BE-8+ 仍未准入。

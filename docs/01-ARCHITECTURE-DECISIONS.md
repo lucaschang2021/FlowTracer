@@ -130,11 +130,19 @@
 - 检索：PostgreSQL + pgvector 使用 cosine distance 与 HNSW `vector_cosine_ops`；Top-K 最大 50，结果以 Analysis 为单位稳定排序。
 - 边界：BE-6 不创建 Notification、不发送 WebSocket 事件、不实现 BE-7+ 恢复接口。
 
+## ADR-019：BE-7 Notification、WebSocket 在线事件与恢复契约
+
+- 状态：Accepted
+- 决策：BE-7 的 Notification 资格/优先级、REST、WebSocket 鉴权与事件、CollectionRun retry 及 Analysis retry 回归以 `docs/18-BE7-NOTIFICATION-WS-BASELINE.md` 为准。
+- 事实与信号：数据库是唯一事实源；Notification 和重试运行先提交再投递，WebSocket 仅提供 best-effort 在线信号，发布失败不得回滚事实，断线后以 REST 恢复。
+- 隔离：WebSocket 只接受握手 `Authorization: Bearer` Access Token；Redis Pub/Sub 按用户隔离，禁止广播后在 Python 客户端过滤；每连接队列固定上限 100。
+- 幂等：Notification 使用既有 `(user_id, analysis_id)` 唯一约束；CollectionRun retry 使用 `retry:<original_run_id>` 链式幂等键；事件 ID 对同一次事实变化稳定。
+- Schema：复用现有 Notification、CollectionRun、Analysis 与 Redis，不新增表、列、枚举或迁移；实现发现必须变更 Schema 时先停点提交 ADR。
+- 边界：BE-7 不实现 Tauri 原生通知、外部推送、邮件、持久事件总线/Outbox、Kafka、团队权限或 BE-8 内容。
 
 ## 后续阶段前仍需补齐的工程规格
 
 以下事项不改变 Alpha 架构初步冻结结论，但必须由总控在对应实现阶段准入前补齐，不得由 Backend 擅自决定：
 
-- WebSocket 鉴权、事件 Envelope、顺序与重复处理规则。
 - 本地配置矩阵、端口、健康检查和可观测性字段。
 

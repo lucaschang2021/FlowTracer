@@ -4,7 +4,7 @@
 
 **M0：架构初步冻结 — 已完成**
 
-**当前阶段：Backend Phase BE-6 — Vector Memory 与知识库接口（已准入）**
+**当前阶段：PM-009 — BE-7 Notification、WebSocket 与恢复基线及准入（待 Review/合并）**
 
 ## 工作项
 
@@ -33,8 +33,10 @@
 | PM-007 | BE-5 Intelligence 基线及准入 | 总控 | 完成 | BE-4 | `08-BE5-INTELLIGENCE-BASELINE.md`、`16-BE-5-ADMISSION.md`、PR #12 |
 | BE-5 | 清洗、AI 分析、评分与成本 | Backend | 完成（已验收、已合并） | PM-007 | PR #14、Document/Analysis、Provider、评分、Usage、Intelligence API、测试与阶段报告 |
 | PM-008 | BE-6 Vector Memory 基线及准入 | 总控 | 完成 | BE-5 | `09-BE6-MEMORY-BASELINE.md`、`17-BE-6-ADMISSION.md`、ADR-018、PR #15 |
-| BE-6 | Vector Memory 与知识库接口 | Backend | 已准入（开发进行中） | PM-008 | Chunk/Embedding、HNSW、Bookmark、Memory Search、测试与阶段报告 |
-| BE-7..BE-8 | 后端通知、WebSocket 与稳定化 | Backend | 未准入 | 前一 Backend Phase 经总控验收 | 代码、迁移、测试、OpenAPI 与阶段报告 |
+| BE-6 | Vector Memory 与知识库接口 | Backend | 完成（已验收、已合并） | PM-008 | PR #19、Chunk/Embedding、HNSW、Bookmark、Memory Search、测试与阶段报告 |
+| PM-009 | BE-7 Notification/WebSocket/恢复基线及准入 | 总控 | 待 Review/合并 | BE-6 | `18-BE7-NOTIFICATION-WS-BASELINE.md`、`19-BE-7-ADMISSION.md`、ADR-019 |
+| BE-7 | Notification、WebSocket 与恢复 | Backend | 未准入（待 PM-009 合并） | PM-009 | Notification、在线事件、CollectionRun retry、Analysis retry 回归、测试与阶段报告 |
+| BE-8 | 后端稳定化与前端交接 | Backend | 未准入 | BE-7 经总控验收 | 全量门禁、闭环、OpenAPI、性能/安全与交接报告 |
 | FE-001 | 前端实现 | Frontend | 未准入 | BE-8 经总控验收，后端契约稳定 | 桌面端与前端测试 |
 | INT-001 | 集成与缺陷修复 | Integration | 未准入 | BE-8、FE-001 | E2E 报告与缺陷闭环 |
 | REL-001 | GitHub Alpha 发布 | Release | 未准入 | INT-001 | 仓库、CI、Tag、Release |

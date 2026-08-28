@@ -140,6 +140,15 @@
 - Schema：复用现有 Notification、CollectionRun、Analysis 与 Redis，不新增表、列、枚举或迁移；实现发现必须变更 Schema 时先停点提交 ADR。
 - 边界：BE-7 不实现 Tauri 原生通知、外部推送、邮件、持久事件总线/Outbox、Kafka、团队权限或 BE-8 内容。
 
+## ADR-020：BE-8 只做稳定化、契约冻结与前端交接
+
+- 状态：Accepted
+- 决策：BE-8 不增加 Alpha 业务能力；只验证 BE-1 至 BE-7 的完整闭环，修复缺陷，导出并冻结 OpenAPI，完善运行/迁移/测试文档，形成前端交接包与已知限制清单。
+- 契约：数据库 Schema、迁移链、公开 REST/WebSocket、评分规则、Provider 与 Pipeline 语义默认冻结。实现若证明必须变化，先停点提交 ADR、兼容性和回归计划。
+- 验证：使用 Fake Analysis/Embedding Provider、本地 RSS/HTML Fixture、隔离 PostgreSQL/Redis 完成无公网端到端闭环；空库迁移、Compose、Celery/Beat、WebSocket、权限、安全与可重复启动均须形成证据。
+- 交接：以导出的 OpenAPI JSON、Endpoint/枚举/错误码清单、WebSocket 样例、环境变量矩阵和运行手册作为 Frontend 的唯一后端基线。
+- 边界：BE-8 不开发 React/Tauri，不进行 Integration/Release，不引入新数据库、中间件、深爬、Router、团队权限或 v0.2+ 能力。
+
 ## 后续阶段前仍需补齐的工程规格
 
 以下事项不改变 Alpha 架构初步冻结结论，但必须由总控在对应实现阶段准入前补齐，不得由 Backend 擅自决定：

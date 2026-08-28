@@ -429,6 +429,13 @@ class DocumentChunk(Base):
     __table_args__ = (
         CheckConstraint("chunk_index >= 0", name="document_chunks_chunk_index_check"),
         UniqueConstraint("document_id", "chunk_index", "embedding_model"),
+        Index(
+            "ix_document_chunks_embedding_hnsw_cosine",
+            "embedding",
+            postgresql_using="hnsw",
+            postgresql_with={"m": 16, "ef_construction": 64},
+            postgresql_ops={"embedding": "vector_cosine_ops"},
+        ),
     )
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     document_id: Mapped[uuid.UUID] = mapped_column(

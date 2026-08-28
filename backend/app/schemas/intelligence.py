@@ -29,6 +29,7 @@ class IntelligenceItem(BaseModel):
     prompt_version: str
     provider: str | None
     model: str | None
+    bookmarked: bool
     created_at: datetime
     updated_at: datetime
 

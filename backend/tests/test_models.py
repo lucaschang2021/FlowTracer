@@ -90,7 +90,10 @@ EXPECTED_INDEXES = {
         "ix_analyses_radar_id",
         "ix_analyses_radar_status_created_at",
     },
-    "document_chunks": {"ix_document_chunks_document_id"},
+    "document_chunks": {
+        "ix_document_chunks_document_id",
+        "ix_document_chunks_embedding_hnsw_cosine",
+    },
     "bookmarks": {"ix_bookmarks_document_id", "ix_bookmarks_user_id"},
     "notifications": {
         "ix_notifications_analysis_id",
@@ -175,10 +178,17 @@ def test_all_alpha_models_registered_and_raw_metadata_is_aliased() -> None:
     assert EXPECTED_TABLES == set(Base.metadata.tables)
     assert RawItem.item_metadata.property.columns[0].name == "metadata"
     assert not any(
-        "ivfflat" in index.name or "hnsw" in index.name
+        "ivfflat" in index.name
         for table in Base.metadata.tables.values()
         for index in table.indexes
     )
+    hnsw = next(
+        index
+        for index in Base.metadata.tables["document_chunks"].indexes
+        if index.name == "ix_document_chunks_embedding_hnsw_cosine"
+    )
+    assert hnsw.dialect_options["postgresql"]["using"] == "hnsw"
+    assert hnsw.dialect_options["postgresql"]["ops"] == {"embedding": "vector_cosine_ops"}
 
 
 def _inspect_contract(sync_connection: Any) -> dict[str, Any]:
@@ -223,6 +233,11 @@ async def test_every_table_matches_frozen_postgresql_contract() -> None:
     for index_name, predicate in EXPECTED_PARTIAL_INDEXES.items():
         options = all_indexes[index_name]["dialect_options"]
         assert predicate.lower() in str(options["postgresql_where"]).lower()
+
+    hnsw_options = all_indexes["ix_document_chunks_embedding_hnsw_cosine"]["dialect_options"]
+    assert hnsw_options["postgresql_using"] == "hnsw"
+    assert hnsw_options["postgresql_ops"] == {"embedding": "vector_cosine_ops"}
+    assert hnsw_options["postgresql_with"] == {"m": "16", "ef_construction": "64"}
 
     for table_name in EXPECTED_TABLES:
         actual_unique = {tuple(item["column_names"]) for item in contract["uniques"][table_name]}

@@ -36,6 +36,15 @@ class Settings(BaseSettings):
     ai_api_key: SecretStr | None = Field(None, alias="AI_API_KEY")
     ai_input_cost_per_million: Decimal = Field(alias="AI_INPUT_COST_PER_MILLION", ge=0)
     ai_output_cost_per_million: Decimal = Field(alias="AI_OUTPUT_COST_PER_MILLION", ge=0)
+    embedding_provider: Literal["fake", "openai_compatible"] = Field(alias="EMBEDDING_PROVIDER")
+    embedding_model: str = Field(alias="EMBEDDING_MODEL", min_length=1, max_length=160)
+    embedding_base_url: str | None = Field(None, alias="EMBEDDING_BASE_URL")
+    embedding_api_key: SecretStr | None = Field(None, alias="EMBEDDING_API_KEY")
+    embedding_input_cost_per_million: Decimal = Field(
+        alias="EMBEDDING_INPUT_COST_PER_MILLION", ge=0
+    )
+    embedding_chunk_size: int = Field(1200, alias="EMBEDDING_CHUNK_SIZE", ge=256, le=4000)
+    embedding_chunk_overlap: int = Field(200, alias="EMBEDDING_CHUNK_OVERLAP", ge=0)
     dependency_timeout_seconds: float = 2.0
 
     @field_validator("log_level")
@@ -46,7 +55,7 @@ class Settings(BaseSettings):
             raise ValueError("must be a standard log level")
         return normalized
 
-    @field_validator("ai_model")
+    @field_validator("ai_model", "embedding_model")
     @classmethod
     def validate_ai_model(cls, value: str) -> str:
         normalized = value.strip()
@@ -54,7 +63,11 @@ class Settings(BaseSettings):
             raise ValueError("must not be blank")
         return normalized
 
-    @field_validator("ai_input_cost_per_million", "ai_output_cost_per_million")
+    @field_validator(
+        "ai_input_cost_per_million",
+        "ai_output_cost_per_million",
+        "embedding_input_cost_per_million",
+    )
     @classmethod
     def validate_ai_rate(cls, value: Decimal) -> Decimal:
         if not value.is_finite():
@@ -112,6 +125,36 @@ class Settings(BaseSettings):
                 _port = parsed.port
             except ValueError:
                 raise ValueError("AI_BASE_URL contains an invalid port") from None
+        if self.embedding_chunk_overlap >= self.embedding_chunk_size:
+            raise ValueError("EMBEDDING_CHUNK_OVERLAP must be smaller than EMBEDDING_CHUNK_SIZE")
+        if self.embedding_provider == "openai_compatible":
+            missing = []
+            if not self.embedding_base_url:
+                missing.append("EMBEDDING_BASE_URL")
+            if self.embedding_api_key is None or not self.embedding_api_key.get_secret_value():
+                missing.append("EMBEDDING_API_KEY")
+            if missing:
+                raise ValueError(f"missing required variables: {', '.join(missing)}")
+            base_url = self.embedding_base_url or ""
+            parsed = urlsplit(base_url)
+            loopback_test = self.environment == "test" and parsed.hostname in {
+                "127.0.0.1",
+                "::1",
+                "localhost",
+            }
+            if (
+                parsed.scheme not in ({"https", "http"} if loopback_test else {"https"})
+                or not parsed.hostname
+                or parsed.username is not None
+                or parsed.password is not None
+                or parsed.query
+                or parsed.fragment
+            ):
+                raise ValueError("EMBEDDING_BASE_URL must be a safe HTTPS URL")
+            try:
+                _port = parsed.port
+            except ValueError:
+                raise ValueError("EMBEDDING_BASE_URL contains an invalid port") from None
         return self
 
 
@@ -126,7 +169,14 @@ def load_settings() -> Settings:
                 variables.add(str(location[0]))
                 continue
             message = str(error["msg"])
-            for name in ("AI_BASE_URL", "AI_API_KEY"):
+            for name in (
+                "AI_BASE_URL",
+                "AI_API_KEY",
+                "EMBEDDING_BASE_URL",
+                "EMBEDDING_API_KEY",
+                "EMBEDDING_CHUNK_OVERLAP",
+                "EMBEDDING_CHUNK_SIZE",
+            ):
                 if name in message:
                     variables.add(name)
         if not variables:

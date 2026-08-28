@@ -25,6 +25,11 @@ TEST_ENV = {
     "AI_MODEL": "flowtracer-fake-v1",
     "AI_INPUT_COST_PER_MILLION": "0",
     "AI_OUTPUT_COST_PER_MILLION": "0",
+    "EMBEDDING_PROVIDER": "fake",
+    "EMBEDDING_MODEL": "flowtracer-fake-embedding-v1",
+    "EMBEDDING_INPUT_COST_PER_MILLION": "0",
+    "EMBEDDING_CHUNK_SIZE": "1200",
+    "EMBEDDING_CHUNK_OVERLAP": "200",
 }
 
 for key, value in TEST_ENV.items():

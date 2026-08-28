@@ -42,5 +42,9 @@ celery_app.conf.update(
             "task": "flowtracer.tasks.intelligence.recover_stale_analyses",
             "schedule": 60.0,
         },
+        "dispatch-embedding-documents": {
+            "task": "flowtracer.tasks.intelligence.dispatch_embedding_documents",
+            "schedule": 60.0,
+        },
     },
 )

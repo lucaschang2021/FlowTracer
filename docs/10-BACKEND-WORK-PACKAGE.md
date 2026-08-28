@@ -225,30 +225,38 @@ Phase：
 - API/Worker 同镜像且非 root；使用无 Beat Worker 完成 Celery pong、live/ready 与真实 Redis Pub/Sub 复验。
 - 提交阶段报告后停止；未经总控书面许可不得合并或进入 BE-8。
 
-## Phase BE-8：稳定化与前端交接
+## Phase BE-8：稳定化、契约冻结与前端交接
+
+> 本阶段必须遵循 `docs/20-BE8-STABILIZATION-HANDOFF-BASELINE.md` 与 `docs/21-BE-8-ADMISSION.md`；准入控制 PR 未合并时不得开始。
 
 ### 目标
 
-形成可供 Frontend 开工和 Integration 验收的稳定后端版本。
+在不扩大 Alpha 范围的前提下，形成可供 Frontend 开工和 Integration 验收的稳定、可重复、可追踪后端基线。
 
 ### 任务
 
-- 运行并修复所有单元、API、任务、迁移和安全测试。
-- 增加闭环测试：注册 -> Radar -> Source -> 采集 -> AI -> 向量 -> Feed -> Notification。
-- 验证错误格式、分页、鉴权、超时、重试和幂等。
-- 导出并核查 OpenAPI JSON。
-- 完善启动、迁移、测试、Worker 和环境变量说明。
-- 提供前端接口清单、枚举、示例 Payload 和 WebSocket 事件样例。
-- 汇报性能基线，不提前做大规模优化。
+- 运行并修复 BE-1 至 BE-7 的单元、API、任务、迁移、安全和并发回归；P0/P1 清零。
+- 新增一个完全离线的真实闭环测试：注册 -> Radar -> Source -> 采集 -> 清洗 -> Analysis -> Embedding -> Intelligence/Memory -> Notification，并验证 WebSocket 信号丢失后可通过 REST 恢复。
+- 使用 Fake Analysis/Embedding Provider、本地 RSS/HTML Fixture 和隔离 PostgreSQL/Redis；测试不得访问公网。
+- 导出并校验 OpenAPI JSON，冻结 REST、认证、错误 Envelope、分页、枚举和示例 Payload；不得新增公开 Endpoint。
+- 验证空库 upgrade head、downgrade base、再次 upgrade head、Alembic 零漂移，以及 Compose 四服务可重复启动。
+- 验证 API/Worker 同镜像非 root、Celery/Beat 周期任务、live/ready、秘密扫描、SSRF、幂等、重试和用户隔离。
+- 提供前端交接包：OpenAPI、Endpoint/枚举/错误码清单、Token 生命周期、WebSocket Envelope/关闭码/REST 恢复、环境变量矩阵、运行命令和已知限制。
+- 记录轻量性能基线与测量条件，不做无数据支持的大规模优化。
+
+### 禁止变化
+
+- 不新增数据库 Schema/迁移、业务 Endpoint、WebSocket 事件、评分规则、Provider、Pipeline 状态或依赖。
+- 若发现冻结契约必须变化，立即停点并提交 ADR、兼容性分析与回归计划。
+- 不开发 React/Tauri，不启动 Frontend、Integration、Release 或生产部署。
 
 ### 最终验收
 
-- 后端完整测试套件通过。
-- 空数据库可迁移并启动。
-- 使用 Fake AI Provider 可离线完成数据闭环测试。
-- OpenAPI 与实现一致，无未记录的破坏性变化。
-- P0/P1 后端缺陷为零。
-- 总控通过后，Frontend 才获得正式准入。
+- locked sync、Ruff、format、Mypy、完整 Pytest 覆盖率不低于 85%、迁移循环/零漂移、Compose 和 diff 检查全部通过。
+- 完全离线的 Alpha 数据闭环可重复完成，数据库事实、WebSocket 信号与 REST 恢复行为一致。
+- OpenAPI 与实现一致，交接包可由前端独立使用，运行手册可从空环境复现。
+- 无已知 P0/P1；P2 必须有明确处置或书面接受。
+- 提交 commit、PR 和阶段报告后停止；未经总控验收不得合并，Backend 不得自行关闭或批准 Frontend。
 
 ## 明确禁止事项
 

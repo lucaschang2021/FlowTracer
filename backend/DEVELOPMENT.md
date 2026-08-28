@@ -119,3 +119,9 @@ and the existing queued-run dispatcher recovers retry children retained after br
 Notification and online events are published only after database commit; Redis publication failure
 does not roll back facts. Event payloads never contain document body, Prompt, vectors, Source config,
 credentials, tokens, connection strings, or cost records.
+
+The official Compose worker embeds one Beat process and stores its schedule at
+`/tmp/flowtracer-celerybeat-schedule`, which is writable by the non-root UID 10001 and remains
+container-local. Recreating the worker removes that schedule file; a normal restart may reuse it.
+Do not scale the Compose worker above one replica while it embeds Beat, because multiple Beat
+instances would enqueue the same periodic tasks.

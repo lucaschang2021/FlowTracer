@@ -20,8 +20,12 @@ curl.exe http://localhost:8000/api/v1/health/ready
 docker compose -f infra/compose.yaml exec worker celery -A app.tasks.celery_app:celery_app call flowtracer.tasks.health.ping
 ```
 
-The worker runs Beat in the same container and includes the 60-second Notification compensation
-dispatcher. `/api/v1/ws` uses the same Redis service for user-scoped Pub/Sub; REST remains the fact
+The worker runs one embedded Beat process and includes the 60-second Notification compensation
+dispatcher. Beat stores its schedule at `/tmp/flowtracer-celerybeat-schedule`, an ephemeral path
+writable by the image's non-root UID 10001. A normal container restart can reuse the file; recreating
+the container removes it, so no Beat schedule persists in a volume. Do not scale this worker service
+above one replica while Beat is embedded, because concurrent Beat instances would enqueue duplicate
+periodic work. `/api/v1/ws` uses the same Redis service for user-scoped Pub/Sub; REST remains the fact
 recovery path after a disconnect.
 
 Stop services with `docker compose -f infra/compose.yaml down`. Named database and Redis volumes are

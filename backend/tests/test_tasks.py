@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pathlib import Path
 from uuid import uuid4
 
 import pytest
@@ -7,6 +8,14 @@ import pytest
 from app.tasks import acquisition, intelligence, notifications
 from app.tasks.celery_app import celery_app
 from app.tasks.health import ping
+
+
+def test_compose_beat_schedule_uses_ephemeral_non_root_path() -> None:
+    compose = (Path(__file__).resolve().parents[2] / "infra" / "compose.yaml").read_text()
+    schedule_path = "/tmp/flowtracer-celerybeat-schedule"  # noqa: S108
+
+    assert f"- --beat\n      - --schedule\n      - {schedule_path}" in compose
+    assert f"{schedule_path}:" not in compose
 
 
 def test_celery_health_task() -> None:

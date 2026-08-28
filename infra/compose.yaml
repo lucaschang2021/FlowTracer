@@ -68,6 +68,8 @@ services:
       - app.tasks.celery_app:celery_app
       - worker
       - --beat
+      - --schedule
+      - /tmp/flowtracer-celerybeat-schedule
       - --loglevel=WARNING
     environment: *backend-environment
     depends_on:

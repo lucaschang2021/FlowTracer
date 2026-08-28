@@ -2,7 +2,7 @@
 
 FastAPI API and Celery worker for FlowTracer Alpha v0.1.
 
-BE-6 adds deterministic Document chunking, isolated 1536-dimensional embedding providers,
-pgvector HNSW retrieval, persistent Bookmarks, and SQL-scoped Memory Search.
+BE-7 adds threshold-qualified Notifications, user-isolated Redis WebSocket events, and idempotent
+CollectionRun retry/recovery on top of the BE-6 vector-memory pipeline.
 See DEVELOPMENT.md for security constraints, configuration, test-database, and local run commands.
 

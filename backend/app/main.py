@@ -13,6 +13,7 @@ from app.core.errors import install_exception_handlers
 from app.core.logging import configure_logging, get_logger
 from app.core.middleware import RequestContextMiddleware
 from app.db.session import create_database_engine, create_session_factory
+from app.services.events import RedisEventPublisher
 from app.services.readiness import ReadinessService, build_readiness_service
 
 
@@ -35,6 +36,8 @@ def create_app(
                 resolved_settings.redis_url.get_secret_value(),
                 decode_responses=True,
             )
+            application.state.redis_client = redis_client
+            application.state.event_publisher = RedisEventPublisher(redis_client)
             application.state.readiness_service = build_readiness_service(
                 engine,
                 redis_client,
@@ -57,6 +60,8 @@ def create_app(
     )
     application.state.settings = resolved_settings
     application.state.readiness_service = readiness_service
+    application.state.redis_client = None
+    application.state.event_publisher = None
     application.add_middleware(RequestContextMiddleware)
     install_exception_handlers(application)
     application.include_router(api_router, prefix="/api/v1")

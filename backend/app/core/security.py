@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import secrets
 import uuid
+from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
@@ -25,6 +26,12 @@ PASSWORD_HASHER = PasswordHasher(
 
 class InvalidAccessTokenError(ValueError):
     pass
+
+
+@dataclass(frozen=True)
+class AccessTokenClaims:
+    user_id: uuid.UUID
+    expires_at: datetime
 
 
 def hash_password(password: str) -> str:
@@ -58,7 +65,7 @@ def create_access_token(user_id: uuid.UUID, settings: Settings, now: datetime | 
     return jwt.encode(payload, settings.jwt_secret.get_secret_value(), algorithm="HS256")
 
 
-def decode_access_token(token: str, settings: Settings) -> uuid.UUID:
+def decode_access_token_claims(token: str, settings: Settings) -> AccessTokenClaims:
     try:
         payload = jwt.decode(
             token,
@@ -71,9 +78,14 @@ def decode_access_token(token: str, settings: Settings) -> uuid.UUID:
         if payload["type"] != "access":
             raise InvalidAccessTokenError
         uuid.UUID(str(payload["jti"]))
-        return uuid.UUID(str(payload["sub"]))
+        expires_at = datetime.fromtimestamp(float(payload["exp"]), tz=UTC)
+        return AccessTokenClaims(user_id=uuid.UUID(str(payload["sub"])), expires_at=expires_at)
     except (jwt.PyJWTError, KeyError, TypeError, ValueError) as exc:
         raise InvalidAccessTokenError from exc
+
+
+def decode_access_token(token: str, settings: Settings) -> uuid.UUID:
+    return decode_access_token_claims(token, settings).user_id
 
 
 def create_refresh_value(token_id: uuid.UUID) -> str:

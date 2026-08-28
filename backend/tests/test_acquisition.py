@@ -28,9 +28,11 @@ from app.models.entities import (
     Source,
     SourceType,
 )
+from app.schemas.events import EventEnvelope
 from app.services.acquisition import (
     dispatch_queued_runs,
     execute_run,
+    publish_collection_updated,
     schedule_due_sources,
 )
 from app.services.acquisition_types import CollectionError, FetchResponse
@@ -44,6 +46,14 @@ TABLES = (
 
 async def healthy_probe() -> None:
     return None
+
+
+class RecordingPublisher:
+    def __init__(self) -> None:
+        self.events: list[tuple[UUID, EventEnvelope]] = []
+
+    async def publish(self, user_id: UUID, event: EventEnvelope) -> None:
+        self.events.append((user_id, event))
 
 
 @pytest.fixture
@@ -315,23 +325,33 @@ async def test_worker_is_idempotent_partial_and_applies_three_level_deduplicatio
       </item></channel></rss>"""
     first_fetcher = StaticFetcher(first_feed)
     raw_dispatches: list[str] = []
+    publisher = RecordingPublisher()
     outcomes = await asyncio.gather(
         execute_run(
             factory,
             first_run,
             fetcher=first_fetcher,  # type: ignore[arg-type]
             raw_dispatch=lambda value, _correlation: raw_dispatches.append(value),
+            publisher=publisher,
         ),
         execute_run(
             factory,
             first_run,
             fetcher=first_fetcher,  # type: ignore[arg-type]
             raw_dispatch=lambda value, _correlation: raw_dispatches.append(value),
+            publisher=publisher,
         ),
     )
     assert sorted(outcomes) == [False, True]
     assert first_fetcher.urls == ["https://example.com/feed.xml"]
     assert len(raw_dispatches) == 1
+    statuses = {
+        event.data.model_dump()["status"]
+        for _user_id, event in publisher.events
+        if event.data.model_dump().get("collection_run_id") == first_run
+    }
+    assert statuses == {CollectionRunStatus.RUNNING, CollectionRunStatus.SUCCEEDED}
+    assert all("private_hint" not in event.model_dump_json() for _, event in publisher.events)
 
     second_run = await new_run("worker-two")
     second_feed = b"""<rss><channel>
@@ -474,10 +494,11 @@ async def test_scheduler_multi_instance_creates_one_run_per_minute(
     headers = await auth_headers(client, "scheduler@example.com")
     source_id = await create_source(client, headers)
     factory = async_sessionmaker(acquisition_engine, expire_on_commit=False)
+    publisher = RecordingPublisher()
     now = datetime(2026, 8, 26, 10, 5, 42, tzinfo=UTC)
     counts = await asyncio.gather(
-        schedule_due_sources(factory, now=now),
-        schedule_due_sources(factory, now=now),
+        schedule_due_sources(factory, now=now, publisher=publisher),
+        schedule_due_sources(factory, now=now, publisher=publisher),
     )
     assert sum(counts) == 1
     async with AsyncSession(acquisition_engine) as session:
@@ -497,6 +518,23 @@ async def test_scheduler_multi_instance_creates_one_run_per_minute(
         assert source is not None
         assert source.status == ResourceStatus.ACTIVE
         assert source.next_fetch_at == datetime(2026, 8, 26, 10, 20, 42, tzinfo=UTC)
+        scheduled_id = runs[0].id
+
+    assert len(publisher.events) == 1
+    queued_event = publisher.events[0][1]
+    assert queued_event.event_type == "collection.updated"
+    assert queued_event.data.model_dump()["status"] == CollectionRunStatus.QUEUED
+    assert set(queued_event.data.model_dump()) == {
+        "collection_run_id",
+        "source_id",
+        "status",
+        "fetched_count",
+        "created_count",
+        "duplicate_count",
+        "failed_count",
+    }
+    assert await publish_collection_updated(factory, scheduled_id, publisher)
+    assert publisher.events[0][1].event_id == publisher.events[1][1].event_id
 
     async with AsyncSession(acquisition_engine) as session:
         source = await session.get(Source, UUID(source_id))
@@ -519,3 +557,98 @@ async def test_scheduler_multi_instance_creates_one_run_per_minute(
         assert scheduled is not None
         assert scheduled.error_code == "queue_unavailable"
         assert "broker detail" not in (scheduled.error_message or "")
+
+
+@pytest.mark.asyncio
+async def test_collection_retry_chain_concurrency_boundaries_and_queue_recovery(
+    acquisition_client: tuple[AsyncClient, list[tuple[str, str]]],
+    acquisition_engine: AsyncEngine,
+) -> None:
+    client, dispatched = acquisition_client
+    owner = await auth_headers(client, "retry-owner@example.com")
+    stranger = await auth_headers(client, "retry-stranger@example.com")
+    source_id = await create_source(client, owner)
+    original_response = await client.post(
+        f"/api/v1/sources/{source_id}/collect",
+        headers={**owner, "Idempotency-Key": "retry-original"},
+    )
+    original_id = UUID(original_response.json()["run_id"])
+    async with AsyncSession(acquisition_engine) as session:
+        original = await session.get(CollectionRun, original_id)
+        assert original is not None
+        original.status = CollectionRunStatus.FAILED
+        original.error_code = "safe_failure"
+        original.error_message = "Safe failure"
+        await session.commit()
+
+    async def retry() -> Any:
+        return await client.post(f"/api/v1/collection-runs/{original_id}/retry", headers=owner)
+
+    concurrent = await asyncio.gather(retry(), retry())
+    assert [response.status_code for response in concurrent] == [202, 202]
+    assert concurrent[0].json() == concurrent[1].json()
+    child_id = UUID(concurrent[0].json()["run_id"])
+    assert concurrent[0].headers["location"] == f"/api/v1/collection-runs/{child_id}"
+    async with AsyncSession(acquisition_engine) as session:
+        original = await session.get(CollectionRun, original_id)
+        child = await session.get(CollectionRun, child_id)
+        assert original is not None and original.status == CollectionRunStatus.FAILED
+        assert original.error_code == "safe_failure"
+        assert child is not None
+        assert child.trigger_type == CollectionTriggerType.MANUAL
+        assert child.status == CollectionRunStatus.QUEUED
+        assert child.idempotency_key == f"retry:{original_id}"
+        child.status = CollectionRunStatus.PARTIAL
+        await session.commit()
+    chain = await client.post(f"/api/v1/collection-runs/{child_id}/retry", headers=owner)
+    assert chain.status_code == 202 and chain.json()["run_id"] != str(child_id)
+
+    not_retryable = await client.post(
+        f"/api/v1/collection-runs/{chain.json()['run_id']}/retry", headers=owner
+    )
+    hidden = await client.post(f"/api/v1/collection-runs/{original_id}/retry", headers=stranger)
+    missing = await client.post(f"/api/v1/collection-runs/{uuid4()}/retry", headers=stranger)
+    assert not_retryable.status_code == 409
+    assert not_retryable.json()["error"]["code"] == "collection_run_not_retryable"
+    assert hidden.status_code == missing.status_code == 404
+
+    assert (
+        await client.post(f"/api/v1/sources/{source_id}/pause", headers=owner)
+    ).status_code == 200
+    inactive = await client.post(f"/api/v1/collection-runs/{original_id}/retry", headers=owner)
+    assert inactive.status_code == 409
+    assert inactive.json()["error"]["code"] == "source_not_active"
+    assert (
+        await client.post(f"/api/v1/sources/{source_id}/resume", headers=owner)
+    ).status_code == 200
+
+    chain_id = UUID(chain.json()["run_id"])
+    async with AsyncSession(acquisition_engine) as session:
+        chain_run = await session.get(CollectionRun, chain_id)
+        assert chain_run is not None
+        chain_run.status = CollectionRunStatus.FAILED
+        await session.commit()
+    client._transport.app.state.collection_dispatcher = (  # type: ignore[attr-defined]
+        lambda _run_id, _correlation_id: (_ for _ in ()).throw(ConnectionError("broker-secret"))
+    )
+    unavailable = await client.post(f"/api/v1/collection-runs/{chain_id}/retry", headers=owner)
+    assert unavailable.status_code == 503
+    assert unavailable.json()["error"]["code"] == "collection_queue_unavailable"
+    assert "broker-secret" not in unavailable.text
+    async with AsyncSession(acquisition_engine) as session:
+        queued = await session.scalar(
+            select(CollectionRun).where(CollectionRun.idempotency_key == f"retry:{chain_id}")
+        )
+        assert queued is not None and queued.status == CollectionRunStatus.QUEUED
+    recovered: list[tuple[str, str]] = []
+    factory = async_sessionmaker(acquisition_engine, expire_on_commit=False)
+    assert (
+        await dispatch_queued_runs(
+            factory, lambda run_id, correlation_id: recovered.append((run_id, correlation_id))
+        )
+        >= 1
+    )
+    assert any(run_id == str(queued.id) for run_id, _ in recovered)
+    assert len(dispatched) >= 4
+    openapi = (await client.get("/openapi.json")).json()
+    assert "/api/v1/collection-runs/{run_id}/retry" in openapi["paths"]

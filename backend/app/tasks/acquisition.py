@@ -4,11 +4,14 @@ import asyncio
 from typing import Any
 from uuid import UUID
 
+from redis.asyncio import Redis
+
 from app.core.config import get_settings
 from app.core.context import bind_context, reset_context
 from app.core.logging import get_logger
 from app.db.session import create_database_engine, create_session_factory
 from app.services.acquisition import dispatch_queued_runs, execute_run, schedule_due_sources
+from app.services.events import RedisEventPublisher
 from app.tasks.celery_app import celery_app
 
 
@@ -24,6 +27,15 @@ async def _with_database(operation: Any) -> Any:
         await engine.dispose()
 
 
+async def _with_events(operation: Any) -> Any:
+    settings = get_settings()
+    redis_client = Redis.from_url(settings.redis_url.get_secret_value(), decode_responses=True)
+    try:
+        return await operation(RedisEventPublisher(redis_client))
+    finally:
+        await redis_client.aclose()
+
+
 @celery_app.task(bind=True, name="flowtracer.tasks.acquisition.collect_source")  # type: ignore[untyped-decorator]
 def collect_source(self: Any, run_id: str, correlation_id: str | None = None) -> bool:
     resolved_correlation_id = correlation_id or str(self.request.id)
@@ -32,19 +44,22 @@ def collect_source(self: Any, run_id: str, correlation_id: str | None = None) ->
         correlation_id=resolved_correlation_id,
     )
     try:
-        return bool(
-            asyncio.run(
-                _with_database(
-                    lambda factory: execute_run(
+
+        async def collect(factory: Any) -> bool:
+            return bool(
+                await _with_events(
+                    lambda publisher: execute_run(
                         factory,
                         UUID(run_id),
                         correlation_id=resolved_correlation_id,
                         task_id=str(self.request.id),
                         raw_dispatch=_enqueue_raw_item,
+                        publisher=publisher,
                     )
                 )
             )
-        )
+
+        return bool(asyncio.run(_with_database(collect)))
     finally:
         reset_context(tokens)
 
@@ -57,7 +72,15 @@ def _enqueue_raw_item(raw_item_id: str, correlation_id: str) -> None:
 
 @celery_app.task(name="flowtracer.tasks.acquisition.schedule_due_sources")  # type: ignore[untyped-decorator]
 def schedule_sources() -> int:
-    return int(asyncio.run(_with_database(schedule_due_sources)))
+    return int(
+        asyncio.run(
+            _with_database(
+                lambda factory: _with_events(
+                    lambda publisher: schedule_due_sources(factory, publisher=publisher)
+                )
+            )
+        )
+    )
 
 
 @celery_app.task(name="flowtracer.tasks.acquisition.dispatch_queued_runs")  # type: ignore[untyped-decorator]

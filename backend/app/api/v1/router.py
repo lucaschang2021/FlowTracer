@@ -6,9 +6,11 @@ from app.api.v1.routes.health import router as health_router
 from app.api.v1.routes.intelligence import analyses_router
 from app.api.v1.routes.intelligence import router as intelligence_router
 from app.api.v1.routes.memory import bookmark_router, memory_router
+from app.api.v1.routes.notifications import router as notifications_router
 from app.api.v1.routes.radars import router as radars_router
 from app.api.v1.routes.sources import router as sources_router
 from app.api.v1.routes.users import router as users_router
+from app.api.v1.routes.websocket import router as websocket_router
 
 api_router = APIRouter()
 api_router.include_router(health_router, prefix="/health", tags=["health"])
@@ -25,3 +27,5 @@ api_router.include_router(intelligence_router, prefix="/intelligence", tags=["in
 api_router.include_router(analyses_router, prefix="/analyses", tags=["analyses"])
 api_router.include_router(bookmark_router, prefix="/bookmarks", tags=["bookmarks"])
 api_router.include_router(memory_router, prefix="/memory", tags=["memory"])
+api_router.include_router(notifications_router, prefix="/notifications", tags=["notifications"])
+api_router.include_router(websocket_router, prefix="/ws", tags=["websocket"])

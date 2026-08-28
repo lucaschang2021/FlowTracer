@@ -134,6 +134,11 @@ async def collect_source(
         source_id=source_id,
         idempotency_key=idempotency_key,
     )
+    await acquisition.publish_collection_updated(
+        request.app.state.session_factory,
+        run.id,
+        getattr(request.app.state, "event_publisher", None),
+    )
     response.headers["Location"] = f"/api/v1/collection-runs/{run.id}"
     if run.status == CollectionRunStatus.QUEUED:
         try:

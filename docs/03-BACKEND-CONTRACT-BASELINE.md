@@ -153,3 +153,12 @@ pending -> cleaning -> deduplicating -> analyzing -> embedding -> ready
 - BE-7 新增 `POST /collection-runs/{run_id}/retry`，以新 manual queued run 和 `retry:<original_run_id>` 实现链式幂等；既有 `POST /analyses/{analysis_id}/retry` 契约保持兼容并补齐事件/通知回归。
 - 所有事件均在数据库事务提交后发布，发布或 Broker 失败不得回滚数据库事实；日志不得记录 payload、正文、Source config、Token、向量或异常堆栈。
 - BE-7 复用既有实体、约束和 Redis，不新增 Schema 或迁移；Tauri 原生通知、外部推送、邮件、Outbox/Kafka、团队权限和 BE-8+ 仍未准入。
+
+## 15. BE-8 稳定化与前端交接契约补充
+
+- BE-8 不新增业务 Endpoint、WebSocket 事件类型、实体、枚举、评分规则、Provider 或 Pipeline 状态；现有 OpenAPI 与事件契约是待验证和冻结的交付物。
+- 必须导出可重复生成的 OpenAPI JSON，并校验实现、认证、错误 Envelope、分页、枚举和示例 Payload 一致；任何差异先按 ADR/契约变更控制处理。
+- 必须使用 Fake Provider、本地 RSS/HTML Fixture、隔离 PostgreSQL/Redis 完成注册、Radar、Source、采集、清洗、Analysis、Embedding、Intelligence、Bookmark/Memory、Notification、WebSocket/REST 恢复的离线闭环。
+- 必须证明空库迁移、Compose 四服务、API/Worker 同镜像非 root、Celery/Beat、live/ready、幂等/重试、用户隔离、SSRF 与秘密扫描可重复通过。
+- 前端交接包至少包含 OpenAPI、Endpoint/枚举/错误码清单、鉴权与 Token 生命周期、WebSocket Envelope/关闭码/恢复规则、环境变量矩阵、启动/迁移/测试命令和已知限制。
+- BE-8 不开发前端、不发布 Alpha、不执行生产部署；Frontend、Integration、Release 仍需独立准入。

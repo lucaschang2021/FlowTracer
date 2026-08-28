@@ -4,7 +4,7 @@
 
 [当前闸门](docs/CURRENT-GATE.md) · [交付看板](docs/02-DELIVERY-BOARD.md) · [Backend 开发](backend/DEVELOPMENT.md) · [English](#english)
 
-> **Alpha 状态：** FlowTracer v0.1 正在开发，尚未发布。BE-1 至 BE-5 已验收并合并；BE-6 Vector Memory 与知识库接口已准入、正在开发。BE-7、Frontend、Integration 和 Release 尚未准入。
+> **Alpha 状态：** FlowTracer v0.1 正在开发，尚未发布。BE-1 至 BE-6 已验收并合并；BE-7 Notification、WebSocket 与恢复已准入、正在开发。BE-8、Frontend、Integration 和 Release 尚未准入。
 
 ## 中文
 
@@ -23,8 +23,9 @@ Radar 是 FlowTracer 的核心领域对象，不是项目名称。项目正式�
 | BE-3 | 已完成 | Radar/Source 管理、绑定与 URL 规范化 |
 | BE-4 | 已完成 | RSS/URL 受控采集、调度、运行记录与 RawItem |
 | BE-5 | 已完成 | 内容清洗、Document 去重、AI 分析、评分、成本审计与 Intelligence API |
-| BE-6 | 开发中 | 已准入；目标为确定性切块、Embedding、pgvector 检索、Bookmark 与 Memory Search |
-| BE-7、BE-8 | 未准入 | 通知、WebSocket、恢复与后端稳定化尚未开始 |
+| BE-6 | 已完成 | 确定性切块、Embedding、pgvector HNSW 检索、Bookmark 与 Memory Search |
+| BE-7 | 开发中 | 已准入；目标为 Notification、WebSocket 在线事件与 CollectionRun retry，并复核 Analysis retry |
+| BE-8 | 未准入 | 后端稳定化与前端交接尚未开始 |
 | Frontend / Integration / Release | 未准入 | 桌面客户端、集成验收与 Alpha 发布尚未开始 |
 
 阶段状态仅以已合并到 GitHub `main` 的事实、[当前闸门](docs/CURRENT-GATE.md)和[交付看板](docs/02-DELIVERY-BOARD.md)为准。开放中的 PR 或计划能力不视为已实现。
@@ -36,8 +37,8 @@ Radar 是 FlowTracer 的核心领域对象，不是项目名称。项目正式�
   → 创建 Radar 与配置 RSS/URL Source  ✅ BE-3 已完成
   → 受控后台采集与原始证据保存         ✅ BE-4 已完成
   → 清洗、去重、AI 摘要/分类/评分      ✅ BE-5 已完成
-  → 文档切块、向量化与 Memory Search   🚧 BE-6 开发中
-  → 高价值事件与桌面通知               ⏳ BE-7 未准入
+  → 文档切块、向量化与 Memory Search   ✅ BE-6 已完成
+  → Notification、WebSocket 与运行重试 🚧 BE-7 开发中
   → Tauri 桌面信息流与知识库           ⏳ Frontend 未准入
 ```
 
@@ -49,8 +50,9 @@ Radar 是 FlowTracer 的核心领域对象，不是项目名称。项目正式�
 - Radar/Source CRUD、所有权隔离、软删除、启停、绑定及确定性 URL 规范化。
 - RSS 与单页 URL 的受控采集、调度、幂等、去重、运行状态和 RawItem 查询。
 - 确定性清洗、全局 Document 去重、版本化 AI 分析、四维评分、成本审计、恢复任务和 Intelligence 查询接口。
+- 确定性切块、Embedding、pgvector HNSW 检索、Bookmark 与 Memory Search。
 
-BE-6 的 Embedding、HNSW、Bookmark 和 Memory Search 目前属于已准入开发范围，不属于 `main` 上已完成能力。
+BE-7 的 Notification、WebSocket 在线事件与 CollectionRun retry 目前属于已准入开发范围，不属于 `main` 上已完成能力。
 
 ### 技术栈
 
@@ -61,7 +63,7 @@ BE-6 的 Embedding、HNSW、Bookmark 和 Memory Search 目前属于已准入开�
 | 任务与缓存 | Redis、Celery Worker/Beat |
 | 采集 | RSS/Atom、受控 HTTP(S) fetcher、安全 HTML 解析 |
 | Intelligence | Provider 抽象、离线 Fake Provider、OpenAI-compatible Adapter |
-| API | REST `/api/v1`；WebSocket 属于未准入的 BE-7 |
+| API | REST `/api/v1`；WebSocket `/api/v1/ws` 属于 BE-7 已准入开发范围 |
 | Desktop 目标 | Tauri 2、React、TypeScript；Frontend 尚未准入 |
 | 验证 | Pytest、Ruff、Mypy、Alembic、Docker Compose |
 
@@ -118,6 +120,8 @@ docker compose -f infra/compose.yaml down
 - [Backend 开发指南](backend/DEVELOPMENT.md)
 - [BE-6 Vector Memory 契约基线](docs/09-BE6-MEMORY-BASELINE.md)
 - [BE-6 阶段准入许可](docs/17-BE-6-ADMISSION.md)
+- [BE-7 Notification、WebSocket 与恢复契约基线](docs/18-BE7-NOTIFICATION-WS-BASELINE.md)
+- [BE-7 阶段准入许可](docs/19-BE-7-ADMISSION.md)
 
 ### 路线图与门禁
 
@@ -127,7 +131,7 @@ FlowTracer 固定按以下阶段推进：
 架构冻结 → Backend BE-1..BE-8 → Frontend → Integration → Alpha Release
 ```
 
-当前只允许实施 BE-6。BE-6 完成后必须提交阶段报告、测试与迁移证据并停点，等待总控验收；未经新的阶段准入，不得进入 BE-7、Frontend、Integration 或 Release。
+当前只允许实施 BE-7。BE-7 完成后必须提交阶段报告、测试与无迁移证据并停点，等待总控验收；未经新的阶段准入，不得进入 BE-8、Frontend、Integration 或 Release。
 
 ### 安全与范围边界
 
@@ -142,6 +146,8 @@ FlowTracer 固定按以下阶段推进：
 ## English
 
 **A personal desktop AI intelligence system for continuous acquisition, traceable analysis, and long-term Memory—designed to surface and preserve high-value information.**
+
+> **Alpha status:** FlowTracer v0.1 is in development and has not been released. BE-1 through BE-6 have been accepted and merged; BE-7 Notification, WebSocket, and recovery are admitted and in development. BE-8, Frontend, Integration, and Release are not admitted.
 
 ### Product Positioning
 
@@ -158,8 +164,9 @@ Radar is FlowTracer's core domain object, not the project name. The official pro
 | BE-3 | Completed | Radar/Source management, bindings, and URL normalization |
 | BE-4 | Completed | Controlled RSS/URL acquisition, scheduling, runs, and RawItem persistence |
 | BE-5 | Completed | Cleaning, Document deduplication, AI analysis, scoring, cost auditing, and Intelligence APIs |
-| BE-6 | In development | Admitted; targets deterministic chunking, embeddings, pgvector retrieval, Bookmark, and Memory Search |
-| BE-7 and BE-8 | Not admitted | Notifications, WebSocket, recovery, and backend stabilization have not started |
+| BE-6 | Completed | Deterministic chunking, embeddings, pgvector HNSW retrieval, Bookmark, and Memory Search |
+| BE-7 | In development | Admitted; targets Notification, WebSocket online events, and CollectionRun retry, with Analysis retry regression coverage |
+| BE-8 | Not admitted | Backend stabilization and Frontend handoff have not started |
 | Frontend / Integration / Release | Not admitted | Desktop development, integration acceptance, and the Alpha release have not started |
 
 Phase status is determined only by facts merged into GitHub `main`, the [current gate](docs/CURRENT-GATE.md), and the [delivery board](docs/02-DELIVERY-BOARD.md). Open pull requests and planned capabilities are not treated as implemented.
@@ -171,8 +178,8 @@ User registration/sign-in                    ✅ BE-2 completed
   → Create Radar and configure RSS/URL Source ✅ BE-3 completed
   → Controlled acquisition and raw evidence   ✅ BE-4 completed
   → Cleaning, deduplication, AI summary/score  ✅ BE-5 completed
-  → Chunking, embeddings, and Memory Search    🚧 BE-6 in development
-  → High-value events and desktop notification ⏳ BE-7 not admitted
+  → Chunking, embeddings, and Memory Search    ✅ BE-6 completed
+  → Notification, WebSocket, and run retry      🚧 BE-7 in development
   → Tauri desktop feed and knowledge base      ⏳ Frontend not admitted
 ```
 
@@ -184,8 +191,9 @@ User registration/sign-in                    ✅ BE-2 completed
 - Radar/Source CRUD, ownership isolation, soft deletion, activation controls, bindings, and deterministic URL normalization.
 - Controlled RSS and single-page URL acquisition, scheduling, idempotency, deduplication, run state, and RawItem queries.
 - Deterministic cleaning, global Document deduplication, versioned AI analysis, four-dimensional scoring, cost auditing, recovery tasks, and Intelligence query APIs.
+- Deterministic chunking, embeddings, pgvector HNSW retrieval, Bookmark, and Memory Search.
 
-BE-6 embeddings, HNSW, Bookmark, and Memory Search are admitted development scope, not completed capabilities on `main`.
+BE-7 Notification, WebSocket online events, and CollectionRun retry are admitted development scope, not completed capabilities on `main`.
 
 ### Technology Stack
 
@@ -196,7 +204,7 @@ BE-6 embeddings, HNSW, Bookmark, and Memory Search are admitted development scop
 | Tasks and cache | Redis, Celery Worker/Beat |
 | Acquisition | RSS/Atom, controlled HTTP(S) fetcher, secure HTML parsing |
 | Intelligence | Provider abstraction, offline Fake Provider, OpenAI-compatible adapter |
-| API | REST `/api/v1`; WebSocket belongs to the not-yet-admitted BE-7 phase |
+| API | REST `/api/v1`; WebSocket `/api/v1/ws` is within the admitted BE-7 development scope |
 | Desktop target | Tauri 2, React, TypeScript; Frontend is not admitted |
 | Validation | Pytest, Ruff, Mypy, Alembic, Docker Compose |
 
@@ -253,6 +261,8 @@ For host development with `uv`, migrations, and quality checks, follow the [Back
 - [Backend development guide](backend/DEVELOPMENT.md)
 - [BE-6 Vector Memory contract baseline](docs/09-BE6-MEMORY-BASELINE.md)
 - [BE-6 phase admission](docs/17-BE-6-ADMISSION.md)
+- [BE-7 Notification, WebSocket, and recovery contract baseline](docs/18-BE7-NOTIFICATION-WS-BASELINE.md)
+- [BE-7 phase admission](docs/19-BE-7-ADMISSION.md)
 
 ### Roadmap and Gates
 
@@ -262,7 +272,7 @@ FlowTracer follows a fixed delivery sequence:
 Architecture freeze → Backend BE-1..BE-8 → Frontend → Integration → Alpha Release
 ```
 
-Only BE-6 is currently admitted. When BE-6 is complete, the Backend role must submit its phase report, tests, and migration evidence, then stop for controller acceptance. BE-7, Frontend, Integration, and Release cannot begin without a new phase admission.
+Only BE-7 is currently admitted. When BE-7 is complete, the Backend role must submit its phase report, tests, and no-migration evidence, then stop for controller acceptance. BE-8, Frontend, Integration, and Release cannot begin without a new phase admission.
 
 ### Security and Scope Boundaries
 

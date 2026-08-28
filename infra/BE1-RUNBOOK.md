@@ -20,5 +20,9 @@ curl.exe http://localhost:8000/api/v1/health/ready
 docker compose -f infra/compose.yaml exec worker celery -A app.tasks.celery_app:celery_app call flowtracer.tasks.health.ping
 ```
 
+The worker runs Beat in the same container and includes the 60-second Notification compensation
+dispatcher. `/api/v1/ws` uses the same Redis service for user-scoped Pub/Sub; REST remains the fact
+recovery path after a disconnect.
+
 Stop services with `docker compose -f infra/compose.yaml down`. Named database and Redis volumes are
 retained unless explicitly removed.

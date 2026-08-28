@@ -4,7 +4,8 @@ from uuid import uuid4
 
 import pytest
 
-from app.tasks import acquisition, intelligence
+from app.tasks import acquisition, intelligence, notifications
+from app.tasks.celery_app import celery_app
 from app.tasks.health import ping
 
 
@@ -127,3 +128,74 @@ async def test_intelligence_database_wrapper_always_disposes(
 
     assert await intelligence._with_database(operation) == "ok"
     assert engine.disposed
+
+
+def test_notification_dispatch_task_and_beat(monkeypatch: pytest.MonkeyPatch) -> None:
+    async def return_three() -> int:
+        return 3
+
+    monkeypatch.setattr(notifications, "_dispatch", return_three)
+    result = notifications.dispatch_notifications.apply()
+    assert result.successful() and result.get() == 3
+    schedule = celery_app.conf.beat_schedule["dispatch-notifications"]
+    assert schedule["task"] == "flowtracer.tasks.notifications.dispatch_notifications"
+    assert schedule["schedule"] == 60.0
+
+
+def test_analysis_worker_publishes_then_dispatches_notification(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: list[str] = []
+    factory = object()
+    publisher = object()
+
+    async def with_database(operation: object) -> object:
+        return await operation(factory)  # type: ignore[operator]
+
+    async def with_events(operation: object) -> object:
+        return await operation(publisher)  # type: ignore[operator]
+
+    async def run(*_args: object, **_kwargs: object) -> bool:
+        calls.append("analysis_committed")
+        return True
+
+    async def publish(*_args: object, **_kwargs: object) -> bool:
+        calls.append("analysis_published")
+        return True
+
+    async def notify(*_args: object, **_kwargs: object) -> int:
+        calls.append("notification_dispatched")
+        return 1
+
+    monkeypatch.setattr(intelligence, "_with_database", with_database)
+    monkeypatch.setattr(intelligence, "_with_events", with_events)
+    monkeypatch.setattr(intelligence, "build_provider", lambda _settings: object())
+    monkeypatch.setattr(intelligence, "run_analysis", run)
+    monkeypatch.setattr(intelligence, "publish_analysis_completed", publish)
+    monkeypatch.setattr(intelligence, "dispatch_notifications", notify)
+    result = intelligence.analyze_document.apply(args=[str(uuid4())])
+    assert result.successful() and result.get() is True
+    assert calls == ["analysis_committed", "analysis_published", "notification_dispatched"]
+
+
+def test_collection_worker_injects_user_event_publisher(monkeypatch: pytest.MonkeyPatch) -> None:
+    factory = object()
+    publisher = object()
+    received: list[object] = []
+
+    async def with_database(operation: object) -> object:
+        return await operation(factory)  # type: ignore[operator]
+
+    async def with_events(operation: object) -> object:
+        return await operation(publisher)  # type: ignore[operator]
+
+    async def execute(*_args: object, **kwargs: object) -> bool:
+        received.append(kwargs["publisher"])
+        return True
+
+    monkeypatch.setattr(acquisition, "_with_database", with_database)
+    monkeypatch.setattr(acquisition, "_with_events", with_events)
+    monkeypatch.setattr(acquisition, "execute_run", execute)
+    result = acquisition.collect_source.apply(args=[str(uuid4())])
+    assert result.successful() and result.get() is True
+    assert received == [publisher]

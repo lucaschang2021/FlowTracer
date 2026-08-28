@@ -25,10 +25,46 @@ from app.models.entities import (
 )
 from app.services.acquisition_parsers import parse_feed, parse_html
 from app.services.acquisition_types import CollectionError
+from app.services.events import EventPublisher, build_event, publish_safely
 from app.services.resources import get_source, resource_not_found
 from app.services.safe_fetcher import SafeFetcher, fetch_with_retries
 
 Dispatch = Callable[[str, str], None]
+
+
+async def publish_collection_updated(
+    factory: async_sessionmaker[AsyncSession],
+    run_id: UUID,
+    publisher: EventPublisher | None,
+) -> bool:
+    async with factory() as session:
+        row = (
+            await session.execute(
+                select(CollectionRun, Source.user_id)
+                .join(Source, Source.id == CollectionRun.source_id)
+                .where(CollectionRun.id == run_id)
+            )
+        ).one_or_none()
+        if row is None:
+            return False
+        run, user_id = row
+        event = build_event(
+            "collection.updated",
+            run.id,
+            f"{run.status.value}:{run.updated_at.isoformat()}",
+            {
+                "collection_run_id": run.id,
+                "source_id": run.source_id,
+                "status": run.status,
+                "fetched_count": run.fetched_count,
+                "created_count": run.created_count,
+                "duplicate_count": run.duplicate_count,
+                "failed_count": run.failed_count,
+            },
+            occurred_at=run.updated_at,
+        )
+        resource_id = run.id
+    return await publish_safely(publisher, user_id=user_id, event=event, resource_id=resource_id)
 
 
 def validate_idempotency_key(value: str | None) -> str | None:
@@ -119,6 +155,57 @@ async def get_owned_run(session: AsyncSession, *, user_id: UUID, run_id: UUID) -
     return run
 
 
+async def create_retry_run(
+    session: AsyncSession, *, user_id: UUID, original_run_id: UUID
+) -> tuple[CollectionRun, bool]:
+    original = await session.scalar(
+        select(CollectionRun)
+        .join(Source, Source.id == CollectionRun.source_id)
+        .where(
+            CollectionRun.id == original_run_id,
+            Source.user_id == user_id,
+            Source.deleted_at.is_(None),
+        )
+        .with_for_update(of=CollectionRun)
+    )
+    if original is None:
+        raise resource_not_found()
+    source = await session.scalar(
+        select(Source).where(Source.id == original.source_id).with_for_update()
+    )
+    if source is None or source.deleted_at is not None or source.user_id != user_id:
+        raise resource_not_found()
+    if source.status != ResourceStatus.ACTIVE:
+        raise AppError(status_code=409, code="source_not_active", message="Source is not active")
+    if original.status not in {CollectionRunStatus.FAILED, CollectionRunStatus.PARTIAL}:
+        raise AppError(
+            status_code=409,
+            code="collection_run_not_retryable",
+            message="Collection run cannot be retried",
+        )
+    key = f"retry:{original.id}"
+    existing = await session.scalar(
+        select(CollectionRun).where(
+            CollectionRun.source_id == original.source_id,
+            CollectionRun.idempotency_key == key,
+        )
+    )
+    if existing is not None:
+        await session.commit()
+        return existing, False
+    child = CollectionRun(
+        source_id=original.source_id,
+        triggered_by_user_id=user_id,
+        trigger_type=CollectionTriggerType.MANUAL,
+        status=CollectionRunStatus.QUEUED,
+        idempotency_key=key,
+    )
+    session.add(child)
+    await session.commit()
+    await session.refresh(child)
+    return child, True
+
+
 async def list_source_runs(
     session: AsyncSession,
     *,
@@ -184,7 +271,11 @@ async def list_run_items(
 
 
 async def schedule_due_sources(
-    factory: async_sessionmaker[AsyncSession], *, batch_size: int = 100, now: datetime | None = None
+    factory: async_sessionmaker[AsyncSession],
+    *,
+    batch_size: int = 100,
+    now: datetime | None = None,
+    publisher: EventPublisher | None = None,
 ) -> int:
     current = now or datetime.now(UTC)
     bucket = current.replace(second=0, microsecond=0).isoformat()
@@ -205,7 +296,7 @@ async def schedule_due_sources(
                 )
             ).all()
         )
-        created = 0
+        created_ids: list[UUID] = []
         for source in sources:
             key = f"schedule:{bucket}"
             existing = await session.scalar(
@@ -215,18 +306,20 @@ async def schedule_due_sources(
                 )
             )
             if existing is None:
-                session.add(
-                    CollectionRun(
-                        source_id=source.id,
-                        trigger_type=CollectionTriggerType.SCHEDULE,
-                        status=CollectionRunStatus.QUEUED,
-                        idempotency_key=key,
-                    )
+                run = CollectionRun(
+                    source_id=source.id,
+                    trigger_type=CollectionTriggerType.SCHEDULE,
+                    status=CollectionRunStatus.QUEUED,
+                    idempotency_key=key,
                 )
-                created += 1
+                session.add(run)
+                await session.flush()
+                created_ids.append(run.id)
             source.next_fetch_at = current + timedelta(minutes=source.poll_interval_minutes)
         await session.commit()
-        return created
+    for run_id in created_ids:
+        await publish_collection_updated(factory, run_id, publisher)
+    return len(created_ids)
 
 
 async def dispatch_queued_runs(
@@ -308,11 +401,14 @@ async def execute_run(
     correlation_id: str | None = None,
     task_id: str | None = None,
     raw_dispatch: Dispatch | None = None,
+    publisher: EventPublisher | None = None,
 ) -> bool:
     started = time.monotonic()
     source = await _claim_run(factory, run_id)
     if source is None:
+        await publish_collection_updated(factory, run_id, publisher)
         return False
+    await publish_collection_updated(factory, run_id, publisher)
     retries = 0
     try:
         response, retries = await fetch_with_retries(
@@ -380,6 +476,7 @@ async def execute_run(
             run.error_message = None
             locked_source.last_fetched_at = run.finished_at
             await session.commit()
+        await publish_collection_updated(factory, run_id, publisher)
         if raw_dispatch is not None:
             for raw_item in created_raw_items:
                 try:
@@ -410,6 +507,7 @@ async def execute_run(
         return True
     except CollectionError as exc:
         await _finish_failure(factory, run_id, exc)
+        await publish_collection_updated(factory, run_id, publisher)
         get_logger().warning(
             "collection_failed",
             message=exc.safe_message,
@@ -430,6 +528,7 @@ async def execute_run(
     except Exception:
         error = CollectionError("internal_collection_error", "Collection failed unexpectedly")
         await _finish_failure(factory, run_id, error)
+        await publish_collection_updated(factory, run_id, publisher)
         get_logger().error(
             "collection_failed",
             message=error.safe_message,

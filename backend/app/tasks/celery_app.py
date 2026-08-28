@@ -10,7 +10,12 @@ celery_app = Celery(
     "flowtracer",
     broker=settings.celery_broker_url.get_secret_value(),
     backend=settings.celery_result_backend.get_secret_value(),
-    include=["app.tasks.health", "app.tasks.acquisition", "app.tasks.intelligence"],
+    include=[
+        "app.tasks.health",
+        "app.tasks.acquisition",
+        "app.tasks.intelligence",
+        "app.tasks.notifications",
+    ],
 )
 celery_app.conf.update(
     accept_content=["json"],
@@ -44,6 +49,10 @@ celery_app.conf.update(
         },
         "dispatch-embedding-documents": {
             "task": "flowtracer.tasks.intelligence.dispatch_embedding_documents",
+            "schedule": 60.0,
+        },
+        "dispatch-notifications": {
+            "task": "flowtracer.tasks.notifications.dispatch_notifications",
             "schedule": 60.0,
         },
     },

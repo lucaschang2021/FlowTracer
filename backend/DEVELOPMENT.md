@@ -1,8 +1,8 @@
 # Backend development
 
-BE-6 extends intelligence with deterministic Document chunking, independent embedding providers,
-1536-dimensional pgvector storage, Bookmark CRUD, and SQL-scoped Memory Search. Notification,
-WebSocket, external knowledge-base sync, and BE-7+ remain out of scope.
+BE-7 extends intelligence with threshold-qualified Notification facts, best-effort user-isolated
+Redis WebSocket events, and idempotent CollectionRun retry/recovery. Native desktop notifications,
+external push, durable event buses, and BE-8+ remain out of scope.
 
 ## Requirements
 
@@ -68,6 +68,7 @@ Acquisition endpoints:
 - `GET /api/v1/sources/{source_id}/runs`
 - `GET /api/v1/collection-runs/{run_id}`
 - `GET /api/v1/collection-runs/{run_id}/items`
+- `POST /api/v1/collection-runs/{run_id}/retry`
 
 Intelligence endpoints:
 
@@ -82,6 +83,18 @@ Memory endpoints:
 - `PATCH /api/v1/bookmarks/{bookmark_id}`
 - `DELETE /api/v1/bookmarks/{bookmark_id}`
 - `POST /api/v1/memory/search`
+
+Notification and online-event endpoints:
+
+- `GET /api/v1/notifications`
+- `POST /api/v1/notifications/{notification_id}/read`
+- `POST /api/v1/notifications/read-all`
+- `WS /api/v1/ws`
+
+The WebSocket accepts an Access Token only through the handshake `Authorization: Bearer` header.
+It uses a Redis channel scoped to the authenticated user, closes with 4401 on authentication or
+token expiry, and closes with 1013 on Redis failure or per-connection queue backpressure. Events
+are best effort; reconnecting clients recover facts through REST.
 
 The optional `Idempotency-Key` header on manual collection is printable ASCII, trimmed, and
 limited to 128 characters. The API commits a queued run before broker dispatch; the periodic
@@ -100,3 +113,9 @@ BE-6 adds a 60-second dispatcher for Documents left in `embedding`. A session ad
 serializes each Document, while short transactions bracket remote calls. Chunk replacement and
 the `embedding -> ready` transition commit atomically; failures store only stable safe errors.
 Migration `20260827_0003` adds only the cosine HNSW index (`m=16`, `ef_construction=64`).
+
+BE-7 adds no migration. A 60-second Notification dispatcher recovers eligible completed analyses,
+and the existing queued-run dispatcher recovers retry children retained after broker failures.
+Notification and online events are published only after database commit; Redis publication failure
+does not roll back facts. Event payloads never contain document body, Prompt, vectors, Source config,
+credentials, tokens, connection strings, or cost records.

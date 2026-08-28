@@ -34,6 +34,7 @@ from app.providers.analysis import (
     ProviderResponse,
 )
 from app.services.cleaning import PIPELINE_VERSION
+from app.services.events import EventPublisher, build_event, publish_safely
 
 ANALYSIS_BUDGET_SECONDS = 90.0
 RUNNING_STALE_AFTER = timedelta(minutes=10)
@@ -627,3 +628,41 @@ async def retry_analysis(session: AsyncSession, *, user_id: UUID, analysis_id: U
     await session.commit()
     await session.refresh(analysis)
     return analysis
+
+
+async def publish_analysis_completed(
+    factory: async_sessionmaker[AsyncSession],
+    analysis_id: UUID,
+    publisher: EventPublisher | None,
+) -> bool:
+    async with factory() as session:
+        row = (
+            await session.execute(
+                select(Analysis, Radar.user_id)
+                .join(Radar, Radar.id == Analysis.radar_id)
+                .where(
+                    Analysis.id == analysis_id,
+                    Analysis.status == AnalysisStatus.COMPLETED,
+                    Analysis.radar_score.is_not(None),
+                    Analysis.recommendation.is_not(None),
+                )
+            )
+        ).one_or_none()
+        if row is None:
+            return False
+        analysis, user_id = row
+        event = build_event(
+            "analysis.completed",
+            analysis.id,
+            analysis.updated_at.isoformat(),
+            {
+                "analysis_id": analysis.id,
+                "document_id": analysis.document_id,
+                "radar_id": analysis.radar_id,
+                "radar_score": analysis.radar_score,
+                "recommendation": analysis.recommendation,
+            },
+            occurred_at=analysis.updated_at,
+        )
+        resource_id = analysis.id
+    return await publish_safely(publisher, user_id=user_id, event=event, resource_id=resource_id)

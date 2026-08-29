@@ -1,8 +1,8 @@
 # Backend development
 
-BE-7 extends intelligence with threshold-qualified Notification facts, best-effort user-isolated
-Redis WebSocket events, and idempotent CollectionRun retry/recovery. Native desktop notifications,
-external push, durable event buses, and BE-8+ remain out of scope.
+BE-8 is the Alpha backend stabilization and contract-freeze phase. It adds no endpoint, database
+schema, Provider, Pipeline state, or business capability. Frontend and operations consumers should
+use `FRONTEND-HANDOFF.md`, `ALPHA-OPERATIONS.md`, and the committed OpenAPI snapshot.
 
 ## Requirements
 
@@ -18,6 +18,7 @@ uv run ruff check .
 uv run ruff format --check .
 uv run mypy app
 uv run pytest
+uv run python scripts/export_openapi.py --check
 ```
 
 Export the variables in `backend/.env.example` before starting host processes. Configuration is
@@ -47,6 +48,19 @@ uv run alembic upgrade head
 uv run alembic downgrade 20260824_0002
 uv run alembic upgrade head
 uv run alembic check
+```
+
+Run the fully offline Alpha closure against the isolated test PostgreSQL/Redis services:
+
+```powershell
+uv run pytest --no-cov tests/test_alpha_e2e.py
+```
+
+Regenerate OpenAPI only when intentionally reviewing the frozen contract:
+
+```powershell
+uv run python scripts/export_openapi.py
+git diff -- openapi/flowtracer-alpha-v0.1.json
 ```
 
 Integration tests require a real PostgreSQL database whose name contains `_test`. Set

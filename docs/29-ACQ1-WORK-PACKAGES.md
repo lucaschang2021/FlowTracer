@@ -1,6 +1,6 @@
 # FlowTracer ACQ-1 Backend Work Packages
 
-状态：Frozen Candidate
+状态：Frozen
 
 执行角色：现有“协作后端开发”Backend 角色；任务由总控直接下达并接收报告。
 

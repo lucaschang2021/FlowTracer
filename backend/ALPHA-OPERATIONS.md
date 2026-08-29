@@ -9,12 +9,20 @@ From the repository root:
 
 ```powershell
 docker compose -f infra/compose.yaml config
-docker compose -f infra/compose.yaml up --build -d
-docker compose -f infra/compose.yaml exec api alembic upgrade head
+docker compose -f infra/compose.yaml build api
+docker compose -f infra/compose.yaml up -d --wait postgres redis
+docker compose -f infra/compose.yaml run --rm api alembic upgrade head
+docker compose -f infra/compose.yaml up -d --wait api worker
 curl.exe http://localhost:8000/api/v1/health/live
 curl.exe http://localhost:8000/api/v1/health/ready
 docker compose -f infra/compose.yaml exec worker celery -A app.tasks.celery_app:celery_app inspect ping
 ```
+
+This order is intentional: only PostgreSQL and Redis start before the migration. The
+one-off `run --rm api` container applies the schema without starting the API server or
+the worker's embedded Beat process. API and Worker start only after Alembic reaches
+`head`. The validated Compose CLI supports waiting for both services in one command;
+this procedure does not remove or recreate named volumes.
 
 Expected services are exactly `api`, `worker`, `postgres`, and `redis`. API and worker use the
 same image and run as non-root UID 10001. The worker embeds one Beat process and writes its

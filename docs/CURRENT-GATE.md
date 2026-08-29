@@ -2,13 +2,13 @@
 
 更新时间：2026-08-29。
 
-- 当前稳定基准：`main@5a81248c15ea6ce8a7543b7926df7d061f5022dd`；ACQ-1 Preflight 激活 PR #28 已合并。
+- 当前稳定基准：`main@76e86c375cb769bc3716614d8d3f1cb470e4955f`；ACQ-1 Contract Freeze 准入 PR #29 已合并。
 - 已完成：ACQ-1 Preflight 已通过总控审查，结论记录于 `docs/27-ACQ1-PREFLIGHT-ACCEPTANCE.md`。
-- 当前阶段：ACQ-1 Contract Freeze（架构与契约冻结）。
-- 准入：只批准总控架构文档、ADR、Schema/Migration 设计、公开 API/OpenAPI 草案、Browser NetworkPolicy、Opportunity 评分和 ACQ-1 分期任务包。
+- 当前阶段：ACQ-1 Contract Freeze 完成候选，等待总控复核与控制 PR 合并。
+- 准入：仅允许 Review 本分支的架构文档、ADR、Schema/Migration 设计、公开 API/OpenAPI 草案、Browser NetworkPolicy、Opportunity 评分和分期任务包。
 - 未准入：ACQ-1 业务代码、依赖安装或升级、数据库迁移、公开 API 实现、Scrapling/Browser 运行、Frontend、Integration 与 Release。
 
-Contract Freeze 任务开始时只读取：本文件、`docs/02-DELIVERY-BOARD.md`、`docs/27-ACQ1-PREFLIGHT-ACCEPTANCE.md`、`docs/28-ACQ1-CONTRACT-FREEZE-ADMISSION.md`、用户提供的 ACQ-1 总控任务包，以及直接相关的 BE-4/BE-8 契约和实现文件。无需回读全部历史基线。
+Contract Freeze Review 只读取：本文件、`docs/02-DELIVERY-BOARD.md`、`docs/22-ACQ1-MASTER-BASELINE.md`、`docs/23-ACQ1-ACQUISITION-CONTRACT.md`、`docs/24-ACQ1-OPPORTUNITY-RADAR.md`、`docs/25-ACQ1-ACCEPTANCE.md`、ADR-022..026、`docs/29-ACQ1-WORK-PACKAGES.md` 与本次 diff。
 
 必须冻结：
 
@@ -23,4 +23,4 @@ Contract Freeze 任务开始时只读取：本文件、`docs/02-DELIVERY-BOARD.m
 
 Preflight 已确认的阻塞不得在实现中隐式解决：现有 RawItem 唯一/去重语义无法保存版本；Source config 无类型且公开返回；running CollectionRun 无 stale recovery；Browser 可能绕过 SafeFetcher；Opportunity/评分未冻结；Browser 二进制和 Scrapling extras 未进入锁定构建体系。
 
-下一步：在新的 Codex 任务中完成 ACQ-1 Contract Freeze 文档并停点。控制文档经总控 Review 和 PR 合并后，才可逐阶段签发 ACQ-1 正式实现任务；不得一次性准入整个 ACQ-1，Frontend 继续未准入。
+下一步：总控完成文档一致性复核并提交控制 PR。该 PR 合并后仍需单独签发 WP-1（ACQ-1A+H0）准入，再直接向现有 Backend 下达任务；不得一次性准入整个 ACQ-1，Frontend 继续未准入。

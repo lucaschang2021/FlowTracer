@@ -19,6 +19,7 @@ Backend 只读取：
 - `docs/23-ACQ1-ACQUISITION-CONTRACT.md`
 - `docs/25-ACQ1-ACCEPTANCE.md`
 - `docs/29-ACQ1-WORK-PACKAGES.md` 的通用规则与 WP-1
+- `docs/32-ACQ1-WP1-CONTRACT-ADDENDUM.md`
 - ADR-022、ADR-023
 - 本阶段直接涉及的 Backend 代码、迁移与测试
 

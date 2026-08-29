@@ -1,6 +1,6 @@
 # FlowTracer ACQ-1 Acquisition Contract
 
-状态：Frozen Candidate
+状态：Frozen；WP-1 精确值域与 Profile v1 Schema 由 `docs/32-ACQ1-WP1-CONTRACT-ADDENDUM.md` 补充
 
 版本：`acquisition-v1`
 

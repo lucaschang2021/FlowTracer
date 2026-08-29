@@ -4,7 +4,7 @@
 
 **M0：架构初步冻结 — 已完成**
 
-**当前阶段：Backend Phase BE-8 — 稳定化、契约冻结与前端交接（已准入，开发进行中）**
+**当前阶段：ACQ-1 Preflight — 工程盘点与实施计划（仅 Preflight 已准入）**
 
 ## 工作项
 
@@ -37,9 +37,12 @@
 | PM-009 | BE-7 Notification/WebSocket/恢复基线及准入 | 总控 | 完成 | BE-6 | `18-BE7-NOTIFICATION-WS-BASELINE.md`、`19-BE-7-ADMISSION.md`、ADR-019、PR #20 |
 | BE-7 | Notification、WebSocket 与恢复 | Backend | 完成（已验收、已合并） | PM-009 | PR #23、Notification、在线事件、CollectionRun retry、补偿调度、测试与阶段报告 |
 | PM-010 | BE-8 稳定化与前端交接基线及准入 | 总控 | 完成 | BE-7 | `20-BE8-STABILIZATION-HANDOFF-BASELINE.md`、`21-BE-8-ADMISSION.md`、ADR-020、PR #24 |
-| BE-8 | 后端稳定化与前端交接 | Backend | 已准入（开发进行中） | PM-010 | 全量门禁、离线闭环、OpenAPI 冻结、性能/安全基线与前端交接包 |
-| FE-001 | 前端实现 | Frontend | 未准入 | BE-8 经总控验收，后端契约稳定 | 桌面端与前端测试 |
-| INT-001 | 集成与缺陷修复 | Integration | 未准入 | BE-8、FE-001 | E2E 报告与缺陷闭环 |
+| BE-8 | 后端稳定化与前端交接 | Backend | 完成（已验收、已合并） | PM-010 | PR #26、236 tests、OpenAPI 冻结、离线闭环、迁移/运行证据与前端交接包 |
+| PM-011 | ACQ-1 Preflight 准入 | 总控 | 完成 | BE-8 | `26-ACQ1-PREFLIGHT-ADMISSION.md`、ADR-021 |
+| ACQ-1-PF | ACQ-1 工程盘点与实施计划 | Backend / Architecture | 已准入（仅只读 Preflight） | PM-011 | ACQ-1A..H 实施计划、Schema/API/dependency 影响、测试矩阵与风险报告 |
+| ACQ-1 | Universal Adaptive Acquisition & Opportunity Discovery Engine | Backend | 未准入 | ACQ-1-PF 经总控验收并完成契约冻结 | Acquisition Contract、Opportunity Contract、实现、测试与验收报告 |
+| FE-001 | 前端实现 | Frontend | 未准入 | ACQ-1 经总控验收并冻结 Acquisition Contract | 桌面端与前端测试 |
+| INT-001 | 集成与缺陷修复 | Integration | 未准入 | ACQ-1、FE-001 | E2E 报告与缺陷闭环 |
 | REL-001 | GitHub Alpha 发布 | Release | 未准入 | INT-001 | 仓库、CI、Tag、Release |
 
 ## 汇报格式

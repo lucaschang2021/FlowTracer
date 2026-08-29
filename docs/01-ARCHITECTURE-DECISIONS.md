@@ -149,6 +149,16 @@
 - 交接：以导出的 OpenAPI JSON、Endpoint/枚举/错误码清单、WebSocket 样例、环境变量矩阵和运行手册作为 Frontend 的唯一后端基线。
 - 边界：BE-8 不开发 React/Tauri，不进行 Integration/Release，不引入新数据库、中间件、深爬、Router、团队权限或 v0.2+ 能力。
 
+## ADR-021：ACQ-1 成为 Frontend 前置阶段并先执行 Preflight
+
+- 状态：Accepted（仅 Preflight 准入）
+- 决策：在 Backend Alpha Core BE-1 至 BE-8 完成后，新增 ACQ-1（Universal Adaptive Acquisition & Opportunity Discovery Engine）作为 Frontend 的硬依赖；Frontend 不得在 ACQ-1 验收和 Acquisition Contract 冻结前启动。
+- Preflight：正式实现前必须只读审查现有 Acquisition、Source/RawItem/CollectionRun、SafeFetcher、依赖和运行环境，提交 ACQ-1A 至 ACQ-1H 的实施顺序、契约影响、测试矩阵、资源预算和风险。Preflight 通过不等于正式编码准入。
+- 架构：Source Family 是 Acquisition/Extraction Profile；RSS、Native HTTP、Scrapling HTTP、Dynamic/Advanced Browser 必须位于统一 Adapter Boundary 后，输出统一 AcquisitionResult，并继续进入既有 RawItem Pipeline。
+- 安全：所有 Backend 必须共享 SSRF、重定向、协议/端口、DNS rebinding、站点政策、资源预算和访问控制边界；Browser 不得绕过 SafeFetcher 安全意图，禁止 CAPTCHA、登录墙或付费墙绕过。
+- 机会边界：Opportunity Radar 只负责发现、结构化、筛选、评分、通知和生成 Action Payload；自动投标、合同/价格/工期承诺、资金处理和外部 Agent 执行不属于 ACQ-1。
+- 变更控制：现有 Schema、公开 API、Pipeline 或评分无法承载需求时，必须先提交独立 ADR、迁移和兼容性计划；不得在 Preflight 或实现分支中隐式扩张。
+
 ## 后续阶段前仍需补齐的工程规格
 
 以下事项不改变 Alpha 架构初步冻结结论，但必须由总控在对应实现阶段准入前补齐，不得由 Backend 擅自决定：

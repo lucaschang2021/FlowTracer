@@ -4,7 +4,7 @@
 
 **M0：架构初步冻结 — 已完成**
 
-**当前阶段：ACQ-1 Contract Freeze — 架构与契约冻结（仅文档设计已准入）**
+**当前阶段：ACQ-1 Contract Freeze — 冻结候选待 Review/合并；正式实现未准入**
 
 ## 工作项
 
@@ -41,7 +41,7 @@
 | PM-011 | ACQ-1 Preflight 准入 | 总控 | 完成 | BE-8 | `26-ACQ1-PREFLIGHT-ADMISSION.md`、ADR-021 |
 | ACQ-1-PF | ACQ-1 工程盘点与实施计划 | Backend / Architecture | 完成（已验收） | PM-011 | `27-ACQ1-PREFLIGHT-ACCEPTANCE.md`、ACQ-1A..H 计划、契约影响、测试矩阵与风险报告 |
 | PM-012 | ACQ-1 Contract Freeze 准入 | 总控 | 完成 | ACQ-1-PF | `28-ACQ1-CONTRACT-FREEZE-ADMISSION.md` |
-| ACQ-1-CF | Acquisition / Opportunity / Safety 契约冻结 | Architecture / 总控 | 已准入（仅文档设计） | PM-012 | ADR、`22-ACQ1-MASTER-BASELINE.md`、`23-ACQ1-ACQUISITION-CONTRACT.md`、`24-ACQ1-OPPORTUNITY-RADAR.md`、`25-ACQ1-ACCEPTANCE.md`、分期任务包 |
+| ACQ-1-CF | Acquisition / Opportunity / Safety 契约冻结 | Architecture / 总控 | 完成候选（待 Review/合并） | PM-012 | ADR-022..026、`22-ACQ1-MASTER-BASELINE.md`、`23-ACQ1-ACQUISITION-CONTRACT.md`、`24-ACQ1-OPPORTUNITY-RADAR.md`、`25-ACQ1-ACCEPTANCE.md`、`29-ACQ1-WORK-PACKAGES.md` |
 | ACQ-1 | Universal Adaptive Acquisition & Opportunity Discovery Engine | Backend | 未准入 | ACQ-1-CF 经总控验收并合并 | 分阶段实现、测试与验收报告 |
 | FE-001 | 前端实现 | Frontend | 未准入 | ACQ-1 经总控验收并冻结 Acquisition Contract | 桌面端与前端测试 |
 | INT-001 | 集成与缺陷修复 | Integration | 未准入 | ACQ-1、FE-001 | E2E 报告与缺陷闭环 |

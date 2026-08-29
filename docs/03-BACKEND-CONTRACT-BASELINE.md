@@ -162,3 +162,11 @@ pending -> cleaning -> deduplicating -> analyzing -> embedding -> ready
 - 必须证明空库迁移、Compose 四服务、API/Worker 同镜像非 root、Celery/Beat、live/ready、幂等/重试、用户隔离、SSRF 与秘密扫描可重复通过。
 - 前端交接包至少包含 OpenAPI、Endpoint/枚举/错误码清单、鉴权与 Token 生命周期、WebSocket Envelope/关闭码/恢复规则、环境变量矩阵、启动/迁移/测试命令和已知限制。
 - BE-8 不开发前端、不发布 Alpha、不执行生产部署；Frontend、Integration、Release 仍需独立准入。
+
+## 16. ACQ-1 Acquisition 与 Opportunity 契约补充
+
+- ACQ-1 总范围、非目标、依赖顺序、兼容和迁移原则以 `docs/22-ACQ1-MASTER-BASELINE.md` 为准。
+- Universal Source、Acquisition Adapter/Result、Router、Quality、Discovery、Version Evidence、NetworkPolicy、SitePolicy、预算、可靠性、观测与候选 API 以 `docs/23-ACQ1-ACQUISITION-CONTRACT.md` 为准。
+- Opportunity/Freelance、Hard Filter、`opportunity-score-v1`、Action Payload、通知映射和人类确认边界以 `docs/24-ACQ1-OPPORTUNITY-RADAR.md` 为准。
+- 最终测试和 Stage Gate 以 `docs/25-ACQ1-ACCEPTANCE.md` 为准；实施阶段以 `docs/29-ACQ1-WORK-PACKAGES.md` 为准。
+- ACQ-1 Contract Freeze 不准入业务实现。只有控制 PR 合并并由总控签发独立阶段许可后，Backend 才能执行相应工作包。

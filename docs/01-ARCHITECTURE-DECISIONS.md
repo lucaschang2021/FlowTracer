@@ -159,6 +159,46 @@
 - 机会边界：Opportunity Radar 只负责发现、结构化、筛选、评分、通知和生成 Action Payload；自动投标、合同/价格/工期承诺、资金处理和外部 Agent 执行不属于 ACQ-1。
 - 变更控制：现有 Schema、公开 API、Pipeline 或评分无法承载需求时，必须先提交独立 ADR、迁移和兼容性计划；不得在 Preflight 或实现分支中隐式扩张。
 
+## ADR-022：ACQ-1 使用统一 Acquisition Adapter 与强类型 Source Profile
+
+- 状态：Accepted（待控制 PR 合并）
+- 决策：业务层只依赖 AcquisitionRequest/Backend/Result；RSS、Native、Scrapling、Dynamic 与 Advanced 均为 Adapter。Source 使用稳定列、版本化非秘密 Profile 与独立运行状态。
+- 兼容：legacy Source 默认 `generic_web/auto/single_page/acq-source-v1`；现有 config 在兼容窗口保留但不承载秘密或高频状态。
+- 路由：Native First；Router 只能在质量、预算与 SitePolicy 允许时升级。Advanced 不包含访问控制绕过。
+- 规格：`docs/22-ACQ1-MASTER-BASELINE.md`、`docs/23-ACQ1-ACQUISITION-CONTRACT.md`。
+
+## ADR-023：Browser 必须独立运行并通过强制受控出口
+
+- 状态：Accepted（待控制 PR 合并）
+- 决策：Browser 使用独立镜像、专用 Celery queue、低并发和强制 egress proxy；网络命名空间禁止 Internet 直连、系统 DNS、host network 与 Docker socket。
+- 覆盖：navigation、redirect、iframe、script、XHR/fetch、WebSocket、download 与 popup 均受 NetworkPolicy、SitePolicy、scope 和预算约束。
+- 安全：不能证明无旁路时 Dynamic/Advanced 不准入；安全策略不能通过 fallback、Profile 或 allowlist 降级。
+- 构建：package、Browser revision、系统依赖和镜像 digest 必须精确锁定并离线验收。
+
+## ADR-024：ACQ-1 引入 Artifact、Snapshot 与 ChangeEvent 版本证据层
+
+- 状态：Accepted（待控制 PR 合并）
+- 决策：SourceArtifact 表示稳定条目，AcquisitionSnapshot 保存可审计版本，ChangeEvent 保存观测变化；RawItem 继续作为 qualifying change 的既有下游入口。
+- 去重：新 RawItem 以 snapshot identity 唯一；legacy `(source_id, external_id)` 约束通过 expand/backfill/switch/contract 收缩，不能直接删除。
+- 证据：content、metadata、structure 指纹分别版本化；AI semantic summary 必须引用 old/new snapshot，不能替代确定性证据。
+- 删除：一次访问失败不判 removed；需连续成功观测缺失或权威 404/410。
+
+## ADR-025：Opportunity 使用独立事实、评分与 Action Payload 契约
+
+- 状态：Accepted（待控制 PR 合并）
+- 决策：新增 `radar_type=opportunity`、OpportunityItem、OpportunityScore 与不可执行 Action Payload；不复用现有 Analysis radar_score 语义。
+- 评分：`opportunity-score-v1` 由服务端 Decimal 公式计算，维度、缺失值、currency、Hard Filter、Recommendation 和通知映射以 `docs/24-ACQ1-OPPORTUNITY-RADAR.md` 为准。
+- 人类确认：自动投标、报价、工期/合同承诺、沟通、付款和外部 Agent 执行禁止进入 ACQ-1。
+- 合规：平台名称不等于采集授权；访问限制触发 Stop/Report/Human Action。
+
+## ADR-026：ACQ-1 分阶段迁移并保持 BE-8 Pipeline 兼容
+
+- 状态：Accepted（待控制 PR 合并）
+- 决策：Schema 采用 expand/backfill/dual-write/switch/contract；运行回滚优先回退应用并保留扩展 Schema，禁止静默丢失多版本证据。
+- 分期：A+H0 → B+D-static → B-dynamic+H-browser → C → E → F → G → H-Final，每阶段单独准入、PR、Review 与停点。
+- API：Source 新字段向后兼容；Opportunity enum 和新 Endpoint 在 Frontend 前重新冻结 OpenAPI；现有 WebSocket 事件不在 ACQ-1 隐式扩张。
+- 验收：以 `docs/25-ACQ1-ACCEPTANCE.md` 和 `docs/29-ACQ1-WORK-PACKAGES.md` 为准。
+
 ## 后续阶段前仍需补齐的工程规格
 
 以下事项不改变 Alpha 架构初步冻结结论，但必须由总控在对应实现阶段准入前补齐，不得由 Backend 擅自决定：

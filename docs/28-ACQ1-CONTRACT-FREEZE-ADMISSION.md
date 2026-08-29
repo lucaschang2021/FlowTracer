@@ -1,10 +1,14 @@
 # FlowTracer ACQ-1 Contract Freeze 准入
 
-状态：待控制 PR 合并后生效
+状态：已生效
 
-准入基准：`main@5a81248c15ea6ce8a7543b7926df7d061f5022dd`
+前置基准：`main@5a81248c15ea6ce8a7543b7926df7d061f5022dd`
 
-目标：新的 Codex 任务，仅执行架构与契约文档冻结
+生效基准：`main@76e86c375cb769bc3716614d8d3f1cb470e4955f`
+
+控制 PR：#29（已 Review 并合并）
+
+目标：由总控在主工作区执行架构与契约文档冻结
 
 ## 授权范围
 

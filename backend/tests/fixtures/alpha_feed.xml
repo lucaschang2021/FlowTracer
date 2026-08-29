@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>FlowTracer Offline Feed</title>
+    <item>
+      <guid>alpha-rss-item-1</guid>
+      <link>https://fixtures.invalid/items/alpha-rss-1</link>
+      <title>Offline RSS intelligence</title>
+      <description>
+        Deterministic local RSS content about resilient backend systems and vector memory.
+      </description>
+    </item>
+  </channel>
+</rss>

@@ -2,7 +2,7 @@
 
 更新时间：2026-08-29。
 
-- 当前稳定基准：`main@f008eea0730f91e0bd04dc2a2661523f62cb06e1`；BE-8 PR #26 已独立验收并合并，Backend Alpha Core BE-1 至 BE-8 已完成。
+- 当前稳定基准：`main@298b299cf2d16a58d9b4d4e8d0aabd4d26f90248`；ACQ-1 控制 PR #27 已 Review 并合并，PM-011 已完成。
 - 当前阶段：ACQ-1 Preflight（工程盘点与实施计划）。
 - 准入：只批准 ACQ-1 Preflight；允许只读审查现有 Acquisition、Source、RawItem、CollectionRun、SafeFetcher、依赖与运行环境，并提交 ACQ-1A 至 ACQ-1H 实施计划、契约影响和风险报告。
 - 未准入：ACQ-1 正式编码、依赖安装或升级、数据库迁移、公开 API/Schema 变更、Scrapling/Browser 引入、Frontend、Integration 与 Release。
@@ -20,4 +20,4 @@ Preflight 必须核对：
 
 发现现有冻结 Schema、公开 API、Pipeline、评分或安全边界无法承载 ACQ-1 时，不得自行修改；必须在 Preflight 报告中提出 ADR、迁移和兼容性建议，等待总控单独冻结。
 
-下一步：在新的 Codex 任务中执行 ACQ-1 Preflight，完成报告后停点。总控验收 Preflight、冻结 Acquisition/Opportunity 契约并签发正式实施准入前，不得创建 ACQ-1 开发分支或开始编码；Frontend 仍为 ACQ-1 的硬依赖下游阶段。
+下一步：已创建的 ACQ-1 Preflight 任务从 `main@298b299cf2d16a58d9b4d4e8d0aabd4d26f90248` 继续只读盘点，完成报告后停点。总控验收 Preflight、冻结 Acquisition/Opportunity 契约并签发正式实施准入前，不得创建 ACQ-1 开发分支或开始编码；Frontend 仍为 ACQ-1 的硬依赖下游阶段。

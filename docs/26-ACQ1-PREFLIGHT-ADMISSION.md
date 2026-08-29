@@ -1,8 +1,12 @@
 # FlowTracer ACQ-1 Preflight 准入
 
-状态：待控制 PR 合并后生效
+状态：已生效
 
-准入基准：`main@f008eea0730f91e0bd04dc2a2661523f62cb06e1`
+前置基准：`main@f008eea0730f91e0bd04dc2a2661523f62cb06e1`
+
+生效基准：`main@298b299cf2d16a58d9b4d4e8d0aabd4d26f90248`
+
+控制 PR：#27（已 Review 并合并）
 
 目标：新的 Codex 任务，仅执行只读 Preflight
 

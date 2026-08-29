@@ -22,7 +22,7 @@ from sqlalchemy.ext.asyncio import (
 
 from app.core.config import Settings
 from app.main import create_app
-from app.models.entities import Analysis, Document, RawItem, SourceType
+from app.models.entities import Analysis, Document, Notification, RawItem, SourceType
 from app.providers.analysis import FakeAnalysisProvider
 from app.providers.embedding import FakeEmbeddingProvider
 from app.schemas.events import EventEnvelope
@@ -227,7 +227,22 @@ async def test_complete_offline_alpha_loop_and_rest_recovery(alpha_engine: Async
             dispatch_notifications(factory, publisher),
             dispatch_notifications(factory, publisher),
         )
-        assert sorted(notification_results) == [0, 2]
+        assert sum(notification_results) == 2
+        async with AsyncSession(alpha_engine) as session:
+            notifications = list((await session.scalars(select(Notification))).all())
+        assert len(notifications) == 2
+        assert {notification.analysis_id for notification in notifications} == set(analyses)
+
+        notification_events = [
+            event for _, event in publisher.events if event.event_type == "notification.created"
+        ]
+        assert len(notification_events) == 2
+        notification_payloads = [event.data.model_dump() for event in notification_events]
+        assert {payload["analysis_id"] for payload in notification_payloads} == set(analyses)
+        assert len({payload["notification_id"] for payload in notification_payloads}) == 2
+        assert {payload["notification_id"] for payload in notification_payloads} == {
+            notification.id for notification in notifications
+        }
         assert await dispatch_notifications(factory, publisher) == 0
         assert {event.event_type for _, event in publisher.events} == {
             "collection.updated",

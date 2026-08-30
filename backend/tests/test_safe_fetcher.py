@@ -312,7 +312,7 @@ async def test_transient_retries_use_frozen_backoff() -> None:
     async def sleep(delay: float) -> None:
         delays.append(delay)
 
-    with pytest.raises(CollectionError):
+    with pytest.raises(CollectionError) as caught:
         await fetch_with_retries(
             FlakyFetcher(),  # type: ignore[arg-type]
             "https://example.com",
@@ -321,6 +321,7 @@ async def test_transient_retries_use_frozen_backoff() -> None:
         )
     assert attempts == 4
     assert delays == [2, 4, 8]
+    assert caught.value.retry_count == 3
 
 
 @pytest.mark.asyncio
@@ -366,6 +367,7 @@ async def test_default_transport_uses_fixed_safe_headers_and_decodes_chunked_gzi
 @pytest.mark.asyncio
 async def test_safe_fetcher_follows_valid_redirect_and_accepts_type_parameters() -> None:
     calls: list[str] = []
+    validated: list[str] = []
 
     async def transport(**kwargs: object) -> WireResponse:
         calls.append(str(kwargs["url"]))
@@ -373,10 +375,13 @@ async def test_safe_fetcher_follows_valid_redirect_and_accepts_type_parameters()
             return WireResponse(302, {"location": "/final"}, b"")
         return WireResponse(200, {"content-type": "Text/HTML; Charset=UTF-8"}, b"<p>ok</p>")
 
-    fetched = await SafeFetcher(resolver=public_resolver, transport=transport).fetch(
-        "https://example.com/start", SourceType.URL
-    )
+    fetched = await SafeFetcher(
+        resolver=public_resolver,
+        transport=transport,
+        target_validator=validated.append,
+    ).fetch("https://example.com/start", SourceType.URL)
     assert calls == ["https://example.com/start", "https://example.com/final"]
+    assert validated == calls
     assert fetched.final_url == "https://example.com/final"
     assert fetched.body == b"<p>ok</p>"
 

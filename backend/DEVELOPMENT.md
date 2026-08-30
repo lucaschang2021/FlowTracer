@@ -139,3 +139,36 @@ The official Compose worker embeds one Beat process and stores its schedule at
 container-local. Recreating the worker removes that schedule file; a normal restart may reuse it.
 Do not scale the Compose worker above one replica while it embeds Beat, because multiple Beat
 instances would enqueue the same periodic tasks.
+
+## ACQ-1 WP-1 acquisition foundation
+
+Migration `20260830_0004` is an expand-only compatibility migration. It adds the versioned Source
+acquisition profile, per-Source acquisition state, immutable acquisition attempts, and fenced
+CollectionRun lease fields while retaining the legacy Source columns and uniqueness constraints.
+Existing Sources are backfilled with the complete `acq-source-v1` defaults and one healthy state
+row. Legacy `running` CollectionRuns receive an already-expired migration lease so the first
+dispatcher pass safely requeues them under claim-token fencing. Apply the migration before
+starting API or Worker processes:
+
+```powershell
+uv run alembic upgrade head
+uv run alembic check
+```
+
+Native workers claim queued runs with a ten-minute lease and heartbeat every 60 seconds. Stale
+runs return to `queued` until the frozen three-claim limit is exhausted; every terminal update is
+conditioned on the current claim token so an expired worker cannot overwrite its replacement.
+Acquisition attempts and state health contain only stable error codes and safe messages.
+
+`NetworkPolicy` is an internal hard boundary and is not exposed through Source Profile JSON.
+Source `site_policy` and `resource_budget` values can only tighten operator policy. WP-1 supports
+only `auto` and `native` acquisition in the Native worker; unavailable modes fail safely before
+transport and do not create an attempt. Tests inject offline transports and never access public
+targets.
+
+Rollback to the previous Alpha schema is supported during WP-1 validation only:
+
+```powershell
+uv run alembic downgrade 20260827_0003
+uv run alembic upgrade head
+```

@@ -10,6 +10,7 @@ from typing import Any
 from pgvector.sqlalchemy import Vector
 from sqlalchemy import (
     CHAR,
+    BigInteger,
     Boolean,
     CheckConstraint,
     DateTime,
@@ -50,6 +51,54 @@ class SourceType(StrEnum):
     RSS = "rss"
     URL = "url"
     API = "api"
+
+
+class SourceFamily(StrEnum):
+    POLICY = "policy"
+    ACADEMIC = "academic"
+    FINANCE = "finance"
+    CORPORATE = "corporate"
+    TECHNOLOGY = "technology"
+    COMMUNITY = "community"
+    EVENT = "event"
+    OPPORTUNITY = "opportunity"
+    GENERIC_WEB = "generic_web"
+
+
+class AcquisitionMode(StrEnum):
+    AUTO = "auto"
+    NATIVE = "native"
+    DYNAMIC = "dynamic"
+    ADVANCED = "advanced"
+
+
+class DiscoveryMode(StrEnum):
+    SINGLE_PAGE = "single_page"
+    SAME_PATH = "same_path"
+    SAME_DOMAIN = "same_domain"
+    APPROVED_DOMAINS = "approved_domains"
+
+
+class SourceHealthStatus(StrEnum):
+    HEALTHY = "healthy"
+    DEGRADED = "degraded"
+    UNHEALTHY = "unhealthy"
+    CIRCUIT_OPEN = "circuit_open"
+
+
+class AcquisitionAttemptStatus(StrEnum):
+    SUCCEEDED = "succeeded"
+    FAILED = "failed"
+    BLOCKED = "blocked"
+    CANCELLED = "cancelled"
+
+
+class BackendName(StrEnum):
+    RSS = "rss"
+    NATIVE_HTTP = "native_http"
+    SCRAPLING_HTTP = "scrapling_http"
+    DYNAMIC_BROWSER = "dynamic_browser"
+    ADVANCED_BROWSER = "advanced_browser"
 
 
 class CollectionTriggerType(StrEnum):
@@ -110,6 +159,16 @@ class NotificationStatus(StrEnum):
 def enum_column(enum_type: type[PyEnum], name: str) -> Enum:
     return Enum(
         enum_type, name=name, values_callable=lambda values: [item.value for item in values]
+    )
+
+
+def varchar_enum(enum_type: type[PyEnum], length: int) -> Enum:
+    return Enum(
+        enum_type,
+        native_enum=False,
+        create_constraint=False,
+        length=length,
+        values_callable=lambda values: [item.value for item in values],
     )
 
 
@@ -211,6 +270,24 @@ class Source(TimestampMixin, Base):
     __tablename__ = "sources"
     __table_args__ = (
         CheckConstraint("poll_interval_minutes >= 15", name="sources_poll_interval_minutes_check"),
+        CheckConstraint(
+            "source_family IN ('policy','academic','finance','corporate','technology',"
+            "'community','event','opportunity','generic_web')",
+            name="ck_sources_source_family",
+        ),
+        CheckConstraint(
+            "acquisition_mode IN ('auto','native','dynamic','advanced')",
+            name="ck_sources_acquisition_mode",
+        ),
+        CheckConstraint(
+            "discovery_mode IN ('single_page','same_path','same_domain','approved_domains')",
+            name="ck_sources_discovery_mode",
+        ),
+        CheckConstraint("profile_version = 'acq-source-v1'", name="ck_sources_profile_version"),
+        CheckConstraint(
+            "jsonb_typeof(acquisition_profile) = 'object'",
+            name="ck_sources_acquisition_profile_object",
+        ),
         Index(
             "uq_sources_active_user_url",
             "user_id",
@@ -242,7 +319,88 @@ class Source(TimestampMixin, Base):
     config: Mapped[dict[str, Any]] = mapped_column(
         JSONB, nullable=False, default=dict, server_default=text("'{}'::jsonb")
     )
+    source_family: Mapped[SourceFamily] = mapped_column(
+        varchar_enum(SourceFamily, 32),
+        nullable=False,
+        default=SourceFamily.GENERIC_WEB,
+        server_default=SourceFamily.GENERIC_WEB.value,
+    )
+    acquisition_mode: Mapped[AcquisitionMode] = mapped_column(
+        varchar_enum(AcquisitionMode, 16),
+        nullable=False,
+        default=AcquisitionMode.AUTO,
+        server_default=AcquisitionMode.AUTO.value,
+    )
+    discovery_mode: Mapped[DiscoveryMode] = mapped_column(
+        varchar_enum(DiscoveryMode, 24),
+        nullable=False,
+        default=DiscoveryMode.SINGLE_PAGE,
+        server_default=DiscoveryMode.SINGLE_PAGE.value,
+    )
+    profile_version: Mapped[str] = mapped_column(
+        String(40), nullable=False, default="acq-source-v1", server_default="acq-source-v1"
+    )
+    acquisition_profile: Mapped[dict[str, Any]] = mapped_column(
+        JSONB, nullable=False, default=dict, server_default=text("'{}'::jsonb")
+    )
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class SourceAcquisitionState(TimestampMixin, Base):
+    __tablename__ = "source_acquisition_states"
+    __table_args__ = (
+        CheckConstraint(
+            "health_status IN ('healthy','degraded','unhealthy','circuit_open')",
+            name="ck_source_acquisition_states_health_status",
+        ),
+        CheckConstraint(
+            "last_backend IS NULL OR last_backend IN "
+            "('rss','native_http','scrapling_http','dynamic_browser','advanced_browser')",
+            name="ck_source_acquisition_states_last_backend",
+        ),
+        CheckConstraint(
+            "success_count >= 0 AND failure_count >= 0 AND consecutive_failures >= 0",
+            name="ck_source_acquisition_states_counts",
+        ),
+        CheckConstraint(
+            "latency_ewma_ms IS NULL OR latency_ewma_ms >= 0",
+            name="ck_source_acquisition_states_latency",
+        ),
+        CheckConstraint(
+            "quality_ewma IS NULL OR quality_ewma BETWEEN 0 AND 1",
+            name="ck_source_acquisition_states_quality",
+        ),
+        CheckConstraint("version >= 1", name="ck_source_acquisition_states_version"),
+    )
+    source_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("sources.id", ondelete="CASCADE"), primary_key=True
+    )
+    health_status: Mapped[SourceHealthStatus] = mapped_column(
+        varchar_enum(SourceHealthStatus, 20),
+        nullable=False,
+        default=SourceHealthStatus.HEALTHY,
+        server_default=SourceHealthStatus.HEALTHY.value,
+    )
+    success_count: Mapped[int] = mapped_column(
+        BigInteger, nullable=False, default=0, server_default="0"
+    )
+    failure_count: Mapped[int] = mapped_column(
+        BigInteger, nullable=False, default=0, server_default="0"
+    )
+    consecutive_failures: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=0, server_default="0"
+    )
+    latency_ewma_ms: Mapped[int | None] = mapped_column(Integer)
+    quality_ewma: Mapped[Decimal | None] = mapped_column(Numeric(5, 4))
+    last_backend: Mapped[BackendName | None] = mapped_column(varchar_enum(BackendName, 32))
+    last_error_code: Mapped[str | None] = mapped_column(String(80))
+    circuit_open_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    last_success_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    last_failure_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    checkpoint: Mapped[dict[str, Any]] = mapped_column(
+        JSONB, nullable=False, default=dict, server_default=text("'{}'::jsonb")
+    )
+    version: Mapped[int] = mapped_column(Integer, nullable=False, default=1, server_default="1")
 
 
 class RadarSource(Base):
@@ -269,6 +427,17 @@ class CollectionRun(TimestampMixin, Base):
             "duplicate_count >= 0 AND failed_count >= 0",
             name="collection_runs_check",
         ),
+        CheckConstraint(
+            "claim_count >= 0 AND fallback_count >= 0 AND pages_count >= 0 AND "
+            "(duration_ms IS NULL OR duration_ms >= 0) AND "
+            "(quality_score IS NULL OR quality_score BETWEEN 0 AND 1)",
+            name="ck_collection_runs_acquisition_metrics",
+        ),
+        CheckConstraint(
+            "status <> 'running' OR (claim_token IS NOT NULL AND "
+            "lease_expires_at IS NOT NULL AND worker_id IS NOT NULL)",
+            name="ck_collection_runs_running_lease",
+        ),
         Index(
             "uq_collection_runs_source_idempotency",
             "source_id",
@@ -277,6 +446,7 @@ class CollectionRun(TimestampMixin, Base):
             postgresql_where=text("idempotency_key IS NOT NULL"),
         ),
         Index("ix_collection_runs_source_created_at", "source_id", text("created_at DESC")),
+        Index("ix_collection_runs_status_lease_expires_at", "status", "lease_expires_at"),
     )
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     source_id: Mapped[uuid.UUID] = mapped_column(
@@ -311,6 +481,87 @@ class CollectionRun(TimestampMixin, Base):
     )
     error_code: Mapped[str | None] = mapped_column(String(80))
     error_message: Mapped[str | None] = mapped_column(String(500))
+    claimed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    heartbeat_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    lease_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    worker_id: Mapped[str | None] = mapped_column(String(160))
+    claim_token: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    claim_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
+    backend: Mapped[str | None] = mapped_column(String(32))
+    fallback_count: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=0, server_default="0"
+    )
+    pages_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
+    duration_ms: Mapped[int | None] = mapped_column(Integer)
+    quality_score: Mapped[Decimal | None] = mapped_column(Numeric(5, 4))
+    budget_summary: Mapped[dict[str, Any]] = mapped_column(
+        JSONB, nullable=False, default=dict, server_default=text("'{}'::jsonb")
+    )
+
+
+class AcquisitionAttempt(Base):
+    __tablename__ = "acquisition_attempts"
+    __table_args__ = (
+        CheckConstraint("ordinal >= 1", name="ck_acquisition_attempts_ordinal"),
+        CheckConstraint(
+            "backend IN "
+            "('rss','native_http','scrapling_http','dynamic_browser','advanced_browser')",
+            name="ck_acquisition_attempts_backend",
+        ),
+        CheckConstraint(
+            "status IN ('succeeded','failed','blocked','cancelled')",
+            name="ck_acquisition_attempts_status",
+        ),
+        CheckConstraint(
+            "status_code IS NULL OR status_code BETWEEN 100 AND 599",
+            name="ck_acquisition_attempts_status_code",
+        ),
+        CheckConstraint(
+            "duration_ms >= 0 AND retry_count >= 0 AND pages >= 0 AND bytes_received >= 0",
+            name="ck_acquisition_attempts_metrics",
+        ),
+        CheckConstraint(
+            "quality_score IS NULL OR quality_score BETWEEN 0 AND 1",
+            name="ck_acquisition_attempts_quality",
+        ),
+        UniqueConstraint("run_id", "ordinal", name="uq_acquisition_attempts_run_ordinal"),
+        Index("ix_acquisition_attempts_source_started_at", "source_id", text("started_at DESC")),
+        Index("ix_acquisition_attempts_run_started_at", "run_id", "started_at"),
+    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    run_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("collection_runs.id", ondelete="CASCADE"), nullable=False
+    )
+    source_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("sources.id", ondelete="RESTRICT"), nullable=False
+    )
+    ordinal: Mapped[int] = mapped_column(SmallInteger, nullable=False)
+    backend: Mapped[BackendName] = mapped_column(varchar_enum(BackendName, 32), nullable=False)
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    finished_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    status: Mapped[AcquisitionAttemptStatus] = mapped_column(
+        varchar_enum(AcquisitionAttemptStatus, 20), nullable=False
+    )
+    requested_url: Mapped[str] = mapped_column(Text, nullable=False)
+    final_url: Mapped[str | None] = mapped_column(Text)
+    status_code: Mapped[int | None] = mapped_column(SmallInteger)
+    content_type: Mapped[str | None] = mapped_column(String(160))
+    duration_ms: Mapped[int] = mapped_column(Integer, nullable=False)
+    retry_count: Mapped[int] = mapped_column(
+        SmallInteger, nullable=False, default=0, server_default="0"
+    )
+    pages: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
+    bytes_received: Mapped[int] = mapped_column(
+        BigInteger, nullable=False, default=0, server_default="0"
+    )
+    quality_score: Mapped[Decimal | None] = mapped_column(Numeric(5, 4))
+    fallback_reason: Mapped[str | None] = mapped_column(String(80))
+    budget_used: Mapped[dict[str, Any]] = mapped_column(
+        JSONB, nullable=False, default=dict, server_default=text("'{}'::jsonb")
+    )
+    error_code: Mapped[str | None] = mapped_column(String(80))
+    safe_error: Mapped[str | None] = mapped_column(String(500))
+    decision_version: Mapped[str] = mapped_column(String(40), nullable=False)
 
 
 class RawItem(TimestampMixin, Base):

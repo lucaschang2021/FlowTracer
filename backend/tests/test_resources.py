@@ -15,7 +15,13 @@ from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, create_async
 
 from app.core.config import Settings
 from app.main import create_app
-from app.models.entities import Radar, RadarSource, ResourceStatus, Source
+from app.models.entities import (
+    Radar,
+    RadarSource,
+    ResourceStatus,
+    Source,
+    SourceAcquisitionState,
+)
 from app.schemas.resources import RadarCreate, SourceCreate
 from app.services.readiness import ReadinessService
 
@@ -389,6 +395,126 @@ async def test_source_crud_url_conflicts_filters_and_state(resource_client: Asyn
             f"/api/v1/sources/{source_id}", headers=headers, json={"config": huge_config}
         )
     ).status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_source_profile_defaults_update_secret_boundary_and_openapi(
+    resource_client: AsyncClient, resource_engine: AsyncEngine
+) -> None:
+    headers = await headers_for(resource_client, "profile-owner@example.com")
+    created = await create_source(
+        resource_client,
+        headers,
+        "Legacy Profile",
+        "https://profile.example/feed",
+    )
+    body = created.json()
+    source_id = UUID(body["id"])
+    assert body["source_family"] == "generic_web"
+    assert body["acquisition_mode"] == "auto"
+    assert body["discovery_mode"] == "single_page"
+    assert body["profile_version"] == "acq-source-v1"
+    profile = body["acquisition_profile"]
+    assert set(profile) == {
+        "content_profile",
+        "priority",
+        "allow_browser",
+        "change_detection",
+        "resource_budget",
+        "site_policy",
+        "approved_domains",
+        "family_options",
+    }
+    assert profile["allow_browser"] is False
+    assert profile["resource_budget"]["max_requests"] == 10
+    assert profile["family_options"] == {}
+
+    factory = async_sessionmaker(resource_engine, expire_on_commit=False)
+    async with factory() as session:
+        stored = await session.get(Source, source_id)
+        state = await session.get(SourceAcquisitionState, source_id)
+        assert stored is not None and state is not None
+        assert stored.acquisition_profile == profile
+        assert state.health_status == "healthy"
+
+    patched = await resource_client.patch(
+        f"/api/v1/sources/{source_id}",
+        headers=headers,
+        json={
+            "source_family": "policy",
+            "acquisition_mode": "native",
+            "discovery_mode": "same_domain",
+            "acquisition_profile": {
+                "content_profile": "article",
+                "priority": "high",
+                "resource_budget": {"max_requests": 5},
+                "approved_domains": ["XN--BCHER-KVA.EXAMPLE."],
+            },
+        },
+    )
+    assert patched.status_code == 200
+    updated = patched.json()
+    assert updated["source_family"] == "policy"
+    assert updated["acquisition_mode"] == "native"
+    assert updated["discovery_mode"] == "same_domain"
+    assert updated["acquisition_profile"]["resource_budget"]["max_requests"] == 5
+    assert updated["acquisition_profile"]["resource_budget"]["max_pages"] == 1
+    assert updated["acquisition_profile"]["approved_domains"] == ["xn--bcher-kva.example"]
+
+    for payload in (
+        {"config": {"api_token": "must-not-store"}},
+        {"acquisition_profile": {"family_options": {"selector": "main"}}},
+        {"acquisition_profile": {"network_policy": {"allow_private": True}}},
+        {"profile_version": "acq-source-v2"},
+    ):
+        rejected = await resource_client.patch(
+            f"/api/v1/sources/{source_id}", headers=headers, json=payload
+        )
+        assert rejected.status_code == 422
+        assert rejected.json()["error"]["code"] == "invalid_request"
+        for forbidden in ("must-not-store", "asyncpg", "sqlalchemy", "traceback"):
+            assert forbidden not in rejected.text.lower()
+
+    async with factory() as session:
+        stored = await session.get(Source, source_id)
+        assert stored is not None
+        stored.config = {
+            "label": "legacy-public",
+            "authorization": "hidden",
+            "nested": {"password": "hidden"},
+        }
+        await session.commit()
+    safe_response = await resource_client.get(f"/api/v1/sources/{source_id}", headers=headers)
+    assert safe_response.status_code == 200
+    assert safe_response.json()["config"] == {
+        "label": "legacy-public",
+        "nested": {},
+    }
+    serialized = safe_response.text.lower()
+    assert "authorization" not in serialized
+    assert "password" not in serialized
+    assert "network_policy" not in safe_response.json()["acquisition_profile"]
+
+    openapi = (await resource_client.get("/openapi.json")).json()
+    source_properties = openapi["components"]["schemas"]["SourceResponse"]["properties"]
+    assert {
+        "source_family",
+        "acquisition_mode",
+        "discovery_mode",
+        "profile_version",
+        "acquisition_profile",
+    } <= source_properties.keys()
+    assert set(openapi["components"]["schemas"]["SourceFamily"]["enum"]) == {
+        "policy",
+        "academic",
+        "finance",
+        "corporate",
+        "technology",
+        "community",
+        "event",
+        "opportunity",
+        "generic_web",
+    }
 
 
 @pytest.mark.asyncio

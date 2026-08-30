@@ -11,7 +11,7 @@ from typing import Any, Protocol
 from urllib.parse import urljoin, urlsplit
 
 from app.models.entities import SourceType
-from app.services.acquisition_types import CollectionError, FetchResponse
+from app.services.acquisition_types import AcquisitionFetcher, CollectionError, FetchResponse
 
 USER_AGENT = "FlowTracer-Alpha/0.1 (+controlled-acquisition)"
 MAX_RESPONSE_BYTES = 5 * 1024 * 1024
@@ -298,16 +298,36 @@ async def default_transport(
 
 class SafeFetcher:
     def __init__(
-        self, resolver: Resolver = system_resolver, transport: Transport = default_transport
+        self,
+        resolver: Resolver = system_resolver,
+        transport: Transport = default_transport,
+        target_validator: Callable[[str], None] | None = None,
     ) -> None:
         self._resolver = resolver
         self._transport = transport
+        self._target_validator = target_validator
+
+    def with_target_validator(self, validator: Callable[[str], None]) -> SafeFetcher:
+        existing = self._target_validator
+
+        def combined(url: str) -> None:
+            if existing is not None:
+                existing(url)
+            validator(url)
+
+        return SafeFetcher(
+            resolver=self._resolver,
+            transport=self._transport,
+            target_validator=combined,
+        )
 
     async def fetch(self, url: str, source_type: SourceType) -> FetchResponse:
         current_url = url
         try:
             async with asyncio.timeout(TOTAL_TIMEOUT):
                 for redirect_count in range(MAX_REDIRECTS + 1):
+                    if self._target_validator is not None:
+                        self._target_validator(current_url)
                     hostname, port, use_tls, addresses = await validate_target(
                         current_url, self._resolver
                     )
@@ -358,18 +378,20 @@ Sleep = Callable[[float], Awaitable[None]]
 
 
 async def fetch_with_retries(
-    fetcher: SafeFetcher,
+    fetcher: AcquisitionFetcher,
     url: str,
     source_type: SourceType,
     *,
     sleep: Sleep = asyncio.sleep,
+    max_retries: int = 3,
 ) -> tuple[FetchResponse, int]:
     retries = 0
     while True:
         try:
             return await fetcher.fetch(url, source_type), retries
         except CollectionError as exc:
-            if not exc.retryable or retries >= 3:
+            if not exc.retryable or retries >= max_retries:
+                exc.retry_count = retries
                 raise
             await sleep(2 ** (retries + 1))
             retries += 1

@@ -1,6 +1,94 @@
 {
   "components": {
     "schemas": {
+      "AcquisitionMode": {
+        "enum": [
+          "auto",
+          "native",
+          "dynamic",
+          "advanced"
+        ],
+        "title": "AcquisitionMode",
+        "type": "string"
+      },
+      "AcquisitionProfileV1-Input": {
+        "additionalProperties": false,
+        "properties": {
+          "allow_browser": {
+            "default": false,
+            "title": "Allow Browser",
+            "type": "boolean"
+          },
+          "approved_domains": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Approved Domains",
+            "type": "array"
+          },
+          "change_detection": {
+            "$ref": "#/components/schemas/ChangeDetectionProfile-Input"
+          },
+          "content_profile": {
+            "$ref": "#/components/schemas/ContentProfile",
+            "default": "generic"
+          },
+          "family_options": {
+            "$ref": "#/components/schemas/FamilyOptionsV1"
+          },
+          "priority": {
+            "$ref": "#/components/schemas/SourcePriority",
+            "default": "normal"
+          },
+          "resource_budget": {
+            "$ref": "#/components/schemas/ResourceBudgetProfile"
+          },
+          "site_policy": {
+            "$ref": "#/components/schemas/SitePolicyProfile"
+          }
+        },
+        "title": "AcquisitionProfileV1",
+        "type": "object"
+      },
+      "AcquisitionProfileV1-Output": {
+        "additionalProperties": false,
+        "properties": {
+          "allow_browser": {
+            "default": false,
+            "title": "Allow Browser",
+            "type": "boolean"
+          },
+          "approved_domains": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Approved Domains",
+            "type": "array"
+          },
+          "change_detection": {
+            "$ref": "#/components/schemas/ChangeDetectionProfile-Output"
+          },
+          "content_profile": {
+            "$ref": "#/components/schemas/ContentProfile",
+            "default": "generic"
+          },
+          "family_options": {
+            "$ref": "#/components/schemas/FamilyOptionsV1"
+          },
+          "priority": {
+            "$ref": "#/components/schemas/SourcePriority",
+            "default": "normal"
+          },
+          "resource_budget": {
+            "$ref": "#/components/schemas/ResourceBudgetProfile"
+          },
+          "site_policy": {
+            "$ref": "#/components/schemas/SitePolicyProfile"
+          }
+        },
+        "title": "AcquisitionProfileV1",
+        "type": "object"
+      },
       "AnalysisRetryResponse": {
         "properties": {
           "analysis_id": {
@@ -251,6 +339,57 @@
         "title": "BookmarkUpdate",
         "type": "object"
       },
+      "ChangeDetectionProfile-Input": {
+        "additionalProperties": false,
+        "properties": {
+          "enabled": {
+            "default": true,
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "materiality_threshold": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "pattern": "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$",
+                "type": "string"
+              }
+            ],
+            "default": "0.1500",
+            "title": "Materiality Threshold"
+          },
+          "semantic_enabled": {
+            "default": false,
+            "title": "Semantic Enabled",
+            "type": "boolean"
+          }
+        },
+        "title": "ChangeDetectionProfile",
+        "type": "object"
+      },
+      "ChangeDetectionProfile-Output": {
+        "additionalProperties": false,
+        "properties": {
+          "enabled": {
+            "default": true,
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "materiality_threshold": {
+            "title": "Materiality Threshold",
+            "type": "number"
+          },
+          "semantic_enabled": {
+            "default": false,
+            "title": "Semantic Enabled",
+            "type": "boolean"
+          }
+        },
+        "title": "ChangeDetectionProfile",
+        "type": "object"
+      },
       "CollectionQueuedResponse": {
         "properties": {
           "run_id": {
@@ -429,6 +568,29 @@
         "title": "CollectionTriggerType",
         "type": "string"
       },
+      "ContentProfile": {
+        "enum": [
+          "generic",
+          "article",
+          "document",
+          "feed",
+          "listing",
+          "event",
+          "opportunity"
+        ],
+        "title": "ContentProfile",
+        "type": "string"
+      },
+      "DiscoveryMode": {
+        "enum": [
+          "single_page",
+          "same_path",
+          "same_domain",
+          "approved_domains"
+        ],
+        "title": "DiscoveryMode",
+        "type": "string"
+      },
       "ErrorDetail": {
         "properties": {
           "code": {
@@ -468,6 +630,12 @@
           "error"
         ],
         "title": "ErrorEnvelope",
+        "type": "object"
+      },
+      "FamilyOptionsV1": {
+        "additionalProperties": false,
+        "properties": {},
+        "title": "FamilyOptionsV1",
         "type": "object"
       },
       "IntelligenceDetail": {
@@ -1945,6 +2113,69 @@
         "title": "RegisterRequest",
         "type": "object"
       },
+      "ResourceBudgetProfile": {
+        "additionalProperties": false,
+        "properties": {
+          "max_browser_pages": {
+            "default": 0,
+            "maximum": 10.0,
+            "minimum": 0.0,
+            "title": "Max Browser Pages",
+            "type": "integer"
+          },
+          "max_concurrency": {
+            "default": 1,
+            "maximum": 8.0,
+            "minimum": 1.0,
+            "title": "Max Concurrency",
+            "type": "integer"
+          },
+          "max_depth": {
+            "default": 0,
+            "maximum": 3.0,
+            "minimum": 0.0,
+            "title": "Max Depth",
+            "type": "integer"
+          },
+          "max_duration_seconds": {
+            "default": 120,
+            "maximum": 900.0,
+            "minimum": 5.0,
+            "title": "Max Duration Seconds",
+            "type": "integer"
+          },
+          "max_pages": {
+            "default": 1,
+            "maximum": 100.0,
+            "minimum": 1.0,
+            "title": "Max Pages",
+            "type": "integer"
+          },
+          "max_requests": {
+            "default": 10,
+            "maximum": 1000.0,
+            "minimum": 1.0,
+            "title": "Max Requests",
+            "type": "integer"
+          },
+          "max_retries_per_target": {
+            "default": 2,
+            "maximum": 2.0,
+            "minimum": 0.0,
+            "title": "Max Retries Per Target",
+            "type": "integer"
+          },
+          "max_total_bytes": {
+            "default": 5242880,
+            "maximum": 52428800.0,
+            "minimum": 1024.0,
+            "title": "Max Total Bytes",
+            "type": "integer"
+          }
+        },
+        "title": "ResourceBudgetProfile",
+        "type": "object"
+      },
       "ResourceStatus": {
         "enum": [
           "active",
@@ -1954,13 +2185,85 @@
         "title": "ResourceStatus",
         "type": "string"
       },
+      "RobotsMode": {
+        "enum": [
+          "respect",
+          "deny_if_unavailable"
+        ],
+        "title": "RobotsMode",
+        "type": "string"
+      },
+      "SitePolicyProfile": {
+        "additionalProperties": false,
+        "properties": {
+          "allow_paths": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Allow Paths",
+            "type": "array"
+          },
+          "allowed_content_types": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Allowed Content Types",
+            "type": "array"
+          },
+          "crawl_delay_ms": {
+            "default": 1000,
+            "maximum": 60000.0,
+            "minimum": 0.0,
+            "title": "Crawl Delay Ms",
+            "type": "integer"
+          },
+          "deny_paths": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Deny Paths",
+            "type": "array"
+          },
+          "max_parallel_requests": {
+            "default": 1,
+            "maximum": 8.0,
+            "minimum": 1.0,
+            "title": "Max Parallel Requests",
+            "type": "integer"
+          },
+          "requests_per_minute": {
+            "default": 30,
+            "maximum": 60.0,
+            "minimum": 1.0,
+            "title": "Requests Per Minute",
+            "type": "integer"
+          },
+          "robots_mode": {
+            "$ref": "#/components/schemas/RobotsMode",
+            "default": "respect"
+          }
+        },
+        "title": "SitePolicyProfile",
+        "type": "object"
+      },
       "SourceCreate": {
         "additionalProperties": false,
         "properties": {
+          "acquisition_mode": {
+            "$ref": "#/components/schemas/AcquisitionMode",
+            "default": "auto"
+          },
+          "acquisition_profile": {
+            "$ref": "#/components/schemas/AcquisitionProfileV1-Input"
+          },
           "config": {
             "additionalProperties": true,
             "title": "Config",
             "type": "object"
+          },
+          "discovery_mode": {
+            "$ref": "#/components/schemas/DiscoveryMode",
+            "default": "single_page"
           },
           "name": {
             "maxLength": 160,
@@ -1974,6 +2277,16 @@
             "minimum": 15.0,
             "title": "Poll Interval Minutes",
             "type": "integer"
+          },
+          "profile_version": {
+            "const": "acq-source-v1",
+            "default": "acq-source-v1",
+            "title": "Profile Version",
+            "type": "string"
+          },
+          "source_family": {
+            "$ref": "#/components/schemas/SourceFamily",
+            "default": "generic_web"
           },
           "source_type": {
             "$ref": "#/components/schemas/SourceType"
@@ -1992,6 +2305,21 @@
         ],
         "title": "SourceCreate",
         "type": "object"
+      },
+      "SourceFamily": {
+        "enum": [
+          "policy",
+          "academic",
+          "finance",
+          "corporate",
+          "technology",
+          "community",
+          "event",
+          "opportunity",
+          "generic_web"
+        ],
+        "title": "SourceFamily",
+        "type": "string"
       },
       "SourcePage": {
         "properties": {
@@ -2024,8 +2352,23 @@
         "title": "SourcePage",
         "type": "object"
       },
+      "SourcePriority": {
+        "enum": [
+          "low",
+          "normal",
+          "high"
+        ],
+        "title": "SourcePriority",
+        "type": "string"
+      },
       "SourceResponse": {
         "properties": {
+          "acquisition_mode": {
+            "$ref": "#/components/schemas/AcquisitionMode"
+          },
+          "acquisition_profile": {
+            "$ref": "#/components/schemas/AcquisitionProfileV1-Output"
+          },
           "config": {
             "additionalProperties": true,
             "title": "Config",
@@ -2035,6 +2378,9 @@
             "format": "date-time",
             "title": "Created At",
             "type": "string"
+          },
+          "discovery_mode": {
+            "$ref": "#/components/schemas/DiscoveryMode"
           },
           "id": {
             "format": "uuid",
@@ -2077,6 +2423,14 @@
             "title": "Poll Interval Minutes",
             "type": "integer"
           },
+          "profile_version": {
+            "const": "acq-source-v1",
+            "title": "Profile Version",
+            "type": "string"
+          },
+          "source_family": {
+            "$ref": "#/components/schemas/SourceFamily"
+          },
           "source_type": {
             "$ref": "#/components/schemas/SourceType"
           },
@@ -2104,6 +2458,11 @@
           "last_fetched_at",
           "next_fetch_at",
           "config",
+          "source_family",
+          "acquisition_mode",
+          "discovery_mode",
+          "profile_version",
+          "acquisition_profile",
           "created_at",
           "updated_at"
         ],
@@ -2122,6 +2481,26 @@
       "SourceUpdate": {
         "additionalProperties": false,
         "properties": {
+          "acquisition_mode": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AcquisitionMode"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "acquisition_profile": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AcquisitionProfileV1-Input"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "config": {
             "anyOf": [
               {
@@ -2133,6 +2512,16 @@
               }
             ],
             "title": "Config"
+          },
+          "discovery_mode": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DiscoveryMode"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "name": {
             "anyOf": [
@@ -2159,6 +2548,28 @@
               }
             ],
             "title": "Poll Interval Minutes"
+          },
+          "profile_version": {
+            "anyOf": [
+              {
+                "const": "acq-source-v1",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Profile Version"
+          },
+          "source_family": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SourceFamily"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "url": {
             "anyOf": [

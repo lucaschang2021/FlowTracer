@@ -1,4 +1,5 @@
 from app.models.entities import (
+    AcquisitionAttempt,
     AIUsageRecord,
     Analysis,
     Bookmark,
@@ -11,11 +12,13 @@ from app.models.entities import (
     RawItem,
     RefreshToken,
     Source,
+    SourceAcquisitionState,
     User,
 )
 
 __all__ = [
     "AIUsageRecord",
+    "AcquisitionAttempt",
     "Analysis",
     "Bookmark",
     "CollectionRun",
@@ -27,5 +30,6 @@ __all__ = [
     "RawItem",
     "RefreshToken",
     "Source",
+    "SourceAcquisitionState",
     "User",
 ]

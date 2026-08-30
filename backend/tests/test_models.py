@@ -17,8 +17,10 @@ EXPECTED_TABLES = {
     "refresh_tokens",
     "radars",
     "sources",
+    "source_acquisition_states",
     "radar_sources",
     "collection_runs",
+    "acquisition_attempts",
     "raw_items",
     "documents",
     "analyses",
@@ -77,6 +79,12 @@ EXPECTED_INDEXES = {
         "ix_collection_runs_source_id",
         "ix_collection_runs_triggered_by_user_id",
         "uq_collection_runs_source_idempotency",
+        "ix_collection_runs_status_lease_expires_at",
+    },
+    "source_acquisition_states": set(),
+    "acquisition_attempts": {
+        "ix_acquisition_attempts_source_started_at",
+        "ix_acquisition_attempts_run_started_at",
     },
     "raw_items": {
         "ix_raw_items_collection_run_id",
@@ -114,6 +122,7 @@ EXPECTED_UNIQUES = {
     "document_chunks": {("document_id", "chunk_index", "embedding_model")},
     "bookmarks": {("user_id", "document_id")},
     "notifications": {("user_id", "analysis_id")},
+    "acquisition_attempts": {("run_id", "ordinal")},
 }
 
 EXPECTED_PARTIAL_INDEXES = {
@@ -126,8 +135,37 @@ EXPECTED_PARTIAL_INDEXES = {
 
 EXPECTED_CHECKS = {
     "radars": ("notification_threshold",),
-    "sources": ("poll_interval_minutes",),
-    "collection_runs": ("fetched_count", "duplicate_count", "failed_count"),
+    "sources": (
+        "poll_interval_minutes",
+        "source_family",
+        "acquisition_mode",
+        "discovery_mode",
+        "profile_version",
+        "jsonb_typeof",
+    ),
+    "source_acquisition_states": (
+        "health_status",
+        "last_backend",
+        "success_count",
+        "quality_ewma",
+        "version",
+    ),
+    "collection_runs": (
+        "fetched_count",
+        "duplicate_count",
+        "failed_count",
+        "claim_count",
+        "claim_token",
+        "lease_expires_at",
+    ),
+    "acquisition_attempts": (
+        "ordinal",
+        "backend",
+        "status",
+        "status_code",
+        "duration_ms",
+        "quality_score",
+    ),
     "documents": ("word_count",),
     "analyses": ("relevance", "importance", "novelty", "impact", "radar_score"),
     "document_chunks": ("chunk_index",),
@@ -141,6 +179,7 @@ EXPECTED_FOREIGN_KEYS = {
     },
     "radars": {(("user_id",), "users", ("id",), "CASCADE")},
     "sources": {(("user_id",), "users", ("id",), "CASCADE")},
+    "source_acquisition_states": {(("source_id",), "sources", ("id",), "CASCADE")},
     "radar_sources": {
         (("radar_id",), "radars", ("id",), "CASCADE"),
         (("source_id",), "sources", ("id",), "CASCADE"),
@@ -148,6 +187,10 @@ EXPECTED_FOREIGN_KEYS = {
     "collection_runs": {
         (("source_id",), "sources", ("id",), "RESTRICT"),
         (("triggered_by_user_id",), "users", ("id",), "SET NULL"),
+    },
+    "acquisition_attempts": {
+        (("run_id",), "collection_runs", ("id",), "CASCADE"),
+        (("source_id",), "sources", ("id",), "RESTRICT"),
     },
     "raw_items": {
         (("source_id",), "sources", ("id",), "RESTRICT"),

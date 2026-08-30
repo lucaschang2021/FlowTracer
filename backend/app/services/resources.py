@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from sqlalchemy import delete, func, select
 from sqlalchemy.dialects.postgresql import insert
@@ -9,7 +9,15 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import AppError
-from app.models.entities import Radar, RadarSource, RadarType, ResourceStatus, Source, SourceType
+from app.models.entities import (
+    Radar,
+    RadarSource,
+    RadarType,
+    ResourceStatus,
+    Source,
+    SourceAcquisitionState,
+    SourceType,
+)
 from app.schemas.resources import RadarCreate, RadarUpdate, SourceCreate, SourceUpdate
 from app.services.url_normalization import normalize_source_url
 
@@ -232,8 +240,12 @@ async def create_source(session: AsyncSession, *, user_id: UUID, payload: Source
     _ensure_supported_source_type(payload.source_type)
     original_url, normalized_url = normalize_source_url(payload.url)
     values = payload.model_dump(exclude={"url"})
-    source = Source(user_id=user_id, url=original_url, normalized_url=normalized_url, **values)
+    values["acquisition_profile"] = payload.acquisition_profile.storage_dict()
+    source = Source(
+        id=uuid4(), user_id=user_id, url=original_url, normalized_url=normalized_url, **values
+    )
     session.add(source)
+    session.add(SourceAcquisitionState(source_id=source.id))
     await _commit_with_conflict(
         session,
         constraint="uq_sources_active_user_url",
@@ -253,6 +265,8 @@ async def update_source(
 ) -> Source:
     source = await get_source(session, user_id=user_id, source_id=source_id, for_update=True)
     values = payload.model_dump(exclude_unset=True)
+    if payload.acquisition_profile is not None:
+        values["acquisition_profile"] = payload.acquisition_profile.storage_dict()
     if "url" in values:
         original_url, normalized_url = normalize_source_url(values.pop("url"))
         source.url = original_url

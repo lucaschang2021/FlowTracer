@@ -1,19 +1,24 @@
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import time
 import uuid
 from collections.abc import Callable
+from contextlib import suppress
 from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
-from sqlalchemy import func, or_, select
+from sqlalchemy import func, or_, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.core.errors import AppError
 from app.core.logging import get_logger
 from app.models.entities import (
+    AcquisitionAttempt,
+    AcquisitionAttemptStatus,
+    BackendName,
     CollectionRun,
     CollectionRunStatus,
     CollectionTriggerType,
@@ -21,15 +26,22 @@ from app.models.entities import (
     RawItemStatus,
     ResourceStatus,
     Source,
+    SourceAcquisitionState,
+    SourceHealthStatus,
     SourceType,
 )
+from app.schemas.resources import AcquisitionProfileV1
 from app.services.acquisition_parsers import parse_feed, parse_html
-from app.services.acquisition_types import CollectionError
+from app.services.acquisition_types import AcquisitionRequest, CollectionError
 from app.services.events import EventPublisher, build_event, publish_safely
+from app.services.native_acquisition import NativeAcquisitionBackend
 from app.services.resources import get_source, resource_not_found
-from app.services.safe_fetcher import SafeFetcher, fetch_with_retries
+from app.services.safe_fetcher import SafeFetcher
 
 Dispatch = Callable[[str, str], None]
+LEASE_DURATION = timedelta(minutes=10)
+MAX_CLAIMS = 3
+DECISION_VERSION = "acquisition-native-v1"
 
 
 async def publish_collection_updated(
@@ -325,6 +337,7 @@ async def schedule_due_sources(
 async def dispatch_queued_runs(
     factory: async_sessionmaker[AsyncSession], dispatch: Dispatch, *, batch_size: int = 100
 ) -> int:
+    await recover_stale_runs(factory, batch_size=batch_size)
     async with factory() as session:
         runs = list(
             (
@@ -352,7 +365,82 @@ async def dispatch_queued_runs(
         return dispatched
 
 
-async def _claim_run(factory: async_sessionmaker[AsyncSession], run_id: UUID) -> Source | None:
+async def recover_stale_runs(
+    factory: async_sessionmaker[AsyncSession],
+    *,
+    batch_size: int = 100,
+    now: datetime | None = None,
+) -> int:
+    current = now or datetime.now(UTC)
+    async with factory() as session:
+        runs = list(
+            (
+                await session.scalars(
+                    select(CollectionRun)
+                    .where(
+                        CollectionRun.status == CollectionRunStatus.RUNNING,
+                        CollectionRun.lease_expires_at <= current,
+                    )
+                    .order_by(CollectionRun.lease_expires_at.asc(), CollectionRun.id.asc())
+                    .with_for_update(skip_locked=True)
+                    .limit(batch_size)
+                )
+            ).all()
+        )
+        for run in runs:
+            if run.claim_count >= MAX_CLAIMS:
+                run.status = CollectionRunStatus.FAILED
+                run.finished_at = current
+                run.failed_count = max(run.failed_count, 1)
+                run.error_code = "run_lease_exhausted"
+                run.error_message = "Collection run lease recovery is exhausted"
+            else:
+                run.status = CollectionRunStatus.QUEUED
+                run.error_code = "lease_expired"
+                run.error_message = "Collection run lease expired and was requeued"
+        await session.commit()
+        return len(runs)
+
+
+async def heartbeat_run(
+    factory: async_sessionmaker[AsyncSession],
+    run_id: UUID,
+    claim_token: UUID,
+    *,
+    now: datetime | None = None,
+) -> bool:
+    current = now or datetime.now(UTC)
+    async with factory() as session:
+        result = await session.execute(
+            update(CollectionRun)
+            .where(
+                CollectionRun.id == run_id,
+                CollectionRun.status == CollectionRunStatus.RUNNING,
+                CollectionRun.claim_token == claim_token,
+            )
+            .values(heartbeat_at=current, lease_expires_at=current + LEASE_DURATION)
+        )
+        await session.commit()
+        return bool(getattr(result, "rowcount", 0))
+
+
+async def _heartbeat_loop(
+    factory: async_sessionmaker[AsyncSession], run_id: UUID, claim_token: UUID
+) -> None:
+    while True:
+        await asyncio.sleep(60)
+        if not await heartbeat_run(factory, run_id, claim_token):
+            return
+
+
+async def _claim_run(
+    factory: async_sessionmaker[AsyncSession],
+    run_id: UUID,
+    *,
+    worker_id: str,
+    now: datetime | None = None,
+) -> tuple[Source, UUID] | None:
+    current = now or datetime.now(UTC)
     async with factory() as session:
         run = await session.scalar(
             select(CollectionRun).where(CollectionRun.id == run_id).with_for_update()
@@ -360,37 +448,216 @@ async def _claim_run(factory: async_sessionmaker[AsyncSession], run_id: UUID) ->
         if run is None or run.status != CollectionRunStatus.QUEUED:
             await session.rollback()
             return None
+        if run.claim_count >= MAX_CLAIMS:
+            run.status = CollectionRunStatus.FAILED
+            run.finished_at = current
+            run.failed_count = max(run.failed_count, 1)
+            run.error_code = "run_lease_exhausted"
+            run.error_message = "Collection run lease recovery is exhausted"
+            await session.commit()
+            return None
         source = await session.get(Source, run.source_id)
         if source is None or source.deleted_at is not None or source.source_type == SourceType.API:
             run.status = CollectionRunStatus.FAILED
-            run.finished_at = datetime.now(UTC)
+            run.finished_at = current
             run.failed_count = 1
             run.error_code = "internal_collection_error"
             run.error_message = "Source is unavailable"
             await session.commit()
             return None
         run.status = CollectionRunStatus.RUNNING
-        run.started_at = datetime.now(UTC)
+        run.started_at = run.started_at or current
+        run.claimed_at = current
+        run.heartbeat_at = current
+        run.lease_expires_at = current + LEASE_DURATION
+        run.worker_id = worker_id[:160]
+        run.claim_token = uuid.uuid4()
+        run.claim_count += 1
         run.error_code = None
         run.error_message = None
         await session.commit()
+        claim_token = run.claim_token
+        if claim_token is None:
+            raise RuntimeError("Collection run claim token was not created")
         session.expunge(source)
-        return source
+        return source, claim_token
+
+
+async def _update_source_state(
+    session: AsyncSession,
+    *,
+    source_id: UUID,
+    succeeded: bool,
+    backend: BackendName,
+    duration_ms: int,
+    error_code: str | None,
+    now: datetime,
+) -> None:
+    state = await session.scalar(
+        select(SourceAcquisitionState)
+        .where(SourceAcquisitionState.source_id == source_id)
+        .with_for_update()
+    )
+    if state is None:
+        state = SourceAcquisitionState(
+            source_id=source_id,
+            health_status=SourceHealthStatus.HEALTHY,
+            success_count=0,
+            failure_count=0,
+            consecutive_failures=0,
+            checkpoint={},
+            version=1,
+        )
+        session.add(state)
+    else:
+        state.version += 1
+    state.last_backend = backend
+    state.latency_ewma_ms = (
+        duration_ms
+        if state.latency_ewma_ms is None
+        else round(state.latency_ewma_ms * 0.8 + duration_ms * 0.2)
+    )
+    if succeeded:
+        state.success_count += 1
+        state.consecutive_failures = 0
+        state.last_success_at = now
+        state.last_error_code = None
+        state.health_status = (
+            SourceHealthStatus.CIRCUIT_OPEN
+            if state.circuit_open_until is not None and state.circuit_open_until > now
+            else SourceHealthStatus.HEALTHY
+        )
+    else:
+        state.failure_count += 1
+        state.consecutive_failures += 1
+        state.last_failure_at = now
+        state.last_error_code = error_code
+        state.health_status = (
+            SourceHealthStatus.CIRCUIT_OPEN
+            if state.circuit_open_until is not None and state.circuit_open_until > now
+            else (
+                SourceHealthStatus.UNHEALTHY
+                if state.consecutive_failures >= 5
+                else SourceHealthStatus.DEGRADED
+            )
+        )
+
+
+def _attempt(
+    *,
+    run_id: UUID,
+    source_id: UUID,
+    backend: BackendName,
+    started_at: datetime,
+    finished_at: datetime,
+    status: AcquisitionAttemptStatus,
+    requested_url: str,
+    response_url: str | None = None,
+    status_code: int | None = None,
+    content_type: str | None = None,
+    retry_count: int = 0,
+    bytes_received: int = 0,
+    error: CollectionError | None = None,
+) -> AcquisitionAttempt:
+    return AcquisitionAttempt(
+        run_id=run_id,
+        source_id=source_id,
+        ordinal=1,
+        backend=backend,
+        started_at=started_at,
+        finished_at=finished_at,
+        status=status,
+        requested_url=requested_url,
+        final_url=response_url,
+        status_code=status_code,
+        content_type=content_type,
+        duration_ms=max(0, round((finished_at - started_at).total_seconds() * 1000)),
+        retry_count=retry_count,
+        pages=1 if status == AcquisitionAttemptStatus.SUCCEEDED else 0,
+        bytes_received=bytes_received,
+        budget_used={
+            "requests": retry_count + 1,
+            "pages": 1 if status == AcquisitionAttemptStatus.SUCCEEDED else 0,
+            "bytes_received": bytes_received,
+        },
+        error_code=None if error is None else error.code,
+        safe_error=None if error is None else error.safe_message,
+        decision_version=DECISION_VERSION,
+    )
 
 
 async def _finish_failure(
-    factory: async_sessionmaker[AsyncSession], run_id: UUID, error: CollectionError
-) -> None:
+    factory: async_sessionmaker[AsyncSession],
+    run_id: UUID,
+    claim_token: UUID,
+    source: Source,
+    backend: BackendName,
+    attempt_started_at: datetime,
+    retries: int,
+    error: CollectionError,
+) -> bool:
     async with factory() as session:
-        run = await session.get(CollectionRun, run_id)
-        if run is None or run.status != CollectionRunStatus.RUNNING:
-            return
+        run = await session.scalar(
+            select(CollectionRun)
+            .where(
+                CollectionRun.id == run_id,
+                CollectionRun.status == CollectionRunStatus.RUNNING,
+                CollectionRun.claim_token == claim_token,
+            )
+            .with_for_update()
+        )
+        if run is None:
+            return False
+        finished_at = datetime.now(UTC)
         run.status = CollectionRunStatus.FAILED
-        run.finished_at = datetime.now(UTC)
+        run.finished_at = finished_at
         run.failed_count = 1
         run.error_code = error.code
         run.error_message = error.safe_message
+        run.duration_ms = max(0, round((finished_at - attempt_started_at).total_seconds() * 1000))
+        backend_selected = error.code not in {
+            "acquisition_mode_unsupported",
+            "source_profile_invalid",
+        }
+        if backend_selected:
+            run.backend = backend.value
+        blocked_codes = {
+            "network_policy_denied",
+            "site_policy_denied",
+            "acquisition_budget_exhausted",
+            "ssrf_blocked",
+            "unsupported_port",
+        }
+        if backend_selected:
+            session.add(
+                _attempt(
+                    run_id=run.id,
+                    source_id=source.id,
+                    backend=backend,
+                    started_at=attempt_started_at,
+                    finished_at=finished_at,
+                    status=(
+                        AcquisitionAttemptStatus.BLOCKED
+                        if error.code in blocked_codes
+                        else AcquisitionAttemptStatus.FAILED
+                    ),
+                    requested_url=source.normalized_url,
+                    retry_count=retries,
+                    error=error,
+                )
+            )
+        if backend_selected:
+            await _update_source_state(
+                session,
+                source_id=source.id,
+                succeeded=False,
+                backend=backend,
+                duration_ms=run.duration_ms,
+                error_code=error.code,
+                now=finished_at,
+            )
         await session.commit()
+        return True
 
 
 async def execute_run(
@@ -404,16 +671,39 @@ async def execute_run(
     publisher: EventPublisher | None = None,
 ) -> bool:
     started = time.monotonic()
-    source = await _claim_run(factory, run_id)
-    if source is None:
+    worker_id = (task_id or correlation_id or f"worker-{uuid.uuid4()}").strip()
+    claimed = await _claim_run(factory, run_id, worker_id=worker_id)
+    if claimed is None:
         await publish_collection_updated(factory, run_id, publisher)
         return False
+    source, claim_token = claimed
+    backend = BackendName.RSS if source.source_type == SourceType.RSS else BackendName.NATIVE_HTTP
+    attempt_started_at = datetime.now(UTC)
+    heartbeat_task = asyncio.create_task(_heartbeat_loop(factory, run_id, claim_token))
     await publish_collection_updated(factory, run_id, publisher)
     retries = 0
     try:
-        response, retries = await fetch_with_retries(
-            fetcher or SafeFetcher(), source.normalized_url, source.source_type
+        try:
+            profile = AcquisitionProfileV1.model_validate(source.acquisition_profile)
+        except ValueError:
+            raise CollectionError(
+                "source_profile_invalid", "Source acquisition profile is invalid"
+            ) from None
+        result = await NativeAcquisitionBackend(fetcher).acquire(
+            AcquisitionRequest(
+                source_id=source.id,
+                run_id=run_id,
+                target_url=source.normalized_url,
+                source_type=source.source_type,
+                source_family=source.source_family,
+                mode=source.acquisition_mode,
+                discovery_mode=source.discovery_mode,
+                profile=profile,
+                correlation_id=correlation_id,
+            )
         )
+        response = result.response
+        retries = result.retry_count
         parsed = (
             parse_feed(response)
             if source.source_type == SourceType.RSS
@@ -423,8 +713,16 @@ async def execute_run(
             locked_source = await session.scalar(
                 select(Source).where(Source.id == source.id).with_for_update()
             )
-            run = await session.get(CollectionRun, run_id)
-            if locked_source is None or run is None or run.status != CollectionRunStatus.RUNNING:
+            run = await session.scalar(
+                select(CollectionRun)
+                .where(
+                    CollectionRun.id == run_id,
+                    CollectionRun.status == CollectionRunStatus.RUNNING,
+                    CollectionRun.claim_token == claim_token,
+                )
+                .with_for_update()
+            )
+            if locked_source is None or run is None:
                 await session.rollback()
                 return False
             created = 0
@@ -471,10 +769,42 @@ async def execute_run(
                 if parsed.failed_count
                 else CollectionRunStatus.SUCCEEDED
             )
-            run.finished_at = datetime.now(UTC)
+            finished_at = datetime.now(UTC)
+            run.finished_at = finished_at
             run.error_code = None
             run.error_message = None
+            run.backend = backend.value
+            run.pages_count = 1
+            run.duration_ms = max(
+                0, round((finished_at - attempt_started_at).total_seconds() * 1000)
+            )
+            run.budget_summary = result.budget_used
             locked_source.last_fetched_at = run.finished_at
+            session.add(
+                _attempt(
+                    run_id=run.id,
+                    source_id=source.id,
+                    backend=backend,
+                    started_at=attempt_started_at,
+                    finished_at=finished_at,
+                    status=AcquisitionAttemptStatus.SUCCEEDED,
+                    requested_url=source.normalized_url,
+                    response_url=response.final_url,
+                    status_code=response.status_code,
+                    content_type=response.content_type,
+                    retry_count=retries,
+                    bytes_received=len(response.body),
+                )
+            )
+            await _update_source_state(
+                session,
+                source_id=source.id,
+                succeeded=True,
+                backend=backend,
+                duration_ms=run.duration_ms,
+                error_code=None,
+                now=finished_at,
+            )
             await session.commit()
         await publish_collection_updated(factory, run_id, publisher)
         if raw_dispatch is not None:
@@ -506,8 +836,20 @@ async def execute_run(
         )
         return True
     except CollectionError as exc:
-        await _finish_failure(factory, run_id, exc)
+        retries = exc.retry_count
+        updated = await _finish_failure(
+            factory,
+            run_id,
+            claim_token,
+            source,
+            backend,
+            attempt_started_at,
+            retries,
+            exc,
+        )
         await publish_collection_updated(factory, run_id, publisher)
+        if not updated:
+            return False
         get_logger().warning(
             "collection_failed",
             message=exc.safe_message,
@@ -527,8 +869,19 @@ async def execute_run(
         return False
     except Exception:
         error = CollectionError("internal_collection_error", "Collection failed unexpectedly")
-        await _finish_failure(factory, run_id, error)
+        updated = await _finish_failure(
+            factory,
+            run_id,
+            claim_token,
+            source,
+            backend,
+            attempt_started_at,
+            retries,
+            error,
+        )
         await publish_collection_updated(factory, run_id, publisher)
+        if not updated:
+            return False
         get_logger().error(
             "collection_failed",
             message=error.safe_message,
@@ -546,3 +899,7 @@ async def execute_run(
             duration_ms=round((time.monotonic() - started) * 1000),
         )
         return False
+    finally:
+        heartbeat_task.cancel()
+        with suppress(asyncio.CancelledError):
+            await heartbeat_task

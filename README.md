@@ -4,7 +4,7 @@
 
 [当前闸门](docs/CURRENT-GATE.md) · [交付看板](docs/02-DELIVERY-BOARD.md) · [Backend 开发](backend/DEVELOPMENT.md) · [English](#english)
 
-> **Alpha 状态：** FlowTracer v0.1 正在开发，尚未发布。BE-1 至 BE-6 已验收并合并；BE-7 Notification、WebSocket 与恢复已准入、正在开发。BE-8、Frontend、Integration 和 Release 尚未准入。
+> **Alpha 状态：** FlowTracer v0.1 正在开发，尚未发布。BE-1 至 BE-8、ACQ-1 Preflight、Contract Freeze 与 WP-1 均已验收并合并。PR #35 已合并，WP-2 静态解析与提取质量阶段已准入，契约澄清中；实现未开始。WP-3 至 WP-8、Browser、Frontend、Integration 和 Release 尚未准入。
 
 ## 中文
 
@@ -24,11 +24,17 @@ Radar 是 FlowTracer 的核心领域对象，不是项目名称。项目正式�
 | BE-4 | 已完成 | RSS/URL 受控采集、调度、运行记录与 RawItem |
 | BE-5 | 已完成 | 内容清洗、Document 去重、AI 分析、评分、成本审计与 Intelligence API |
 | BE-6 | 已完成 | 确定性切块、Embedding、pgvector HNSW 检索、Bookmark 与 Memory Search |
-| BE-7 | 开发中 | 已准入；目标为 Notification、WebSocket 在线事件与 CollectionRun retry，并复核 Analysis retry |
-| BE-8 | 未准入 | 后端稳定化与前端交接尚未开始 |
+| BE-7 | 已完成 | Notification、WebSocket 在线事件、CollectionRun retry 与恢复补偿，含 Analysis retry 回归 |
+| BE-8 | 已完成 | 离线 Alpha 闭环、稳定化、OpenAPI 快照冻结、运行文档与前端交接材料 |
+| ACQ-1 Preflight / Contract Freeze | 已完成 | 工程盘点、采集与安全契约、分工作包交付计划已合并；契约冻结不代表后续能力已实现 |
+| ACQ-1 WP-1 Admission / Addendum | 已完成 | PR #31 / #32 已合并，Source Profile 与 Policy 精确契约已冻结 |
+| ACQ-1 WP-1 | 已完成 | PR #33 已验收合并：Source Profile、采集状态/Attempt、lease/heartbeat/stale recovery 与安全策略内核 |
+| ACQ-1 WP-2 | 已准入，契约澄清中；实现未开始 | PR #35 已合并；目标为统一静态 Adapter、无网络 Scrapling parser、quality v1、family extractor 与解析证据 |
+| ACQ-1 WP-3..WP-8 | 未准入 | Browser、Router、Discovery、Change Intelligence、Opportunity 与最终收尾仍属后续范围 |
+| PLUGIN-1 | 待办、未准入 | 用户指定在 ACQ-1 完成验收后、Frontend 前处理；尚未实现，未形成正式准入或架构基线 |
 | Frontend / Integration / Release | 未准入 | 桌面客户端、集成验收与 Alpha 发布尚未开始 |
 
-阶段状态仅以已合并到 GitHub `main` 的事实、[当前闸门](docs/CURRENT-GATE.md)和[交付看板](docs/02-DELIVERY-BOARD.md)为准。开放中的 PR 或计划能力不视为已实现。
+已实现能力仅以合并到 GitHub `main` 的事实为准；阶段门禁见[当前闸门](docs/CURRENT-GATE.md)和[交付看板](docs/02-DELIVERY-BOARD.md)。开放中的 PR、准入许可和计划能力不视为已实现；PLUGIN-1 仅记录用户指定的待办顺序，不构成准入。
 
 ### 核心数据闭环
 
@@ -38,7 +44,7 @@ Radar 是 FlowTracer 的核心领域对象，不是项目名称。项目正式�
   → 受控后台采集与原始证据保存         ✅ BE-4 已完成
   → 清洗、去重、AI 摘要/分类/评分      ✅ BE-5 已完成
   → 文档切块、向量化与 Memory Search   ✅ BE-6 已完成
-  → Notification、WebSocket 与运行重试 🚧 BE-7 开发中
+  → Notification、WebSocket 与运行重试 ✅ BE-7 已完成
   → Tauri 桌面信息流与知识库           ⏳ Frontend 未准入
 ```
 
@@ -52,7 +58,17 @@ Radar 是 FlowTracer 的核心领域对象，不是项目名称。项目正式�
 - 确定性清洗、全局 Document 去重、版本化 AI 分析、四维评分、成本审计、恢复任务和 Intelligence 查询接口。
 - 确定性切块、Embedding、pgvector HNSW 检索、Bookmark 与 Memory Search。
 
-BE-7 的 Notification、WebSocket 在线事件与 CollectionRun retry 目前属于已准入开发范围，不属于 `main` 上已完成能力。
+- Notification 阈值/优先级判定、分页与已读接口、用户隔离的 WebSocket 在线事件，以及 CollectionRun retry、Analysis retry 和遗漏任务补偿。
+- BE-8 离线闭环验收、OpenAPI 快照冻结、运行文档与前端交接材料；交接材料完成不等于 Frontend 已准入。
+- ACQ-1 WP-1 的严格 `acq-source-v1` Source Profile、legacy config 秘密拒绝/脱敏、采集状态与 Attempt、CollectionRun 租约/心跳/过期恢复/旧 Worker 写入防护，以及 Network/Site/Resource 策略内核。
+
+### 当前开发状态与验收证据
+
+本次同步基于 `main@fcfab2492e4ee88202672787d425c084d0b4afc9`。WP-1 实现 PR #33 与验收/WP-2 准入控制 PR #35 均已合并。[WP-1 验收记录](docs/33-ACQ1-WP1-ACCEPTANCE.md)对应实现提交 `0e95a5698ae5b8964fb387aaa9c1bb77e3a439ec`：264 tests、87.76% coverage，迁移、契约、安全和运行态验收通过，P0/P1/P2 = 0/0/0；这不是尚未完成的 WP-2 的测试成绩。
+
+WP-2 已派发给 Backend，目标分支为 `feat/acq-1b-static`。Backend 已完成开工审计，因 quality v1 分项公式、writer 终态及 family/evidence 精确契约缺失而停点；总控正在准备 Addendum/ADR。**WP-2 已准入，契约澄清中；实现未开始，尚无本阶段代码、依赖变更或测试结果。**
+
+计划目标是统一 RSS/Native 静态 Adapter、只消费本地响应的 Scrapling parser、quality v1、family extractor、解析证据与可复现依赖。这些不是 main 已实现能力。HTTP(S) 获取继续经过已验收的 SafeFetcher/NetworkPolicy；不得启用 Scrapling fetcher、Browser、Router 或 Discovery，也不得修改公开 API、Schema 或迁移。
 
 ### 技术栈
 
@@ -63,7 +79,7 @@ BE-7 的 Notification、WebSocket 在线事件与 CollectionRun retry 目前属�
 | 任务与缓存 | Redis、Celery Worker/Beat |
 | 采集 | RSS/Atom、受控 HTTP(S) fetcher、安全 HTML 解析 |
 | Intelligence | Provider 抽象、离线 Fake Provider、OpenAI-compatible Adapter |
-| API | REST `/api/v1`；WebSocket `/api/v1/ws` 属于 BE-7 已准入开发范围 |
+| API | 已实现 REST `/api/v1` 与 WebSocket `/api/v1/ws`；在线事件为 best-effort，断线后通过 REST 恢复事实 |
 | Desktop 目标 | Tauri 2、React、TypeScript；Frontend 尚未准入 |
 | 验证 | Pytest、Ruff、Mypy、Alembic、Docker Compose |
 
@@ -118,20 +134,27 @@ docker compose -f infra/compose.yaml down
 - [后端契约基线](docs/03-BACKEND-CONTRACT-BASELINE.md)
 - [Backend 正式任务包](docs/10-BACKEND-WORK-PACKAGE.md)
 - [Backend 开发指南](backend/DEVELOPMENT.md)
-- [BE-6 Vector Memory 契约基线](docs/09-BE6-MEMORY-BASELINE.md)
-- [BE-6 阶段准入许可](docs/17-BE-6-ADMISSION.md)
-- [BE-7 Notification、WebSocket 与恢复契约基线](docs/18-BE7-NOTIFICATION-WS-BASELINE.md)
-- [BE-7 阶段准入许可](docs/19-BE-7-ADMISSION.md)
+- [Backend 前端交接包](backend/FRONTEND-HANDOFF.md)
+- [ACQ-1 总体基线](docs/22-ACQ1-MASTER-BASELINE.md)
+- [ACQ-1 采集契约](docs/23-ACQ1-ACQUISITION-CONTRACT.md)
+- [ACQ-1 验收基线](docs/25-ACQ1-ACCEPTANCE.md)
+- [ACQ-1 工作包与边界](docs/29-ACQ1-WORK-PACKAGES.md)
+- [WP-1 Profile / Policy Addendum](docs/32-ACQ1-WP1-CONTRACT-ADDENDUM.md)
+- [WP-1 验收记录](docs/33-ACQ1-WP1-ACCEPTANCE.md)
+- [WP-2 静态解析阶段准入](docs/34-ACQ1-WP2-ADMISSION.md)
 
 ### 路线图与门禁
 
-FlowTracer 固定按以下阶段推进：
+FlowTracer 当前交付顺序（含未准入的待办阶段）：
 
 ```text
-架构冻结 → Backend BE-1..BE-8 → Frontend → Integration → Alpha Release
+架构冻结 → BE-1..BE-8 → ACQ-1 WP-1..WP-8
+  → PLUGIN-1（待办、未准入）→ Frontend → Integration → Alpha Release
 ```
 
-当前只允许实施 BE-7。BE-7 完成后必须提交阶段报告、测试与无迁移证据并停点，等待总控验收；未经新的阶段准入，不得进入 BE-8、Frontend、Integration 或 Release。
+BE-1..BE-8 和 WP-1 已完成；WP-2 静态解析范围已准入，但在总控完成契约澄清并另行通知前保持停点，实现未开始。WP-2 完成后必须提交阶段报告和验收证据并停点，等待总控书面验收；不能由此进入 WP-3..WP-8、Browser、Router、Discovery、Change Intelligence、Opportunity、Frontend、Integration 或 Release。
+
+PLUGIN-1 仅为用户指定的后续待办：排在 ACQ-1 全部完成验收之后、Frontend 之前，尚未准入或实现。本文不为其补写架构、接口或仓库文档链接。
 
 ### 安全与范围边界
 
@@ -147,7 +170,7 @@ FlowTracer 固定按以下阶段推进：
 
 **A personal desktop AI intelligence system for continuous acquisition, traceable analysis, and long-term Memory—designed to surface and preserve high-value information.**
 
-> **Alpha status:** FlowTracer v0.1 is in development and has not been released. BE-1 through BE-6 have been accepted and merged; BE-7 Notification, WebSocket, and recovery are admitted and in development. BE-8, Frontend, Integration, and Release are not admitted.
+> **Alpha status:** FlowTracer v0.1 is in development and has not been released. BE-1 through BE-8, ACQ-1 Preflight, Contract Freeze, and WP-1 have been accepted and merged. PR #35 is merged; WP-2 static parsing and extraction quality are admitted, pending contract clarification; implementation has not started. WP-3 through WP-8, Browser, Frontend, Integration, and Release are not admitted.
 
 ### Product Positioning
 
@@ -165,11 +188,17 @@ Radar is FlowTracer's core domain object, not the project name. The official pro
 | BE-4 | Completed | Controlled RSS/URL acquisition, scheduling, runs, and RawItem persistence |
 | BE-5 | Completed | Cleaning, Document deduplication, AI analysis, scoring, cost auditing, and Intelligence APIs |
 | BE-6 | Completed | Deterministic chunking, embeddings, pgvector HNSW retrieval, Bookmark, and Memory Search |
-| BE-7 | In development | Admitted; targets Notification, WebSocket online events, and CollectionRun retry, with Analysis retry regression coverage |
-| BE-8 | Not admitted | Backend stabilization and Frontend handoff have not started |
+| BE-7 | Completed | Notification, WebSocket online events, CollectionRun retry, and recovery dispatchers, including Analysis retry regression coverage |
+| BE-8 | Completed | Offline Alpha closure, stabilization, OpenAPI snapshot freeze, operations documentation, and Frontend handoff materials |
+| ACQ-1 Preflight / Contract Freeze | Completed | Engineering inventory, acquisition and safety contracts, and work-package plan merged; frozen contracts do not imply later capabilities are implemented |
+| ACQ-1 WP-1 Admission / Addendum | Completed | PRs #31 / #32 merged; exact Source Profile and Policy contracts frozen |
+| ACQ-1 WP-1 | Completed | PR #33 accepted and merged: Source Profile, acquisition state/Attempt, lease/heartbeat/stale recovery, and safety-policy core |
+| ACQ-1 WP-2 | Admitted, pending contract clarification; implementation not started | PR #35 merged; targets unified static adapters, a network-free Scrapling parser, quality v1, family extractors, and parsing evidence |
+| ACQ-1 WP-3..WP-8 | Not admitted | Browser, Router, Discovery, Change Intelligence, Opportunity, and final stabilization remain future scope |
+| PLUGIN-1 | Backlog, not admitted | User-requested stage after full ACQ-1 acceptance and before Frontend; not implemented, with no formal admission or architecture baseline |
 | Frontend / Integration / Release | Not admitted | Desktop development, integration acceptance, and the Alpha release have not started |
 
-Phase status is determined only by facts merged into GitHub `main`, the [current gate](docs/CURRENT-GATE.md), and the [delivery board](docs/02-DELIVERY-BOARD.md). Open pull requests and planned capabilities are not treated as implemented.
+Implemented capabilities are determined only by facts merged into GitHub `main`; phase gates are recorded in the [current gate](docs/CURRENT-GATE.md) and [delivery board](docs/02-DELIVERY-BOARD.md). Open pull requests, admission approvals, and planned capabilities are not treated as implemented. PLUGIN-1 records only a user-requested backlog order, not admission.
 
 ### Core Data Loop
 
@@ -179,7 +208,7 @@ User registration/sign-in                    ✅ BE-2 completed
   → Controlled acquisition and raw evidence   ✅ BE-4 completed
   → Cleaning, deduplication, AI summary/score  ✅ BE-5 completed
   → Chunking, embeddings, and Memory Search    ✅ BE-6 completed
-  → Notification, WebSocket, and run retry      🚧 BE-7 in development
+  → Notification, WebSocket, and run retry      ✅ BE-7 completed
   → Tauri desktop feed and knowledge base      ⏳ Frontend not admitted
 ```
 
@@ -193,7 +222,17 @@ User registration/sign-in                    ✅ BE-2 completed
 - Deterministic cleaning, global Document deduplication, versioned AI analysis, four-dimensional scoring, cost auditing, recovery tasks, and Intelligence query APIs.
 - Deterministic chunking, embeddings, pgvector HNSW retrieval, Bookmark, and Memory Search.
 
-BE-7 Notification, WebSocket online events, and CollectionRun retry are admitted development scope, not completed capabilities on `main`.
+- Notification threshold/priority evaluation, pagination and read-state APIs, user-isolated WebSocket online events, CollectionRun retry, Analysis retry, and missed-task recovery.
+- BE-8 offline closure acceptance, OpenAPI snapshot freeze, operations documentation, and Frontend handoff materials; completing handoff materials does not admit Frontend.
+- ACQ-1 WP-1 strict `acq-source-v1` Source Profiles, legacy config secret rejection/redaction, acquisition state and Attempts, CollectionRun leases/heartbeats/stale recovery/old-worker fencing, and the Network/Site/Resource policy core.
+
+### Current Development and Acceptance Evidence
+
+This update is based on `main@fcfab2492e4ee88202672787d425c084d0b4afc9`. WP-1 implementation PR #33 and acceptance/WP-2 admission control PR #35 are both merged. The [WP-1 acceptance record](docs/33-ACQ1-WP1-ACCEPTANCE.md) covers implementation commit `0e95a5698ae5b8964fb387aaa9c1bb77e3a439ec`: 264 tests, 87.76% coverage, passing migration, contract, security, and runtime acceptance, with P0/P1/P2 = 0/0/0. These are not test results for the unfinished WP-2.
+
+WP-2 has been assigned to Backend, targeting `feat/acq-1b-static`. Backend completed its startup audit and stopped because the quality v1 component formulas, writer terminal states, and exact family/evidence contracts need clarification; the controller is preparing an Addendum/ADR. **WP-2 is admitted, pending contract clarification; implementation has not started, and there are no code or dependency changes or test results for this phase.**
+
+Planned goals are unified RSS/Native static adapters, a Scrapling parser consuming only local responses, quality v1, family extractors, parsing evidence, and reproducible dependencies. These are not capabilities implemented on main. HTTP(S) acquisition continues through the accepted SafeFetcher/NetworkPolicy; Scrapling fetchers, Browser, Router, and Discovery must not be enabled, and public APIs, schemas, and migrations must not change.
 
 ### Technology Stack
 
@@ -204,7 +243,7 @@ BE-7 Notification, WebSocket online events, and CollectionRun retry are admitted
 | Tasks and cache | Redis, Celery Worker/Beat |
 | Acquisition | RSS/Atom, controlled HTTP(S) fetcher, secure HTML parsing |
 | Intelligence | Provider abstraction, offline Fake Provider, OpenAI-compatible adapter |
-| API | REST `/api/v1`; WebSocket `/api/v1/ws` is within the admitted BE-7 development scope |
+| API | Implemented REST `/api/v1` and WebSocket `/api/v1/ws`; online events are best effort, with REST fact recovery after disconnection |
 | Desktop target | Tauri 2, React, TypeScript; Frontend is not admitted |
 | Validation | Pytest, Ruff, Mypy, Alembic, Docker Compose |
 
@@ -259,20 +298,27 @@ For host development with `uv`, migrations, and quality checks, follow the [Back
 - [Backend contract baseline](docs/03-BACKEND-CONTRACT-BASELINE.md)
 - [Backend formal work package](docs/10-BACKEND-WORK-PACKAGE.md)
 - [Backend development guide](backend/DEVELOPMENT.md)
-- [BE-6 Vector Memory contract baseline](docs/09-BE6-MEMORY-BASELINE.md)
-- [BE-6 phase admission](docs/17-BE-6-ADMISSION.md)
-- [BE-7 Notification, WebSocket, and recovery contract baseline](docs/18-BE7-NOTIFICATION-WS-BASELINE.md)
-- [BE-7 phase admission](docs/19-BE-7-ADMISSION.md)
+- [Backend Frontend handoff package](backend/FRONTEND-HANDOFF.md)
+- [ACQ-1 master baseline](docs/22-ACQ1-MASTER-BASELINE.md)
+- [ACQ-1 acquisition contract](docs/23-ACQ1-ACQUISITION-CONTRACT.md)
+- [ACQ-1 acceptance baseline](docs/25-ACQ1-ACCEPTANCE.md)
+- [ACQ-1 work packages and boundaries](docs/29-ACQ1-WORK-PACKAGES.md)
+- [WP-1 Profile / Policy Addendum](docs/32-ACQ1-WP1-CONTRACT-ADDENDUM.md)
+- [WP-1 acceptance record](docs/33-ACQ1-WP1-ACCEPTANCE.md)
+- [WP-2 static parsing admission](docs/34-ACQ1-WP2-ADMISSION.md)
 
 ### Roadmap and Gates
 
-FlowTracer follows a fixed delivery sequence:
+FlowTracer's current delivery order (including unadmitted backlog stages):
 
 ```text
-Architecture freeze → Backend BE-1..BE-8 → Frontend → Integration → Alpha Release
+Architecture freeze → BE-1..BE-8 → ACQ-1 WP-1..WP-8
+  → PLUGIN-1 (backlog, not admitted) → Frontend → Integration → Alpha Release
 ```
 
-Only BE-7 is currently admitted. When BE-7 is complete, the Backend role must submit its phase report, tests, and no-migration evidence, then stop for controller acceptance. BE-8, Frontend, Integration, and Release cannot begin without a new phase admission.
+BE-1..BE-8 and WP-1 are complete; WP-2 static parsing is admitted but remains stopped until controller clarification and an explicit instruction to resume; implementation has not started. When WP-2 is complete, Backend must submit its phase report and acceptance evidence, then stop for written controller acceptance. This does not admit WP-3..WP-8, Browser, Router, Discovery, Change Intelligence, Opportunity, Frontend, Integration, or Release.
+
+PLUGIN-1 is only a user-requested backlog stage after full ACQ-1 acceptance and before Frontend. It is neither admitted nor implemented. This README does not define its architecture, interfaces, or repository document links.
 
 ### Security and Scope Boundaries
 

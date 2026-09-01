@@ -4,9 +4,9 @@
 
 **M0：架构初步冻结 — 已完成**
 
-**当前阶段：ACQ-1 WP-2（ACQ-1B + D-static）— PR #35 已合并；已准入，契约澄清中；实现未开始**
+**当前阶段：ACQ-1 WP-2（ACQ-1B + D-static）— PR #35 / #37 已合并；契约已冻结，开发进行中；目标能力尚未进入 main**
 
-本次同步事实基准：`main@fcfab2492e4ee88202672787d425c084d0b4afc9`。
+本次同步事实基准：`main@7ae213b9849a843eb0a276610e4ad19656bb3fe8`。
 
 ## 工作项
 
@@ -48,8 +48,10 @@
 | PM-014 | ACQ-1 WP-1 精确枚举/Profile/Policy Addendum | 总控 | 完成（已合并） | PM-013 | PR #32、ADR-027、`32-ACQ1-WP1-CONTRACT-ADDENDUM.md` |
 | ACQ-1-WP1 | Source Contract、安全内核、预算与运行状态 | Backend | 完成（已验收、已合并） | PM-013、PM-014 | PR #33、`33-ACQ1-WP1-ACCEPTANCE.md`、Migration、Source API、lease recovery、Policy、264 tests/87.76% |
 | PM-015 | ACQ-1 WP-2（ACQ-1B + D-static）准入 | 总控 | 完成（已合并） | ACQ-1-WP1 | PR #35、`34-ACQ1-WP2-ADMISSION.md` |
-| ACQ-1-WP2 | Static Adapter、Scrapling parser、quality v1 | Backend | 已准入，契约澄清中；开工审计后停点，实现未开始 | PM-015 | 目标：`feat/acq-1b-static`；等待总控补齐 quality v1、writer 终态及 family/evidence 契约 |
+| PM-016 | ACQ-1 WP-2 quality v1 / writer / family-evidence 契约 Addendum | 总控 | 完成（已合并） | PM-015 | PR #37、ADR-028、`35-ACQ1-WP2-CONTRACT-ADDENDUM.md` |
+| ACQ-1-WP2 | Static Adapter、Scrapling parser、quality v1 | Backend | 已准入，契约已冻结；开发进行中，目标能力尚未进入 main | PM-015、PM-016 | 目标分支：`feat/acq-1b-static`；按 Addendum/ADR-028 实现并提交独立验收 |
 | ACQ-1-WP3..8 | ACQ-1 后续工作包 | Backend | 未准入 | ACQ-1-WP2 起逐阶段验收 | `29-ACQ1-WORK-PACKAGES.md` |
+| PLUGIN-1 | 用户指定的后续插件工作包 | 待定 | 待办、未准入 | ACQ-1 全部完成验收后、Frontend 前 | 尚无正式准入或架构基线；不得视为已实现 |
 | FE-001 | 前端实现 | Frontend | 未准入 | ACQ-1 经总控验收并冻结 Acquisition Contract | 桌面端与前端测试 |
 | INT-001 | 集成与缺陷修复 | Integration | 未准入 | ACQ-1、FE-001 | E2E 报告与缺陷闭环 |
 | REL-001 | GitHub Alpha 发布 | Release | 未准入 | INT-001 | 仓库、CI、Tag、Release |

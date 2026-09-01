@@ -78,24 +78,63 @@ class _BoundedPreflight(HTMLParser):
         self.elements = 0
         self.stack: list[str] = []
         self.attribute_bytes = 0
+        self.found_body = False
+        self.in_first_body = False
+        self.first_body_html: list[str] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        normalized = tag.lower()
         self.elements += 1
-        if tag.lower() not in _VOID:
-            self.stack.append(tag.lower())
+        if normalized not in _VOID:
+            self.stack.append(normalized)
         self.attribute_bytes += sum(len((value or "").encode()) for _, value in attrs)
         self._check()
+        if normalized == "body" and not self.found_body:
+            self.found_body = True
+            self.in_first_body = True
+        elif self.in_first_body:
+            raw_tag = self.get_starttag_text()
+            if raw_tag is not None:
+                self.first_body_html.append(raw_tag)
 
     def handle_startendtag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        normalized = tag.lower()
         self.elements += 1
         self.attribute_bytes += sum(len((value or "").encode()) for _, value in attrs)
         self._check()
+        if normalized == "body" and not self.found_body:
+            self.found_body = True
+        elif self.in_first_body:
+            raw_tag = self.get_starttag_text()
+            if raw_tag is not None:
+                self.first_body_html.append(raw_tag)
 
     def handle_endtag(self, tag: str) -> None:
         normalized = tag.lower()
+        if self.in_first_body:
+            if normalized == "body":
+                self.in_first_body = False
+            else:
+                self.first_body_html.append(f"</{tag}>")
         if normalized in self.stack:
             index = len(self.stack) - 1 - self.stack[::-1].index(normalized)
             del self.stack[index:]
+
+    def handle_data(self, data: str) -> None:
+        if self.in_first_body:
+            self.first_body_html.append(data)
+
+    def handle_entityref(self, name: str) -> None:
+        if self.in_first_body:
+            self.first_body_html.append(f"&{name};")
+
+    def handle_charref(self, name: str) -> None:
+        if self.in_first_body:
+            self.first_body_html.append(f"&#{name};")
+
+    def handle_comment(self, data: str) -> None:
+        if self.in_first_body:
+            self.first_body_html.append(f"<!--{data}-->")
 
     def _check(self) -> None:
         if (
@@ -291,16 +330,21 @@ def observe_html(
     try:
         page = Selector(html, url=response.final_url)
         root = page._root
-        bodies = page.css("body")
-        scope = bodies[0]._root if bodies else root
+        if preflight.found_body:
+            scope_page = Selector(
+                f"<body>{''.join(preflight.first_body_html)}</body>", url=response.final_url
+            )
+            scope = scope_page.css("body")[0]._root
+        else:
+            scope = root
         roots: list[tuple[Any, str]] = []
-        roots.extend((item._root, "html.article") for item in page.css("article"))
-        roots.extend((item._root, "html.main") for item in page.css("main"))
+        roots.extend((node, "html.article") for node in scope.iter("article"))
+        roots.extend((node, "html.main") for node in scope.iter("main"))
         roots.extend(
             (node, "html.role_main") for node in _attribute_equals(scope.iter(), "role", "main")
         )
         body_root: Any = scope
-        text_rule = "html.body" if bodies else "html.root"
+        text_rule = "html.body" if preflight.found_body else "html.root"
         for candidate, rule in roots:
             if _has_hidden_ancestor(candidate) or _has_noise_ancestor(candidate):
                 continue
@@ -314,7 +358,11 @@ def observe_html(
         visible_text = normalize_observed_text(" ".join(_text_nodes(scope, remove_noise=False)))
         noise_parts: list[str] = []
         for node in scope.iter():
-            if _is_noise(node) and not any(_is_noise(parent) for parent in node.iterancestors()):
+            if (
+                _is_noise(node)
+                and not _has_hidden_ancestor(node)
+                and not any(_is_noise(parent) for parent in node.iterancestors())
+            ):
                 noise_parts.extend(_text_nodes(node, remove_noise=False))
         noise_text = normalize_observed_text(" ".join(noise_parts))
         m = meaningful_length(body_text)

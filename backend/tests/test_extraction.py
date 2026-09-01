@@ -175,6 +175,47 @@ def test_attribute_tokens_are_ascii_casefolded_and_hidden_ancestor_is_ineligible
     assert observed.evidence.fields["text"].evidence_path == "html.role_main"
 
 
+def test_hidden_navigation_never_contributes_to_visible_or_noise_metrics() -> None:
+    response = FetchResponse(
+        "https://example.com/",
+        "text/html",
+        (
+            b"<html><body><main><p>Visible body</p>"
+            b"<nav>Visible nav</nav>"
+            b"<template><nav>Template noise</nav></template>"
+            b"<div hidden><header>Hidden noise</header></div>"
+            b"<div aria-hidden='TRUE'><footer>ARIA noise</footer></div>"
+            b"</main></body></html>"
+        ),
+    )
+    observed = observe_html(response, SourceFamily.GENERIC_WEB, "generic")
+    metrics = observed.evidence.metrics
+    assert metrics.meaningful_chars == meaningful_length("Visible body")
+    assert metrics.visible_chars == meaningful_length("Visible body Visible nav")
+    assert metrics.navigation_chars == meaningful_length("Visible nav")
+    assert 0 <= metrics.navigation_chars <= metrics.visible_chars
+    assert observed.evidence.quality_score is not None
+    assert observed.evidence.quality_bucket != "unscored"
+
+
+def test_body_scope_uses_only_first_body_and_ignores_outside_candidates() -> None:
+    response = FetchResponse(
+        "https://example.com/",
+        "text/html",
+        (
+            b"<html><article><h1>Outside</h1><p>Outside body</p></article>"
+            b"<body><main><h1>First</h1><p>First body only</p></main></body>"
+            b"<body><article><h1>Second</h1><p>Second body</p></article></body></html>"
+        ),
+    )
+    observed = observe_html(response, SourceFamily.GENERIC_WEB, "generic")
+    assert observed.title == "First"
+    assert observed.text == "First First body only"
+    assert observed.evidence.fields["text"].evidence_path == "html.main"
+    assert "Outside" not in observed.text
+    assert "Second" not in observed.text
+
+
 def test_feed_candidates_are_individually_observed_and_fallback_is_not_link() -> None:
     response = FetchResponse(
         final_url="https://example.com/feed",

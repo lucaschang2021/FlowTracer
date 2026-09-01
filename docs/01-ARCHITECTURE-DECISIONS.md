@@ -207,6 +207,16 @@
 - 安全：NetworkPolicy 是 Operator 控制的内部不可覆盖策略，不进入 Source Profile 或公开 API。Source SitePolicy 与 ResourceBudget 只能在全局/Operator 上限内收紧，不能放宽网络 deny、访问控制、端口、地址、redirect 或资源上限。
 - 运行状态：Source health 与 AcquisitionAttempt 只使用 Addendum 冻结的终态值；错误细分继续使用安全 `error_code`，不通过增加临时状态绕过状态机。
 
+## ADR-028：WP-2 冻结确定性质量观测，保持 legacy writer 不变
+
+- 状态：Proposed（WP-2 Addendum 控制提交合并后生效）
+- 背景：仅有八项质量权重不能唯一确定长度、密度、噪声和 JS shell 计算；Profile v1 不含阈值，无法由 Backend 自行决定低质量内容的写入行为。
+- 决策：精确算法、九类 family 的通用提取支持、evidence/metadata/links 结构与资源上限以 `docs/35-ACQ1-WP2-CONTRACT-ADDENDUM.md` 为准。质量以精确有理数加权并仅最终 HALF_UP 四位。
+- 兼容：WP-2 的 static parser 实际接入安全获取后的本地观测链，保留现有 RSS/Native RawCandidate/writer/去重/终态。所有质量桶均不触发过滤、重试或 Browser；质量列和 EWMA 只是观测，不影响 health/circuit。
+- 家族：v1 对九类 SourceFamily 仅提供同一五字段通用静态提取，不猜领域字段，不放开 family_options。新增 family 专用语义需版本化裁定。
+- 边界：Scrapling 是本地 parser，不是独立联网调用，不生成额外 Attempt，不替代 SafeFetcher。Evidence 是有限内部规则证据，不落入公开 metadata/日志；没有 Snapshot 迁移或新增公开 API。
+- 后续：WP-4 准入前必须冻结质量驱动路由的 family/profile 表；不得借本文提前启用。本文不改变 Intelligence 评分规则。
+
 ## 后续阶段前仍需补齐的工程规格
 
 以下事项不改变 Alpha 架构初步冻结结论，但必须由总控在对应实现阶段准入前补齐，不得由 Backend 擅自决定：

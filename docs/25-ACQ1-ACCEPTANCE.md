@@ -72,14 +72,18 @@ Coverage 不得低于 BE-8 冻结基线 87.27%。所有测试不得访问公网�
 
 ## 7. Router 与 Quality
 
+WP-2 按 `docs/35-ACQ1-WP2-CONTRACT-ADDENDUM.md` 验收精确公式与观测模式：低分/观测失败不得丢弃已被 legacy parser 接受的 RawItem；八项权重不变，writer/去重/终态不变。以下 Browser/fallback/family 路由要求仅在 WP-4 等相应能力准入后验收，不是 WP-2 的实现许可。
+
 - Native quality ≥0.60 时不启动 Browser。
 - quality <0.45 且预算允许时按 Profile 升级。
-- 0.45–0.59 按 family/profile 的冻结决策稳定执行。
+- `[0.4500,0.6000)` 按 WP-4 准入前另行冻结的 family/profile 决策稳定执行。
 - access control、policy deny、circuit open 或预算耗尽安全终止。
 - fallback 顺序、attempt ordinal、decision version 与安全 trace 可重放。
 - quality 公式精确覆盖 0、阈值边界、ROUND_HALF_UP、缺失字段和噪声。
 
 ## 8. Adaptive Extraction
+
+WP-2 的九类 family 均仅提取五种通用字段；精确来源优先级、rule_id、confidence、links/metadata/DOM 上限以 `docs/35-ACQ1-WP2-CONTRACT-ADDENDUM.md` 为准。领域特有字段和持久 selector 学习不得提前实现。
 
 - 合理 DOM 变化能够恢复或明确失败。
 - Policy、Academic、Corporate、Event、Opportunity fixture 覆盖允许缺失字段。

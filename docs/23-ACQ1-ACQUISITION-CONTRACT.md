@@ -1,6 +1,6 @@
 # FlowTracer ACQ-1 Acquisition Contract
 
-状态：Frozen；WP-1 精确值域与 Profile v1 Schema 由 `docs/32-ACQ1-WP1-CONTRACT-ADDENDUM.md` 补充
+状态：Frozen；WP-1 精确值域由 `docs/32-ACQ1-WP1-CONTRACT-ADDENDUM.md` 补充；WP-2 质量/提取精确语义由 `docs/35-ACQ1-WP2-CONTRACT-ADDENDUM.md` 在其控制提交合并后补充生效
 
 版本：`acquisition-v1`
 
@@ -191,6 +191,8 @@ payment_required
 
 质量版本：`extraction-quality-v1`，0.00–1.00，Decimal `ROUND_HALF_UP` 四位。
 
+WP-2 的长度/密度/导航/JS/字段信用、精确加权与四位量化以 `docs/35-ACQ1-WP2-CONTRACT-ADDENDUM.md` §2 为准。WP-2 仅观测，所有质量桶保留已验收 legacy writer，状态表见其 §5。
+
 ```text
 0.30 meaningful_text
 0.15 text_density
@@ -202,9 +204,11 @@ payment_required
 0.10 js_shell_inverse
 ```
 
-缺失字段得 0；不可确定的数据保持缺失。接受阈值默认 `0.60`，Router 升级阈值默认 `<0.45`；0.45–0.59 可按 family/profile 明确决定接受或升级。Profile 只能在冻结范围内调整阈值，不能关闭安全校验。
+缺失字段得 0；不可确定的数据保持缺失。Router 阶段默认接受阈值 `0.6000`、升级阈值 `<0.4500`，中间段严格为 `[0.4500,0.6000)`。WP-4 准入前必须另行冻结 family/profile 决策表；当前 `acq-source-v1` 无可调质量阈值，禁止擅自增加字段或把本条解释为 WP-2 过滤/升级许可。
 
 ## 6. Adaptive Extraction
+
+WP-2 仅启用 `docs/35-ACQ1-WP2-CONTRACT-ADDENDUM.md` 的封闭 common-static-v1 规则与有界 evidence；family 专用领域字段、持久 selector/Profile 学习不在本阶段。
 
 - Parser 先使用稳定语义标记、结构、正文算法，再使用版本化 Profile selector。
 - 自适应恢复只能在本地候选 selector/结构规则中选择，不允许向目标站点写入或执行模型生成脚本。

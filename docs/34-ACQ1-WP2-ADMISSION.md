@@ -2,6 +2,8 @@
 
 状态：本控制提交合并到 `main` 后生效
 
+补充条件：WP-2 已由 PR #35 合并准入；后端开工澄清停点必须等 `docs/35-ACQ1-WP2-CONTRACT-ADDENDUM.md` 与 ADR-028 合并后才可续跑，不重建既有干净分支。
+
 前置基准：`main@9f019072bb71a43e1e2253f2f55d217865d2e239`
 
 执行角色：现有 Backend 角色
@@ -22,14 +24,15 @@ Backend 只读取：
 - `docs/25-ACQ1-ACCEPTANCE.md`
 - `docs/29-ACQ1-WORK-PACKAGES.md` 的通用规则与 WP-2
 - `docs/32-ACQ1-WP1-CONTRACT-ADDENDUM.md`
-- ADR-022、ADR-023、ADR-027
+- `docs/35-ACQ1-WP2-CONTRACT-ADDENDUM.md`
+- ADR-022、ADR-023、ADR-027、ADR-028
 - 本阶段直接涉及的 Backend 代码、依赖、Dockerfile 与测试
 
 ## 授权范围
 
 - 完成统一 `AcquisitionBackend` / `AcquisitionRequest` / `AcquisitionResult` 的静态 Adapter 边界，使 RawItem writer 不感知 RSS、Native 或 static parser 的具体实现。
 - 保持并接入现有 RSS 与 Native adapter；新增 Scrapling **静态解析器 adapter**，只处理已由安全 fetcher 获取的本地响应字节/文本。
-- 实现冻结的 quality v1、family extractor、解析证据与 AcquisitionAttempt 记录；所有决策保持确定性、可解释和离线可测。
+- 按 WP-2 Addendum 实现 quality v1、通用 family extractor、内部解析证据与既有 Attempt/Run 质量列；所有决策保持确定性、可解释和离线可测。质量仅观测，不改变 legacy writer/去重/终态，不引入 family 专用领域事实。
 - 精确锁定 Python 3.13 兼容的静态解析依赖及许可证证据；更新 `pyproject.toml`、`uv.lock`、Backend 文档与必要的 Dockerfile 静态依赖。
 - 允许文件限于 `backend/app/services/acquisition*`、`backend/app/adapters/acquisition/`、`backend/app/services/extraction*`、直接相关 schemas/tasks、对应 Backend tests、依赖清单/锁文件、Backend 文档；Dockerfile 仅允许静态依赖构建所需的最小变更。
 

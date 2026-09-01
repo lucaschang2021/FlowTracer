@@ -1,14 +1,14 @@
 # FlowTracer 当前阶段闸门
 
-更新时间：2026-08-31。
+更新时间：2026-09-01。
 
-- 当前稳定基准：`main@fcfab2492e4ee88202672787d425c084d0b4afc9`；ACQ-1 WP-1 验收/WP-2 准入控制 PR #35 已合并，WP-1 实现 PR #33 已独立 Review 并合并。
+- 当前稳定基准：`main@7ae213b9849a843eb0a276610e4ad19656bb3fe8`；WP-2 契约 Addendum/ADR-028 控制 PR #37 已合并，WP-2 准入控制 PR #35 与 WP-1 实现 PR #33 均已合并。
 - 已完成：ACQ-1 Preflight、Contract Freeze 与 WP-1（ACQ-1A + H0）已通过总控验收；WP-1 结论见 `docs/33-ACQ1-WP1-ACCEPTANCE.md`。
-- 当前阶段：ACQ-1 WP-2（ACQ-1B + D-static）已准入，契约澄清中；实现未开始。Backend 已完成开工审计，因 quality v1 分项公式、writer 终态及 family/evidence 精确契约缺口停点。
-- 准入：PR #35 合并已满足 `docs/34-ACQ1-WP2-ADMISSION.md` 的条件准入；Backend 目标分支为 `feat/acq-1b-static`，仅按该准入文件实现 WP-2。
-- 未准入：WP-3..WP-8；Browser、Router、Discovery、Change、Opportunity；Frontend、Integration 与 Release。
+- 当前阶段：ACQ-1 WP-2（ACQ-1B + D-static）已准入，契约已冻结，Backend 正在开发；WP-2 目标能力尚未合并到 `main`，不得描述为已实现。
+- 准入：PR #35 与 PR #37 合并已使 `docs/34-ACQ1-WP2-ADMISSION.md`、`docs/35-ACQ1-WP2-CONTRACT-ADDENDUM.md` 及 ADR-028 生效；Backend 目标分支为 `feat/acq-1b-static`，仅按冻结契约实现 WP-2。
+- 未准入：WP-3..WP-8；Browser、Router、Discovery、Change、Opportunity；PLUGIN-1；Frontend、Integration 与 Release。
 
-WP-2 开工只读取：本文件、`docs/34-ACQ1-WP2-ADMISSION.md`、`docs/33-ACQ1-WP1-ACCEPTANCE.md` 及其中列出的直接输入和本阶段相关 Backend 文件。
+WP-2 开工只读取：本文件、`docs/34-ACQ1-WP2-ADMISSION.md`、`docs/35-ACQ1-WP2-CONTRACT-ADDENDUM.md`、`docs/33-ACQ1-WP1-ACCEPTANCE.md` 及其中列出的直接输入和本阶段相关 Backend 文件。
 
 WP-2 必须交付：
 
@@ -19,4 +19,4 @@ WP-2 必须交付：
 
 WP-2 禁止 Scrapling fetcher、Playwright/Browser、Router、Discovery、Change Intelligence、Opportunity、Schema/migration 与公开 API 变化。任何冻结契约偏离必须 STOP 并提交 ADR 请求。
 
-下一步：总控补充 WP-2 Addendum/ADR 并完成书面裁定后，另行通知 Backend 续跑；澄清前保持停点，不实施代码或依赖变更。WP-2 完成后仍须报告并等待书面验收；WP-3..WP-8 与 Frontend 继续未准入。
+下一步：Backend 在 `feat/acq-1b-static` 按已生效的 Addendum/ADR-028 完成 WP-2，实现完成后报告并等待书面验收；WP-3..WP-8、PLUGIN-1 与 Frontend 继续未准入。

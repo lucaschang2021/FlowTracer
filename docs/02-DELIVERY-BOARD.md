@@ -4,7 +4,9 @@
 
 **M0：架构初步冻结 — 已完成**
 
-**当前阶段：ACQ-1 WP-2（ACQ-1B + D-static）— WP-1 已验收合并，WP-2 准入控制待合并**
+**当前阶段：ACQ-1 WP-2（ACQ-1B + D-static）— PR #35 已合并；已准入，契约澄清中；实现未开始**
+
+本次同步事实基准：`main@fcfab2492e4ee88202672787d425c084d0b4afc9`。
 
 ## 工作项
 
@@ -45,8 +47,8 @@
 | PM-013 | ACQ-1 WP-1（ACQ-1A + H0）准入 | 总控 | 完成（已合并） | ACQ-1-CF | PR #31、`31-ACQ1-WP1-ADMISSION.md` |
 | PM-014 | ACQ-1 WP-1 精确枚举/Profile/Policy Addendum | 总控 | 完成（已合并） | PM-013 | PR #32、ADR-027、`32-ACQ1-WP1-CONTRACT-ADDENDUM.md` |
 | ACQ-1-WP1 | Source Contract、安全内核、预算与运行状态 | Backend | 完成（已验收、已合并） | PM-013、PM-014 | PR #33、`33-ACQ1-WP1-ACCEPTANCE.md`、Migration、Source API、lease recovery、Policy、264 tests/87.76% |
-| PM-015 | ACQ-1 WP-2（ACQ-1B + D-static）准入 | 总控 | 完成候选（控制提交合并后生效） | ACQ-1-WP1 | `34-ACQ1-WP2-ADMISSION.md` |
-| ACQ-1-WP2 | Static Adapter、Scrapling parser、quality v1 | Backend | 未准入（等待 PM-015 合并） | PM-015 | `feat/acq-1b-static`、离线 fixtures、依赖锁与回归报告 |
+| PM-015 | ACQ-1 WP-2（ACQ-1B + D-static）准入 | 总控 | 完成（已合并） | ACQ-1-WP1 | PR #35、`34-ACQ1-WP2-ADMISSION.md` |
+| ACQ-1-WP2 | Static Adapter、Scrapling parser、quality v1 | Backend | 已准入，契约澄清中；开工审计后停点，实现未开始 | PM-015 | 目标：`feat/acq-1b-static`；等待总控补齐 quality v1、writer 终态及 family/evidence 契约 |
 | ACQ-1-WP3..8 | ACQ-1 后续工作包 | Backend | 未准入 | ACQ-1-WP2 起逐阶段验收 | `29-ACQ1-WORK-PACKAGES.md` |
 | FE-001 | 前端实现 | Frontend | 未准入 | ACQ-1 经总控验收并冻结 Acquisition Contract | 桌面端与前端测试 |
 | INT-001 | 集成与缺陷修复 | Integration | 未准入 | ACQ-1、FE-001 | E2E 报告与缺陷闭环 |

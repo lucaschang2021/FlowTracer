@@ -7,6 +7,7 @@ from uuid import UUID
 
 from app.models.entities import AcquisitionMode, DiscoveryMode, SourceFamily, SourceType
 from app.schemas.resources import AcquisitionProfileV1
+from app.services.extraction_types import ExtractionObservation
 
 
 class CollectionError(Exception):
@@ -48,6 +49,7 @@ class AcquisitionResult:
     response: FetchResponse
     retry_count: int
     budget_used: dict[str, int]
+    observations: tuple[ExtractionObservation, ...] = ()
 
 
 class AcquisitionBackend(Protocol):

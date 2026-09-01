@@ -20,12 +20,14 @@ from sqlalchemy.ext.asyncio import (
 from app.core.config import Settings
 from app.main import create_app
 from app.models.entities import (
+    AcquisitionAttempt,
     CollectionRun,
     CollectionRunStatus,
     CollectionTriggerType,
     RawItem,
     ResourceStatus,
     Source,
+    SourceAcquisitionState,
     SourceType,
 )
 from app.schemas.events import EventEnvelope
@@ -382,6 +384,14 @@ async def test_worker_is_idempotent_partial_and_applies_three_level_deduplicatio
             1,
         )
         assert int(await session.scalar(select(func.count()).select_from(RawItem)) or 0) == 2
+        attempt = await session.scalar(
+            select(AcquisitionAttempt).where(AcquisitionAttempt.run_id == second_run)
+        )
+        state = await session.get(SourceAcquisitionState, UUID(source_id))
+        assert attempt is not None and state is not None
+        assert run.quality_score is not None
+        assert attempt.quality_score == run.quality_score
+        assert state.quality_ewma is not None
 
     items = await client.get(f"/api/v1/collection-runs/{second_run}/items", headers=headers)
     assert items.status_code == 200

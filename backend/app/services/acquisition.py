@@ -7,6 +7,7 @@ import uuid
 from collections.abc import Callable
 from contextlib import suppress
 from datetime import UTC, datetime, timedelta
+from decimal import Decimal
 from uuid import UUID
 
 from sqlalchemy import func, or_, select, update
@@ -34,6 +35,8 @@ from app.schemas.resources import AcquisitionProfileV1
 from app.services.acquisition_parsers import parse_feed, parse_html
 from app.services.acquisition_types import AcquisitionRequest, CollectionError
 from app.services.events import EventPublisher, build_event, publish_safely
+from app.services.extraction import attach_extraction_observations
+from app.services.extraction_quality import aggregate_quality, update_quality_ewma
 from app.services.native_acquisition import NativeAcquisitionBackend
 from app.services.resources import get_source, resource_not_found
 from app.services.safe_fetcher import SafeFetcher
@@ -491,6 +494,7 @@ async def _update_source_state(
     backend: BackendName,
     duration_ms: int,
     error_code: str | None,
+    quality_score: Decimal | None = None,
     now: datetime,
 ) -> None:
     state = await session.scalar(
@@ -517,6 +521,7 @@ async def _update_source_state(
         if state.latency_ewma_ms is None
         else round(state.latency_ewma_ms * 0.8 + duration_ms * 0.2)
     )
+    state.quality_ewma = update_quality_ewma(state.quality_ewma, quality_score)
     if succeeded:
         state.success_count += 1
         state.consecutive_failures = 0
@@ -558,6 +563,7 @@ def _attempt(
     retry_count: int = 0,
     bytes_received: int = 0,
     error: CollectionError | None = None,
+    quality_score: Decimal | None = None,
 ) -> AcquisitionAttempt:
     return AcquisitionAttempt(
         run_id=run_id,
@@ -583,6 +589,7 @@ def _attempt(
         error_code=None if error is None else error.code,
         safe_error=None if error is None else error.safe_message,
         decision_version=DECISION_VERSION,
+        quality_score=quality_score,
     )
 
 
@@ -709,6 +716,16 @@ async def execute_run(
             if source.source_type == SourceType.RSS
             else parse_html(response, source.normalized_url)
         )
+        result = attach_extraction_observations(
+            result,
+            family=source.source_family,
+            content_profile=profile.content_profile.value,
+            source_type=source.source_type,
+            parsed=parsed,
+        )
+        aggregate = aggregate_quality(
+            [observation.evidence.quality_score for observation in result.observations]
+        )
         async with factory() as session:
             locked_source = await session.scalar(
                 select(Source).where(Source.id == source.id).with_for_update()
@@ -779,6 +796,7 @@ async def execute_run(
                 0, round((finished_at - attempt_started_at).total_seconds() * 1000)
             )
             run.budget_summary = result.budget_used
+            run.quality_score = aggregate
             locked_source.last_fetched_at = run.finished_at
             session.add(
                 _attempt(
@@ -794,6 +812,7 @@ async def execute_run(
                     content_type=response.content_type,
                     retry_count=retries,
                     bytes_received=len(response.body),
+                    quality_score=aggregate,
                 )
             )
             await _update_source_state(
@@ -803,6 +822,7 @@ async def execute_run(
                 backend=backend,
                 duration_ms=run.duration_ms,
                 error_code=None,
+                quality_score=aggregate,
                 now=finished_at,
             )
             await session.commit()

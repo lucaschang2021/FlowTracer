@@ -18,6 +18,7 @@ dependencies = [
   "pydantic>=2.11,<3",
   "pydantic-settings>=2.10,<3",
   "redis>=6,<8",
+  "scrapling==0.4.15",
   "sqlalchemy[asyncio]>=2.0,<3",
   "structlog>=25,<26",
   "uvicorn[standard]>=0.35,<1",
@@ -74,5 +75,5 @@ module = ["celery.*"]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
-module = ["asyncpg.*", "argon2.*", "defusedxml.*"]
+module = ["asyncpg.*", "argon2.*", "defusedxml.*", "scrapling.*"]
 ignore_missing_imports = true

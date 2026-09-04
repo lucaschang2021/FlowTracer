@@ -172,3 +172,25 @@ Rollback to the previous Alpha schema is supported during WP-1 validation only:
 uv run alembic downgrade 20260827_0003
 uv run alembic upgrade head
 ```
+
+## ACQ-1 WP-2 static extraction observation
+
+Successful RSS and Native HTTP acquisitions now run `static-extractor-v1` against the bytes
+already returned by the controlled fetcher. The observer calculates deterministic
+`extraction-quality-v1` evidence per accepted legacy candidate and writes only the aggregate to
+the existing CollectionRun, AcquisitionAttempt, and Source acquisition-state quality columns.
+It never changes RawItem identity, content, metadata, deduplication, retry, health, or routing.
+Observation failure and resource-limit outcomes are unscored and do not block the legacy writer.
+
+The parser dependency is exactly `scrapling==0.4.15` (BSD-3-Clause, Python 3.13 compatible).
+Only the base parser and its locked static dependencies are installed; no `fetchers`, browser,
+AI, shell, Playwright, Chromium, proxy, or session extras are enabled. Application code imports
+only `scrapling.parser.Selector`. HTML is preflight-limited before DOM construction, and parser
+tests inject local bytes while making any attempted socket access fail.
+
+The lock resolves the added static dependency set as follows (license expressions come from the
+installed wheel metadata): `scrapling 0.4.15` BSD-3-Clause, `cssselect 1.5.0` BSD-3-Clause,
+`lxml 6.1.2` BSD-3-Clause, `orjson 3.12.0` MPL-2.0 AND (Apache-2.0 OR MIT), `tld 0.13.2`
+MPL-1.1 OR GPL-2.0-only OR LGPL-2.1-or-later, and `w3lib 2.4.1` BSD-3-Clause. All resolved wheels
+declare or publish CPython 3.13 support; the Bookworm image requires no browser or new system
+package for this parser-only set.

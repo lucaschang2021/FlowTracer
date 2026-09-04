@@ -53,23 +53,28 @@ Models/persistence own database mechanics, not domain decisions.
 
 - `EX-001 / P1`：[`api/v1/routes/memory.py`](../backend/app/api/v1/routes/memory.py) 在 transport 层构造 concrete embedding provider。
 - `EX-002 / P2`：`backend/app/api` 多处直接导入 `AsyncSession`、SQLAlchemy 查询和 ORM entity。治理目标禁止新增；本轮不强迫全量 repository 化。
-- `EX-003 / P1`：三个核心 service 同时依赖 ORM 与 concrete provider/infrastructure 模块。
+- `EX-003 / P1`：三个核心 service 直接导入 concrete analysis/embedding/acquisition backend、fetcher 或 event infrastructure；这是本 Pass 必须解决的 Provider seam。
 - `EX-004 / P1`：`acquisition.execute_run` 内部构造 `NativeAcquisitionBackend(fetcher)`，把 backend selection、fetch、parse、quality、持久化、事件和下游 dispatch 绑定在一个函数。
 - `EX-005 / P2`：[`main.py`](../backend/app/main.py) import 时执行 `create_app()`；[`celery_app.py`](../backend/app/tasks/celery_app.py) import 时加载 Settings、配置日志并构造 Celery app/schedule。审计未发现 import 时连接 DB/Redis、发 HTTP、publish 或 dispatch；它们属于已知 bootstrap surface，必须以 import-safety 测试守住。
 - `EX-006 / P2`：`acquisition.py` 925 行、`intelligence.py` 668 行、`memory.py` 621 行，且三者确有 A-E 责任混合；`entities.py` 797 行但没有同等行为混合证据。
-- `EX-007 / P1`：基线提交没有 tracked CI workflow，因此当前不存在可验证的 pipeline concurrency/cancel-in-progress 配置。实施前必须先定位受治理的 backend pipeline；若仍不存在，只能在获准的 gate-tooling 提交中建立，并配置相同治理语义，不能伪称“已复用”。
+- `EX-007 / P1`：基线提交没有 tracked CI workflow，因此当前不存在可验证的 pipeline concurrency/cancel-in-progress 配置。AG-1 已获合同授权：若确认没有等价 workflow，则以独立 gate-tooling/CI commit 新建最小 backend workflow，包含 lint/types/tests/architecture 和 concurrency/`cancel-in-progress`，不得混入业务重构。
+- `EX-008 / P1`：[`static_scrapling.py`](../backend/app/adapters/acquisition/static_scrapling.py) 有 6 个导入语句指向 `app.services`，覆盖 parser、policy、types、quality 与 URL normalization；这是 `adapter -> service` 的既有命中。
+- `EX-009 / P2`：`backend/app/services` 对 `app.core`、ORM models 与 SQLAlchemy persistence 的直接依赖面比三个目标文件更广。它是分组历史债务，本 Pass 不要求一次清空，但不得新增或扩大。
 
 ### 3.2 本轮新增与解决
 
 - `introduced = 0`：AG-0 没有新增依赖、运行态、外部 I/O 或业务实现。
 - `resolved = 0`：AG-0 只冻结合同，不能把文档记录算作债务修复。
-- 后续每个提交都必须输出 `existing / introduced / resolved` 三组差异；existing 只能不变或减少，introduced 必须为零，resolved 不得回归。
+- 上述人工 finding 是责任级摘要，不是逐 import 豁免清单。AG-1 必须从 `baseline_commit=f4b58c1...` 全量扫描 `backend/app`，把稳定 fingerprint 写入受版本控制的 `backend/architecture-baseline.json`；只有 baseline commit 中存在的 fingerprint 才是 existing，任何缺失于 snapshot 的命中都是 introduced。
+- 后续每个提交都必须输出 `existing / introduced / resolved` 三组差异；introduced P0/P1/P2 必须为零，existing 只能不变或减少且保留 disposition，resolved 不得回归。
 
 ## 4. Lifecycle、Settings 与 import safety
 
 [`create_app`](../backend/app/main.py) 当前把 `Settings`、logging、FastAPI middleware/router 和 lifecycle 绑定在 bootstrap。无注入 `readiness_service` 时，lifespan 内创建 engine、session factory、Redis client、event publisher 与 readiness probes，并在退出时关闭 Redis/engine；注入 readiness service 的测试/健康模式不会创建这些运行依赖。此注入路径与 liveness 不访问外部依赖的既有健康语义必须保留。
 
 `application.state` 当前持有 Settings、session factory、Redis client、event publisher 与 readiness service。这些是 process runtime dependency，不是业务事实；其唯一 owner 是 Bootstrap/Lifecycle。API 可以通过明确依赖取得用例入口，但不得新增任意 state key 或把业务状态放进 `app.state`。
+
+`bootstrap_lifecycle` 当前还承载少量 shared core compatibility imports：API/service 会使用 `app.core.errors`、context、middleware、security 或 logging。这不是允许 API 广泛新增 bootstrap dependency。AG-1 必须把 baseline commit 的现存 core import 形成精确 fingerprint allowlist，并禁止增长；若以后引入 shared primitive 分类，也只能是无大搬迁、无行为变化的独立治理决定。
 
 [`Settings`](../backend/app/core/config.py) 是 fail-fast、case-sensitive、无 `.env` 自动读取的配置边界；`get_settings()` 使用单项缓存。Provider 的构造函数只解析配置和保存 client/url/key；真实 HTTP 在 `analyze/embed` 被调用后发生。Celery module import 只允许 Settings/logging/app/schedule construction；DB engine、Redis client、Provider 调用和 task dispatch 必须发生在 task invocation 后。
 
@@ -82,8 +87,9 @@ import-safety gate 必须在受控 fake 环境变量下导入 `app.main`、`app.
 ### AG-1 — Executable gate foundation
 
 - 为 `ARCHITECTURE.toml` 增加 schema/语义验证、layer assignment、AST import rule、模块级 mutable runtime state、疑似 import-time external call、complexity/responsibility growth 与 baseline delta 检查。
+- 从固定 baseline commit 全量生成并提交 machine baseline snapshot；逐命中以稳定 fingerprint 分类 existing/introduced/resolved，人工 finding 仅作责任摘要。
 - 增加 contract、dependency、import-safety、provider-substitution 测试。
-- 在受治理的 backend pipeline 增加 `architecture` step，并复用其 concurrency group 与 `cancel-in-progress`；若 pipeline 仍不存在，STOP 并让总控裁定 CI foundation，不能在业务提交中顺手发明。
+- 在受治理的 backend pipeline 增加 `architecture` step，并复用其 concurrency group 与 `cancel-in-progress`。若确认没有等价 workflow，AG-1 直接新建只含 lint/types/tests/architecture 的最小 backend CI，显式设置 concurrency 与 `cancel-in-progress: true`；只有发现已有外部/隐藏 CI 或仓库政策冲突时才 STOP。
 - 不改业务行为；commit 边界：gate tooling + tests + CI only。
 
 ### AG-2 — Pure intelligence policy
@@ -119,11 +125,12 @@ import-safety gate 必须在受控 fake 环境变量下导入 `app.main`、`app.
 
 - 只在最终待合并提交复跑一次全量 backend gate；不重复未变 commit 的全量测试。
 - 比较 OpenAPI blob、Alembic head/schema、ACQ contract、测试计数与 coverage；coverage 不得低于 87.61%。
+- 最终强制解决 `EX-001`（API concrete embedding construction）、`EX-003`（service concrete provider/backend imports）、`EX-004`（`execute_run` 内部 backend construction）和 `EX-007`（CI architecture gate）。其他 existing finding 可在不扩大且有 disposition 的条件下保留。
 - 输出最终 `existing / introduced / resolved`、P0/P1/P2、回滚证明和可重复命令。状态文档同步仍走独立控制 PR。
 
 ## 6. Architecture Gate 与测试冻结
 
-Architecture Gate 至少包含：TOML parse/schema、跨层 import、`service -> api`、Domain 禁止基础设施、模块级 mutable runtime state、疑似 import-time external call、文件/责任增长 warning、Provider substitutability 与 baseline-no-regression。
+Architecture Gate 至少包含：TOML parse/schema、从固定 commit 生成的 machine baseline snapshot、跨层 import、`service -> api`、Domain 禁止基础设施、模块级 mutable runtime state、疑似 import-time external call、文件/责任增长 warning、Provider substitutability 与 baseline-no-regression。Snapshot 缺失时 fail closed；人工 finding 未列出的现存 import 只要 fingerprint 存在于 snapshot，仍正确归类为 existing。
 
 复杂度阈值采用物理 UTF-8 行数，只用于触发审查：module 600 行 warning、新 module 900 行 failure；function 80 行 warning、新 function 200 行 failure；单 module 超过 3 类责任 warning。已超阈值的 baseline module/function 允许重构减少但净增长额度为 0。阈值不能替代责任证据，也不能作为机械拆 `entities.py` 的理由。
 
@@ -142,11 +149,11 @@ AG-0 不运行 Backend tests 或 Docker。`286 passed / 87.61%` 是当前 gate �
 
 | 严重度 | 定义 | 通过条件 |
 | --- | --- | --- |
-| P0 | API/Schema/ACQ/安全/健康/状态所有权漂移，Domain 引入基础设施，import-time external I/O | 0；发现即 STOP |
-| P1 | 新增或扩大依赖债务、Provider 不可替换、可变运行态、确定性语义丢失、coverage 下降 | 0；不得以 baseline 豁免 |
-| P2 | 复杂度/责任增长 warning、文档不一致、未归属清理风险 | introduced=0；existing 仅可不变并有 disposition |
+| P0 | API/Schema/ACQ/安全/健康/状态所有权漂移，Domain 引入基础设施，import-time external I/O | introduced=0；existing 不增且有 disposition |
+| P1 | 新增或扩大依赖债务、Provider 不可替换、可变运行态、确定性语义丢失、coverage 下降 | introduced=0；existing 不增且有 disposition |
+| P2 | 复杂度/责任增长 warning、文档不一致、未归属清理风险 | introduced=0；existing 不增且有 disposition |
 
-每个任务包完成时同时满足：P0/P1/P2 规则、coverage 不下降、无 migration、OpenAPI/DB/ACQ zero drift、现有测试不删减。建议提交顺序严格对应 AG-1 至 AG-6；禁止把跨包变化压成不可独立回滚的大提交。
+AG-1 至 AG-5 的 per-commit gate：introduced P0/P1/P2=0，existing 不增且有 disposition，resolved 不回归。AG-6 final acceptance 额外要求清除 `EX-001/EX-003/EX-004/EX-007`；不要求一次清空 API→ORM、adapter→services、shared core 或其余 baseline。每包仍须 coverage 不下降、无 migration、OpenAPI/DB/ACQ zero drift、现有测试不删减。禁止把跨包变化压成不可独立回滚的大提交。
 
 回滚以提交为边界逆序 revert：先 wiring，再 acquisition，再 intelligence，再 gate foundation。由于本流程禁止 migration，运行回滚不需要 Schema downgrade；若任何任务发现必须改 API、Schema、migration 或 ACQ 产品语义，应停止并提交独立 ADR/兼容计划，而不是继续实现。
 
@@ -157,6 +164,6 @@ AG-0 只要求并计划执行：TOML parse、Markdown local link validation、`g
 已知风险：
 
 - 当前 origin/main 的 `CURRENT-GATE` 文本仍以 WP-2 merge commit 作为“当前稳定基准”，而 PR #40 merge commit 是当前 Git head；PR #41 的控制分支已包含相应状态更新。AG-0 不复制或修改该同步内容，避免与 PR #41 冲突。
-- baseline 没有 tracked CI workflow，因此 AG-1 的 CI integration 是显式前置风险。
+- baseline 没有 tracked CI workflow；合同已直接授权 AG-1 在确认无等价 workflow 时创建最小 backend CI，只有外部/隐藏 CI 或仓库政策冲突才形成停点风险。
 - API 直连 ORM 的存量面较大；本 pass 只封住新增并处理与 Provider/关键用例直接相关的 seam，避免范围爆炸。
 - 用户测试文件删除不是 AG-0 产物，不能在 commit、范围检查或验收计数中混入。

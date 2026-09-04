@@ -48,11 +48,12 @@ layer_match_order = [
 id = "api_adapters"
 paths = ["backend/app/api/**", "backend/app/schemas/**"]
 responsibility = "Translate HTTP/WebSocket input and output and call application use cases."
-may_depend_on = ["application_services", "domain_policy", "bootstrap_lifecycle"]
+may_depend_on = ["application_services", "domain_policy"]
 forbidden_dependencies = ["tasks", "models_persistence", "providers_infrastructure"]
 owns_state = []
 external_io = "transport only; no direct database, queue, Redis, or provider operation"
 import_time_side_effects = "forbidden"
+compatibility_imports = "existing app.core imports are fingerprinted baseline debt, not permission for new bootstrap dependencies"
 
 [[layers]]
 id = "application_services"
@@ -154,6 +155,7 @@ forbidden_dependencies = []
 owns_state = ["FastAPI application.state", "settings cache", "process logging configuration"]
 external_io = "resource construction at bootstrap; connections and probes only inside lifespan or an invoked operation"
 import_time_side_effects = "allowed only for current app and Celery bootstrap objects under import-safety tests"
+shared_core_compatibility = "core currently includes errors, context, middleware, and security used by API/services; AG-1 must exact-allowlist baseline fingerprints and forbid growth"
 
 [[forbidden_dependency_rules]]
 id = "service_to_api"
@@ -181,7 +183,7 @@ severity = "P0"
 
 [[forbidden_dependency_rules]]
 id = "domain_to_framework_or_io"
-source_glob = "backend/app/{domain,domains}/**/*.py"
+source_globs = ["backend/app/domain/**/*.py", "backend/app/domains/**/*.py"]
 forbidden_import_prefixes = [
   "sqlalchemy",
   "fastapi",
@@ -280,11 +282,28 @@ required_checks = [
   "suspected_import_time_external_call",
   "complexity_and_responsibility_growth",
   "provider_substitutability",
+  "machine_baseline_snapshot",
   "baseline_existing_introduced_resolved",
 ]
 new_findings_allowed = 0
 existing_findings_may_increase = false
 resolved_findings_may_reappear = false
+
+[gate.baseline_snapshot]
+required = true
+source_commit = "f4b58c1ec0d20d075b98d5a9ca3d146d0b4deb56"
+output_path = "backend/architecture-baseline.json"
+generation_phase = "AG-1"
+checked_in = true
+scan_scope = "all tracked Python modules under backend/app at source_commit"
+fingerprint_fields = ["rule_id", "source_path", "imported_module", "symbol_or_call", "normalized_location"]
+classification = ["existing", "introduced", "resolved"]
+existing_definition = "fingerprint exists in the generated snapshot from source_commit"
+introduced_definition = "fingerprint does not exist in the source_commit snapshot"
+resolved_definition = "snapshot fingerprint no longer exists in the candidate"
+human_findings_are_exhaustive = false
+human_findings_role = "responsibility-level audit summary only; never an import-level allowlist"
+missing_snapshot_behavior = "fail closed"
 
 [gate.ci]
 required_on_implementation_branch = true
@@ -292,7 +311,15 @@ job_name = "architecture"
 integration = "add a dedicated step to the governed backend pipeline"
 reuse_pipeline_concurrency = true
 require_cancel_in_progress = true
-current_tracked_workflow = "absent at baseline; resolve the governed workflow before implementation"
+current_tracked_workflow = "absent at baseline"
+create_minimal_backend_workflow_if_absent = true
+creation_authorized_phase = "AG-1"
+required_backend_steps = ["lint", "types", "tests", "architecture"]
+new_workflow_requirements = ["concurrency group", "cancel-in-progress=true", "no business refactor"]
+stop_conditions = [
+  "an equivalent external or hidden CI workflow is discovered",
+  "repository policy conflicts with creating the minimal tracked workflow",
+]
 ag0_changes_ci = false
 
 [gate.compatibility]
@@ -327,7 +354,11 @@ required_severities = ["P0", "P1", "P2"]
 P0 = "public contract, schema, security, health, state ownership, forbidden domain infrastructure, or import-time external I/O regression"
 P1 = "new or enlarged dependency debt, failed substitutability, mutable runtime state, lost deterministic behavior, or coverage decrease"
 P2 = "complexity or responsibility-growth warning, documentation mismatch, or unowned cleanup risk"
-pass_condition = "introduced P0/P1/P2 equals zero; existing P0/P1 cannot remain; existing P2 must be unchanged and explicitly dispositioned"
+per_commit_phases = ["AG-1", "AG-2", "AG-3", "AG-4", "AG-5"]
+per_commit_pass_condition = "introduced P0/P1/P2 equals zero; existing findings do not increase and retain dispositions; resolved findings do not reappear"
+final_phase = "AG-6"
+final_required_resolutions = ["EX-001", "EX-003", "EX-004", "EX-007"]
+final_acceptance_condition = "per-commit condition plus every final_required_resolutions item is resolved; other existing findings may remain unchanged with disposition"
 
 [[baseline.modules]]
 path = "backend/app/services/acquisition.py"
@@ -387,7 +418,7 @@ status = "existing"
 severity = "P1"
 location = "backend/app/services/{acquisition,intelligence,memory}.py"
 rule = "application_to_concrete_provider"
-detail = "Application services import concrete provider or acquisition infrastructure modules and direct ORM details."
+detail = "Application services import concrete analysis, embedding, acquisition backend, fetcher, or event infrastructure modules."
 
 [[baseline.findings]]
 id = "EX-004"
@@ -421,7 +452,33 @@ location = "repository CI configuration"
 rule = "architecture_ci_step"
 detail = "No tracked CI workflow or reusable concurrency/cancel-in-progress configuration exists at this baseline."
 
+[[baseline.findings]]
+id = "EX-008"
+status = "existing"
+severity = "P1"
+location = "backend/app/adapters/acquisition/static_scrapling.py:16"
+rule = "adapter_to_service"
+detail = "The static Scrapling adapter has six import statements into app.services for parsing, policy, types, quality, and URL normalization."
+
+[[baseline.findings]]
+id = "EX-009"
+status = "existing"
+severity = "P2"
+location = "backend/app/services"
+rule = "application_to_shared_core_and_persistence"
+detail = "Application services broadly import app.core, ORM models, and SQLAlchemy persistence details; these are grouped debt outside the mandatory Pass resolutions."
+
 [baseline.summary]
-existing = ["EX-001", "EX-002", "EX-003", "EX-004", "EX-005", "EX-006", "EX-007"]
+existing = [
+  "EX-001",
+  "EX-002",
+  "EX-003",
+  "EX-004",
+  "EX-005",
+  "EX-006",
+  "EX-007",
+  "EX-008",
+  "EX-009",
+]
 introduced = []
 resolved = []

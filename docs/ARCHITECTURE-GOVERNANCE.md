@@ -130,7 +130,7 @@ import-safety gate 必须在受控 fake 环境变量下导入 `app.main`、`app.
 
 ## 6. Architecture Gate 与测试冻结
 
-Architecture Gate 至少包含：TOML parse/schema、从固定 commit 生成的 machine baseline snapshot、跨层 import、`service -> api`、Domain 禁止基础设施、模块级 mutable runtime state、疑似 import-time external call、文件/责任增长 warning、Provider substitutability 与 baseline-no-regression。Snapshot 缺失时 fail closed；人工 finding 未列出的现存 import 只要 fingerprint 存在于 snapshot，仍正确归类为 existing。
+Architecture Gate 至少包含：TOML parse/schema、从固定 commit 生成的 machine baseline snapshot、跨层 import、`service -> api`、Domain 禁止基础设施、模块级 mutable runtime state、疑似 import-time external call、文件/责任增长 warning、Provider substitutability 与 baseline-no-regression。Snapshot 缺失时 fail closed；人工 finding 未列出的现存 P1/P2 import 只要 fingerprint 存在于 snapshot，仍正确归类为 existing。已知或扫描发现的 existing P0 不允许 baseline（`existing_p0_allowed=false`）；发现任何 P0 必须立即 STOP，由总控裁定，不能自动 grandfather。
 
 复杂度阈值采用物理 UTF-8 行数，只用于触发审查：module 600 行 warning、新 module 900 行 failure；function 80 行 warning、新 function 200 行 failure；单 module 超过 3 类责任 warning。已超阈值的 baseline module/function 允许重构减少但净增长额度为 0。阈值不能替代责任证据，也不能作为机械拆 `entities.py` 的理由。
 
@@ -149,11 +149,11 @@ AG-0 不运行 Backend tests 或 Docker。`286 passed / 87.61%` 是当前 gate �
 
 | 严重度 | 定义 | 通过条件 |
 | --- | --- | --- |
-| P0 | API/Schema/ACQ/安全/健康/状态所有权漂移，Domain 引入基础设施，import-time external I/O | introduced=0；existing 不增且有 disposition |
+| P0 | API/Schema/ACQ/安全/健康/状态所有权漂移，Domain 引入基础设施，import-time external I/O | 每阶段 total P0=0；不允许 existing baseline，发现即 STOP |
 | P1 | 新增或扩大依赖债务、Provider 不可替换、可变运行态、确定性语义丢失、coverage 下降 | introduced=0；existing 不增且有 disposition |
 | P2 | 复杂度/责任增长 warning、文档不一致、未归属清理风险 | introduced=0；existing 不增且有 disposition |
 
-AG-1 至 AG-5 的 per-commit gate：introduced P0/P1/P2=0，existing 不增且有 disposition，resolved 不回归。AG-6 final acceptance 额外要求清除 `EX-001/EX-003/EX-004/EX-007`；不要求一次清空 API→ORM、adapter→services、shared core 或其余 baseline。每包仍须 coverage 不下降、无 migration、OpenAPI/DB/ACQ zero drift、现有测试不删减。禁止把跨包变化压成不可独立回滚的大提交。
+AG-1 至 AG-5 的 per-commit gate：total P0=0；introduced P1/P2=0，existing P1/P2 不增且有 disposition，resolved 不回归。AG-6 同样要求 total P0=0，并额外清除 `EX-001/EX-003/EX-004/EX-007`；不要求一次清空 API→ORM、adapter→services、shared core 或其余 P1/P2 baseline。每包仍须 coverage 不下降、无 migration、OpenAPI/DB/ACQ zero drift、现有测试不删减。禁止把跨包变化压成不可独立回滚的大提交。
 
 回滚以提交为边界逆序 revert：先 wiring，再 acquisition，再 intelligence，再 gate foundation。由于本流程禁止 migration，运行回滚不需要 Schema downgrade；若任何任务发现必须改 API、Schema、migration 或 ACQ 产品语义，应停止并提交独立 ADR/兼容计划，而不是继续实现。
 

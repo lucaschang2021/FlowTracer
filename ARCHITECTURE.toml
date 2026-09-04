@@ -354,11 +354,14 @@ required_severities = ["P0", "P1", "P2"]
 P0 = "public contract, schema, security, health, state ownership, forbidden domain infrastructure, or import-time external I/O regression"
 P1 = "new or enlarged dependency debt, failed substitutability, mutable runtime state, lost deterministic behavior, or coverage decrease"
 P2 = "complexity or responsibility-growth warning, documentation mismatch, or unowned cleanup risk"
+existing_p0_allowed = false
+total_p0_required = 0
+baseline_p0_discovery_action = "STOP for controller adjudication; never grandfather"
 per_commit_phases = ["AG-1", "AG-2", "AG-3", "AG-4", "AG-5"]
-per_commit_pass_condition = "introduced P0/P1/P2 equals zero; existing findings do not increase and retain dispositions; resolved findings do not reappear"
+per_commit_pass_condition = "total P0 equals zero; introduced P1/P2 equals zero; existing P1/P2 findings do not increase and retain dispositions; resolved findings do not reappear"
 final_phase = "AG-6"
 final_required_resolutions = ["EX-001", "EX-003", "EX-004", "EX-007"]
-final_acceptance_condition = "per-commit condition plus every final_required_resolutions item is resolved; other existing findings may remain unchanged with disposition"
+final_acceptance_condition = "total P0 equals zero; per-commit P1/P2 condition plus every final_required_resolutions item is resolved; other existing P1/P2 findings may remain unchanged with disposition"
 
 [[baseline.modules]]
 path = "backend/app/services/acquisition.py"

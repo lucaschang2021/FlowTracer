@@ -1,6 +1,6 @@
 # FlowTracer ACQ-1 WP-2 准入
 
-状态：本控制提交合并到 `main` 后生效
+状态：Accepted；PR #35 已合并并生效
 
 补充条件：WP-2 已由 PR #35 合并准入；后端开工澄清停点必须等 `docs/35-ACQ1-WP2-CONTRACT-ADDENDUM.md` 与 ADR-028 合并后才可续跑，不重建既有干净分支。
 

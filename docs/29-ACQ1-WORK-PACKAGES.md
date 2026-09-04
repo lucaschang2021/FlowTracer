@@ -51,6 +51,8 @@
 
 ## WP-3：ACQ-1B Dynamic + H-browser
 
+准入状态：未准入。实现前先满足 `docs/37-ACQ1-WP3-READINESS-BLOCKER.md`；精确兼容性、镜像和隔离证据必须由后续控制 PR 冻结，本文不得被单独解释为开工许可。
+
 目标分支：`feat/acq-1b-browser`
 
 允许：独立 Browser 镜像/worker/queue、egress proxy、Dynamic/Advanced adapter、Browser pool 与资源隔离。

@@ -1,6 +1,6 @@
 # FlowTracer ACQ-1 WP-2 Quality / Extraction Addendum
 
-状态：Proposed；本补充控制提交合并后生效。合并前 Backend 保持契约澄清停点。
+状态：Accepted；PR #37 已合并并生效
 
 基准：WP-2 准入 PR #35 / `main@fcfab2492e4ee88202672787d425c084d0b4afc9`。
 

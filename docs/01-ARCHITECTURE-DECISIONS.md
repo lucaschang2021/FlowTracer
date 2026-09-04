@@ -209,7 +209,7 @@
 
 ## ADR-028：WP-2 冻结确定性质量观测，保持 legacy writer 不变
 
-- 状态：Proposed（WP-2 Addendum 控制提交合并后生效）
+- 状态：Accepted（PR #37 已合并并生效）
 - 背景：仅有八项质量权重不能唯一确定长度、密度、噪声和 JS shell 计算；Profile v1 不含阈值，无法由 Backend 自行决定低质量内容的写入行为。
 - 决策：精确算法、九类 family 的通用提取支持、evidence/metadata/links 结构与资源上限以 `docs/35-ACQ1-WP2-CONTRACT-ADDENDUM.md` 为准。质量以精确有理数加权并仅最终 HALF_UP 四位。
 - 兼容：WP-2 的 static parser 实际接入安全获取后的本地观测链，保留现有 RSS/Native RawCandidate/writer/去重/终态。所有质量桶均不触发过滤、重试或 Browser；质量列和 EWMA 只是观测，不影响 health/circuit。
@@ -222,4 +222,12 @@
 以下事项不改变 Alpha 架构初步冻结结论，但必须由总控在对应实现阶段准入前补齐，不得由 Backend 擅自决定：
 
 - 本地配置矩阵、端口、健康检查和可观测性字段。
+
+## ADR-029：WP-3 Browser 准入必须以实际兼容性与隔离证据为前置
+
+- 状态：Proposed（本控制提交合并后生效）
+- 背景：ADR-023 已冻结独立 Browser 与强制受控出口方向，但仓库尚无可复现的 package/browser revision/system dependency/image digest、egress 实现和精确资源限值。文档阶段不能凭空生成构建 digest 或兼容性证据。
+- 决策：WP-3 保持未准入。缺口与证据要求以 `docs/37-ACQ1-WP3-READINESS-BLOCKER.md` 为准；只有新的控制 PR 基于实际兼容性/隔离证据冻结精确值并签发 Admission 后，Backend 才可开工。
+- 安全：任何不能证明全部 Browser 子资源经过应用层拦截与受控 proxy 的方案 fail closed；不得以 Profile、allowlist、fallback 或 Advanced 模式放宽 NetworkPolicy、访问控制或资源预算。
+- 交付边界：兼容性 Spike 如需依赖、镜像、Compose、代码或测试变更，必须另行书面准入；本 ADR 不授权 Browser 实现、Router、Discovery、Schema/API 变化或下游阶段。
 

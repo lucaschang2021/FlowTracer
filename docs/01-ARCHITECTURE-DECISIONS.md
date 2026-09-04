@@ -225,9 +225,17 @@
 
 ## ADR-029：WP-3 Browser 准入必须以实际兼容性与隔离证据为前置
 
-- 状态：Proposed（本控制提交合并后生效）
+- 状态：Accepted（PR #40 已合并并生效）
 - 背景：ADR-023 已冻结独立 Browser 与强制受控出口方向，但仓库尚无可复现的 package/browser revision/system dependency/image digest、egress 实现和精确资源限值。文档阶段不能凭空生成构建 digest 或兼容性证据。
 - 决策：WP-3 保持未准入。缺口与证据要求以 `docs/37-ACQ1-WP3-READINESS-BLOCKER.md` 为准；只有新的控制 PR 基于实际兼容性/隔离证据冻结精确值并签发 Admission 后，Backend 才可开工。
 - 安全：任何不能证明全部 Browser 子资源经过应用层拦截与受控 proxy 的方案 fail closed；不得以 Profile、allowlist、fallback 或 Advanced 模式放宽 NetworkPolicy、访问控制或资源预算。
 - 交付边界：兼容性 Spike 如需依赖、镜像、Compose、代码或测试变更，必须另行书面准入；本 ADR 不授权 Browser 实现、Router、Discovery、Schema/API 变化或下游阶段。
+
+## ADR-030：WP-3 Preflight 仅准入可丢弃的兼容性与隔离证据实验
+
+- 状态：Accepted（仅 Spike；本控制提交合并后生效）
+- 背景：ADR-029 要求用实际 Python 3.13/Debian Bookworm 兼容性、不可变构建、受控 egress、专用 worker/queue 与资源测量解除 WP-3 证据缺口；这些事实无法由纯文档审查产生。
+- 决策：按 `docs/38-ACQ1-WP3-PREFLIGHT-ADMISSION.md` 在固定 Backend worktree 的独立 Spike 分支中，准入实验性依赖锁、Browser 专用候选 Dockerfile/Compose override、proxy/queue 候选配置、本地恶意 fixture、验证脚本及 `docs/39-ACQ1-WP3-PREFLIGHT-EVIDENCE-PACKAGE.md`。实验产物可丢弃且不进入默认生产路径。
+- 安全：网络层必须 deny by default；Browser 无公网/系统 DNS/host network/Docker socket 直连。navigation、redirect、iframe、script、XHR/fetch、WebSocket、download、popup 与 service worker 任一拦截面无法证明时 fail closed，并保持正式 WP-3 阻塞。
+- 边界：本 ADR 不准入 WP-3 正式实现，不允许公开 API、Schema/migration、RawItem/Pipeline、Router、Discovery、Change、Opportunity 或下游阶段变化。Spike 完成后 Backend 必须 STOP，由总控另开证据审查和后续 Contract Addendum/Admission 任务。
 

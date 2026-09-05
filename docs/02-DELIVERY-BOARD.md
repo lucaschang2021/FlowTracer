@@ -4,9 +4,11 @@
 
 **M0：架构初步冻结 — 已完成**
 
-**当前停点：ACQ-1 WP-3（ACQ-1B Dynamic + H-browser）架构/契约准备 — WP-2 已验收合并；WP-3 精确兼容性与隔离证据未冻结，尚未准入**
+**当前阶段：Architecture Governance AG-3（Acquisition Ports 与最小 DI）— 候选提交已完成，待 PR、Review 与验收合并；AG-4..AG-6 尚未准入**
 
-本次同步事实基准：`main@70a3b0462e9a9303ddb3f5be56c84ed5d2fead40`。
+ACQ-1 WP-3（ACQ-1B Dynamic + H-browser）兼容性与隔离证据仍未冻结，继续阻塞且未准入；Frontend、Integration 与 Release 同样未准入。
+
+本次同步事实基准：`main@3bc456e6b7f6e4f8a6a545276d255646c1db3c73`。
 
 ## 工作项
 
@@ -20,6 +22,11 @@
 | ARC-006 | WebSocket 事件契约 | 总控 | 完成 | ARC-004 | `03-BACKEND-CONTRACT-BASELINE.md` |
 | ARC-007 | AI 与评分规格 | 总控 | 完成 | ARC-003 | `03-BACKEND-CONTRACT-BASELINE.md` |
 | ARC-008 | 安全与部署规格 | 总控 | 完成 | ARC-002 | `01-ARCHITECTURE-DECISIONS.md`、`03-BACKEND-CONTRACT-BASELINE.md` |
+| ARC-AG0 | Architecture Governance 合同冻结与严重度校准 | Architecture / 总控 | 完成（已合并） | ARC-008 | PR #42、PR #43、`ARCHITECTURE.toml`、`ARCHITECTURE-GOVERNANCE.md` |
+| ARC-AG1 | Executable Gate Foundation | Backend / Architecture | 完成（已验收、已合并） | ARC-AG0 | PR #44、machine baseline、Architecture CI/gate/tests |
+| ARC-AG2 | Intelligence 纯领域策略与兼容委托 | Backend / Architecture | 完成（已验收、已合并） | ARC-AG1 | PR #45、`backend/app/domains/intelligence_policy.py` |
+| ARC-AG3 | Acquisition Ports 与最小 DI | Backend / Architecture | 候选完成；待 PR、Review 与验收合并 | ARC-AG2 | 目标分支 `feat/architecture-governance`；候选 `ce26640e3c2f994c8036b18a2c2b984dee045c53`，不得视为已进入 `main` |
+| ARC-AG4..6 | Composition/import safety、后续边界治理与最终兼容门禁 | Backend / Architecture | 未准入 | ARC-AG3 验收合并后逐阶段准入 | `ARCHITECTURE.toml`、`ARCHITECTURE-GOVERNANCE.md` |
 | PM-001 | Backend 执行任务包 | 总控 | 完成 | ARC-003..008 | `10-BACKEND-WORK-PACKAGE.md` |
 | BE-0 | 工程盘点与实施计划 | Backend | 完成（已验收） | PM-001 | `11-BE-0-ACCEPTANCE.md` |
 | PM-002 | BE-1 工程基线 | 总控 | 完成 | BE-0 | `04-BE1-ENGINEERING-BASELINE.md` |
@@ -50,7 +57,7 @@
 | PM-015 | ACQ-1 WP-2（ACQ-1B + D-static）准入 | 总控 | 完成（已合并） | ACQ-1-WP1 | PR #35、`34-ACQ1-WP2-ADMISSION.md` |
 | PM-016 | ACQ-1 WP-2 quality v1 / writer / family-evidence 契约 Addendum | 总控 | 完成（已合并） | PM-015 | PR #37、ADR-028、`35-ACQ1-WP2-CONTRACT-ADDENDUM.md` |
 | ACQ-1-WP2 | Static Adapter、Scrapling parser、quality v1 | Backend | 完成（已验收、已合并） | PM-015、PM-016 | PR #39、`36-ACQ1-WP2-ACCEPTANCE.md`、286 passed、87.61%、P0/P1/P2=0/0/0 |
-| PM-017 | ACQ-1 WP-2 Stage Gate 验收归档 | 总控 | 完成（本控制 PR 待合并） | ACQ-1-WP2 | `36-ACQ1-WP2-ACCEPTANCE.md`、merge commit `70a3b0462e9a9303ddb3f5be56c84ed5d2fead40` |
+| PM-017 | ACQ-1 WP-2 Stage Gate 验收归档 | 总控 | 完成（PR #40 已合并） | ACQ-1-WP2 | PR #40、`36-ACQ1-WP2-ACCEPTANCE.md`、merge commit `70a3b0462e9a9303ddb3f5be56c84ed5d2fead40` |
 | PM-018 | ACQ-1 WP-3 架构/契约冻结与准入 | 总控 | 阻塞；未准入 | PM-017、WP-3 兼容性/隔离硬门禁 | `37-ACQ1-WP3-READINESS-BLOCKER.md`；精确 package/revision/system dependencies/image digest、egress 与资源限值证据缺失 |
 | ACQ-1-WP3 | Dynamic/Advanced Browser、隔离 worker/queue 与受控 egress | Backend | 未准入 | PM-018 控制 PR 合并 | `29-ACQ1-WORK-PACKAGES.md`；不得开工或派发 |
 | ACQ-1-WP4..8 | ACQ-1 后续工作包 | Backend | 未准入 | WP-3 起逐阶段验收 | `29-ACQ1-WORK-PACKAGES.md` |

@@ -741,16 +741,23 @@ def _validate_provider_substitution(modules: Sequence[SourceModule], errors: lis
                 errors.append(
                     f"provider_substitutability: {class_name} must expose {method} in {path}"
                 )
-    acquisition = trees.get("backend/app/services/acquisition_types.py")
-    events = trees.get("backend/app/services/events.py")
-    if acquisition is None or not _has_protocol_method(
-        acquisition, "AcquisitionBackend", "acquire"
-    ):
-        errors.append("provider_substitutability: AcquisitionBackend.acquire is required")
-    if acquisition is None or not _has_protocol_method(acquisition, "AcquisitionFetcher", "fetch"):
-        errors.append("provider_substitutability: AcquisitionFetcher.fetch is required")
-    if events is None or not _has_protocol_method(events, "EventPublisher", "publish"):
-        errors.append("provider_substitutability: EventPublisher.publish is required")
+    acquisition = trees.get("backend/app/domains/acquisition_ports.py")
+    port_methods = {
+        "AcquisitionBackend": ("acquire",),
+        "ContentFetcher": ("fetch",),
+        "EventPublisher": ("publish",),
+        "AcquisitionRunRepository": (
+            "claim_run",
+            "heartbeat",
+            "finish_success",
+            "finish_failure",
+            "event_for",
+        ),
+    }
+    for protocol, methods in port_methods.items():
+        for method in methods:
+            if acquisition is None or not _has_protocol_method(acquisition, protocol, method):
+                errors.append(f"provider_substitutability: {protocol}.{method} is required")
 
 
 def _validate_ci(repo_root: Path, contract: Mapping[str, Any], errors: list[str]) -> None:

@@ -2,19 +2,19 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 from datetime import UTC, datetime
-from typing import Any, Protocol
+from typing import Any
 from uuid import NAMESPACE_URL, UUID, uuid5
 
 from redis.asyncio import Redis
 
 from app.core.logging import get_logger
+from app.domains.acquisition_ports import EventPublisher as EventPublisherPort
 from app.schemas.events import EventEnvelope
 
 EVENT_CHANNEL_PREFIX = "flowtracer:events"
 
 
-class EventPublisher(Protocol):
-    async def publish(self, user_id: UUID, event: EventEnvelope) -> None: ...
+type EventPublisher = EventPublisherPort[EventEnvelope]
 
 
 class RedisEventPublisher:

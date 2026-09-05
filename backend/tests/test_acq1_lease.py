@@ -34,11 +34,28 @@ from app.services.acquisition import (
     heartbeat_run,
     recover_stale_runs,
 )
+from app.services.acquisition_run_repository import SqlAlchemyAcquisitionRunRepository
 from app.services.acquisition_types import CollectionError, FetchResponse
+from app.services.native_acquisition import NativeAcquisitionBackend
 
 TABLES = (
     "acquisition_attempts, source_acquisition_states, raw_items, collection_runs, sources, users"
 )
+
+
+def execute_with_fetcher(
+    factory: async_sessionmaker[AsyncSession],
+    run_id: UUID,
+    *,
+    fetcher: object,
+    **kwargs: object,
+) -> object:
+    return execute_run(
+        SqlAlchemyAcquisitionRunRepository(factory),
+        run_id,
+        backend=NativeAcquisitionBackend(fetcher),  # type: ignore[arg-type]
+        **kwargs,
+    )
 
 
 @pytest.fixture
@@ -187,8 +204,8 @@ async def test_duplicate_delivery_creates_one_attempt_and_updates_health(
     factory = async_sessionmaker(acq1_engine, expire_on_commit=False)
     run_id = await create_queued_run(acq1_engine)
     results = await asyncio.gather(
-        execute_run(factory, run_id, fetcher=OfflineFetcher(), task_id="delivery-a"),
-        execute_run(factory, run_id, fetcher=OfflineFetcher(), task_id="delivery-b"),
+        execute_with_fetcher(factory, run_id, fetcher=OfflineFetcher(), task_id="delivery-a"),
+        execute_with_fetcher(factory, run_id, fetcher=OfflineFetcher(), task_id="delivery-b"),
     )
     assert sorted(results) == [False, True]
     async with AsyncSession(acq1_engine) as session:
@@ -225,7 +242,7 @@ async def test_unavailable_mode_and_network_policy_stop_before_transport(
         mode=AcquisitionMode.DYNAMIC,
     )
     dynamic_fetcher = OfflineFetcher()
-    assert not await execute_run(factory, dynamic_run_id, fetcher=dynamic_fetcher)
+    assert not await execute_with_fetcher(factory, dynamic_run_id, fetcher=dynamic_fetcher)
     assert not dynamic_fetcher.called
 
     blocked_run_id = await create_queued_run(
@@ -233,7 +250,7 @@ async def test_unavailable_mode_and_network_policy_stop_before_transport(
         url="http://127.0.0.1/private",
     )
     blocked_fetcher = OfflineFetcher()
-    assert not await execute_run(factory, blocked_run_id, fetcher=blocked_fetcher)
+    assert not await execute_with_fetcher(factory, blocked_run_id, fetcher=blocked_fetcher)
     assert not blocked_fetcher.called
 
     async with AsyncSession(acq1_engine) as session:

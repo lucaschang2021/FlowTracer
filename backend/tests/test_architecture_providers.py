@@ -10,6 +10,7 @@ import pytest
 from pydantic import SecretStr
 
 from app.core.config import Settings
+from app.domains.acquisition_ports import AcquisitionBackend, ContentFetcher, EventPublisher
 from app.models.entities import AcquisitionMode, DiscoveryMode, SourceFamily, SourceType
 from app.providers.analysis import (
     AnalysisProvider,
@@ -29,13 +30,11 @@ from app.providers.embedding import (
 from app.schemas.events import EventEnvelope
 from app.schemas.resources import AcquisitionProfileV1
 from app.services.acquisition_types import (
-    AcquisitionBackend,
-    AcquisitionFetcher,
     AcquisitionRequest,
     AcquisitionResult,
     FetchResponse,
 )
-from app.services.events import EventPublisher, build_event
+from app.services.events import build_event
 
 
 class StubFetcher:
@@ -69,15 +68,18 @@ class OneChunkStream(httpx.AsyncByteStream):
         return None
 
 
-async def _fetch(port: AcquisitionFetcher) -> FetchResponse:
+async def _fetch(port: ContentFetcher[SourceType, FetchResponse]) -> FetchResponse:
     return await port.fetch("https://example.test/", SourceType.URL)
 
 
-async def _acquire(port: AcquisitionBackend, request: AcquisitionRequest) -> AcquisitionResult:
+async def _acquire(
+    port: AcquisitionBackend[AcquisitionRequest, AcquisitionResult],
+    request: AcquisitionRequest,
+) -> AcquisitionResult:
     return await port.acquire(request)
 
 
-async def _publish(port: EventPublisher, event: EventEnvelope) -> None:
+async def _publish(port: EventPublisher[EventEnvelope], event: EventEnvelope) -> None:
     await port.publish(uuid4(), event)
 
 

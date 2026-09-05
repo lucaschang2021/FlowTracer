@@ -2,9 +2,15 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Protocol
+from typing import Any
 from uuid import UUID
 
+from app.domains.acquisition_ports import (
+    AcquisitionBackend as AcquisitionBackendPort,
+)
+from app.domains.acquisition_ports import (
+    ContentFetcher,
+)
 from app.models.entities import AcquisitionMode, DiscoveryMode, SourceFamily, SourceType
 from app.schemas.resources import AcquisitionProfileV1
 from app.services.extraction_types import ExtractionObservation
@@ -27,8 +33,7 @@ class FetchResponse:
     status_code: int = 200
 
 
-class AcquisitionFetcher(Protocol):
-    async def fetch(self, url: str, source_type: SourceType) -> FetchResponse: ...
+type AcquisitionFetcher = ContentFetcher[SourceType, FetchResponse]
 
 
 @dataclass(frozen=True, slots=True)
@@ -52,8 +57,7 @@ class AcquisitionResult:
     observations: tuple[ExtractionObservation, ...] = ()
 
 
-class AcquisitionBackend(Protocol):
-    async def acquire(self, request: AcquisitionRequest) -> AcquisitionResult: ...
+type AcquisitionBackend = AcquisitionBackendPort[AcquisitionRequest, AcquisitionResult]
 
 
 @dataclass(frozen=True, slots=True)

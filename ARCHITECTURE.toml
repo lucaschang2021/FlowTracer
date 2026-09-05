@@ -179,7 +179,7 @@ severity = "P1"
 id = "api_to_concrete_infrastructure"
 source_glob = "backend/app/api/**/*.py"
 forbidden_import_prefixes = ["app.providers", "app.tasks", "app.db"]
-severity = "P0"
+severity = "P1"
 
 [[forbidden_dependency_rules]]
 id = "domain_to_framework_or_io"

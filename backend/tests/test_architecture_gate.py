@@ -29,7 +29,8 @@ def test_contract_and_committed_baseline_are_valid() -> None:
     assert contract["baseline_commit"] == "f4b58c1ec0d20d075b98d5a9ca3d146d0b4deb56"
     assert report.p0_total == 0
     assert report.introduced == ()
-    assert report.resolved == ()
+    snapshot = json.loads((REPO_ROOT / "backend" / "architecture-baseline.json").read_text())
+    assert report.resolved == tuple(snapshot["resolved_fingerprints"])
     assert report.existing
 
 

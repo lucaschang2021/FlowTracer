@@ -11,7 +11,10 @@ from app.core.context import bind_context, reset_context
 from app.core.logging import get_logger
 from app.db.session import create_database_engine, create_session_factory
 from app.services.acquisition import dispatch_queued_runs, execute_run, schedule_due_sources
+from app.services.acquisition_run_repository import SqlAlchemyAcquisitionRunRepository
 from app.services.events import RedisEventPublisher
+from app.services.native_acquisition import NativeAcquisitionBackend
+from app.services.safe_fetcher import SafeFetcher
 from app.tasks.celery_app import celery_app
 
 
@@ -46,11 +49,14 @@ def collect_source(self: Any, run_id: str, correlation_id: str | None = None) ->
     try:
 
         async def collect(factory: Any) -> bool:
+            repository = SqlAlchemyAcquisitionRunRepository(factory)
+            backend = NativeAcquisitionBackend(SafeFetcher())
             return bool(
                 await _with_events(
                     lambda publisher: execute_run(
-                        factory,
+                        repository,
                         UUID(run_id),
+                        backend=backend,
                         correlation_id=resolved_correlation_id,
                         task_id=str(self.request.id),
                         raw_dispatch=_enqueue_raw_item,

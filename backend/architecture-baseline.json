@@ -3814,7 +3814,43 @@
       "source_path": "backend/app/tasks/notifications.py"
     }
   ],
-  "resolved_fingerprints": [],
+  "resolved_fingerprints": [
+    {
+      "imported_module": "app.services.native_acquisition",
+      "normalized_location": "module",
+      "rule_id": "cross_layer_import",
+      "source_path": "backend/app/services/acquisition.py",
+      "symbol_or_call": "NativeAcquisitionBackend"
+    },
+    {
+      "imported_module": "app.services.safe_fetcher",
+      "normalized_location": "module",
+      "rule_id": "cross_layer_import",
+      "source_path": "backend/app/services/acquisition.py",
+      "symbol_or_call": "SafeFetcher"
+    },
+    {
+      "imported_module": "typing.Protocol",
+      "normalized_location": "class:AcquisitionBackend",
+      "rule_id": "provider_port_location",
+      "source_path": "backend/app/services/acquisition_types.py",
+      "symbol_or_call": "AcquisitionBackend"
+    },
+    {
+      "imported_module": "typing.Protocol",
+      "normalized_location": "class:AcquisitionFetcher",
+      "rule_id": "provider_port_location",
+      "source_path": "backend/app/services/acquisition_types.py",
+      "symbol_or_call": "AcquisitionFetcher"
+    },
+    {
+      "imported_module": "typing.Protocol",
+      "normalized_location": "class:EventPublisher",
+      "rule_id": "provider_port_location",
+      "source_path": "backend/app/services/events.py",
+      "symbol_or_call": "EventPublisher"
+    }
+  ],
   "scan_scope": "all tracked Python modules under backend/app at source_commit",
   "schema_version": 1,
   "source_commit": "f4b58c1ec0d20d075b98d5a9ca3d146d0b4deb56",

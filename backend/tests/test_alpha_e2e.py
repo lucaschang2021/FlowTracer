@@ -27,11 +27,13 @@ from app.providers.analysis import FakeAnalysisProvider
 from app.providers.embedding import FakeEmbeddingProvider
 from app.schemas.events import EventEnvelope
 from app.services.acquisition import dispatch_queued_runs, execute_run
+from app.services.acquisition_run_repository import SqlAlchemyAcquisitionRunRepository
 from app.services.acquisition_types import FetchResponse
 from app.services.cleaning import clean_raw_item
 from app.services.events import channel_for_user
 from app.services.intelligence import publish_analysis_completed, run_analysis
 from app.services.memory import run_embedding
+from app.services.native_acquisition import NativeAcquisitionBackend
 from app.services.notifications import dispatch_notifications
 from app.services.readiness import ReadinessService
 
@@ -185,11 +187,26 @@ async def test_complete_offline_alpha_loop_and_rest_recovery(alpha_engine: Async
 
         fetcher = FixtureFetcher()
         first_delivery = await asyncio.gather(
-            execute_run(factory, run_ids[0], fetcher=fetcher, publisher=publisher),
-            execute_run(factory, run_ids[0], fetcher=fetcher, publisher=publisher),
+            execute_run(
+                SqlAlchemyAcquisitionRunRepository(factory),
+                run_ids[0],
+                backend=NativeAcquisitionBackend(fetcher),
+                publisher=publisher,
+            ),
+            execute_run(
+                SqlAlchemyAcquisitionRunRepository(factory),
+                run_ids[0],
+                backend=NativeAcquisitionBackend(fetcher),
+                publisher=publisher,
+            ),
         )
         assert sorted(first_delivery) == [False, True]
-        assert await execute_run(factory, run_ids[1], fetcher=fetcher, publisher=publisher)
+        assert await execute_run(
+            SqlAlchemyAcquisitionRunRepository(factory),
+            run_ids[1],
+            backend=NativeAcquisitionBackend(fetcher),
+            publisher=publisher,
+        )
 
         async with AsyncSession(alpha_engine) as session:
             raw_ids = list(

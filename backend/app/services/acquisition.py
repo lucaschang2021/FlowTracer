@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 import asyncio
-import hashlib
 import time
 import uuid
 from collections.abc import Callable
 from contextlib import suppress
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
+from typing import Any
 from uuid import UUID
 
 from sqlalchemy import func, or_, select, update
@@ -16,6 +16,14 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.core.errors import AppError
 from app.core.logging import get_logger
+from app.domains.acquisition_ports import (
+    AcquisitionBackend as AcquisitionBackendPort,
+)
+from app.domains.acquisition_ports import (
+    AcquisitionRunRepository,
+    PublishedEvent,
+    RunClaim,
+)
 from app.models.entities import (
     AcquisitionAttempt,
     AcquisitionAttemptStatus,
@@ -33,25 +41,28 @@ from app.models.entities import (
 )
 from app.schemas.resources import AcquisitionProfileV1
 from app.services.acquisition_parsers import parse_feed, parse_html
-from app.services.acquisition_types import AcquisitionRequest, CollectionError
+from app.services.acquisition_types import (
+    AcquisitionRequest,
+    AcquisitionResult,
+    CollectionError,
+    ParseResult,
+)
 from app.services.events import EventPublisher, build_event, publish_safely
 from app.services.extraction import attach_extraction_observations
 from app.services.extraction_quality import aggregate_quality, update_quality_ewma
-from app.services.native_acquisition import NativeAcquisitionBackend
 from app.services.resources import get_source, resource_not_found
-from app.services.safe_fetcher import SafeFetcher
 
 Dispatch = Callable[[str, str], None]
 LEASE_DURATION = timedelta(minutes=10)
 MAX_CLAIMS = 3
 DECISION_VERSION = "acquisition-native-v1"
+RunRepository = AcquisitionRunRepository[Source, AcquisitionResult, ParseResult, Any]
+RunBackend = AcquisitionBackendPort[AcquisitionRequest, AcquisitionResult]
 
 
-async def publish_collection_updated(
-    factory: async_sessionmaker[AsyncSession],
-    run_id: UUID,
-    publisher: EventPublisher | None,
-) -> bool:
+async def _collection_event(
+    factory: async_sessionmaker[AsyncSession], run_id: UUID
+) -> PublishedEvent[Any] | None:
     async with factory() as session:
         row = (
             await session.execute(
@@ -61,7 +72,7 @@ async def publish_collection_updated(
             )
         ).one_or_none()
         if row is None:
-            return False
+            return None
         run, user_id = row
         event = build_event(
             "collection.updated",
@@ -78,8 +89,23 @@ async def publish_collection_updated(
             },
             occurred_at=run.updated_at,
         )
-        resource_id = run.id
-    return await publish_safely(publisher, user_id=user_id, event=event, resource_id=resource_id)
+        return PublishedEvent(user_id, event)
+
+
+async def publish_collection_updated(
+    factory: async_sessionmaker[AsyncSession],
+    run_id: UUID,
+    publisher: EventPublisher | None,
+) -> bool:
+    published = await _collection_event(factory, run_id)
+    if published is None:
+        return False
+    return await publish_safely(
+        publisher,
+        user_id=published.user_id,
+        event=published.event,
+        resource_id=run_id,
+    )
 
 
 def validate_idempotency_key(value: str | None) -> str | None:
@@ -667,11 +693,33 @@ async def _finish_failure(
         return True
 
 
+async def _repository_heartbeat_loop(repository: RunRepository, claim: RunClaim[Source]) -> None:
+    while True:
+        await asyncio.sleep(60)
+        if not await repository.heartbeat(claim.run_id, claim.claim_token):
+            return
+
+
+async def _publish_repository_event(
+    repository: RunRepository,
+    run_id: UUID,
+    publisher: EventPublisher | None,
+) -> None:
+    published = await repository.event_for(run_id)
+    if published is not None:
+        await publish_safely(
+            publisher,
+            user_id=published.user_id,
+            event=published.event,
+            resource_id=run_id,
+        )
+
+
 async def execute_run(
-    factory: async_sessionmaker[AsyncSession],
+    repository: RunRepository,
     run_id: UUID,
     *,
-    fetcher: SafeFetcher | None = None,
+    backend: RunBackend,
     correlation_id: str | None = None,
     task_id: str | None = None,
     raw_dispatch: Dispatch | None = None,
@@ -679,15 +727,17 @@ async def execute_run(
 ) -> bool:
     started = time.monotonic()
     worker_id = (task_id or correlation_id or f"worker-{uuid.uuid4()}").strip()
-    claimed = await _claim_run(factory, run_id, worker_id=worker_id)
+    claimed = await repository.claim_run(run_id, worker_id=worker_id)
     if claimed is None:
-        await publish_collection_updated(factory, run_id, publisher)
+        await _publish_repository_event(repository, run_id, publisher)
         return False
-    source, claim_token = claimed
-    backend = BackendName.RSS if source.source_type == SourceType.RSS else BackendName.NATIVE_HTTP
+    source = claimed.source
+    backend_name = (
+        BackendName.RSS if source.source_type == SourceType.RSS else BackendName.NATIVE_HTTP
+    )
     attempt_started_at = datetime.now(UTC)
-    heartbeat_task = asyncio.create_task(_heartbeat_loop(factory, run_id, claim_token))
-    await publish_collection_updated(factory, run_id, publisher)
+    heartbeat_task = asyncio.create_task(_repository_heartbeat_loop(repository, claimed))
+    await _publish_repository_event(repository, run_id, publisher)
     retries = 0
     try:
         try:
@@ -696,7 +746,7 @@ async def execute_run(
             raise CollectionError(
                 "source_profile_invalid", "Source acquisition profile is invalid"
             ) from None
-        result = await NativeAcquisitionBackend(fetcher).acquire(
+        result = await backend.acquire(
             AcquisitionRequest(
                 source_id=source.id,
                 run_id=run_id,
@@ -726,116 +776,26 @@ async def execute_run(
         aggregate = aggregate_quality(
             [observation.evidence.quality_score for observation in result.observations]
         )
-        async with factory() as session:
-            locked_source = await session.scalar(
-                select(Source).where(Source.id == source.id).with_for_update()
-            )
-            run = await session.scalar(
-                select(CollectionRun)
-                .where(
-                    CollectionRun.id == run_id,
-                    CollectionRun.status == CollectionRunStatus.RUNNING,
-                    CollectionRun.claim_token == claim_token,
-                )
-                .with_for_update()
-            )
-            if locked_source is None or run is None:
-                await session.rollback()
-                return False
-            created = 0
-            created_raw_items: list[RawItem] = []
-            duplicates = 0
-            for candidate in parsed.candidates:
-                content_hash = hashlib.sha256(candidate.raw_text.encode("utf-8")).hexdigest()
-                dedupe_predicates = [RawItem.external_id == candidate.external_id]
-                if candidate.dedupe_by_canonical:
-                    dedupe_predicates.append(RawItem.canonical_url == candidate.canonical_url)
-                dedupe_predicates.append(RawItem.content_hash == content_hash)
-                duplicate = await session.scalar(
-                    select(RawItem.id).where(
-                        RawItem.source_id == source.id,
-                        or_(*dedupe_predicates),
-                    )
-                )
-                if duplicate is not None:
-                    duplicates += 1
-                    continue
-                raw_item = RawItem(
-                    source_id=source.id,
-                    collection_run_id=run.id,
-                    external_id=candidate.external_id,
-                    canonical_url=candidate.canonical_url,
-                    title=candidate.title,
-                    published_at=candidate.published_at,
-                    fetched_at=datetime.now(UTC),
-                    content_type=candidate.content_type,
-                    raw_text=candidate.raw_text,
-                    content_hash=content_hash,
-                    item_metadata=candidate.metadata,
-                    status=RawItemStatus.FETCHED,
-                )
-                session.add(raw_item)
-                created_raw_items.append(raw_item)
-                created += 1
-            run.fetched_count = parsed.fetched_count
-            run.created_count = created
-            run.duplicate_count = duplicates
-            run.failed_count = parsed.failed_count
-            run.status = (
-                CollectionRunStatus.PARTIAL
-                if parsed.failed_count
-                else CollectionRunStatus.SUCCEEDED
-            )
-            finished_at = datetime.now(UTC)
-            run.finished_at = finished_at
-            run.error_code = None
-            run.error_message = None
-            run.backend = backend.value
-            run.pages_count = 1
-            run.duration_ms = max(
-                0, round((finished_at - attempt_started_at).total_seconds() * 1000)
-            )
-            run.budget_summary = result.budget_used
-            run.quality_score = aggregate
-            locked_source.last_fetched_at = run.finished_at
-            session.add(
-                _attempt(
-                    run_id=run.id,
-                    source_id=source.id,
-                    backend=backend,
-                    started_at=attempt_started_at,
-                    finished_at=finished_at,
-                    status=AcquisitionAttemptStatus.SUCCEEDED,
-                    requested_url=source.normalized_url,
-                    response_url=response.final_url,
-                    status_code=response.status_code,
-                    content_type=response.content_type,
-                    retry_count=retries,
-                    bytes_received=len(response.body),
-                    quality_score=aggregate,
-                )
-            )
-            await _update_source_state(
-                session,
-                source_id=source.id,
-                succeeded=True,
-                backend=backend,
-                duration_ms=run.duration_ms,
-                error_code=None,
-                quality_score=aggregate,
-                now=finished_at,
-            )
-            await session.commit()
-        await publish_collection_updated(factory, run_id, publisher)
+        completion = await repository.finish_success(
+            claimed,
+            backend_name=backend_name.value,
+            attempt_started_at=attempt_started_at,
+            result=result,
+            parsed=parsed,
+            quality_score=aggregate,
+        )
+        if completion is None:
+            return False
+        await _publish_repository_event(repository, run_id, publisher)
         if raw_dispatch is not None:
-            for raw_item in created_raw_items:
+            for raw_item_id in completion.raw_item_ids:
                 try:
-                    raw_dispatch(str(raw_item.id), correlation_id or str(raw_item.id))
+                    raw_dispatch(str(raw_item_id), correlation_id or str(raw_item_id))
                 except Exception:
                     get_logger().warning(
                         "cleaning_queue_unavailable",
                         message="Cleaning queue is temporarily unavailable",
-                        raw_item_id=str(raw_item.id),
+                        raw_item_id=str(raw_item_id),
                         correlation_id=correlation_id,
                         error_code="analysis_queue_unavailable",
                     )
@@ -846,28 +806,26 @@ async def execute_run(
             source_id=str(source.id),
             correlation_id=correlation_id,
             task_id=task_id,
-            status=run.status.value,
-            fetched_count=parsed.fetched_count,
-            created_count=created,
-            duplicate_count=duplicates,
-            failed_count=parsed.failed_count,
+            status=completion.status,
+            fetched_count=completion.fetched_count,
+            created_count=completion.created_count,
+            duplicate_count=completion.duplicate_count,
+            failed_count=completion.failed_count,
             retry_count=retries,
             duration_ms=round((time.monotonic() - started) * 1000),
         )
         return True
     except CollectionError as exc:
         retries = exc.retry_count
-        updated = await _finish_failure(
-            factory,
-            run_id,
-            claim_token,
-            source,
-            backend,
-            attempt_started_at,
-            retries,
-            exc,
+        updated = await repository.finish_failure(
+            claimed,
+            backend_name=backend_name.value,
+            attempt_started_at=attempt_started_at,
+            retries=retries,
+            error_code=exc.code,
+            safe_error=exc.safe_message,
         )
-        await publish_collection_updated(factory, run_id, publisher)
+        await _publish_repository_event(repository, run_id, publisher)
         if not updated:
             return False
         get_logger().warning(
@@ -889,17 +847,15 @@ async def execute_run(
         return False
     except Exception:
         error = CollectionError("internal_collection_error", "Collection failed unexpectedly")
-        updated = await _finish_failure(
-            factory,
-            run_id,
-            claim_token,
-            source,
-            backend,
-            attempt_started_at,
-            retries,
-            error,
+        updated = await repository.finish_failure(
+            claimed,
+            backend_name=backend_name.value,
+            attempt_started_at=attempt_started_at,
+            retries=retries,
+            error_code=error.code,
+            safe_error=error.safe_message,
         )
-        await publish_collection_updated(factory, run_id, publisher)
+        await _publish_repository_event(repository, run_id, publisher)
         if not updated:
             return False
         get_logger().error(

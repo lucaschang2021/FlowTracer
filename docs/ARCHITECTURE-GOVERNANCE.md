@@ -51,7 +51,7 @@ Models/persistence own database mechanics, not domain decisions.
 
 ### 3.1 现有债务（existing）
 
-- `EX-001 / P1`：[`api/v1/routes/memory.py`](../backend/app/api/v1/routes/memory.py) 在 transport 层构造 concrete embedding provider。
+- `EX-001 / P1`：[`api/v1/routes/memory.py`](../backend/app/api/v1/routes/memory.py) 在 transport 层构造 concrete embedding provider；该依赖债务本身不执行 import-time I/O，也不改变公开契约、Schema、安全或状态所有权，因此统一归 P1，只有伴随 import-time external I/O、secret/security 或 public contract regression 时才由对应 P0 规则立即 STOP。
 - `EX-002 / P2`：`backend/app/api` 多处直接导入 `AsyncSession`、SQLAlchemy 查询和 ORM entity。治理目标禁止新增；本轮不强迫全量 repository 化。
 - `EX-003 / P1`：三个核心 service 直接导入 concrete analysis/embedding/acquisition backend、fetcher 或 event infrastructure；这是本 Pass 必须解决的 Provider seam。
 - `EX-004 / P1`：`acquisition.execute_run` 内部构造 `NativeAcquisitionBackend(fetcher)`，把 backend selection、fetch、parse、quality、持久化、事件和下游 dispatch 绑定在一个函数。

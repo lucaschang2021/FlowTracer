@@ -1,0 +1,487 @@
+schema_version = 1
+contract_id = "flowtracer-architecture-governance-v1"
+status = "frozen"
+baseline_commit = "f4b58c1ec0d20d075b98d5a9ca3d146d0b4deb56"
+control_branch = "chore/architecture-governance-freeze"
+implementation_branch = "feat/architecture-governance"
+baseline_mode = "no-regression"
+
+[scope]
+product = "FlowTracer Alpha v0.1 plus admitted ACQ-1 behavior"
+python_root = "backend/app"
+contract_paths = ["ARCHITECTURE.toml", "docs/ARCHITECTURE-GOVERNANCE.md"]
+protected_surfaces = [
+  "public REST and WebSocket contracts",
+  "backend/openapi/flowtracer-alpha-v0.1.json",
+  "database schema and Alembic revision chain",
+  "ACQ-1 acquisition, extraction, quality, health, and writer semantics",
+  "existing tests and coverage baseline",
+]
+non_goals = [
+  "Clean Architecture file-tree rewrite",
+  "microservice split",
+  "repository abstraction for every ORM operation",
+  "API or database migration",
+  "provider or task behavior change",
+  "mechanical split based only on file length",
+]
+
+[classification]
+codes = ["A", "B", "C", "D", "E"]
+A = "application orchestration and workflow coordination"
+B = "deterministic domain policy and product decisions"
+C = "persistence, transaction, query, lock, and ORM mapping"
+D = "infrastructure adapters, provider calls, queues, events, and external I/O"
+E = "transport-facing validation, errors, and response mapping"
+
+layer_match_order = [
+  "bootstrap_lifecycle",
+  "tasks",
+  "api_adapters",
+  "providers_infrastructure",
+  "models_persistence",
+  "domain_policy",
+  "application_services",
+]
+
+[[layers]]
+id = "api_adapters"
+paths = ["backend/app/api/**", "backend/app/schemas/**"]
+responsibility = "Translate HTTP/WebSocket input and output and call application use cases."
+may_depend_on = ["application_services", "domain_policy"]
+forbidden_dependencies = ["tasks", "models_persistence", "providers_infrastructure"]
+owns_state = []
+external_io = "transport only; no direct database, queue, Redis, or provider operation"
+import_time_side_effects = "forbidden"
+compatibility_imports = "existing app.core imports are fingerprinted baseline debt, not permission for new bootstrap dependencies"
+
+[[layers]]
+id = "application_services"
+paths = ["backend/app/services/**"]
+exclude_paths = [
+  "backend/app/services/events.py",
+  "backend/app/services/native_acquisition.py",
+  "backend/app/services/readiness.py",
+  "backend/app/services/safe_fetcher.py",
+]
+responsibility = "Coordinate use cases through domain policy and explicit ports."
+may_depend_on = ["domain_policy"]
+forbidden_dependencies = ["api_adapters", "tasks", "providers_infrastructure"]
+owns_state = []
+external_io = "only through injected ports; existing direct ORM access is baseline debt"
+import_time_side_effects = "forbidden"
+
+[[layers]]
+id = "domain_policy"
+paths = ["backend/app/domains/**", "backend/app/domain/**"]
+responsibility = "Own deterministic product rules, immutable value types, and ports."
+may_depend_on = []
+forbidden_dependencies = [
+  "api_adapters",
+  "application_services",
+  "models_persistence",
+  "providers_infrastructure",
+  "tasks",
+  "bootstrap_lifecycle",
+]
+owns_state = []
+external_io = "forbidden"
+import_time_side_effects = "forbidden"
+
+[[layers]]
+id = "models_persistence"
+paths = ["backend/app/models/**", "backend/app/db/**", "backend/alembic/**"]
+responsibility = "Own relational mappings, database sessions, migrations, and persistence adapters."
+may_depend_on = ["domain_policy", "bootstrap_lifecycle"]
+forbidden_dependencies = ["api_adapters", "application_services", "providers_infrastructure", "tasks"]
+owns_state = ["postgresql"]
+external_io = "database only and only when a use case or lifecycle invokes it"
+import_time_side_effects = "schema declaration is allowed; connection and query are forbidden"
+
+[[layers]]
+id = "providers_infrastructure"
+paths = [
+  "backend/app/providers/**",
+  "backend/app/adapters/**",
+  "backend/app/services/events.py",
+  "backend/app/services/native_acquisition.py",
+  "backend/app/services/readiness.py",
+  "backend/app/services/safe_fetcher.py",
+]
+responsibility = "Implement domain ports for remote providers, acquisition, events, readiness, and infrastructure."
+may_depend_on = ["domain_policy", "bootstrap_lifecycle", "models_persistence"]
+forbidden_dependencies = ["api_adapters", "application_services", "tasks"]
+owns_state = ["instance-scoped provider clients"]
+external_io = "allowed only from an invoked adapter method with bounded time, size, retry, and safe errors"
+import_time_side_effects = "forbidden"
+
+[[layers]]
+id = "tasks"
+paths = ["backend/app/tasks/**"]
+responsibility = "Translate Celery delivery into application use-case calls and compose worker dependencies."
+may_depend_on = [
+  "application_services",
+  "domain_policy",
+  "models_persistence",
+  "providers_infrastructure",
+  "bootstrap_lifecycle",
+]
+forbidden_dependencies = ["api_adapters"]
+owns_state = ["celery worker process runtime"]
+external_io = "only after task invocation; broker configuration may be constructed at worker bootstrap"
+import_time_side_effects = "limited to validated bootstrap construction; no connection, publish, query, or task dispatch"
+
+[[layers]]
+id = "bootstrap_lifecycle"
+paths = [
+  "backend/app/main.py",
+  "backend/app/core/config.py",
+  "backend/app/core/context.py",
+  "backend/app/core/errors.py",
+  "backend/app/core/logging.py",
+  "backend/app/core/middleware.py",
+  "backend/app/core/security.py",
+]
+responsibility = "Load validated configuration, wire dependencies, own process lifecycle, and release resources."
+may_depend_on = [
+  "api_adapters",
+  "application_services",
+  "domain_policy",
+  "models_persistence",
+  "providers_infrastructure",
+  "tasks",
+]
+forbidden_dependencies = []
+owns_state = ["FastAPI application.state", "settings cache", "process logging configuration"]
+external_io = "resource construction at bootstrap; connections and probes only inside lifespan or an invoked operation"
+import_time_side_effects = "allowed only for current app and Celery bootstrap objects under import-safety tests"
+shared_core_compatibility = "core currently includes errors, context, middleware, and security used by API/services; AG-1 must exact-allowlist baseline fingerprints and forbid growth"
+
+[[forbidden_dependency_rules]]
+id = "service_to_api"
+source_glob = "backend/app/services/**/*.py"
+forbidden_import_prefixes = ["app.api"]
+severity = "P0"
+
+[[forbidden_dependency_rules]]
+id = "provider_to_service"
+source_glob = "backend/app/providers/**/*.py"
+forbidden_import_prefixes = ["app.services"]
+severity = "P0"
+
+[[forbidden_dependency_rules]]
+id = "adapter_to_service"
+source_glob = "backend/app/adapters/**/*.py"
+forbidden_import_prefixes = ["app.services"]
+severity = "P1"
+
+[[forbidden_dependency_rules]]
+id = "api_to_concrete_infrastructure"
+source_glob = "backend/app/api/**/*.py"
+forbidden_import_prefixes = ["app.providers", "app.tasks", "app.db"]
+severity = "P0"
+
+[[forbidden_dependency_rules]]
+id = "domain_to_framework_or_io"
+source_globs = ["backend/app/domain/**/*.py", "backend/app/domains/**/*.py"]
+forbidden_import_prefixes = [
+  "sqlalchemy",
+  "fastapi",
+  "starlette",
+  "redis",
+  "celery",
+  "httpx",
+  "asyncpg",
+  "pgvector",
+  "socket",
+  "ssl",
+  "app.api",
+  "app.db",
+  "app.models",
+  "app.providers",
+  "app.tasks",
+]
+severity = "P0"
+
+[[forbidden_dependency_rules]]
+id = "application_to_concrete_provider"
+source_glob = "backend/app/services/**/*.py"
+forbidden_import_prefixes = ["app.providers", "app.adapters"]
+severity = "P1"
+
+[[state_owners]]
+state = "business facts, workflow status, ownership, idempotency, and audit records"
+owner = "postgresql through models_persistence"
+forbidden_owners = ["api_adapters", "domain_policy", "module globals"]
+
+[[state_owners]]
+state = "online best-effort events and Celery delivery"
+owner = "providers_infrastructure and tasks"
+forbidden_owners = ["domain_policy"]
+
+[[state_owners]]
+state = "runtime dependency instances"
+owner = "bootstrap_lifecycle through application.state or task-scoped composition"
+forbidden_owners = ["api_adapters", "application_services", "domain_policy"]
+
+[import_safety]
+no_external_io_on_import = true
+forbidden_import_time_operations = [
+  "database connect, execute, or migration",
+  "Redis connect, ping, publish, or subscribe",
+  "HTTP or socket request",
+  "Celery task dispatch or broker probe",
+  "filesystem write",
+]
+required_targets = [
+  "app.main",
+  "app.tasks.celery_app",
+  "app.providers.analysis",
+  "app.providers.embedding",
+  "app.services.acquisition",
+  "app.services.intelligence",
+  "app.services.memory",
+]
+allowed_bootstrap_construction = [
+  "FastAPI application object",
+  "validated Settings object and lru_cache",
+  "Celery application and static schedule configuration",
+  "logger configuration",
+]
+
+[provider_substitution]
+required = true
+ports_must_live_in = "domain_policy"
+composition_roots = ["bootstrap_lifecycle", "tasks"]
+forbidden_composition_roots = ["api_adapters", "application_services"]
+required_fakes = ["analysis", "embedding", "acquisition backend", "fetcher", "event publisher"]
+contract = "A fake and a production adapter must be swappable without changing domain policy or public contracts."
+
+[complexity]
+metric = "physical UTF-8 lines; responsibility count is evidence-based and reviewed, not inferred from size"
+module_warning_lines = 600
+new_module_failure_lines = 900
+function_warning_lines = 80
+new_function_failure_lines = 200
+responsibility_warning_count = 3
+baseline_module_at_or_above_warning_may_grow_lines = 0
+baseline_function_at_or_above_warning_may_grow_lines = 0
+warning_policy = "warn and require an explicit disposition; a warning alone does not authorize a split"
+failure_policy = "new threshold breaches or growth of baseline debt fail the architecture gate"
+
+[gate]
+mode = "baseline-no-regression"
+required_checks = [
+  "contract_toml_parse",
+  "contract_schema_validation",
+  "layer_assignment",
+  "cross_layer_imports",
+  "service_to_api",
+  "domain_forbidden_infrastructure",
+  "module_mutable_runtime_state",
+  "suspected_import_time_external_call",
+  "complexity_and_responsibility_growth",
+  "provider_substitutability",
+  "machine_baseline_snapshot",
+  "baseline_existing_introduced_resolved",
+]
+new_findings_allowed = 0
+existing_findings_may_increase = false
+resolved_findings_may_reappear = false
+
+[gate.baseline_snapshot]
+required = true
+source_commit = "f4b58c1ec0d20d075b98d5a9ca3d146d0b4deb56"
+output_path = "backend/architecture-baseline.json"
+generation_phase = "AG-1"
+checked_in = true
+scan_scope = "all tracked Python modules under backend/app at source_commit"
+fingerprint_fields = ["rule_id", "source_path", "imported_module", "symbol_or_call", "normalized_location"]
+classification = ["existing", "introduced", "resolved"]
+existing_definition = "fingerprint exists in the generated snapshot from source_commit"
+introduced_definition = "fingerprint does not exist in the source_commit snapshot"
+resolved_definition = "snapshot fingerprint no longer exists in the candidate"
+human_findings_are_exhaustive = false
+human_findings_role = "responsibility-level audit summary only; never an import-level allowlist"
+missing_snapshot_behavior = "fail closed"
+
+[gate.ci]
+required_on_implementation_branch = true
+job_name = "architecture"
+integration = "add a dedicated step to the governed backend pipeline"
+reuse_pipeline_concurrency = true
+require_cancel_in_progress = true
+current_tracked_workflow = "absent at baseline"
+create_minimal_backend_workflow_if_absent = true
+creation_authorized_phase = "AG-1"
+required_backend_steps = ["lint", "types", "tests", "architecture"]
+new_workflow_requirements = ["concurrency group", "cancel-in-progress=true", "no business refactor"]
+stop_conditions = [
+  "an equivalent external or hidden CI workflow is discovered",
+  "repository policy conflicts with creating the minimal tracked workflow",
+]
+ag0_changes_ci = false
+
+[gate.compatibility]
+api_drift = "forbidden"
+openapi_blob = "67d99e7ca912ce7e299346ec9efe0a53b32d485b"
+database_drift = "forbidden"
+alembic_head = "20260830_0004"
+migration_changes = "forbidden"
+acq1_contract_regression = "forbidden"
+health_mode_regression = "forbidden"
+coverage_must_not_decrease = true
+accepted_coverage_percent = 87.61
+accepted_test_count = 286
+accepted_evidence_source = "docs/CURRENT-GATE.md at origin/main baseline; AG-0 does not rerun tests"
+
+[tests]
+preserve_existing_tests = true
+required_suites = [
+  "pure intelligence scoring, recommendation, notification qualification, cost, and output policy",
+  "acquisition application service with fake backend, fetcher, event publisher, and persistence boundary",
+  "import safety with blocked network, database, Redis, broker, and filesystem writes",
+  "ARCHITECTURE.toml parse and schema validation",
+  "dependency and forbidden-import gate",
+  "provider substitution contract",
+  "OpenAPI snapshot zero drift",
+  "Alembic head and database schema zero drift",
+  "ACQ-1 contract and existing regression suites",
+]
+
+[stage_gate]
+required_severities = ["P0", "P1", "P2"]
+P0 = "public contract, schema, security, health, state ownership, forbidden domain infrastructure, or import-time external I/O regression"
+P1 = "new or enlarged dependency debt, failed substitutability, mutable runtime state, lost deterministic behavior, or coverage decrease"
+P2 = "complexity or responsibility-growth warning, documentation mismatch, or unowned cleanup risk"
+existing_p0_allowed = false
+total_p0_required = 0
+baseline_p0_discovery_action = "STOP for controller adjudication; never grandfather"
+per_commit_phases = ["AG-1", "AG-2", "AG-3", "AG-4", "AG-5"]
+per_commit_pass_condition = "total P0 equals zero; introduced P1/P2 equals zero; existing P1/P2 findings do not increase and retain dispositions; resolved findings do not reappear"
+final_phase = "AG-6"
+final_required_resolutions = ["EX-001", "EX-003", "EX-004", "EX-007"]
+final_acceptance_condition = "total P0 equals zero; per-commit P1/P2 condition plus every final_required_resolutions item is resolved; other existing P1/P2 findings may remain unchanged with disposition"
+
+[[baseline.modules]]
+path = "backend/app/services/acquisition.py"
+status = "existing"
+lines = 925
+responsibility_codes = ["A", "B", "C", "D", "E"]
+largest_function = "execute_run"
+largest_function_lines = 256
+disposition = "extract minimal acquisition ports and dependency injection; do not repository-abstract the whole ORM surface"
+
+[[baseline.modules]]
+path = "backend/app/services/intelligence.py"
+status = "existing"
+lines = 668
+responsibility_codes = ["A", "B", "C", "D", "E"]
+largest_function = "run_analysis"
+largest_function_lines = 98
+disposition = "extract deterministic intelligence policy first"
+
+[[baseline.modules]]
+path = "backend/app/services/memory.py"
+status = "existing"
+lines = 621
+responsibility_codes = ["A", "B", "C", "D", "E"]
+largest_function = "run_embedding"
+largest_function_lines = 152
+disposition = "only extract proven pure ranking or filtering policy; no retention policy is currently evidenced"
+
+[[baseline.modules]]
+path = "backend/app/models/entities.py"
+status = "existing"
+lines = 797
+responsibility_codes = ["B", "C"]
+largest_function = "declarative model definitions"
+largest_function_lines = 0
+disposition = "threshold governance only; declaration density is not by itself evidence for a split"
+
+[[baseline.findings]]
+id = "EX-001"
+status = "existing"
+severity = "P1"
+location = "backend/app/api/v1/routes/memory.py"
+rule = "api_to_concrete_infrastructure"
+detail = "Memory transport constructs the concrete embedding provider."
+
+[[baseline.findings]]
+id = "EX-002"
+status = "existing"
+severity = "P2"
+location = "backend/app/api"
+rule = "api_to_persistence_details"
+detail = "API dependencies and routes import AsyncSession, SQLAlchemy queries, and ORM entities."
+
+[[baseline.findings]]
+id = "EX-003"
+status = "existing"
+severity = "P1"
+location = "backend/app/services/{acquisition,intelligence,memory}.py"
+rule = "application_to_concrete_provider"
+detail = "Application services import concrete analysis, embedding, acquisition backend, fetcher, or event infrastructure modules."
+
+[[baseline.findings]]
+id = "EX-004"
+status = "existing"
+severity = "P1"
+location = "backend/app/services/acquisition.py:670"
+rule = "provider_substitution"
+detail = "execute_run constructs NativeAcquisitionBackend and combines fetch, parse, quality, persistence, events, and dispatch."
+
+[[baseline.findings]]
+id = "EX-005"
+status = "existing"
+severity = "P2"
+location = "backend/app/main.py and backend/app/tasks/celery_app.py"
+rule = "import_safety"
+detail = "Import constructs FastAPI/Celery bootstrap objects and loads configuration; no import-time external call was observed."
+
+[[baseline.findings]]
+id = "EX-006"
+status = "existing"
+severity = "P2"
+location = "four audited responsibility-map modules"
+rule = "complexity_and_responsibility_growth"
+detail = "Three services mix five responsibility classes; entities.py is large but mostly declarative."
+
+[[baseline.findings]]
+id = "EX-007"
+status = "existing"
+severity = "P1"
+location = "repository CI configuration"
+rule = "architecture_ci_step"
+detail = "No tracked CI workflow or reusable concurrency/cancel-in-progress configuration exists at this baseline."
+
+[[baseline.findings]]
+id = "EX-008"
+status = "existing"
+severity = "P1"
+location = "backend/app/adapters/acquisition/static_scrapling.py:16"
+rule = "adapter_to_service"
+detail = "The static Scrapling adapter has six import statements into app.services for parsing, policy, types, quality, and URL normalization."
+
+[[baseline.findings]]
+id = "EX-009"
+status = "existing"
+severity = "P2"
+location = "backend/app/services"
+rule = "application_to_shared_core_and_persistence"
+detail = "Application services broadly import app.core, ORM models, and SQLAlchemy persistence details; these are grouped debt outside the mandatory Pass resolutions."
+
+[baseline.summary]
+existing = [
+  "EX-001",
+  "EX-002",
+  "EX-003",
+  "EX-004",
+  "EX-005",
+  "EX-006",
+  "EX-007",
+  "EX-008",
+  "EX-009",
+]
+introduced = []
+resolved = []

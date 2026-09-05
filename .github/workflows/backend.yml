@@ -1,0 +1,93 @@
+name: Backend
+
+on:
+  pull_request:
+    paths:
+      - "ARCHITECTURE.toml"
+      - "backend/**"
+      - ".github/workflows/backend.yml"
+  push:
+    branches: [main]
+    paths:
+      - "ARCHITECTURE.toml"
+      - "backend/**"
+      - ".github/workflows/backend.yml"
+
+concurrency:
+  group: backend-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:0.8.6-pg16-bookworm
+        env:
+          POSTGRES_USER: flowtracer
+          POSTGRES_PASSWORD: flowtracer-ci-only
+          POSTGRES_DB: flowtracer_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U flowtracer -d flowtracer_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7.4.11-alpine3.21
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      FLOWTRACER_ENV: test
+      FLOWTRACER_LOG_LEVEL: INFO
+      FLOWTRACER_APP_VERSION: 0.1.0
+      FLOWTRACER_API_HOST: 127.0.0.1
+      FLOWTRACER_API_PORT: "8000"
+      DATABASE_URL: postgresql+asyncpg://flowtracer:flowtracer-ci-only@localhost:5432/flowtracer_test
+      TEST_DATABASE_URL: postgresql+asyncpg://flowtracer:flowtracer-ci-only@localhost:5432/flowtracer_test
+      REDIS_URL: redis://localhost:6379/15
+      CELERY_BROKER_URL: redis://localhost:6379/15
+      CELERY_RESULT_BACKEND: redis://localhost:6379/14
+      JWT_SECRET: unit-test-jwt-secret-at-least-32-bytes-long
+      AI_PROVIDER: fake
+      AI_MODEL: flowtracer-fake-v1
+      AI_INPUT_COST_PER_MILLION: "0"
+      AI_OUTPUT_COST_PER_MILLION: "0"
+      EMBEDDING_PROVIDER: fake
+      EMBEDDING_MODEL: flowtracer-fake-embedding-v1
+      EMBEDDING_INPUT_COST_PER_MILLION: "0"
+      EMBEDDING_CHUNK_SIZE: "1200"
+      EMBEDDING_CHUNK_OVERLAP: "200"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - name: Sync locked dependencies
+        run: uv sync --locked
+      - name: Lint
+        run: |
+          uv run ruff check .
+          uv run ruff format --check .
+      - name: Types
+        run: uv run mypy app
+      - name: Tests
+        run: |
+          uv run alembic upgrade head
+          uv run pytest --cov-fail-under=87.61
+      - name: Architecture
+        run: uv run python -m architecture_gate check --repo-root ..

@@ -16,6 +16,12 @@ from app.core.config import Settings
 from app.core.errors import AppError
 from app.core.logging import get_logger
 from app.domains import intelligence_policy
+from app.domains.provider_ports import (
+    AnalysisProvider,
+    AnalysisRequest,
+    ProviderError,
+    ProviderResponse,
+)
 from app.models.entities import (
     AIUsageRecord,
     Analysis,
@@ -25,12 +31,6 @@ from app.models.entities import (
     DocumentStatus,
     Radar,
     Recommendation,
-)
-from app.providers.analysis import (
-    AnalysisProvider,
-    AnalysisRequest,
-    ProviderError,
-    ProviderResponse,
 )
 from app.services.cleaning import PIPELINE_VERSION
 from app.services.events import EventPublisher, build_event, publish_safely

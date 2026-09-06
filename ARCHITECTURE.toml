@@ -135,6 +135,7 @@ import_time_side_effects = "limited to validated bootstrap construction; no conn
 id = "bootstrap_lifecycle"
 paths = [
   "backend/app/main.py",
+  "backend/app/core/composition.py",
   "backend/app/core/config.py",
   "backend/app/core/context.py",
   "backend/app/core/errors.py",

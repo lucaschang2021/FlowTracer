@@ -4,17 +4,14 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
-from redis.asyncio import Redis
-from sqlalchemy.ext.asyncio import AsyncEngine
 
 from app.api.v1.router import api_router
+from app.core.composition import api_dependencies, build_embedding_dependency
 from app.core.config import Settings, get_settings
 from app.core.errors import install_exception_handlers
 from app.core.logging import configure_logging, get_logger
 from app.core.middleware import RequestContextMiddleware
-from app.db.session import create_database_engine, create_session_factory
-from app.services.events import RedisEventPublisher
-from app.services.readiness import ReadinessService, build_readiness_service
+from app.services.readiness import ReadinessService
 
 
 def create_app(
@@ -24,33 +21,25 @@ def create_app(
     resolved_settings = settings or get_settings()
     configure_logging(resolved_settings)
     logger = get_logger()
+    embedding_provider = build_embedding_dependency(resolved_settings)
 
     @asynccontextmanager
     async def lifespan(application: FastAPI) -> AsyncIterator[None]:
-        engine: AsyncEngine | None = None
-        redis_client: Redis | None = None
-        if readiness_service is None:
-            engine = create_database_engine(resolved_settings)
-            application.state.session_factory = create_session_factory(engine)
-            redis_client = Redis.from_url(
-                resolved_settings.redis_url.get_secret_value(),
-                decode_responses=True,
-            )
-            application.state.redis_client = redis_client
-            application.state.event_publisher = RedisEventPublisher(redis_client)
-            application.state.readiness_service = build_readiness_service(
-                engine,
-                redis_client,
-                resolved_settings.dependency_timeout_seconds,
-            )
-        logger.info("application_started", message="FlowTracer API started")
         try:
-            yield
+            async with api_dependencies(
+                resolved_settings,
+                readiness_service=readiness_service,
+                embedding_provider=embedding_provider,
+            ) as dependencies:
+                if dependencies.session_factory is not None:
+                    application.state.session_factory = dependencies.session_factory
+                application.state.redis_client = dependencies.redis_client
+                application.state.event_publisher = dependencies.event_publisher
+                application.state.readiness_service = dependencies.readiness_service
+                application.state.embedding_provider = dependencies.embedding_provider
+                logger.info("application_started", message="FlowTracer API started")
+                yield
         finally:
-            if redis_client is not None:
-                await redis_client.aclose()
-            if engine is not None:
-                await engine.dispose()
             logger.info("application_stopped", message="FlowTracer API stopped")
 
     application = FastAPI(
@@ -62,6 +51,7 @@ def create_app(
     application.state.readiness_service = readiness_service
     application.state.redis_client = None
     application.state.event_publisher = None
+    application.state.embedding_provider = embedding_provider
     application.add_middleware(RequestContextMiddleware)
     install_exception_handlers(application)
     application.include_router(api_router, prefix="/api/v1")

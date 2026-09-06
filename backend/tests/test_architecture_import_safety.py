@@ -58,8 +58,13 @@ def test_required_modules_import_without_external_side_effects() -> None:
         Task.delay = blocked
 
         for target in (
+            "app.core.composition",
             "app.main",
             "app.tasks.celery_app",
+            "app.tasks.acquisition",
+            "app.tasks.intelligence",
+            "app.tasks.notifications",
+            "app.api.v1.routes.memory",
             "app.providers.analysis",
             "app.providers.embedding",
             "app.services.acquisition",

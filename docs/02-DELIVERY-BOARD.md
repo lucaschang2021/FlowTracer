@@ -4,11 +4,11 @@
 
 **M0：架构初步冻结 — 已完成**
 
-**当前阶段：Architecture Governance AG-4（Composition and Import Safety）— 已正式准入，开发进行中；AG-5/AG-6 尚未准入**
+**当前阶段：Architecture Governance AG-5（Conditional Memory Policy）— 已正式准入，characterization 审计进行中；AG-6 尚未准入**
 
 ACQ-1 WP-3（ACQ-1B Dynamic + H-browser）兼容性与隔离证据仍未冻结，继续阻塞且未准入；Frontend、Integration 与 Release 同样未准入。
 
-本次同步事实基准：`main@190a71754a7a0f3a5de3e664bbfa77e4eea945bc`。
+本次同步事实基准：`main@f1494c7f843782523f728913e08774331ec8163f`。
 
 ## 工作项
 
@@ -26,8 +26,9 @@ ACQ-1 WP-3（ACQ-1B Dynamic + H-browser）兼容性与隔离证据仍未冻结�
 | ARC-AG1 | Executable Gate Foundation | Backend / Architecture | 完成（已验收、已合并） | ARC-AG0 | PR #44、machine baseline、Architecture CI/gate/tests |
 | ARC-AG2 | Intelligence 纯领域策略与兼容委托 | Backend / Architecture | 完成（已验收、已合并） | ARC-AG1 | PR #45、`backend/app/domains/intelligence_policy.py` |
 | ARC-AG3 | Acquisition Ports 与最小 DI | Backend / Architecture | 完成（已验收、已合并） | ARC-AG2 | PR #47、候选 `ce26640e3c2f994c8036b18a2c2b984dee045c53`、merge commit `190a71754a7a0f3a5de3e664bbfa77e4eea945bc`；Architecture Gate `existing=152 / introduced=0 / resolved=5 / P0=0`，Backend CI success |
-| ARC-AG4 | Composition and Import Safety | Backend / Architecture | 已准入，开发进行中 | ARC-AG3 | 目标分支 `feat/architecture-governance`；按 `ARCHITECTURE.toml` 与 `ARCHITECTURE-GOVERNANCE.md` 实施，完成后独立验收 |
-| ARC-AG5/6 | 后续边界治理与最终兼容门禁 | Backend / Architecture | 未准入 | ARC-AG4 验收合并后逐阶段准入 | `ARCHITECTURE.toml`、`ARCHITECTURE-GOVERNANCE.md` |
+| ARC-AG4 | Composition and Import Safety | Backend / Architecture | 完成（已验收、已合并） | ARC-AG3 | PR #49、候选 `78ddf49ed6ddf94204465cd16dd96163cb93d834`、merge commit `f1494c7f843782523f728913e08774331ec8163f`；Architecture Gate `existing=130 / introduced=0 / resolved=27 / P0=0`，CI run `34029206838` SUCCESS |
+| ARC-AG5 | Conditional Memory Policy | Backend / Architecture | 已准入，characterization 审计进行中 | ARC-AG4 | 目标分支 `feat/architecture-governance`；仅在纯输入输出证据充分时抽 ranking/filter policy；SQL authorization/pgvector 留在 persistence，禁止虚构 retention |
+| ARC-AG6 | Final Compatibility Gate | Backend / Architecture | 未准入 | ARC-AG5 验收合并 | `ARCHITECTURE.toml`、`ARCHITECTURE-GOVERNANCE.md` |
 | PM-001 | Backend 执行任务包 | 总控 | 完成 | ARC-003..008 | `10-BACKEND-WORK-PACKAGE.md` |
 | BE-0 | 工程盘点与实施计划 | Backend | 完成（已验收） | PM-001 | `11-BE-0-ACCEPTANCE.md` |
 | PM-002 | BE-1 工程基线 | 总控 | 完成 | BE-0 | `04-BE1-ENGINEERING-BASELINE.md` |

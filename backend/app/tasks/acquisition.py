@@ -4,15 +4,12 @@ import asyncio
 from typing import Any
 from uuid import UUID
 
-from redis.asyncio import Redis
-
+from app.core.composition import with_database, with_events
 from app.core.config import get_settings
 from app.core.context import bind_context, reset_context
 from app.core.logging import get_logger
-from app.db.session import create_database_engine, create_session_factory
 from app.services.acquisition import dispatch_queued_runs, execute_run, schedule_due_sources
 from app.services.acquisition_run_repository import SqlAlchemyAcquisitionRunRepository
-from app.services.events import RedisEventPublisher
 from app.services.native_acquisition import NativeAcquisitionBackend
 from app.services.safe_fetcher import SafeFetcher
 from app.tasks.celery_app import celery_app
@@ -23,20 +20,11 @@ def enqueue_collection(run_id: str, correlation_id: str) -> None:
 
 
 async def _with_database(operation: Any) -> Any:
-    engine = create_database_engine(get_settings())
-    try:
-        return await operation(create_session_factory(engine))
-    finally:
-        await engine.dispose()
+    return await with_database(get_settings(), operation)
 
 
 async def _with_events(operation: Any) -> Any:
-    settings = get_settings()
-    redis_client = Redis.from_url(settings.redis_url.get_secret_value(), decode_responses=True)
-    try:
-        return await operation(RedisEventPublisher(redis_client))
-    finally:
-        await redis_client.aclose()
+    return await with_events(get_settings(), operation)
 
 
 @celery_app.task(bind=True, name="flowtracer.tasks.acquisition.collect_source")  # type: ignore[untyped-decorator]

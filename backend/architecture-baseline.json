@@ -3849,7 +3849,161 @@
       "rule_id": "provider_port_location",
       "source_path": "backend/app/services/events.py",
       "symbol_or_call": "EventPublisher"
-    }
+    },
+    {
+        "imported_module": "app.providers.embedding",
+        "normalized_location": "module",
+        "rule_id": "api_to_concrete_infrastructure",
+        "source_path": "backend/app/api/v1/routes/memory.py",
+        "symbol_or_call": "build_embedding_provider"
+      },
+      {
+        "imported_module": "app.providers.analysis",
+        "normalized_location": "module",
+        "rule_id": "application_to_concrete_provider",
+        "source_path": "backend/app/services/intelligence.py",
+        "symbol_or_call": "AnalysisProvider"
+      },
+      {
+        "imported_module": "app.providers.analysis",
+        "normalized_location": "module",
+        "rule_id": "application_to_concrete_provider",
+        "source_path": "backend/app/services/intelligence.py",
+        "symbol_or_call": "AnalysisRequest"
+      },
+      {
+        "imported_module": "app.providers.analysis",
+        "normalized_location": "module",
+        "rule_id": "application_to_concrete_provider",
+        "source_path": "backend/app/services/intelligence.py",
+        "symbol_or_call": "ProviderError"
+      },
+      {
+        "imported_module": "app.providers.analysis",
+        "normalized_location": "module",
+        "rule_id": "application_to_concrete_provider",
+        "source_path": "backend/app/services/intelligence.py",
+        "symbol_or_call": "ProviderResponse"
+      },
+      {
+        "imported_module": "app.providers.embedding",
+        "normalized_location": "module",
+        "rule_id": "application_to_concrete_provider",
+        "source_path": "backend/app/services/memory.py",
+        "symbol_or_call": "EmbeddingError"
+      },
+      {
+        "imported_module": "app.providers.embedding",
+        "normalized_location": "module",
+        "rule_id": "application_to_concrete_provider",
+        "source_path": "backend/app/services/memory.py",
+        "symbol_or_call": "EmbeddingProvider"
+      },
+      {
+        "imported_module": "app.providers.embedding",
+        "normalized_location": "module",
+        "rule_id": "application_to_concrete_provider",
+        "source_path": "backend/app/services/memory.py",
+        "symbol_or_call": "EmbeddingResponse"
+      },
+      {
+        "imported_module": "app.providers.embedding",
+        "normalized_location": "module",
+        "rule_id": "application_to_concrete_provider",
+        "source_path": "backend/app/services/memory.py",
+        "symbol_or_call": "MAX_EMBEDDING_BATCH"
+      },
+      {
+        "imported_module": "app.providers.embedding",
+        "normalized_location": "module",
+        "rule_id": "application_to_concrete_provider",
+        "source_path": "backend/app/services/memory.py",
+        "symbol_or_call": "normalize_vector"
+      },
+      {
+        "imported_module": "app.providers.embedding",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/api/v1/routes/memory.py",
+        "symbol_or_call": "build_embedding_provider"
+      },
+      {
+        "imported_module": "app.providers.analysis",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/intelligence.py",
+        "symbol_or_call": "AnalysisProvider"
+      },
+      {
+        "imported_module": "app.providers.analysis",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/intelligence.py",
+        "symbol_or_call": "AnalysisRequest"
+      },
+      {
+        "imported_module": "app.providers.analysis",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/intelligence.py",
+        "symbol_or_call": "ProviderError"
+      },
+      {
+        "imported_module": "app.providers.analysis",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/intelligence.py",
+        "symbol_or_call": "ProviderResponse"
+      },
+      {
+        "imported_module": "app.providers.embedding",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/memory.py",
+        "symbol_or_call": "EmbeddingError"
+      },
+      {
+        "imported_module": "app.providers.embedding",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/memory.py",
+        "symbol_or_call": "EmbeddingProvider"
+      },
+      {
+        "imported_module": "app.providers.embedding",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/memory.py",
+        "symbol_or_call": "EmbeddingResponse"
+      },
+      {
+        "imported_module": "app.providers.embedding",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/memory.py",
+        "symbol_or_call": "MAX_EMBEDDING_BATCH"
+      },
+      {
+        "imported_module": "app.providers.embedding",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/memory.py",
+        "symbol_or_call": "normalize_vector"
+      },
+      {
+        "imported_module": "typing.Protocol",
+        "normalized_location": "class:AnalysisProvider",
+        "rule_id": "provider_port_location",
+        "source_path": "backend/app/providers/analysis.py",
+        "symbol_or_call": "AnalysisProvider"
+      },
+      {
+        "imported_module": "typing.Protocol",
+        "normalized_location": "class:EmbeddingProvider",
+        "rule_id": "provider_port_location",
+        "source_path": "backend/app/providers/embedding.py",
+        "symbol_or_call": "EmbeddingProvider"
+      }
   ],
   "scan_scope": "all tracked Python modules under backend/app at source_commit",
   "schema_version": 1,

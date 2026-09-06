@@ -15,6 +15,13 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 from app.core.config import Settings
 from app.core.errors import AppError
 from app.core.logging import get_logger
+from app.domains.provider_ports import (
+    MAX_EMBEDDING_BATCH,
+    EmbeddingError,
+    EmbeddingProvider,
+    EmbeddingResponse,
+    normalize_vector,
+)
 from app.models.entities import (
     AIUsageRecord,
     Analysis,
@@ -26,13 +33,6 @@ from app.models.entities import (
     Radar,
     RawItem,
     Source,
-)
-from app.providers.embedding import (
-    MAX_EMBEDDING_BATCH,
-    EmbeddingError,
-    EmbeddingProvider,
-    EmbeddingResponse,
-    normalize_vector,
 )
 from app.services.chunking import chunk_text
 

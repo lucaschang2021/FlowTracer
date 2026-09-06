@@ -9,23 +9,20 @@ import httpx
 import pytest
 from pydantic import SecretStr
 
+from app.core.composition import build_analysis_dependency, build_embedding_dependency
 from app.core.config import Settings
 from app.domains.acquisition_ports import AcquisitionBackend, ContentFetcher, EventPublisher
+from app.domains.provider_ports import AnalysisProvider, AnalysisRequest, EmbeddingProvider
 from app.models.entities import AcquisitionMode, DiscoveryMode, SourceFamily, SourceType
 from app.providers.analysis import (
-    AnalysisProvider,
-    AnalysisRequest,
     FakeAnalysisProvider,
     OpenAICompatibleProvider,
     ProviderError,
-    build_provider,
 )
 from app.providers.embedding import (
     EmbeddingError,
-    EmbeddingProvider,
     FakeEmbeddingProvider,
     OpenAICompatibleEmbeddingProvider,
-    build_embedding_provider,
 )
 from app.schemas.events import EventEnvelope
 from app.schemas.resources import AcquisitionProfileV1
@@ -89,8 +86,8 @@ def _provider_names(providers: Sequence[AnalysisProvider | EmbeddingProvider]) -
 
 def test_provider_factories_swap_fake_and_production_without_external_calls() -> None:
     settings = Settings()
-    assert isinstance(build_provider(settings), FakeAnalysisProvider)
-    assert isinstance(build_embedding_provider(settings), FakeEmbeddingProvider)
+    assert isinstance(build_analysis_dependency(settings), FakeAnalysisProvider)
+    assert isinstance(build_embedding_dependency(settings), FakeEmbeddingProvider)
 
     with pytest.raises(ValueError, match="configuration is incomplete"):
         OpenAICompatibleProvider(settings)
@@ -107,8 +104,8 @@ def test_provider_factories_swap_fake_and_production_without_external_calls() ->
             "embedding_api_key": SecretStr("test-only"),
         }
     )
-    assert isinstance(build_provider(configured), OpenAICompatibleProvider)
-    assert isinstance(build_embedding_provider(configured), OpenAICompatibleEmbeddingProvider)
+    assert isinstance(build_analysis_dependency(configured), OpenAICompatibleProvider)
+    assert isinstance(build_embedding_dependency(configured), OpenAICompatibleEmbeddingProvider)
 
 
 @pytest.mark.asyncio

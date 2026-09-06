@@ -713,26 +713,24 @@ def _validate_provider_substitution(modules: Sequence[SourceModule], errors: lis
     requirements = (
         (
             "backend/app/providers/analysis.py",
-            "AnalysisProvider",
             "FakeAnalysisProvider",
             "OpenAICompatibleProvider",
             "analyze",
         ),
         (
             "backend/app/providers/embedding.py",
-            "EmbeddingProvider",
             "FakeEmbeddingProvider",
             "OpenAICompatibleEmbeddingProvider",
             "embed",
         ),
     )
-    for path, protocol, fake, production, method in requirements:
+    for path, fake, production, method in requirements:
         tree = trees.get(path)
         if tree is None:
             errors.append(f"provider_substitutability: missing {path}")
             continue
         classes = {node.name: node for node in tree.body if isinstance(node, ast.ClassDef)}
-        for class_name in (protocol, fake, production):
+        for class_name in (fake, production):
             node = classes.get(class_name)
             if node is None or not any(
                 isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef)) and child.name == method
@@ -741,8 +739,16 @@ def _validate_provider_substitution(modules: Sequence[SourceModule], errors: lis
                 errors.append(
                     f"provider_substitutability: {class_name} must expose {method} in {path}"
                 )
-    acquisition = trees.get("backend/app/domains/acquisition_ports.py")
-    port_methods = {
+    provider_ports = trees.get("backend/app/domains/provider_ports.py")
+    for protocol, method in {
+        "AnalysisProvider": "analyze",
+        "EmbeddingProvider": "embed",
+    }.items():
+        if provider_ports is None or not _has_protocol_method(provider_ports, protocol, method):
+            errors.append(f"provider_substitutability: {protocol}.{method} is required")
+
+    acquisition_ports = trees.get("backend/app/domains/acquisition_ports.py")
+    acquisition_methods = {
         "AcquisitionBackend": ("acquire",),
         "ContentFetcher": ("fetch",),
         "EventPublisher": ("publish",),
@@ -754,9 +760,11 @@ def _validate_provider_substitution(modules: Sequence[SourceModule], errors: lis
             "event_for",
         ),
     }
-    for protocol, methods in port_methods.items():
+    for protocol, methods in acquisition_methods.items():
         for method in methods:
-            if acquisition is None or not _has_protocol_method(acquisition, protocol, method):
+            if acquisition_ports is None or not _has_protocol_method(
+                acquisition_ports, protocol, method
+            ):
                 errors.append(f"provider_substitutability: {protocol}.{method} is required")
 
 

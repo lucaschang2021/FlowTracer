@@ -2,76 +2,24 @@ from __future__ import annotations
 
 import hashlib
 import json
-import math
-import struct
 from collections.abc import Sequence
-from dataclasses import dataclass
-from typing import Any, Protocol
+from typing import Any
 
 import httpx
 
 from app.core.config import Settings
+from app.domains.provider_ports import (
+    EMBEDDING_DIMENSIONS,
+    MAX_EMBEDDING_BATCH,
+    EmbeddingError,
+    EmbeddingProvider,
+    EmbeddingResponse,
+    EmbeddingUsage,
+    normalize_vector,
+)
 
-EMBEDDING_DIMENSIONS = 1536
-MAX_EMBEDDING_BATCH = 16
 MAX_EMBEDDING_RESPONSE_BYTES = 2 * 1024 * 1024
 MAX_EMBEDDING_RAW_READ_BYTES = MAX_EMBEDDING_RESPONSE_BYTES + 1
-
-
-@dataclass(frozen=True)
-class EmbeddingUsage:
-    input_tokens: int = 0
-    total_tokens: int = 0
-
-
-@dataclass(frozen=True)
-class EmbeddingResponse:
-    vectors: tuple[tuple[float, ...], ...]
-    usage: EmbeddingUsage
-
-
-class EmbeddingError(Exception):
-    def __init__(self, code: str, message: str, *, retryable: bool) -> None:
-        super().__init__(message)
-        self.code = code
-        self.safe_message = message[:500]
-        self.retryable = retryable
-
-
-class EmbeddingProvider(Protocol):
-    name: str
-    model: str
-
-    async def embed(self, inputs: Sequence[str]) -> EmbeddingResponse: ...
-
-
-def _float32(value: float) -> float:
-    return float(struct.unpack("!f", struct.pack("!f", value))[0])
-
-
-def normalize_vector(raw: Sequence[Any]) -> tuple[float, ...]:
-    if len(raw) != EMBEDDING_DIMENSIONS:
-        raise EmbeddingError(
-            "embedding_invalid_output", "Embedding returned invalid output", retryable=False
-        )
-    values: list[float] = []
-    for item in raw:
-        if isinstance(item, bool) or not isinstance(item, (int, float)):
-            raise EmbeddingError(
-                "embedding_invalid_output", "Embedding returned invalid output", retryable=False
-            )
-        value = float(item)
-        if not math.isfinite(value) or abs(value) > 1_000_000:
-            raise EmbeddingError(
-                "embedding_invalid_output", "Embedding returned invalid output", retryable=False
-            )
-        values.append(_float32(value))
-    norm = math.sqrt(math.fsum(value * value for value in values))
-    if not math.isfinite(norm) or norm == 0:
-        raise EmbeddingError(
-            "embedding_invalid_output", "Embedding returned invalid output", retryable=False
-        )
-    return tuple(_float32(value / norm) for value in values)
 
 
 class FakeEmbeddingProvider:

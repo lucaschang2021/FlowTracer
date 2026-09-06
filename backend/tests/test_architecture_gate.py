@@ -30,7 +30,9 @@ def test_contract_and_committed_baseline_are_valid() -> None:
     assert report.p0_total == 0
     assert report.introduced == ()
     snapshot = json.loads((REPO_ROOT / "backend" / "architecture-baseline.json").read_text())
-    assert report.resolved == tuple(snapshot["resolved_fingerprints"])
+    assert {json.dumps(item, sort_keys=True) for item in report.resolved} == {
+        json.dumps(item, sort_keys=True) for item in snapshot["resolved_fingerprints"]
+    }
     assert report.existing
 
 

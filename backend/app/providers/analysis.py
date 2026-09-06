@@ -2,12 +2,18 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import dataclass
-from typing import Any, Protocol
+from typing import Any
 
 import httpx
 
 from app.core.config import Settings
+from app.domains.provider_ports import (
+    AnalysisProvider,
+    AnalysisRequest,
+    ProviderError,
+    ProviderResponse,
+    ProviderUsage,
+)
 
 MAX_AI_RESPONSE_BYTES = 256 * 1024
 MAX_AI_RAW_READ_BYTES = MAX_AI_RESPONSE_BYTES + 1
@@ -35,46 +41,6 @@ STRICT_OUTPUT_SCHEMA: dict[str, Any] = {
         "reason": {"type": "string", "minLength": 1, "maxLength": 1000},
     },
 }
-
-
-@dataclass(frozen=True)
-class AnalysisRequest:
-    title: str
-    content: str
-    radar_name: str
-    radar_goal: str
-    categories: tuple[str, ...]
-    keywords: tuple[str, ...]
-
-
-@dataclass(frozen=True)
-class ProviderUsage:
-    input_tokens: int = 0
-    output_tokens: int = 0
-    total_tokens: int = 0
-
-
-@dataclass(frozen=True)
-class ProviderResponse:
-    content: str
-    usage: ProviderUsage
-
-
-class ProviderError(Exception):
-    def __init__(self, code: str, message: str, *, retryable: bool) -> None:
-        super().__init__(message)
-        self.code = code
-        self.safe_message = message[:500]
-        self.retryable = retryable
-
-
-class AnalysisProvider(Protocol):
-    name: str
-    model: str
-
-    async def analyze(
-        self, request: AnalysisRequest, *, repair_error: str | None = None
-    ) -> ProviderResponse: ...
 
 
 class FakeAnalysisProvider:

@@ -4,11 +4,11 @@
 
 **M0：架构初步冻结 — 已完成**
 
-**当前阶段：Architecture Governance AG-6（Final Compatibility Gate）— 已正式准入，最终兼容性验收进行中**
+**当前停点：Architecture Governance Pass 已完成；恢复 ACQ-1 WP-3 readiness/compatibility preflight，WP-3 实现仍未准入**
 
 ACQ-1 WP-3（ACQ-1B Dynamic + H-browser）兼容性与隔离证据仍未冻结，继续阻塞且未准入；Frontend、Integration 与 Release 同样未准入。
 
-本次同步事实基准：`main@a9545ae51cce8824769ca73d08e46d91b4dbec9c`。
+本次同步事实基准：`main@81a9739c986eaef50fa43ba9a7d32689bceddf03`。
 
 ## 工作项
 
@@ -28,7 +28,7 @@ ACQ-1 WP-3（ACQ-1B Dynamic + H-browser）兼容性与隔离证据仍未冻结�
 | ARC-AG3 | Acquisition Ports 与最小 DI | Backend / Architecture | 完成（已验收、已合并） | ARC-AG2 | PR #47、候选 `ce26640e3c2f994c8036b18a2c2b984dee045c53`、merge commit `190a71754a7a0f3a5de3e664bbfa77e4eea945bc`；Architecture Gate `existing=152 / introduced=0 / resolved=5 / P0=0`，Backend CI success |
 | ARC-AG4 | Composition and Import Safety | Backend / Architecture | 完成（已验收、已合并） | ARC-AG3 | PR #49、候选 `78ddf49ed6ddf94204465cd16dd96163cb93d834`、merge commit `f1494c7f843782523f728913e08774331ec8163f`；Architecture Gate `existing=130 / introduced=0 / resolved=27 / P0=0`，CI run `34029206838` SUCCESS |
 | ARC-AG5 | Conditional Memory Policy | Backend / Architecture | 完成（no-code characterization audit） | ARC-AG4 | Memory ownership/bookmark/filter、cosine distance、稳定排序、top-k 保持 PostgreSQL/pgvector SQL；六位量化不单独抽取；无 retention contract；无代码/commit/测试变更，`introduced P0/P1/P2=0` |
-| ARC-AG6 | Final Compatibility Gate | Backend / Architecture | 已准入，最终兼容性验收进行中 | ARC-AG5 | 目标分支 `feat/architecture-governance`；必须解决/验证 `EX-001/EX-003/EX-004/EX-007`，比较 OpenAPI、Alembic/Schema、ACQ、Tests/Coverage 与 Architecture `existing/introduced/resolved` |
+| ARC-AG6 | Final Compatibility Gate / Architecture Governance Pass 结项 | Backend / Architecture | 完成（no-code PASS） | ARC-AG5 | `main@81a9739c986eaef50fa43ba9a7d32689bceddf03`；Architecture `existing=130 / introduced=0 / resolved=27 / P0=0 / P1=114 / P2=16`；EX-001/003/004/007 关闭；356 passed、88.12%；OpenAPI/Alembic/Schema/ACQ/Compose/Ruff/Mypy 通过且零漂移 |
 | PM-001 | Backend 执行任务包 | 总控 | 完成 | ARC-003..008 | `10-BACKEND-WORK-PACKAGE.md` |
 | BE-0 | 工程盘点与实施计划 | Backend | 完成（已验收） | PM-001 | `11-BE-0-ACCEPTANCE.md` |
 | PM-002 | BE-1 工程基线 | 总控 | 完成 | BE-0 | `04-BE1-ENGINEERING-BASELINE.md` |
@@ -60,7 +60,7 @@ ACQ-1 WP-3（ACQ-1B Dynamic + H-browser）兼容性与隔离证据仍未冻结�
 | PM-016 | ACQ-1 WP-2 quality v1 / writer / family-evidence 契约 Addendum | 总控 | 完成（已合并） | PM-015 | PR #37、ADR-028、`35-ACQ1-WP2-CONTRACT-ADDENDUM.md` |
 | ACQ-1-WP2 | Static Adapter、Scrapling parser、quality v1 | Backend | 完成（已验收、已合并） | PM-015、PM-016 | PR #39、`36-ACQ1-WP2-ACCEPTANCE.md`、286 passed、87.61%、P0/P1/P2=0/0/0 |
 | PM-017 | ACQ-1 WP-2 Stage Gate 验收归档 | 总控 | 完成（PR #40 已合并） | ACQ-1-WP2 | PR #40、`36-ACQ1-WP2-ACCEPTANCE.md`、merge commit `70a3b0462e9a9303ddb3f5be56c84ed5d2fead40` |
-| PM-018 | ACQ-1 WP-3 架构/契约冻结与准入 | 总控 | 阻塞；未准入 | PM-017、WP-3 兼容性/隔离硬门禁 | `37-ACQ1-WP3-READINESS-BLOCKER.md`；精确 package/revision/system dependencies/image digest、egress 与资源限值证据缺失 |
+| PM-018 | ACQ-1 WP-3 readiness/compatibility preflight 控制 | 总控 | PR #41 OPEN，尚未生效；WP-3 实现未准入 | PM-017、WP-3 兼容性/隔离硬门禁 | `37-ACQ1-WP3-READINESS-BLOCKER.md`；PR #41 仅为 Preflight 提案，不能视为 Browser 实现准入 |
 | ACQ-1-WP3 | Dynamic/Advanced Browser、隔离 worker/queue 与受控 egress | Backend | 未准入 | PM-018 控制 PR 合并 | `29-ACQ1-WORK-PACKAGES.md`；不得开工或派发 |
 | ACQ-1-WP4..8 | ACQ-1 后续工作包 | Backend | 未准入 | WP-3 起逐阶段验收 | `29-ACQ1-WORK-PACKAGES.md` |
 | PLUGIN-1 | 用户指定的后续插件工作包 | 待定 | 待办、未准入 | ACQ-1 全部完成验收后、Frontend 前 | 尚无正式准入或架构基线；不得视为已实现 |

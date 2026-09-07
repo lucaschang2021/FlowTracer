@@ -4,11 +4,11 @@
 
 **M0：架构初步冻结 — 已完成**
 
-**当前停点：ACQ-1 WP-3 Compatibility/Isolation Preflight 控制准入 — 仅证据 Spike 可在本控制提交合并后派发；WP-3 正式实现仍阻塞**
+**当前停点：ACQ-1 WP-3 Preflight 已执行并 BLOCKED；仅顺序化 Remediation Evidence 可在本控制 PR 合并后派发，WP-3 正式实现仍阻塞**
 
-Architecture Governance Pass 已完成。ACQ-1 WP-3（ACQ-1B Dynamic + H-browser）正式实现仍因兼容性与隔离证据未冻结而阻塞；Frontend、Integration 与 Release 同样未准入。
+Architecture Governance Pass 已完成。WP-3 Preflight 以 P0×1、P1×5、P2×2 fail closed；候选镜像和临时资源已清理，无代码或 Git 交付物。Frontend、Integration 与 Release 同样未准入。
 
-本次同步事实基准：`main@fe99fac67f4489e273bcf9f40f839868ee9ec17f`（Architecture Governance Pass 收口 PR #52 merge commit）。
+本次同步事实基准：`main@b7cd7b1ce6e1d36bd7607c75f9883367cce6e623`（WP-3 Preflight 控制 PR #41 merge commit）。
 
 ## 工作项
 
@@ -61,8 +61,10 @@ Architecture Governance Pass 已完成。ACQ-1 WP-3（ACQ-1B Dynamic + H-browser
 | ACQ-1-WP2 | Static Adapter、Scrapling parser、quality v1 | Backend | 完成（已验收、已合并） | PM-015、PM-016 | PR #39、`36-ACQ1-WP2-ACCEPTANCE.md`、286 passed、87.61%、P0/P1/P2=0/0/0 |
 | PM-017 | ACQ-1 WP-2 Stage Gate 验收归档 | 总控 | 完成（PR #40 已合并） | ACQ-1-WP2 | `36-ACQ1-WP2-ACCEPTANCE.md`、merge commit `70a3b0462e9a9303ddb3f5be56c84ed5d2fead40`、PR #40 merge commit `f4b58c1ec0d20d075b98d5a9ca3d146d0b4deb56` |
 | PM-018 | ACQ-1 WP-3 架构/契约冻结与正式准入 | 总控 | 阻塞；未准入 | PM-017、WP-3 兼容性/隔离硬门禁 | `37-ACQ1-WP3-READINESS-BLOCKER.md`；等待 Spike 实证、独立审查及后续 Contract Addendum + Admission PR |
-| PM-019 | ACQ-1 WP-3 Compatibility/Isolation Preflight 准入 | 总控 | 准入待本控制提交合并 | PM-017、ADR-029/030 | `38-ACQ1-WP3-PREFLIGHT-ADMISSION.md`；只允许实验，不准入正式 WP-3 |
-| ACQ-1-WP3-PF | Browser 兼容性、不可变构建、egress、queue/worker 与资源隔离 Spike | Backend | 未开始；仅本控制提交合并后可派发 | PM-019 | `39-ACQ1-WP3-PREFLIGHT-EVIDENCE-PACKAGE.md`；完成后 STOP，等待独立审查 |
+| PM-019 | ACQ-1 WP-3 Compatibility/Isolation Preflight 准入 | 总控 | 完成（PR #41 已合并） | PM-017、ADR-029/030 | `38-ACQ1-WP3-PREFLIGHT-ADMISSION.md`；只准入证据实验，不准入正式 WP-3 |
+| ACQ-1-WP3-PF | Browser 兼容性、不可变构建、egress、queue/worker 与资源隔离 Spike | Backend | 已执行；BLOCKED | PM-019 | `40-ACQ1-WP3-PREFLIGHT-BLOCKED-REPORT.md`；P0×1/P1×5/P2×2，无代码/commit/push/PR，临时资源已清理 |
+| PM-020 | ACQ-1 WP-3 Remediation Evidence 顺序闸门准入 | 总控 | 准入待本控制 PR 合并 | ACQ-1-WP3-PF、ADR-031 | `41-ACQ1-WP3-REMEDIATION-EVIDENCE-ADMISSION.md`；仅 R1→R5 证据/原型，不准入正式 WP-3 |
+| ACQ-1-WP3-RE | Locked image、egress、应用拦截、回收/资源与双 worker 隔离证据 | Backend | 未开始；仅本控制 PR 合并后可派发 | PM-020 | `42-ACQ1-WP3-REMEDIATION-EVIDENCE-PACKAGE.md`；任一闸门失败即 STOP |
 | ACQ-1-WP3 | Dynamic/Advanced Browser、隔离 worker/queue 与受控 egress | Backend | 正式实现未准入 | PM-018 后续正式 Admission PR 合并 | `29-ACQ1-WORK-PACKAGES.md`；不得由 Preflight 直接续做 |
 | ACQ-1-WP4..8 | ACQ-1 后续工作包 | Backend | 未准入 | WP-3 起逐阶段验收 | `29-ACQ1-WORK-PACKAGES.md` |
 | PLUGIN-1 | 用户指定的后续插件工作包 | 待定 | 待办、未准入 | ACQ-1 全部完成验收后、Frontend 前 | 尚无正式准入或架构基线；不得视为已实现 |

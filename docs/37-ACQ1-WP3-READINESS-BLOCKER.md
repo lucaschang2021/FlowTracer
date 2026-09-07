@@ -2,7 +2,7 @@
 
 状态：BLOCKED / Not Admitted
 
-基准：`main@fe99fac67f4489e273bcf9f40f839868ee9ec17f`（Architecture Governance Pass 收口 PR #52 merge commit）
+基准：`main@b7cd7b1ce6e1d36bd7607c75f9883367cce6e623`（WP-3 Preflight 控制 PR #41 merge commit）
 
 Phase：WP-3 / ACQ-1B Dynamic + H-browser
 
@@ -34,6 +34,14 @@ WP-3 不允许 Router/fallback 决策、Discovery、Change Intelligence、Opport
 
 ## 4. 所需控制产物
 
+### 4.1 Preflight 已执行但未解阻
+
+`docs/38-ACQ1-WP3-PREFLIGHT-ADMISSION.md` 准入的 Spike 已在 `feat/acq-1b-browser-preflight-spike` 执行。该分支 base/HEAD 均为 `b7cd7b1ce6e1d36bd7607c75f9883367cce6e623`，最终工作树 clean，未产生代码、commit、push 或 PR；候选镜像与全部临时资源已精确删除。
+
+结果为 **BLOCKED**：P0×1、P1×5、P2×2。download 默认拒绝未形成双层证明；应用矩阵 hang 且无 hard timeout/reap；DynamicFetcher runtime、专用双 worker queue 隔离、durable lock/SBOM/双 no-cache 构建及完整 Chromium/engine license 均未证明；资源仅 `n=1`，BuildKit cache 无法精确归属。候选双 internal network 拓扑只完成局部概念验证，且候选 proxy 不支持正式 HTTPS CONNECT/DNS rebinding 完整策略。详见 `docs/40-ACQ1-WP3-PREFLIGHT-BLOCKED-REPORT.md`。
+
+### 4.2 后续所需产物
+
 后续必须先提交一份可复现的兼容性与隔离证据包，由总控独立核验后再形成新的 WP-3 Contract Addendum/ADR 与 Admission PR。证据包至少包含：
 
 - 锁定文件和实际 Browser revision/system dependency 输出；
@@ -43,10 +51,10 @@ WP-3 不允许 Router/fallback 决策、Discovery、Change Intelligence、Opport
 - 上述离线 fixture 的最小兼容性结果；
 - license、回滚和已知限制。
 
-该证据包仅用于决定契约，不得顺带实现 Router、Discovery 或业务 Pipeline。`docs/38-ACQ1-WP3-PREFLIGHT-ADMISSION.md` 在其控制提交合并后，作为唯一例外书面准入固定 Backend worktree 中的独立证据 Spike，并要求按 `docs/39-ACQ1-WP3-PREFLIGHT-EVIDENCE-PACKAGE.md` 报告；本文件本身仍不授权该工作，也不授权正式 WP-3 实现。
+该证据包仅用于决定契约，不得顺带实现 Router、Discovery 或业务 Pipeline。原 Preflight 已 fail closed；本控制 PR 合并后，唯一允许的下一步是按 `docs/41-ACQ1-WP3-REMEDIATION-EVIDENCE-ADMISSION.md` 依次执行 R1→R5，并填写 `docs/42-ACQ1-WP3-REMEDIATION-EVIDENCE-PACKAGE.md`。任一闸门失败必须 STOP；本文件不授权正式 WP-3 实现。
 
 ## 5. Gate 结论
 
 WP-3 Admission：**NO / BLOCKED**。
 
-解除条件：新的控制 PR 基于实际证据冻结全部精确值并明确签发 WP-3 Admission，且该 PR 已合并到 `main`。在此之前不得创建正式实现分支、派发 WP-3 或进入 Browser 业务实现；只有 `docs/38-ACQ1-WP3-PREFLIGHT-ADMISSION.md` 控制提交合并后，才可在其固定 worktree/Spike 分支和禁止范围内安装实验性依赖、构建候选镜像并运行离线证据实验。WP-4..WP-8、PLUGIN-1、Frontend、Integration 与 Release 继续未准入。
+解除条件：R1→R5 remediation evidence 全部通过独立总控审查，且新的控制 PR 基于实际证据冻结全部精确值、明确签发 WP-3 Admission 并合并到 `main`。在此之前不得创建正式实现分支、派发 WP-3 或进入 Browser 业务实现。WP-4..WP-8、PLUGIN-1、Frontend、Integration 与 Release 继续未准入。

@@ -239,3 +239,11 @@
 - 安全：网络层必须 deny by default；Browser 无公网/系统 DNS/host network/Docker socket 直连。navigation、redirect、iframe、script、XHR/fetch、WebSocket、download、popup 与 service worker 任一拦截面无法证明时 fail closed，并保持正式 WP-3 阻塞。
 - 边界：本 ADR 不准入 WP-3 正式实现，不允许公开 API、Schema/migration、RawItem/Pipeline、Router、Discovery、Change、Opportunity 或下游阶段变化。Spike 完成后 Backend 必须 STOP，由总控另开证据审查和后续 Contract Addendum/Admission 任务。
 
+## ADR-031：WP-3 Preflight fail closed，Remediation Evidence 必须顺序执行
+
+- 状态：Accepted（仅证据/原型；本控制 PR 合并后生效）
+- 背景：WP-3 Preflight 结果为 P0×1、P1×5、P2×2，未证明 download 双层默认拒绝、完整应用拦截、Browser runtime、可重复 locked image、license、资源回收与双 worker queue 隔离；局部网络拓扑概念验证不能替代生产证据。
+- 决策：Preflight 归档为 BLOCKED。后续仅按 `docs/41-ACQ1-WP3-REMEDIATION-EVIDENCE-ADMISSION.md` 顺序执行 R1 locked image/SBOM/license/双构建、R2 controlled egress、R3 application interception、R4 deadline/reap/resource、R5 dedicated queue/two-worker isolation；任一闸门失败立即 STOP，不得跳跃或并行。
+- 证据：所有实际值必须进入 `docs/42-ACQ1-WP3-REMEDIATION-EVIDENCE-PACKAGE.md`；`TBD`、估算、一次样本、仅配置审阅或 mock 不构成通过。未经证明的 package、revision、digest、proxy、queue 或资源限值不得冻结。
+- 边界：本 ADR 不准入正式 WP-3，不允许默认 API/worker、业务 Pipeline、公开 API、Schema/migration、Router、Discovery、Change、Opportunity 或下游阶段变化。R1→R5 全部通过也只可申请独立审查与后续 Contract Addendum/Admission。
+

@@ -2,7 +2,7 @@
 
 状态：BLOCKED / Not Admitted
 
-基准：`main@70a3b0462e9a9303ddb3f5be56c84ed5d2fead40`
+基准：`main@fe99fac67f4489e273bcf9f40f839868ee9ec17f`（Architecture Governance Pass 收口 PR #52 merge commit）
 
 Phase：WP-3 / ACQ-1B Dynamic + H-browser
 
@@ -43,10 +43,10 @@ WP-3 不允许 Router/fallback 决策、Discovery、Change Intelligence、Opport
 - 上述离线 fixture 的最小兼容性结果；
 - license、回滚和已知限制。
 
-该证据包仅用于决定契约，不得顺带实现 Router、Discovery 或业务 Pipeline。若兼容实验需要新增代码、依赖、Docker 或测试文件，必须由另一个明确书面准入的 Preflight/Spike 执行；本文件不授权该工作。
+该证据包仅用于决定契约，不得顺带实现 Router、Discovery 或业务 Pipeline。`docs/38-ACQ1-WP3-PREFLIGHT-ADMISSION.md` 在其控制提交合并后，作为唯一例外书面准入固定 Backend worktree 中的独立证据 Spike，并要求按 `docs/39-ACQ1-WP3-PREFLIGHT-EVIDENCE-PACKAGE.md` 报告；本文件本身仍不授权该工作，也不授权正式 WP-3 实现。
 
 ## 5. Gate 结论
 
 WP-3 Admission：**NO / BLOCKED**。
 
-解除条件：新的控制 PR 基于实际证据冻结全部精确值并明确签发 WP-3 Admission，且该 PR 已合并到 `main`。在此之前不得创建实现分支、安装 Browser 依赖、构建/拉取 Browser 镜像、派发 Backend 或进入 WP-3 业务实现。WP-4..WP-8、PLUGIN-1、Frontend、Integration 与 Release 继续未准入。
+解除条件：新的控制 PR 基于实际证据冻结全部精确值并明确签发 WP-3 Admission，且该 PR 已合并到 `main`。在此之前不得创建正式实现分支、派发 WP-3 或进入 Browser 业务实现；只有 `docs/38-ACQ1-WP3-PREFLIGHT-ADMISSION.md` 控制提交合并后，才可在其固定 worktree/Spike 分支和禁止范围内安装实验性依赖、构建候选镜像并运行离线证据实验。WP-4..WP-8、PLUGIN-1、Frontend、Integration 与 Release 继续未准入。

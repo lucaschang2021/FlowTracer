@@ -4,11 +4,11 @@
 
 **M0：架构初步冻结 — 已完成**
 
-**当前停点：Architecture Governance Pass 已完成；恢复 ACQ-1 WP-3 readiness/compatibility preflight，WP-3 实现仍未准入**
+**当前停点：ACQ-1 WP-3 Compatibility/Isolation Preflight 控制准入 — 仅证据 Spike 可在本控制提交合并后派发；WP-3 正式实现仍阻塞**
 
-ACQ-1 WP-3（ACQ-1B Dynamic + H-browser）兼容性与隔离证据仍未冻结，继续阻塞且未准入；Frontend、Integration 与 Release 同样未准入。
+Architecture Governance Pass 已完成。ACQ-1 WP-3（ACQ-1B Dynamic + H-browser）正式实现仍因兼容性与隔离证据未冻结而阻塞；Frontend、Integration 与 Release 同样未准入。
 
-本次同步事实基准：`main@81a9739c986eaef50fa43ba9a7d32689bceddf03`。
+本次同步事实基准：`main@fe99fac67f4489e273bcf9f40f839868ee9ec17f`（Architecture Governance Pass 收口 PR #52 merge commit）。
 
 ## 工作项
 
@@ -59,9 +59,11 @@ ACQ-1 WP-3（ACQ-1B Dynamic + H-browser）兼容性与隔离证据仍未冻结�
 | PM-015 | ACQ-1 WP-2（ACQ-1B + D-static）准入 | 总控 | 完成（已合并） | ACQ-1-WP1 | PR #35、`34-ACQ1-WP2-ADMISSION.md` |
 | PM-016 | ACQ-1 WP-2 quality v1 / writer / family-evidence 契约 Addendum | 总控 | 完成（已合并） | PM-015 | PR #37、ADR-028、`35-ACQ1-WP2-CONTRACT-ADDENDUM.md` |
 | ACQ-1-WP2 | Static Adapter、Scrapling parser、quality v1 | Backend | 完成（已验收、已合并） | PM-015、PM-016 | PR #39、`36-ACQ1-WP2-ACCEPTANCE.md`、286 passed、87.61%、P0/P1/P2=0/0/0 |
-| PM-017 | ACQ-1 WP-2 Stage Gate 验收归档 | 总控 | 完成（PR #40 已合并） | ACQ-1-WP2 | PR #40、`36-ACQ1-WP2-ACCEPTANCE.md`、merge commit `70a3b0462e9a9303ddb3f5be56c84ed5d2fead40` |
-| PM-018 | ACQ-1 WP-3 readiness/compatibility preflight 控制 | 总控 | PR #41 OPEN，尚未生效；WP-3 实现未准入 | PM-017、WP-3 兼容性/隔离硬门禁 | `37-ACQ1-WP3-READINESS-BLOCKER.md`；PR #41 仅为 Preflight 提案，不能视为 Browser 实现准入 |
-| ACQ-1-WP3 | Dynamic/Advanced Browser、隔离 worker/queue 与受控 egress | Backend | 未准入 | PM-018 控制 PR 合并 | `29-ACQ1-WORK-PACKAGES.md`；不得开工或派发 |
+| PM-017 | ACQ-1 WP-2 Stage Gate 验收归档 | 总控 | 完成（PR #40 已合并） | ACQ-1-WP2 | `36-ACQ1-WP2-ACCEPTANCE.md`、merge commit `70a3b0462e9a9303ddb3f5be56c84ed5d2fead40`、PR #40 merge commit `f4b58c1ec0d20d075b98d5a9ca3d146d0b4deb56` |
+| PM-018 | ACQ-1 WP-3 架构/契约冻结与正式准入 | 总控 | 阻塞；未准入 | PM-017、WP-3 兼容性/隔离硬门禁 | `37-ACQ1-WP3-READINESS-BLOCKER.md`；等待 Spike 实证、独立审查及后续 Contract Addendum + Admission PR |
+| PM-019 | ACQ-1 WP-3 Compatibility/Isolation Preflight 准入 | 总控 | 准入待本控制提交合并 | PM-017、ADR-029/030 | `38-ACQ1-WP3-PREFLIGHT-ADMISSION.md`；只允许实验，不准入正式 WP-3 |
+| ACQ-1-WP3-PF | Browser 兼容性、不可变构建、egress、queue/worker 与资源隔离 Spike | Backend | 未开始；仅本控制提交合并后可派发 | PM-019 | `39-ACQ1-WP3-PREFLIGHT-EVIDENCE-PACKAGE.md`；完成后 STOP，等待独立审查 |
+| ACQ-1-WP3 | Dynamic/Advanced Browser、隔离 worker/queue 与受控 egress | Backend | 正式实现未准入 | PM-018 后续正式 Admission PR 合并 | `29-ACQ1-WORK-PACKAGES.md`；不得由 Preflight 直接续做 |
 | ACQ-1-WP4..8 | ACQ-1 后续工作包 | Backend | 未准入 | WP-3 起逐阶段验收 | `29-ACQ1-WORK-PACKAGES.md` |
 | PLUGIN-1 | 用户指定的后续插件工作包 | 待定 | 待办、未准入 | ACQ-1 全部完成验收后、Frontend 前 | 尚无正式准入或架构基线；不得视为已实现 |
 | FE-001 | 前端实现 | Frontend | 未准入 | ACQ-1 经总控验收并冻结 Acquisition Contract | 桌面端与前端测试 |

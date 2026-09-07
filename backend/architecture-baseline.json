@@ -1,0 +1,4038 @@
+{
+  "findings": [
+    {
+      "detail": "forbidden import from app.services.acquisition_parsers",
+      "disposition": "The static Scrapling adapter has six import statements into app.services for parsing, policy, types, quality, and URL normalization.",
+      "fingerprint": {
+        "imported_module": "app.services.acquisition_parsers",
+        "normalized_location": "module",
+        "rule_id": "adapter_to_service",
+        "source_path": "backend/app/adapters/acquisition/static_scrapling.py",
+        "symbol_or_call": "_decode_html"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "forbidden import from app.services.acquisition_policy",
+      "disposition": "The static Scrapling adapter has six import statements into app.services for parsing, policy, types, quality, and URL normalization.",
+      "fingerprint": {
+        "imported_module": "app.services.acquisition_policy",
+        "normalized_location": "module",
+        "rule_id": "adapter_to_service",
+        "source_path": "backend/app/adapters/acquisition/static_scrapling.py",
+        "symbol_or_call": "NetworkPolicy"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "forbidden import from app.services.acquisition_types",
+      "disposition": "The static Scrapling adapter has six import statements into app.services for parsing, policy, types, quality, and URL normalization.",
+      "fingerprint": {
+        "imported_module": "app.services.acquisition_types",
+        "normalized_location": "module",
+        "rule_id": "adapter_to_service",
+        "source_path": "backend/app/adapters/acquisition/static_scrapling.py",
+        "symbol_or_call": "CollectionError"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "forbidden import from app.services.acquisition_types",
+      "disposition": "The static Scrapling adapter has six import statements into app.services for parsing, policy, types, quality, and URL normalization.",
+      "fingerprint": {
+        "imported_module": "app.services.acquisition_types",
+        "normalized_location": "module",
+        "rule_id": "adapter_to_service",
+        "source_path": "backend/app/adapters/acquisition/static_scrapling.py",
+        "symbol_or_call": "FetchResponse"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "forbidden import from app.services.extraction_quality",
+      "disposition": "The static Scrapling adapter has six import statements into app.services for parsing, policy, types, quality, and URL normalization.",
+      "fingerprint": {
+        "imported_module": "app.services.extraction_quality",
+        "normalized_location": "module",
+        "rule_id": "adapter_to_service",
+        "source_path": "backend/app/adapters/acquisition/static_scrapling.py",
+        "symbol_or_call": "quality_bucket"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "forbidden import from app.services.extraction_quality",
+      "disposition": "The static Scrapling adapter has six import statements into app.services for parsing, policy, types, quality, and URL normalization.",
+      "fingerprint": {
+        "imported_module": "app.services.extraction_quality",
+        "normalized_location": "module",
+        "rule_id": "adapter_to_service",
+        "source_path": "backend/app/adapters/acquisition/static_scrapling.py",
+        "symbol_or_call": "quality_score"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "forbidden import from app.services.extraction_types",
+      "disposition": "The static Scrapling adapter has six import statements into app.services for parsing, policy, types, quality, and URL normalization.",
+      "fingerprint": {
+        "imported_module": "app.services.extraction_types",
+        "normalized_location": "module",
+        "rule_id": "adapter_to_service",
+        "source_path": "backend/app/adapters/acquisition/static_scrapling.py",
+        "symbol_or_call": "EXTRACTOR_VERSION"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "forbidden import from app.services.extraction_types",
+      "disposition": "The static Scrapling adapter has six import statements into app.services for parsing, policy, types, quality, and URL normalization.",
+      "fingerprint": {
+        "imported_module": "app.services.extraction_types",
+        "normalized_location": "module",
+        "rule_id": "adapter_to_service",
+        "source_path": "backend/app/adapters/acquisition/static_scrapling.py",
+        "symbol_or_call": "ExtractionEvidence"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "forbidden import from app.services.extraction_types",
+      "disposition": "The static Scrapling adapter has six import statements into app.services for parsing, policy, types, quality, and URL normalization.",
+      "fingerprint": {
+        "imported_module": "app.services.extraction_types",
+        "normalized_location": "module",
+        "rule_id": "adapter_to_service",
+        "source_path": "backend/app/adapters/acquisition/static_scrapling.py",
+        "symbol_or_call": "ExtractionMetrics"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "forbidden import from app.services.extraction_types",
+      "disposition": "The static Scrapling adapter has six import statements into app.services for parsing, policy, types, quality, and URL normalization.",
+      "fingerprint": {
+        "imported_module": "app.services.extraction_types",
+        "normalized_location": "module",
+        "rule_id": "adapter_to_service",
+        "source_path": "backend/app/adapters/acquisition/static_scrapling.py",
+        "symbol_or_call": "ExtractionObservation"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "forbidden import from app.services.extraction_types",
+      "disposition": "The static Scrapling adapter has six import statements into app.services for parsing, policy, types, quality, and URL normalization.",
+      "fingerprint": {
+        "imported_module": "app.services.extraction_types",
+        "normalized_location": "module",
+        "rule_id": "adapter_to_service",
+        "source_path": "backend/app/adapters/acquisition/static_scrapling.py",
+        "symbol_or_call": "FieldEvidence"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "forbidden import from app.services.extraction_types",
+      "disposition": "The static Scrapling adapter has six import statements into app.services for parsing, policy, types, quality, and URL normalization.",
+      "fingerprint": {
+        "imported_module": "app.services.extraction_types",
+        "normalized_location": "module",
+        "rule_id": "adapter_to_service",
+        "source_path": "backend/app/adapters/acquisition/static_scrapling.py",
+        "symbol_or_call": "QUALITY_VERSION"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "forbidden import from app.services.url_normalization",
+      "disposition": "The static Scrapling adapter has six import statements into app.services for parsing, policy, types, quality, and URL normalization.",
+      "fingerprint": {
+        "imported_module": "app.services.url_normalization",
+        "normalized_location": "module",
+        "rule_id": "adapter_to_service",
+        "source_path": "backend/app/adapters/acquisition/static_scrapling.py",
+        "symbol_or_call": "normalize_source_url"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "forbidden import from app.tasks.acquisition",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.tasks.acquisition",
+        "normalized_location": "function:retry_collection_run",
+        "rule_id": "api_to_concrete_infrastructure",
+        "source_path": "backend/app/api/v1/routes/collection_runs.py",
+        "symbol_or_call": "enqueue_collection"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "forbidden import from app.tasks.intelligence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.tasks.intelligence",
+        "normalized_location": "function:retry_analysis",
+        "rule_id": "api_to_concrete_infrastructure",
+        "source_path": "backend/app/api/v1/routes/intelligence.py",
+        "symbol_or_call": "enqueue_analysis"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "forbidden import from app.providers.embedding",
+      "disposition": "Memory transport constructs the concrete embedding provider.",
+      "fingerprint": {
+        "imported_module": "app.providers.embedding",
+        "normalized_location": "module",
+        "rule_id": "api_to_concrete_infrastructure",
+        "source_path": "backend/app/api/v1/routes/memory.py",
+        "symbol_or_call": "build_embedding_provider"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "forbidden import from app.tasks.acquisition",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.tasks.acquisition",
+        "normalized_location": "function:collect_source",
+        "rule_id": "api_to_concrete_infrastructure",
+        "source_path": "backend/app/api/v1/routes/sources.py",
+        "symbol_or_call": "enqueue_collection"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "forbidden import from app.adapters.acquisition.static_scrapling",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.adapters.acquisition.static_scrapling",
+        "normalized_location": "module",
+        "rule_id": "application_to_concrete_provider",
+        "source_path": "backend/app/services/extraction.py",
+        "symbol_or_call": "observe_html"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "forbidden import from app.adapters.acquisition.static_scrapling",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.adapters.acquisition.static_scrapling",
+        "normalized_location": "module",
+        "rule_id": "application_to_concrete_provider",
+        "source_path": "backend/app/services/extraction.py",
+        "symbol_or_call": "unscored_observation"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "forbidden import from app.providers.analysis",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.providers.analysis",
+        "normalized_location": "module",
+        "rule_id": "application_to_concrete_provider",
+        "source_path": "backend/app/services/intelligence.py",
+        "symbol_or_call": "AnalysisProvider"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "forbidden import from app.providers.analysis",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.providers.analysis",
+        "normalized_location": "module",
+        "rule_id": "application_to_concrete_provider",
+        "source_path": "backend/app/services/intelligence.py",
+        "symbol_or_call": "AnalysisRequest"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "forbidden import from app.providers.analysis",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.providers.analysis",
+        "normalized_location": "module",
+        "rule_id": "application_to_concrete_provider",
+        "source_path": "backend/app/services/intelligence.py",
+        "symbol_or_call": "ProviderError"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "forbidden import from app.providers.analysis",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.providers.analysis",
+        "normalized_location": "module",
+        "rule_id": "application_to_concrete_provider",
+        "source_path": "backend/app/services/intelligence.py",
+        "symbol_or_call": "ProviderResponse"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "forbidden import from app.providers.embedding",
+      "disposition": "Application services import concrete analysis, embedding, acquisition backend, fetcher, or event infrastructure modules.",
+      "fingerprint": {
+        "imported_module": "app.providers.embedding",
+        "normalized_location": "module",
+        "rule_id": "application_to_concrete_provider",
+        "source_path": "backend/app/services/memory.py",
+        "symbol_or_call": "EmbeddingError"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "forbidden import from app.providers.embedding",
+      "disposition": "Application services import concrete analysis, embedding, acquisition backend, fetcher, or event infrastructure modules.",
+      "fingerprint": {
+        "imported_module": "app.providers.embedding",
+        "normalized_location": "module",
+        "rule_id": "application_to_concrete_provider",
+        "source_path": "backend/app/services/memory.py",
+        "symbol_or_call": "EmbeddingProvider"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "forbidden import from app.providers.embedding",
+      "disposition": "Application services import concrete analysis, embedding, acquisition backend, fetcher, or event infrastructure modules.",
+      "fingerprint": {
+        "imported_module": "app.providers.embedding",
+        "normalized_location": "module",
+        "rule_id": "application_to_concrete_provider",
+        "source_path": "backend/app/services/memory.py",
+        "symbol_or_call": "EmbeddingResponse"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "forbidden import from app.providers.embedding",
+      "disposition": "Application services import concrete analysis, embedding, acquisition backend, fetcher, or event infrastructure modules.",
+      "fingerprint": {
+        "imported_module": "app.providers.embedding",
+        "normalized_location": "module",
+        "rule_id": "application_to_concrete_provider",
+        "source_path": "backend/app/services/memory.py",
+        "symbol_or_call": "MAX_EMBEDDING_BATCH"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "forbidden import from app.providers.embedding",
+      "disposition": "Application services import concrete analysis, embedding, acquisition backend, fetcher, or event infrastructure modules.",
+      "fingerprint": {
+        "imported_module": "app.providers.embedding",
+        "normalized_location": "module",
+        "rule_id": "application_to_concrete_provider",
+        "source_path": "backend/app/services/memory.py",
+        "symbol_or_call": "normalize_vector"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "function has 176 physical lines",
+      "disposition": "Fixed-baseline complexity warning; no growth is allowed without disposition.",
+      "fingerprint": {
+        "imported_module": "",
+        "normalized_location": "function:observe_html",
+        "rule_id": "complexity_function_warning",
+        "source_path": "backend/app/adapters/acquisition/static_scrapling.py",
+        "symbol_or_call": "observe_html"
+      },
+      "severity": "P2"
+    },
+    {
+      "detail": "function has 141 physical lines",
+      "disposition": "Fixed-baseline complexity warning; no growth is allowed without disposition.",
+      "fingerprint": {
+        "imported_module": "",
+        "normalized_location": "function:OpenAICompatibleProvider.analyze",
+        "rule_id": "complexity_function_warning",
+        "source_path": "backend/app/providers/analysis.py",
+        "symbol_or_call": "OpenAICompatibleProvider.analyze"
+      },
+      "severity": "P2"
+    },
+    {
+      "detail": "function has 256 physical lines",
+      "disposition": "extract minimal acquisition ports and dependency injection; do not repository-abstract the whole ORM surface",
+      "fingerprint": {
+        "imported_module": "",
+        "normalized_location": "function:execute_run",
+        "rule_id": "complexity_function_warning",
+        "source_path": "backend/app/services/acquisition.py",
+        "symbol_or_call": "execute_run"
+      },
+      "severity": "P2"
+    },
+    {
+      "detail": "function has 129 physical lines",
+      "disposition": "Fixed-baseline complexity warning; no growth is allowed without disposition.",
+      "fingerprint": {
+        "imported_module": "",
+        "normalized_location": "function:clean_raw_item",
+        "rule_id": "complexity_function_warning",
+        "source_path": "backend/app/services/cleaning.py",
+        "symbol_or_call": "clean_raw_item"
+      },
+      "severity": "P2"
+    },
+    {
+      "detail": "function has 99 physical lines",
+      "disposition": "Fixed-baseline complexity warning; no growth is allowed without disposition.",
+      "fingerprint": {
+        "imported_module": "",
+        "normalized_location": "function:_feed_observations",
+        "rule_id": "complexity_function_warning",
+        "source_path": "backend/app/services/extraction.py",
+        "symbol_or_call": "_feed_observations"
+      },
+      "severity": "P2"
+    },
+    {
+      "detail": "function has 98 physical lines",
+      "disposition": "extract deterministic intelligence policy first",
+      "fingerprint": {
+        "imported_module": "",
+        "normalized_location": "function:run_analysis",
+        "rule_id": "complexity_function_warning",
+        "source_path": "backend/app/services/intelligence.py",
+        "symbol_or_call": "run_analysis"
+      },
+      "severity": "P2"
+    },
+    {
+      "detail": "function has 152 physical lines",
+      "disposition": "only extract proven pure ranking or filtering policy; no retention policy is currently evidenced",
+      "fingerprint": {
+        "imported_module": "",
+        "normalized_location": "function:run_embedding",
+        "rule_id": "complexity_function_warning",
+        "source_path": "backend/app/services/memory.py",
+        "symbol_or_call": "run_embedding"
+      },
+      "severity": "P2"
+    },
+    {
+      "detail": "function has 117 physical lines",
+      "disposition": "only extract proven pure ranking or filtering policy; no retention policy is currently evidenced",
+      "fingerprint": {
+        "imported_module": "",
+        "normalized_location": "function:search_memory",
+        "rule_id": "complexity_function_warning",
+        "source_path": "backend/app/services/memory.py",
+        "symbol_or_call": "search_memory"
+      },
+      "severity": "P2"
+    },
+    {
+      "detail": "function has 93 physical lines",
+      "disposition": "Fixed-baseline complexity warning; no growth is allowed without disposition.",
+      "fingerprint": {
+        "imported_module": "",
+        "normalized_location": "function:_decode_body",
+        "rule_id": "complexity_function_warning",
+        "source_path": "backend/app/services/safe_fetcher.py",
+        "symbol_or_call": "_decode_body"
+      },
+      "severity": "P2"
+    },
+    {
+      "detail": "module has 797 physical lines",
+      "disposition": "threshold governance only; declaration density is not by itself evidence for a split",
+      "fingerprint": {
+        "imported_module": "",
+        "normalized_location": "module",
+        "rule_id": "complexity_module_warning",
+        "source_path": "backend/app/models/entities.py",
+        "symbol_or_call": ""
+      },
+      "severity": "P2"
+    },
+    {
+      "detail": "module has 925 physical lines",
+      "disposition": "extract minimal acquisition ports and dependency injection; do not repository-abstract the whole ORM surface",
+      "fingerprint": {
+        "imported_module": "",
+        "normalized_location": "module",
+        "rule_id": "complexity_module_warning",
+        "source_path": "backend/app/services/acquisition.py",
+        "symbol_or_call": ""
+      },
+      "severity": "P2"
+    },
+    {
+      "detail": "module has 668 physical lines",
+      "disposition": "extract deterministic intelligence policy first",
+      "fingerprint": {
+        "imported_module": "",
+        "normalized_location": "module",
+        "rule_id": "complexity_module_warning",
+        "source_path": "backend/app/services/intelligence.py",
+        "symbol_or_call": ""
+      },
+      "severity": "P2"
+    },
+    {
+      "detail": "module has 621 physical lines",
+      "disposition": "only extract proven pure ranking or filtering policy; no retention policy is currently evidenced",
+      "fingerprint": {
+        "imported_module": "",
+        "normalized_location": "module",
+        "rule_id": "complexity_module_warning",
+        "source_path": "backend/app/services/memory.py",
+        "symbol_or_call": ""
+      },
+      "severity": "P2"
+    },
+    {
+      "detail": "providers_infrastructure imports forbidden layer application_services",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.services.acquisition_parsers",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/adapters/acquisition/static_scrapling.py",
+        "symbol_or_call": "_decode_html"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "providers_infrastructure imports forbidden layer application_services",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.services.acquisition_policy",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/adapters/acquisition/static_scrapling.py",
+        "symbol_or_call": "NetworkPolicy"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "providers_infrastructure imports forbidden layer application_services",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.services.acquisition_types",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/adapters/acquisition/static_scrapling.py",
+        "symbol_or_call": "CollectionError"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "providers_infrastructure imports forbidden layer application_services",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.services.acquisition_types",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/adapters/acquisition/static_scrapling.py",
+        "symbol_or_call": "FetchResponse"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "providers_infrastructure imports forbidden layer application_services",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.services.extraction_quality",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/adapters/acquisition/static_scrapling.py",
+        "symbol_or_call": "quality_bucket"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "providers_infrastructure imports forbidden layer application_services",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.services.extraction_quality",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/adapters/acquisition/static_scrapling.py",
+        "symbol_or_call": "quality_score"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "providers_infrastructure imports forbidden layer application_services",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.services.extraction_types",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/adapters/acquisition/static_scrapling.py",
+        "symbol_or_call": "EXTRACTOR_VERSION"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "providers_infrastructure imports forbidden layer application_services",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.services.extraction_types",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/adapters/acquisition/static_scrapling.py",
+        "symbol_or_call": "ExtractionEvidence"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "providers_infrastructure imports forbidden layer application_services",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.services.extraction_types",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/adapters/acquisition/static_scrapling.py",
+        "symbol_or_call": "ExtractionMetrics"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "providers_infrastructure imports forbidden layer application_services",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.services.extraction_types",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/adapters/acquisition/static_scrapling.py",
+        "symbol_or_call": "ExtractionObservation"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "providers_infrastructure imports forbidden layer application_services",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.services.extraction_types",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/adapters/acquisition/static_scrapling.py",
+        "symbol_or_call": "FieldEvidence"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "providers_infrastructure imports forbidden layer application_services",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.services.extraction_types",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/adapters/acquisition/static_scrapling.py",
+        "symbol_or_call": "QUALITY_VERSION"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "providers_infrastructure imports forbidden layer application_services",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.services.url_normalization",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/adapters/acquisition/static_scrapling.py",
+        "symbol_or_call": "normalize_source_url"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/api/dependencies.py",
+        "symbol_or_call": "User"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/api/v1/routes/collection_runs.py",
+        "symbol_or_call": "CollectionRun"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/api/v1/routes/collection_runs.py",
+        "symbol_or_call": "CollectionRunStatus"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/api/v1/routes/collection_runs.py",
+        "symbol_or_call": "RawItemStatus"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/api/v1/routes/collection_runs.py",
+        "symbol_or_call": "User"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer tasks",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.tasks.acquisition",
+        "normalized_location": "function:retry_collection_run",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/api/v1/routes/collection_runs.py",
+        "symbol_or_call": "enqueue_collection"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer providers_infrastructure",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.services.readiness",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/api/v1/routes/health.py",
+        "symbol_or_call": "ReadinessService"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/api/v1/routes/intelligence.py",
+        "symbol_or_call": "AnalysisStatus"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/api/v1/routes/intelligence.py",
+        "symbol_or_call": "Recommendation"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/api/v1/routes/intelligence.py",
+        "symbol_or_call": "User"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer tasks",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.tasks.intelligence",
+        "normalized_location": "function:retry_analysis",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/api/v1/routes/intelligence.py",
+        "symbol_or_call": "enqueue_analysis"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/api/v1/routes/memory.py",
+        "symbol_or_call": "User"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer providers_infrastructure",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.providers.embedding",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/api/v1/routes/memory.py",
+        "symbol_or_call": "build_embedding_provider"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/api/v1/routes/notifications.py",
+        "symbol_or_call": "NotificationPriority"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/api/v1/routes/notifications.py",
+        "symbol_or_call": "NotificationStatus"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/api/v1/routes/notifications.py",
+        "symbol_or_call": "User"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/api/v1/routes/radars.py",
+        "symbol_or_call": "Radar"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/api/v1/routes/radars.py",
+        "symbol_or_call": "RadarType"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/api/v1/routes/radars.py",
+        "symbol_or_call": "ResourceStatus"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/api/v1/routes/radars.py",
+        "symbol_or_call": "User"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/api/v1/routes/sources.py",
+        "symbol_or_call": "CollectionRunStatus"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/api/v1/routes/sources.py",
+        "symbol_or_call": "CollectionTriggerType"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/api/v1/routes/sources.py",
+        "symbol_or_call": "ResourceStatus"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/api/v1/routes/sources.py",
+        "symbol_or_call": "Source"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/api/v1/routes/sources.py",
+        "symbol_or_call": "SourceType"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/api/v1/routes/sources.py",
+        "symbol_or_call": "User"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer tasks",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.tasks.acquisition",
+        "normalized_location": "function:collect_source",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/api/v1/routes/sources.py",
+        "symbol_or_call": "enqueue_collection"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/api/v1/routes/users.py",
+        "symbol_or_call": "User"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/api/v1/routes/websocket.py",
+        "symbol_or_call": "User"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer providers_infrastructure",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.services.events",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/api/v1/routes/websocket.py",
+        "symbol_or_call": "channel_for_user"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/schemas/acquisition.py",
+        "symbol_or_call": "CollectionRunStatus"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/schemas/acquisition.py",
+        "symbol_or_call": "CollectionTriggerType"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/schemas/acquisition.py",
+        "symbol_or_call": "RawItemStatus"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/schemas/events.py",
+        "symbol_or_call": "CollectionRunStatus"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/schemas/events.py",
+        "symbol_or_call": "NotificationPriority"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/schemas/events.py",
+        "symbol_or_call": "Recommendation"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/schemas/intelligence.py",
+        "symbol_or_call": "AnalysisStatus"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/schemas/intelligence.py",
+        "symbol_or_call": "Recommendation"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/schemas/memory.py",
+        "symbol_or_call": "Recommendation"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/schemas/notifications.py",
+        "symbol_or_call": "NotificationPriority"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/schemas/notifications.py",
+        "symbol_or_call": "NotificationStatus"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/schemas/resources.py",
+        "symbol_or_call": "AcquisitionMode"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/schemas/resources.py",
+        "symbol_or_call": "DiscoveryMode"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/schemas/resources.py",
+        "symbol_or_call": "RadarType"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/schemas/resources.py",
+        "symbol_or_call": "ResourceStatus"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/schemas/resources.py",
+        "symbol_or_call": "SourceFamily"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "api_adapters imports forbidden layer models_persistence",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.models.entities",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/schemas/resources.py",
+        "symbol_or_call": "SourceType"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "application_services imports forbidden layer api_adapters",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.schemas.resources",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/acquisition.py",
+        "symbol_or_call": "AcquisitionProfileV1"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "application_services imports forbidden layer providers_infrastructure",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.services.events",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/acquisition.py",
+        "symbol_or_call": "EventPublisher"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "application_services imports forbidden layer providers_infrastructure",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.services.events",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/acquisition.py",
+        "symbol_or_call": "build_event"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "application_services imports forbidden layer providers_infrastructure",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.services.events",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/acquisition.py",
+        "symbol_or_call": "publish_safely"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "application_services imports forbidden layer providers_infrastructure",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.services.native_acquisition",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/acquisition.py",
+        "symbol_or_call": "NativeAcquisitionBackend"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "application_services imports forbidden layer providers_infrastructure",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.services.safe_fetcher",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/acquisition.py",
+        "symbol_or_call": "SafeFetcher"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "application_services imports forbidden layer api_adapters",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.schemas.resources",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/acquisition_policy.py",
+        "symbol_or_call": "AcquisitionProfileV1"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "application_services imports forbidden layer api_adapters",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.schemas.resources",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/acquisition_policy.py",
+        "symbol_or_call": "RobotsMode"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "application_services imports forbidden layer api_adapters",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.schemas.resources",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/acquisition_types.py",
+        "symbol_or_call": "AcquisitionProfileV1"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "application_services imports forbidden layer api_adapters",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.schemas.auth",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/auth.py",
+        "symbol_or_call": "TokenResponse"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "providers_infrastructure imports forbidden layer api_adapters",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.schemas.events",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/events.py",
+        "symbol_or_call": "EventEnvelope"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "application_services imports forbidden layer providers_infrastructure",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.adapters.acquisition.static_scrapling",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/extraction.py",
+        "symbol_or_call": "observe_html"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "application_services imports forbidden layer providers_infrastructure",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.adapters.acquisition.static_scrapling",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/extraction.py",
+        "symbol_or_call": "unscored_observation"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "application_services imports forbidden layer providers_infrastructure",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.providers.analysis",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/intelligence.py",
+        "symbol_or_call": "AnalysisProvider"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "application_services imports forbidden layer providers_infrastructure",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.providers.analysis",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/intelligence.py",
+        "symbol_or_call": "AnalysisRequest"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "application_services imports forbidden layer providers_infrastructure",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.providers.analysis",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/intelligence.py",
+        "symbol_or_call": "ProviderError"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "application_services imports forbidden layer providers_infrastructure",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.providers.analysis",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/intelligence.py",
+        "symbol_or_call": "ProviderResponse"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "application_services imports forbidden layer providers_infrastructure",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.services.events",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/intelligence.py",
+        "symbol_or_call": "EventPublisher"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "application_services imports forbidden layer providers_infrastructure",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.services.events",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/intelligence.py",
+        "symbol_or_call": "build_event"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "application_services imports forbidden layer providers_infrastructure",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.services.events",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/intelligence.py",
+        "symbol_or_call": "publish_safely"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "application_services imports forbidden layer providers_infrastructure",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.providers.embedding",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/memory.py",
+        "symbol_or_call": "EmbeddingError"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "application_services imports forbidden layer providers_infrastructure",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.providers.embedding",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/memory.py",
+        "symbol_or_call": "EmbeddingProvider"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "application_services imports forbidden layer providers_infrastructure",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.providers.embedding",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/memory.py",
+        "symbol_or_call": "EmbeddingResponse"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "application_services imports forbidden layer providers_infrastructure",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.providers.embedding",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/memory.py",
+        "symbol_or_call": "MAX_EMBEDDING_BATCH"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "application_services imports forbidden layer providers_infrastructure",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.providers.embedding",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/memory.py",
+        "symbol_or_call": "normalize_vector"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "providers_infrastructure imports forbidden layer application_services",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.services.acquisition_policy",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/native_acquisition.py",
+        "symbol_or_call": "NetworkPolicy"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "providers_infrastructure imports forbidden layer application_services",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.services.acquisition_policy",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/native_acquisition.py",
+        "symbol_or_call": "effective_resource_budget"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "providers_infrastructure imports forbidden layer application_services",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.services.acquisition_policy",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/native_acquisition.py",
+        "symbol_or_call": "effective_site_policy"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "providers_infrastructure imports forbidden layer application_services",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.services.acquisition_types",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/native_acquisition.py",
+        "symbol_or_call": "AcquisitionFetcher"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "providers_infrastructure imports forbidden layer application_services",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.services.acquisition_types",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/native_acquisition.py",
+        "symbol_or_call": "AcquisitionRequest"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "providers_infrastructure imports forbidden layer application_services",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.services.acquisition_types",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/native_acquisition.py",
+        "symbol_or_call": "AcquisitionResult"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "providers_infrastructure imports forbidden layer application_services",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.services.acquisition_types",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/native_acquisition.py",
+        "symbol_or_call": "CollectionError"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "application_services imports forbidden layer providers_infrastructure",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.services.events",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/notifications.py",
+        "symbol_or_call": "EventPublisher"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "application_services imports forbidden layer providers_infrastructure",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.services.events",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/notifications.py",
+        "symbol_or_call": "build_event"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "application_services imports forbidden layer providers_infrastructure",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.services.events",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/notifications.py",
+        "symbol_or_call": "publish_safely"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "providers_infrastructure imports forbidden layer api_adapters",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.schemas.health",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/readiness.py",
+        "symbol_or_call": "DependencyStatus"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "providers_infrastructure imports forbidden layer api_adapters",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.schemas.health",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/readiness.py",
+        "symbol_or_call": "ReadinessChecks"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "application_services imports forbidden layer api_adapters",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.schemas.resources",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/resources.py",
+        "symbol_or_call": "RadarCreate"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "application_services imports forbidden layer api_adapters",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.schemas.resources",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/resources.py",
+        "symbol_or_call": "RadarUpdate"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "application_services imports forbidden layer api_adapters",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.schemas.resources",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/resources.py",
+        "symbol_or_call": "SourceCreate"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "application_services imports forbidden layer api_adapters",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.schemas.resources",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/resources.py",
+        "symbol_or_call": "SourceUpdate"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "providers_infrastructure imports forbidden layer application_services",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.services.acquisition_types",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/safe_fetcher.py",
+        "symbol_or_call": "AcquisitionFetcher"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "providers_infrastructure imports forbidden layer application_services",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.services.acquisition_types",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/safe_fetcher.py",
+        "symbol_or_call": "CollectionError"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "providers_infrastructure imports forbidden layer application_services",
+      "disposition": "Fixed-baseline dependency debt; the exact fingerprint may not grow.",
+      "fingerprint": {
+        "imported_module": "app.services.acquisition_types",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/safe_fetcher.py",
+        "symbol_or_call": "FetchResponse"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "module-level mutable value assigned to __all__",
+      "disposition": "Fixed-baseline module declaration; no new mutable global is allowed.",
+      "fingerprint": {
+        "imported_module": "",
+        "normalized_location": "module",
+        "rule_id": "module_mutable_runtime_state",
+        "source_path": "backend/app/models/__init__.py",
+        "symbol_or_call": "__all__"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "module-level mutable value assigned to __all__",
+      "disposition": "Fixed-baseline module declaration; no new mutable global is allowed.",
+      "fingerprint": {
+        "imported_module": "",
+        "normalized_location": "module",
+        "rule_id": "module_mutable_runtime_state",
+        "source_path": "backend/app/providers/__init__.py",
+        "symbol_or_call": "__all__"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "module-level mutable value assigned to STRICT_OUTPUT_SCHEMA",
+      "disposition": "Fixed-baseline module declaration; no new mutable global is allowed.",
+      "fingerprint": {
+        "imported_module": "",
+        "normalized_location": "module",
+        "rule_id": "module_mutable_runtime_state",
+        "source_path": "backend/app/providers/analysis.py",
+        "symbol_or_call": "STRICT_OUTPUT_SCHEMA"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "module-level mutable value assigned to _DEFAULT_CONTENT_TYPES",
+      "disposition": "Fixed-baseline module declaration; no new mutable global is allowed.",
+      "fingerprint": {
+        "imported_module": "",
+        "normalized_location": "module",
+        "rule_id": "module_mutable_runtime_state",
+        "source_path": "backend/app/schemas/resources.py",
+        "symbol_or_call": "_DEFAULT_CONTENT_TYPES"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "provider port AnalysisProvider is outside domain_policy",
+      "disposition": "Fixed-baseline port location; move only in the admitted provider-seam phase.",
+      "fingerprint": {
+        "imported_module": "typing.Protocol",
+        "normalized_location": "class:AnalysisProvider",
+        "rule_id": "provider_port_location",
+        "source_path": "backend/app/providers/analysis.py",
+        "symbol_or_call": "AnalysisProvider"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "provider port EmbeddingProvider is outside domain_policy",
+      "disposition": "Fixed-baseline port location; move only in the admitted provider-seam phase.",
+      "fingerprint": {
+        "imported_module": "typing.Protocol",
+        "normalized_location": "class:EmbeddingProvider",
+        "rule_id": "provider_port_location",
+        "source_path": "backend/app/providers/embedding.py",
+        "symbol_or_call": "EmbeddingProvider"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "provider port AcquisitionBackend is outside domain_policy",
+      "disposition": "Fixed-baseline port location; move only in the admitted provider-seam phase.",
+      "fingerprint": {
+        "imported_module": "typing.Protocol",
+        "normalized_location": "class:AcquisitionBackend",
+        "rule_id": "provider_port_location",
+        "source_path": "backend/app/services/acquisition_types.py",
+        "symbol_or_call": "AcquisitionBackend"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "provider port AcquisitionFetcher is outside domain_policy",
+      "disposition": "Fixed-baseline port location; move only in the admitted provider-seam phase.",
+      "fingerprint": {
+        "imported_module": "typing.Protocol",
+        "normalized_location": "class:AcquisitionFetcher",
+        "rule_id": "provider_port_location",
+        "source_path": "backend/app/services/acquisition_types.py",
+        "symbol_or_call": "AcquisitionFetcher"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "provider port EventPublisher is outside domain_policy",
+      "disposition": "Fixed-baseline port location; move only in the admitted provider-seam phase.",
+      "fingerprint": {
+        "imported_module": "typing.Protocol",
+        "normalized_location": "class:EventPublisher",
+        "rule_id": "provider_port_location",
+        "source_path": "backend/app/services/events.py",
+        "symbol_or_call": "EventPublisher"
+      },
+      "severity": "P1"
+    },
+    {
+      "detail": "audited responsibility classes: A, B, C, D, E",
+      "disposition": "extract minimal acquisition ports and dependency injection; do not repository-abstract the whole ORM surface",
+      "fingerprint": {
+        "imported_module": "",
+        "normalized_location": "module",
+        "rule_id": "responsibility_warning",
+        "source_path": "backend/app/services/acquisition.py",
+        "symbol_or_call": "A,B,C,D,E"
+      },
+      "severity": "P2"
+    },
+    {
+      "detail": "audited responsibility classes: A, B, C, D, E",
+      "disposition": "extract deterministic intelligence policy first",
+      "fingerprint": {
+        "imported_module": "",
+        "normalized_location": "module",
+        "rule_id": "responsibility_warning",
+        "source_path": "backend/app/services/intelligence.py",
+        "symbol_or_call": "A,B,C,D,E"
+      },
+      "severity": "P2"
+    },
+    {
+      "detail": "audited responsibility classes: A, B, C, D, E",
+      "disposition": "only extract proven pure ranking or filtering policy; no retention policy is currently evidenced",
+      "fingerprint": {
+        "imported_module": "",
+        "normalized_location": "module",
+        "rule_id": "responsibility_warning",
+        "source_path": "backend/app/services/memory.py",
+        "symbol_or_call": "A,B,C,D,E"
+      },
+      "severity": "P2"
+    }
+  ],
+  "fingerprint_fields": [
+    "rule_id",
+    "source_path",
+    "imported_module",
+    "symbol_or_call",
+    "normalized_location"
+  ],
+  "module_metrics": [
+    {
+      "functions": [],
+      "lines": 1,
+      "source_path": "backend/app/__init__.py"
+    },
+    {
+      "functions": [],
+      "lines": 1,
+      "source_path": "backend/app/adapters/__init__.py"
+    },
+    {
+      "functions": [],
+      "lines": 1,
+      "source_path": "backend/app/adapters/acquisition/__init__.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 8,
+          "qualified_name": "_BoundedPreflight.__init__"
+        },
+        {
+          "lines": 7,
+          "qualified_name": "_BoundedPreflight._check"
+        },
+        {
+          "lines": 3,
+          "qualified_name": "_BoundedPreflight.handle_charref"
+        },
+        {
+          "lines": 3,
+          "qualified_name": "_BoundedPreflight.handle_comment"
+        },
+        {
+          "lines": 3,
+          "qualified_name": "_BoundedPreflight.handle_data"
+        },
+        {
+          "lines": 10,
+          "qualified_name": "_BoundedPreflight.handle_endtag"
+        },
+        {
+          "lines": 3,
+          "qualified_name": "_BoundedPreflight.handle_entityref"
+        },
+        {
+          "lines": 11,
+          "qualified_name": "_BoundedPreflight.handle_startendtag"
+        },
+        {
+          "lines": 14,
+          "qualified_name": "_BoundedPreflight.handle_starttag"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "_attr"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "_attribute_equals"
+        },
+        {
+          "lines": 6,
+          "qualified_name": "_attribute_token"
+        },
+        {
+          "lines": 11,
+          "qualified_name": "_date"
+        },
+        {
+          "lines": 6,
+          "qualified_name": "_field"
+        },
+        {
+          "lines": 9,
+          "qualified_name": "_first_value"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "_has_hidden_ancestor"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "_has_noise_ancestor"
+        },
+        {
+          "lines": 6,
+          "qualified_name": "_is_hidden"
+        },
+        {
+          "lines": 5,
+          "qualified_name": "_is_noise"
+        },
+        {
+          "lines": 7,
+          "qualified_name": "_metadata"
+        },
+        {
+          "lines": 15,
+          "qualified_name": "_safe_url"
+        },
+        {
+          "lines": 24,
+          "qualified_name": "_text_nodes"
+        },
+        {
+          "lines": 15,
+          "qualified_name": "_valid_field"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "meaningful_length"
+        },
+        {
+          "lines": 3,
+          "qualified_name": "normalize_observed_text"
+        },
+        {
+          "lines": 176,
+          "qualified_name": "observe_html"
+        },
+        {
+          "lines": 19,
+          "qualified_name": "unscored_observation"
+        }
+      ],
+      "lines": 493,
+      "source_path": "backend/app/adapters/acquisition/static_scrapling.py"
+    },
+    {
+      "functions": [],
+      "lines": 1,
+      "source_path": "backend/app/api/__init__.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 23,
+          "qualified_name": "get_current_user"
+        },
+        {
+          "lines": 4,
+          "qualified_name": "get_session"
+        }
+      ],
+      "lines": 45,
+      "source_path": "backend/app/api/dependencies.py"
+    },
+    {
+      "functions": [],
+      "lines": 1,
+      "source_path": "backend/app/api/v1/__init__.py"
+    },
+    {
+      "functions": [],
+      "lines": 31,
+      "source_path": "backend/app/api/v1/router.py"
+    },
+    {
+      "functions": [],
+      "lines": 1,
+      "source_path": "backend/app/api/v1/routes/__init__.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 12,
+          "qualified_name": "login"
+        },
+        {
+          "lines": 6,
+          "qualified_name": "logout"
+        },
+        {
+          "lines": 9,
+          "qualified_name": "refresh"
+        },
+        {
+          "lines": 13,
+          "qualified_name": "register"
+        }
+      ],
+      "lines": 94,
+      "source_path": "backend/app/api/v1/routes/auth.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 6,
+          "qualified_name": "get_collection_run"
+        },
+        {
+          "lines": 19,
+          "qualified_name": "list_collection_run_items"
+        },
+        {
+          "lines": 36,
+          "qualified_name": "retry_collection_run"
+        }
+      ],
+      "lines": 97,
+      "source_path": "backend/app/api/v1/routes/collection_runs.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 7,
+          "qualified_name": "liveness"
+        },
+        {
+          "lines": 11,
+          "qualified_name": "readiness"
+        }
+      ],
+      "lines": 31,
+      "source_path": "backend/app/api/v1/routes/health.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 6,
+          "qualified_name": "get_intelligence"
+        },
+        {
+          "lines": 25,
+          "qualified_name": "list_intelligence"
+        },
+        {
+          "lines": 26,
+          "qualified_name": "retry_analysis"
+        }
+      ],
+      "lines": 109,
+      "source_path": "backend/app/api/v1/routes/intelligence.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 9,
+          "qualified_name": "create_bookmark"
+        },
+        {
+          "lines": 7,
+          "qualified_name": "delete_bookmark"
+        },
+        {
+          "lines": 12,
+          "qualified_name": "list_bookmarks"
+        },
+        {
+          "lines": 22,
+          "qualified_name": "search_memory"
+        },
+        {
+          "lines": 10,
+          "qualified_name": "update_bookmark"
+        }
+      ],
+      "lines": 115,
+      "source_path": "backend/app/api/v1/routes/memory.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 22,
+          "qualified_name": "list_notifications"
+        },
+        {
+          "lines": 8,
+          "qualified_name": "read_all_notifications"
+        },
+        {
+          "lines": 9,
+          "qualified_name": "read_notification"
+        }
+      ],
+      "lines": 70,
+      "source_path": "backend/app/api/v1/routes/notifications.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 8,
+          "qualified_name": "bind_source"
+        },
+        {
+          "lines": 6,
+          "qualified_name": "create_radar"
+        },
+        {
+          "lines": 7,
+          "qualified_name": "delete_radar"
+        },
+        {
+          "lines": 6,
+          "qualified_name": "get_radar"
+        },
+        {
+          "lines": 17,
+          "qualified_name": "list_bound_sources"
+        },
+        {
+          "lines": 19,
+          "qualified_name": "list_radars"
+        },
+        {
+          "lines": 8,
+          "qualified_name": "pause_radar"
+        },
+        {
+          "lines": 8,
+          "qualified_name": "resume_radar"
+        },
+        {
+          "lines": 8,
+          "qualified_name": "unbind_source"
+        },
+        {
+          "lines": 9,
+          "qualified_name": "update_radar"
+        }
+      ],
+      "lines": 145,
+      "source_path": "backend/app/api/v1/routes/radars.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 40,
+          "qualified_name": "collect_source"
+        },
+        {
+          "lines": 6,
+          "qualified_name": "create_source"
+        },
+        {
+          "lines": 7,
+          "qualified_name": "delete_source"
+        },
+        {
+          "lines": 6,
+          "qualified_name": "get_source"
+        },
+        {
+          "lines": 21,
+          "qualified_name": "list_source_runs"
+        },
+        {
+          "lines": 19,
+          "qualified_name": "list_sources"
+        },
+        {
+          "lines": 8,
+          "qualified_name": "pause_source"
+        },
+        {
+          "lines": 8,
+          "qualified_name": "resume_source"
+        },
+        {
+          "lines": 9,
+          "qualified_name": "update_source"
+        }
+      ],
+      "lines": 186,
+      "source_path": "backend/app/api/v1/routes/sources.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 2,
+          "qualified_name": "get_me"
+        },
+        {
+          "lines": 12,
+          "qualified_name": "update_me"
+        }
+      ],
+      "lines": 34,
+      "source_path": "backend/app/api/v1/routes/users.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 22,
+          "qualified_name": "_authenticate"
+        },
+        {
+          "lines": 10,
+          "qualified_name": "_read_pubsub"
+        },
+        {
+          "lines": 6,
+          "qualified_name": "_send_events"
+        },
+        {
+          "lines": 8,
+          "qualified_name": "_wait_disconnect"
+        },
+        {
+          "lines": 4,
+          "qualified_name": "_wait_expiry"
+        },
+        {
+          "lines": 5,
+          "qualified_name": "enqueue_event"
+        },
+        {
+          "lines": 49,
+          "qualified_name": "websocket_events"
+        }
+      ],
+      "lines": 144,
+      "source_path": "backend/app/api/v1/routes/websocket.py"
+    },
+    {
+      "functions": [],
+      "lines": 1,
+      "source_path": "backend/app/core/__init__.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 5,
+          "qualified_name": "Settings.validate_ai_model"
+        },
+        {
+          "lines": 60,
+          "qualified_name": "Settings.validate_ai_provider"
+        },
+        {
+          "lines": 4,
+          "qualified_name": "Settings.validate_ai_rate"
+        },
+        {
+          "lines": 4,
+          "qualified_name": "Settings.validate_database_url"
+        },
+        {
+          "lines": 4,
+          "qualified_name": "Settings.validate_jwt_secret"
+        },
+        {
+          "lines": 5,
+          "qualified_name": "Settings.validate_log_level"
+        },
+        {
+          "lines": 4,
+          "qualified_name": "Settings.validate_redis_url"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "get_settings"
+        },
+        {
+          "lines": 26,
+          "qualified_name": "load_settings"
+        }
+      ],
+      "lines": 191,
+      "source_path": "backend/app/core/config.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 4,
+          "qualified_name": "bind_context"
+        },
+        {
+          "lines": 3,
+          "qualified_name": "reset_context"
+        }
+      ],
+      "lines": 15,
+      "source_path": "backend/app/core/context.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 15,
+          "qualified_name": "AppError.__init__"
+        },
+        {
+          "lines": 20,
+          "qualified_name": "error_response"
+        },
+        {
+          "lines": 48,
+          "qualified_name": "install_exception_handlers"
+        },
+        {
+          "lines": 8,
+          "qualified_name": "install_exception_handlers.handle_app_error"
+        },
+        {
+          "lines": 4,
+          "qualified_name": "install_exception_handlers.handle_http_error"
+        },
+        {
+          "lines": 11,
+          "qualified_name": "install_exception_handlers.handle_unexpected_error"
+        },
+        {
+          "lines": 17,
+          "qualified_name": "install_exception_handlers.handle_validation_error"
+        }
+      ],
+      "lines": 101,
+      "source_path": "backend/app/core/errors.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 2,
+          "qualified_name": "DynamicStdout.flush"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "DynamicStdout.write"
+        },
+        {
+          "lines": 13,
+          "qualified_name": "_redact"
+        },
+        {
+          "lines": 12,
+          "qualified_name": "add_contract_fields"
+        },
+        {
+          "lines": 22,
+          "qualified_name": "configure_logging"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "get_logger"
+        }
+      ],
+      "lines": 94,
+      "source_path": "backend/app/core/logging.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 30,
+          "qualified_name": "RequestContextMiddleware.dispatch"
+        },
+        {
+          "lines": 7,
+          "qualified_name": "normalize_request_id"
+        }
+      ],
+      "lines": 56,
+      "source_path": "backend/app/core/middleware.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 14,
+          "qualified_name": "create_access_token"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "create_refresh_value"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "decode_access_token"
+        },
+        {
+          "lines": 17,
+          "qualified_name": "decode_access_token_claims"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "hash_password"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "hash_refresh_value"
+        },
+        {
+          "lines": 9,
+          "qualified_name": "parse_refresh_token"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "password_needs_rehash"
+        },
+        {
+          "lines": 5,
+          "qualified_name": "verify_password"
+        }
+      ],
+      "lines": 107,
+      "source_path": "backend/app/core/security.py"
+    },
+    {
+      "functions": [],
+      "lines": 1,
+      "source_path": "backend/app/db/__init__.py"
+    },
+    {
+      "functions": [],
+      "lines": 5,
+      "source_path": "backend/app/db/base.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 5,
+          "qualified_name": "create_database_engine"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "create_session_factory"
+        }
+      ],
+      "lines": 19,
+      "source_path": "backend/app/db/session.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 3,
+          "qualified_name": "register_vector_types"
+        }
+      ],
+      "lines": 7,
+      "source_path": "backend/app/db/vector.py"
+    },
+    {
+      "functions": [],
+      "lines": 1,
+      "source_path": "backend/app/domains/__init__.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 49,
+          "qualified_name": "create_app"
+        },
+        {
+          "lines": 26,
+          "qualified_name": "create_app.lifespan"
+        }
+      ],
+      "lines": 71,
+      "source_path": "backend/app/main.py"
+    },
+    {
+      "functions": [],
+      "lines": 35,
+      "source_path": "backend/app/models/__init__.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 4,
+          "qualified_name": "enum_column"
+        },
+        {
+          "lines": 8,
+          "qualified_name": "varchar_enum"
+        }
+      ],
+      "lines": 797,
+      "source_path": "backend/app/models/entities.py"
+    },
+    {
+      "functions": [],
+      "lines": 39,
+      "source_path": "backend/app/providers/__init__.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 3,
+          "qualified_name": "AnalysisProvider.analyze"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "FakeAnalysisProvider.__init__"
+        },
+        {
+          "lines": 26,
+          "qualified_name": "FakeAnalysisProvider.analyze"
+        },
+        {
+          "lines": 7,
+          "qualified_name": "OpenAICompatibleProvider.__init__"
+        },
+        {
+          "lines": 141,
+          "qualified_name": "OpenAICompatibleProvider.analyze"
+        },
+        {
+          "lines": 5,
+          "qualified_name": "ProviderError.__init__"
+        },
+        {
+          "lines": 4,
+          "qualified_name": "_non_negative_int"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "_reject_constant"
+        },
+        {
+          "lines": 4,
+          "qualified_name": "build_provider"
+        }
+      ],
+      "lines": 281,
+      "source_path": "backend/app/providers/analysis.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 5,
+          "qualified_name": "EmbeddingError.__init__"
+        },
+        {
+          "lines": 1,
+          "qualified_name": "EmbeddingProvider.embed"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "FakeEmbeddingProvider.__init__"
+        },
+        {
+          "lines": 17,
+          "qualified_name": "FakeEmbeddingProvider.embed"
+        },
+        {
+          "lines": 7,
+          "qualified_name": "OpenAICompatibleEmbeddingProvider.__init__"
+        },
+        {
+          "lines": 53,
+          "qualified_name": "OpenAICompatibleEmbeddingProvider.embed"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "_float32"
+        },
+        {
+          "lines": 33,
+          "qualified_name": "_parse_response"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "_reject_constant"
+        },
+        {
+          "lines": 4,
+          "qualified_name": "_usage_int"
+        },
+        {
+          "lines": 22,
+          "qualified_name": "_validate_headers"
+        },
+        {
+          "lines": 21,
+          "qualified_name": "_validate_status"
+        },
+        {
+          "lines": 4,
+          "qualified_name": "build_embedding_provider"
+        },
+        {
+          "lines": 23,
+          "qualified_name": "normalize_vector"
+        }
+      ],
+      "lines": 263,
+      "source_path": "backend/app/providers/embedding.py"
+    },
+    {
+      "functions": [],
+      "lines": 1,
+      "source_path": "backend/app/schemas/__init__.py"
+    },
+    {
+      "functions": [],
+      "lines": 66,
+      "source_path": "backend/app/schemas/acquisition.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 4,
+          "qualified_name": "UpdateUserRequest.require_change"
+        }
+      ],
+      "lines": 65,
+      "source_path": "backend/app/schemas/auth.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 2,
+          "qualified_name": "documented_error"
+        }
+      ],
+      "lines": 20,
+      "source_path": "backend/app/schemas/errors.py"
+    },
+    {
+      "functions": [],
+      "lines": 46,
+      "source_path": "backend/app/schemas/events.py"
+    },
+    {
+      "functions": [],
+      "lines": 21,
+      "source_path": "backend/app/schemas/health.py"
+    },
+    {
+      "functions": [],
+      "lines": 53,
+      "source_path": "backend/app/schemas/intelligence.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 6,
+          "qualified_name": "MemorySearchRequest.normalize_date"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "MemorySearchRequest.normalize_query"
+        },
+        {
+          "lines": 5,
+          "qualified_name": "MemorySearchRequest.validate_dates"
+        },
+        {
+          "lines": 7,
+          "qualified_name": "_normalize_note"
+        }
+      ],
+      "lines": 110,
+      "source_path": "backend/app/schemas/memory.py"
+    },
+    {
+      "functions": [],
+      "lines": 33,
+      "source_path": "backend/app/schemas/notifications.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 2,
+          "qualified_name": "AcquisitionProfileV1.domains"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "AcquisitionProfileV1.storage_dict"
+        },
+        {
+          "lines": 5,
+          "qualified_name": "AcquisitionProfileV1.validate_profile"
+        },
+        {
+          "lines": 13,
+          "qualified_name": "ChangeDetectionProfile.finite_decimal"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "ChangeDetectionProfile.serialize_materiality_threshold"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "RadarFields.normalize_categories"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "RadarFields.normalize_keywords"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "RadarFields.trim_description"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "RadarFields.trim_required"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "RadarUpdate.normalize_categories"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "RadarUpdate.normalize_keywords"
+        },
+        {
+          "lines": 7,
+          "qualified_name": "RadarUpdate.require_field"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "RadarUpdate.trim_description"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "RadarUpdate.trim_required"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "SitePolicyProfile.content_types"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "SitePolicyProfile.paths"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "SourceCreate.config_size"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "SourceCreate.trim_required"
+        },
+        {
+          "lines": 4,
+          "qualified_name": "SourceResponse.redact_legacy_config"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "SourceUpdate.config_size"
+        },
+        {
+          "lines": 6,
+          "qualified_name": "SourceUpdate.require_field"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "SourceUpdate.trim_required"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "_has_control"
+        },
+        {
+          "lines": 38,
+          "qualified_name": "_normalize_domains"
+        },
+        {
+          "lines": 14,
+          "qualified_name": "_normalize_list"
+        },
+        {
+          "lines": 13,
+          "qualified_name": "_normalize_mime_types"
+        },
+        {
+          "lines": 5,
+          "qualified_name": "_normalize_optional_text"
+        },
+        {
+          "lines": 24,
+          "qualified_name": "_normalize_paths"
+        },
+        {
+          "lines": 5,
+          "qualified_name": "_trim_required"
+        },
+        {
+          "lines": 14,
+          "qualified_name": "_validate_public_json"
+        },
+        {
+          "lines": 12,
+          "qualified_name": "sanitize_legacy_config"
+        },
+        {
+          "lines": 14,
+          "qualified_name": "validate_config"
+        }
+      ],
+      "lines": 510,
+      "source_path": "backend/app/schemas/resources.py"
+    },
+    {
+      "functions": [],
+      "lines": 1,
+      "source_path": "backend/app/services/__init__.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 43,
+          "qualified_name": "_attempt"
+        },
+        {
+          "lines": 48,
+          "qualified_name": "_claim_run"
+        },
+        {
+          "lines": 72,
+          "qualified_name": "_finish_failure"
+        },
+        {
+          "lines": 7,
+          "qualified_name": "_heartbeat_loop"
+        },
+        {
+          "lines": 60,
+          "qualified_name": "_update_source_state"
+        },
+        {
+          "lines": 52,
+          "qualified_name": "create_manual_run"
+        },
+        {
+          "lines": 49,
+          "qualified_name": "create_retry_run"
+        },
+        {
+          "lines": 29,
+          "qualified_name": "dispatch_queued_runs"
+        },
+        {
+          "lines": 256,
+          "qualified_name": "execute_run"
+        },
+        {
+          "lines": 13,
+          "qualified_name": "get_owned_run"
+        },
+        {
+          "lines": 20,
+          "qualified_name": "heartbeat_run"
+        },
+        {
+          "lines": 28,
+          "qualified_name": "list_run_items"
+        },
+        {
+          "lines": 32,
+          "qualified_name": "list_source_runs"
+        },
+        {
+          "lines": 6,
+          "qualified_name": "mark_queue_failure"
+        },
+        {
+          "lines": 33,
+          "qualified_name": "publish_collection_updated"
+        },
+        {
+          "lines": 35,
+          "qualified_name": "recover_stale_runs"
+        },
+        {
+          "lines": 50,
+          "qualified_name": "schedule_due_sources"
+        },
+        {
+          "lines": 9,
+          "qualified_name": "validate_idempotency_key"
+        }
+      ],
+      "lines": 925,
+      "source_path": "backend/app/services/acquisition.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 7,
+          "qualified_name": "_ReadableHTMLParser.__init__"
+        },
+        {
+          "lines": 8,
+          "qualified_name": "_ReadableHTMLParser.handle_data"
+        },
+        {
+          "lines": 6,
+          "qualified_name": "_ReadableHTMLParser.handle_endtag"
+        },
+        {
+          "lines": 10,
+          "qualified_name": "_ReadableHTMLParser.handle_starttag"
+        },
+        {
+          "lines": 5,
+          "qualified_name": "_canonical_url"
+        },
+        {
+          "lines": 7,
+          "qualified_name": "_decode_html"
+        },
+        {
+          "lines": 11,
+          "qualified_name": "_entry_link"
+        },
+        {
+          "lines": 7,
+          "qualified_name": "_first_text"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "_local_name"
+        },
+        {
+          "lines": 13,
+          "qualified_name": "_published"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "normalize_text"
+        },
+        {
+          "lines": 45,
+          "qualified_name": "parse_feed"
+        },
+        {
+          "lines": 24,
+          "qualified_name": "parse_html"
+        }
+      ],
+      "lines": 196,
+      "source_path": "backend/app/services/acquisition_parsers.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 12,
+          "qualified_name": "EffectiveResourceBudget.validate_usage"
+        },
+        {
+          "lines": 4,
+          "qualified_name": "EffectiveSitePolicy.validate_content_type"
+        },
+        {
+          "lines": 10,
+          "qualified_name": "EffectiveSitePolicy.validate_target"
+        },
+        {
+          "lines": 29,
+          "qualified_name": "NetworkPolicy.validate"
+        },
+        {
+          "lines": 13,
+          "qualified_name": "_intersect_path_prefixes"
+        },
+        {
+          "lines": 15,
+          "qualified_name": "effective_resource_budget"
+        },
+        {
+          "lines": 24,
+          "qualified_name": "effective_site_policy"
+        }
+      ],
+      "lines": 202,
+      "source_path": "backend/app/services/acquisition_policy.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 1,
+          "qualified_name": "AcquisitionBackend.acquire"
+        },
+        {
+          "lines": 1,
+          "qualified_name": "AcquisitionFetcher.fetch"
+        },
+        {
+          "lines": 6,
+          "qualified_name": "CollectionError.__init__"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "ParseResult.fetched_count"
+        }
+      ],
+      "lines": 78,
+      "source_path": "backend/app/services/acquisition_types.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 17,
+          "qualified_name": "_new_tokens"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "invalid_credentials_error"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "invalid_refresh_error"
+        },
+        {
+          "lines": 19,
+          "qualified_name": "login_user"
+        },
+        {
+          "lines": 17,
+          "qualified_name": "logout_user"
+        },
+        {
+          "lines": 37,
+          "qualified_name": "refresh_tokens"
+        },
+        {
+          "lines": 24,
+          "qualified_name": "register_user"
+        }
+      ],
+      "lines": 155,
+      "source_path": "backend/app/services/auth.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 16,
+          "qualified_name": "chunk_text"
+        }
+      ],
+      "lines": 27,
+      "source_path": "backend/app/services/chunking.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 1,
+          "qualified_name": "AnalysisDispatch.__call__"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "_advisory_key"
+        },
+        {
+          "lines": 5,
+          "qualified_name": "_set_raw_failure"
+        },
+        {
+          "lines": 129,
+          "qualified_name": "clean_raw_item"
+        },
+        {
+          "lines": 10,
+          "qualified_name": "clean_text"
+        },
+        {
+          "lines": 21,
+          "qualified_name": "count_words"
+        },
+        {
+          "lines": 33,
+          "qualified_name": "dispatch_fetched_raw_items"
+        }
+      ],
+      "lines": 255,
+      "source_path": "backend/app/services/cleaning.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 1,
+          "qualified_name": "EventPublisher.publish"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "RedisEventPublisher.__init__"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "RedisEventPublisher.publish"
+        },
+        {
+          "lines": 19,
+          "qualified_name": "build_event"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "channel_for_user"
+        },
+        {
+          "lines": 21,
+          "qualified_name": "publish_safely"
+        }
+      ],
+      "lines": 73,
+      "source_path": "backend/app/services/events.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 5,
+          "qualified_name": "_aware_source_date"
+        },
+        {
+          "lines": 6,
+          "qualified_name": "_feed_entries"
+        },
+        {
+          "lines": 17,
+          "qualified_name": "_feed_field"
+        },
+        {
+          "lines": 99,
+          "qualified_name": "_feed_observations"
+        },
+        {
+          "lines": 8,
+          "qualified_name": "_valid_feed_link"
+        },
+        {
+          "lines": 13,
+          "qualified_name": "attach_extraction_observations"
+        }
+      ],
+      "lines": 192,
+      "source_path": "backend/app/services/extraction.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 7,
+          "qualified_name": "_strict_number"
+        },
+        {
+          "lines": 7,
+          "qualified_name": "aggregate_quality"
+        },
+        {
+          "lines": 7,
+          "qualified_name": "quality_bucket"
+        },
+        {
+          "lines": 37,
+          "qualified_name": "quality_score"
+        },
+        {
+          "lines": 8,
+          "qualified_name": "update_quality_ewma"
+        }
+      ],
+      "lines": 82,
+      "source_path": "backend/app/services/extraction_quality.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 10,
+          "qualified_name": "ExtractionEvidence.compact_json"
+        }
+      ],
+      "lines": 63,
+      "source_path": "backend/app/services/extraction_types.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 11,
+          "qualified_name": "AnalysisOutput.safe_text"
+        },
+        {
+          "lines": 41,
+          "qualified_name": "_claim_analysis"
+        },
+        {
+          "lines": 38,
+          "qualified_name": "_complete_analysis"
+        },
+        {
+          "lines": 23,
+          "qualified_name": "_fail_analysis"
+        },
+        {
+          "lines": 7,
+          "qualified_name": "_owned_statement"
+        },
+        {
+          "lines": 33,
+          "qualified_name": "_record_usage"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "_reject_constant"
+        },
+        {
+          "lines": 37,
+          "qualified_name": "_response_data"
+        },
+        {
+          "lines": 27,
+          "qualified_name": "_sync_document"
+        },
+        {
+          "lines": 6,
+          "qualified_name": "calculate_cost"
+        },
+        {
+          "lines": 8,
+          "qualified_name": "calculate_score"
+        },
+        {
+          "lines": 33,
+          "qualified_name": "dispatch_pending_analyses"
+        },
+        {
+          "lines": 10,
+          "qualified_name": "get_owned_analysis"
+        },
+        {
+          "lines": 19,
+          "qualified_name": "intelligence_detail"
+        },
+        {
+          "lines": 55,
+          "qualified_name": "list_intelligence"
+        },
+        {
+          "lines": 36,
+          "qualified_name": "publish_analysis_completed"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "qualifies_for_notification"
+        },
+        {
+          "lines": 8,
+          "qualified_name": "recommendation_for"
+        },
+        {
+          "lines": 26,
+          "qualified_name": "recover_stale_analyses"
+        },
+        {
+          "lines": 28,
+          "qualified_name": "retry_analysis"
+        },
+        {
+          "lines": 98,
+          "qualified_name": "run_analysis"
+        },
+        {
+          "lines": 11,
+          "qualified_name": "validate_output"
+        }
+      ],
+      "lines": 668,
+      "source_path": "backend/app/services/intelligence.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 2,
+          "qualified_name": "_advisory_key"
+        },
+        {
+          "lines": 11,
+          "qualified_name": "_bookmark_access"
+        },
+        {
+          "lines": 10,
+          "qualified_name": "_constraint_name"
+        },
+        {
+          "lines": 77,
+          "qualified_name": "_embed_with_audit"
+        },
+        {
+          "lines": 9,
+          "qualified_name": "_provider_error"
+        },
+        {
+          "lines": 33,
+          "qualified_name": "_record_usage"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "_resource_not_found"
+        },
+        {
+          "lines": 32,
+          "qualified_name": "bookmark_data"
+        },
+        {
+          "lines": 3,
+          "qualified_name": "calculate_embedding_cost"
+        },
+        {
+          "lines": 20,
+          "qualified_name": "create_bookmark"
+        },
+        {
+          "lines": 6,
+          "qualified_name": "delete_bookmark"
+        },
+        {
+          "lines": 33,
+          "qualified_name": "dispatch_embedding_documents"
+        },
+        {
+          "lines": 10,
+          "qualified_name": "get_owned_bookmark"
+        },
+        {
+          "lines": 21,
+          "qualified_name": "list_bookmarks"
+        },
+        {
+          "lines": 152,
+          "qualified_name": "run_embedding"
+        },
+        {
+          "lines": 117,
+          "qualified_name": "search_memory"
+        },
+        {
+          "lines": 10,
+          "qualified_name": "update_bookmark"
+        }
+      ],
+      "lines": 621,
+      "source_path": "backend/app/services/memory.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 2,
+          "qualified_name": "NativeAcquisitionBackend.__init__"
+        },
+        {
+          "lines": 44,
+          "qualified_name": "NativeAcquisitionBackend.acquire"
+        },
+        {
+          "lines": 3,
+          "qualified_name": "NativeAcquisitionBackend.acquire.validate_target"
+        }
+      ],
+      "lines": 66,
+      "source_path": "backend/app/services/native_acquisition.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 2,
+          "qualified_name": "_resource_not_found"
+        },
+        {
+          "lines": 76,
+          "qualified_name": "dispatch_notifications"
+        },
+        {
+          "lines": 29,
+          "qualified_name": "list_notifications"
+        },
+        {
+          "lines": 19,
+          "qualified_name": "mark_all_notifications_read"
+        },
+        {
+          "lines": 20,
+          "qualified_name": "mark_notification_read"
+        },
+        {
+          "lines": 6,
+          "qualified_name": "notification_priority"
+        }
+      ],
+      "lines": 186,
+      "source_path": "backend/app/services/notifications.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 9,
+          "qualified_name": "ReadinessService.__init__"
+        },
+        {
+          "lines": 8,
+          "qualified_name": "ReadinessService._run_probe"
+        },
+        {
+          "lines": 6,
+          "qualified_name": "ReadinessService.check"
+        },
+        {
+          "lines": 14,
+          "qualified_name": "build_readiness_service"
+        },
+        {
+          "lines": 3,
+          "qualified_name": "build_readiness_service.database_probe"
+        },
+        {
+          "lines": 3,
+          "qualified_name": "build_readiness_service.redis_probe"
+        }
+      ],
+      "lines": 56,
+      "source_path": "backend/app/services/readiness.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 14,
+          "qualified_name": "_commit_with_conflict"
+        },
+        {
+          "lines": 11,
+          "qualified_name": "_constraint_name"
+        },
+        {
+          "lines": 7,
+          "qualified_name": "_ensure_supported_source_type"
+        },
+        {
+          "lines": 21,
+          "qualified_name": "bind_source"
+        },
+        {
+          "lines": 11,
+          "qualified_name": "create_radar"
+        },
+        {
+          "lines": 18,
+          "qualified_name": "create_source"
+        },
+        {
+          "lines": 6,
+          "qualified_name": "delete_radar"
+        },
+        {
+          "lines": 6,
+          "qualified_name": "delete_source"
+        },
+        {
+          "lines": 18,
+          "qualified_name": "get_radar"
+        },
+        {
+          "lines": 18,
+          "qualified_name": "get_source"
+        },
+        {
+          "lines": 6,
+          "qualified_name": "invalid_state"
+        },
+        {
+          "lines": 36,
+          "qualified_name": "list_bound_sources"
+        },
+        {
+          "lines": 29,
+          "qualified_name": "list_radars"
+        },
+        {
+          "lines": 29,
+          "qualified_name": "list_sources"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "resource_not_found"
+        },
+        {
+          "lines": 18,
+          "qualified_name": "set_radar_status"
+        },
+        {
+          "lines": 18,
+          "qualified_name": "set_source_status"
+        },
+        {
+          "lines": 16,
+          "qualified_name": "unbind_source"
+        },
+        {
+          "lines": 19,
+          "qualified_name": "update_radar"
+        },
+        {
+          "lines": 26,
+          "qualified_name": "update_source"
+        }
+      ],
+      "lines": 391,
+      "source_path": "backend/app/services/resources.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 1,
+          "qualified_name": "Resolver.__call__"
+        },
+        {
+          "lines": 9,
+          "qualified_name": "SafeFetcher.__init__"
+        },
+        {
+          "lines": 51,
+          "qualified_name": "SafeFetcher.fetch"
+        },
+        {
+          "lines": 13,
+          "qualified_name": "SafeFetcher.with_target_validator"
+        },
+        {
+          "lines": 4,
+          "qualified_name": "SafeFetcher.with_target_validator.combined"
+        },
+        {
+          "lines": 9,
+          "qualified_name": "Transport.__call__"
+        },
+        {
+          "lines": 9,
+          "qualified_name": "_body_decoder"
+        },
+        {
+          "lines": 93,
+          "qualified_name": "_decode_body"
+        },
+        {
+          "lines": 28,
+          "qualified_name": "_decode_body.append"
+        },
+        {
+          "lines": 7,
+          "qualified_name": "_read_with_timeout"
+        },
+        {
+          "lines": 18,
+          "qualified_name": "_validated_ip"
+        },
+        {
+          "lines": 63,
+          "qualified_name": "default_transport"
+        },
+        {
+          "lines": 18,
+          "qualified_name": "fetch_with_retries"
+        },
+        {
+          "lines": 9,
+          "qualified_name": "system_resolver"
+        },
+        {
+          "lines": 24,
+          "qualified_name": "validate_target"
+        }
+      ],
+      "lines": 397,
+      "source_path": "backend/app/services/safe_fetcher.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 19,
+          "qualified_name": "_normalize_component"
+        },
+        {
+          "lines": 32,
+          "qualified_name": "_normalize_host"
+        },
+        {
+          "lines": 15,
+          "qualified_name": "_normalize_query"
+        },
+        {
+          "lines": 29,
+          "qualified_name": "_remove_dot_segments"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "invalid_url"
+        },
+        {
+          "lines": 27,
+          "qualified_name": "normalize_source_url"
+        }
+      ],
+      "lines": 148,
+      "source_path": "backend/app/services/url_normalization.py"
+    },
+    {
+      "functions": [],
+      "lines": 1,
+      "source_path": "backend/app/tasks/__init__.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 4,
+          "qualified_name": "_enqueue_raw_item"
+        },
+        {
+          "lines": 6,
+          "qualified_name": "_with_database"
+        },
+        {
+          "lines": 7,
+          "qualified_name": "_with_events"
+        },
+        {
+          "lines": 25,
+          "qualified_name": "collect_source"
+        },
+        {
+          "lines": 13,
+          "qualified_name": "collect_source.collect"
+        },
+        {
+          "lines": 12,
+          "qualified_name": "dispatch_runs"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "enqueue_collection"
+        },
+        {
+          "lines": 10,
+          "qualified_name": "schedule_sources"
+        }
+      ],
+      "lines": 98,
+      "source_path": "backend/app/tasks/acquisition.py"
+    },
+    {
+      "functions": [],
+      "lines": 59,
+      "source_path": "backend/app/tasks/celery_app.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 17,
+          "qualified_name": "ping"
+        }
+      ],
+      "lines": 27,
+      "source_path": "backend/app/tasks/health.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 6,
+          "qualified_name": "_with_database"
+        },
+        {
+          "lines": 7,
+          "qualified_name": "_with_events"
+        },
+        {
+          "lines": 20,
+          "qualified_name": "analyze_document"
+        },
+        {
+          "lines": 9,
+          "qualified_name": "analyze_document.analyze"
+        },
+        {
+          "lines": 6,
+          "qualified_name": "analyze_document.analyze.with_events"
+        },
+        {
+          "lines": 6,
+          "qualified_name": "dispatch_analyses"
+        },
+        {
+          "lines": 6,
+          "qualified_name": "dispatch_embeddings"
+        },
+        {
+          "lines": 6,
+          "qualified_name": "dispatch_raw_items"
+        },
+        {
+          "lines": 15,
+          "qualified_name": "embed_document"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "enqueue_analysis"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "enqueue_embedding"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "enqueue_raw_item"
+        },
+        {
+          "lines": 30,
+          "qualified_name": "process_raw_item"
+        },
+        {
+          "lines": 21,
+          "qualified_name": "process_raw_item.process"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "recover_analyses"
+        }
+      ],
+      "lines": 170,
+      "source_path": "backend/app/tasks/intelligence.py"
+    },
+    {
+      "functions": [
+        {
+          "lines": 11,
+          "qualified_name": "_dispatch"
+        },
+        {
+          "lines": 2,
+          "qualified_name": "dispatch_notifications"
+        }
+      ],
+      "lines": 29,
+      "source_path": "backend/app/tasks/notifications.py"
+    }
+  ],
+  "resolved_fingerprints": [
+    {
+      "imported_module": "app.services.native_acquisition",
+      "normalized_location": "module",
+      "rule_id": "cross_layer_import",
+      "source_path": "backend/app/services/acquisition.py",
+      "symbol_or_call": "NativeAcquisitionBackend"
+    },
+    {
+      "imported_module": "app.services.safe_fetcher",
+      "normalized_location": "module",
+      "rule_id": "cross_layer_import",
+      "source_path": "backend/app/services/acquisition.py",
+      "symbol_or_call": "SafeFetcher"
+    },
+    {
+      "imported_module": "typing.Protocol",
+      "normalized_location": "class:AcquisitionBackend",
+      "rule_id": "provider_port_location",
+      "source_path": "backend/app/services/acquisition_types.py",
+      "symbol_or_call": "AcquisitionBackend"
+    },
+    {
+      "imported_module": "typing.Protocol",
+      "normalized_location": "class:AcquisitionFetcher",
+      "rule_id": "provider_port_location",
+      "source_path": "backend/app/services/acquisition_types.py",
+      "symbol_or_call": "AcquisitionFetcher"
+    },
+    {
+      "imported_module": "typing.Protocol",
+      "normalized_location": "class:EventPublisher",
+      "rule_id": "provider_port_location",
+      "source_path": "backend/app/services/events.py",
+      "symbol_or_call": "EventPublisher"
+    },
+    {
+        "imported_module": "app.providers.embedding",
+        "normalized_location": "module",
+        "rule_id": "api_to_concrete_infrastructure",
+        "source_path": "backend/app/api/v1/routes/memory.py",
+        "symbol_or_call": "build_embedding_provider"
+      },
+      {
+        "imported_module": "app.providers.analysis",
+        "normalized_location": "module",
+        "rule_id": "application_to_concrete_provider",
+        "source_path": "backend/app/services/intelligence.py",
+        "symbol_or_call": "AnalysisProvider"
+      },
+      {
+        "imported_module": "app.providers.analysis",
+        "normalized_location": "module",
+        "rule_id": "application_to_concrete_provider",
+        "source_path": "backend/app/services/intelligence.py",
+        "symbol_or_call": "AnalysisRequest"
+      },
+      {
+        "imported_module": "app.providers.analysis",
+        "normalized_location": "module",
+        "rule_id": "application_to_concrete_provider",
+        "source_path": "backend/app/services/intelligence.py",
+        "symbol_or_call": "ProviderError"
+      },
+      {
+        "imported_module": "app.providers.analysis",
+        "normalized_location": "module",
+        "rule_id": "application_to_concrete_provider",
+        "source_path": "backend/app/services/intelligence.py",
+        "symbol_or_call": "ProviderResponse"
+      },
+      {
+        "imported_module": "app.providers.embedding",
+        "normalized_location": "module",
+        "rule_id": "application_to_concrete_provider",
+        "source_path": "backend/app/services/memory.py",
+        "symbol_or_call": "EmbeddingError"
+      },
+      {
+        "imported_module": "app.providers.embedding",
+        "normalized_location": "module",
+        "rule_id": "application_to_concrete_provider",
+        "source_path": "backend/app/services/memory.py",
+        "symbol_or_call": "EmbeddingProvider"
+      },
+      {
+        "imported_module": "app.providers.embedding",
+        "normalized_location": "module",
+        "rule_id": "application_to_concrete_provider",
+        "source_path": "backend/app/services/memory.py",
+        "symbol_or_call": "EmbeddingResponse"
+      },
+      {
+        "imported_module": "app.providers.embedding",
+        "normalized_location": "module",
+        "rule_id": "application_to_concrete_provider",
+        "source_path": "backend/app/services/memory.py",
+        "symbol_or_call": "MAX_EMBEDDING_BATCH"
+      },
+      {
+        "imported_module": "app.providers.embedding",
+        "normalized_location": "module",
+        "rule_id": "application_to_concrete_provider",
+        "source_path": "backend/app/services/memory.py",
+        "symbol_or_call": "normalize_vector"
+      },
+      {
+        "imported_module": "app.providers.embedding",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/api/v1/routes/memory.py",
+        "symbol_or_call": "build_embedding_provider"
+      },
+      {
+        "imported_module": "app.providers.analysis",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/intelligence.py",
+        "symbol_or_call": "AnalysisProvider"
+      },
+      {
+        "imported_module": "app.providers.analysis",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/intelligence.py",
+        "symbol_or_call": "AnalysisRequest"
+      },
+      {
+        "imported_module": "app.providers.analysis",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/intelligence.py",
+        "symbol_or_call": "ProviderError"
+      },
+      {
+        "imported_module": "app.providers.analysis",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/intelligence.py",
+        "symbol_or_call": "ProviderResponse"
+      },
+      {
+        "imported_module": "app.providers.embedding",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/memory.py",
+        "symbol_or_call": "EmbeddingError"
+      },
+      {
+        "imported_module": "app.providers.embedding",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/memory.py",
+        "symbol_or_call": "EmbeddingProvider"
+      },
+      {
+        "imported_module": "app.providers.embedding",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/memory.py",
+        "symbol_or_call": "EmbeddingResponse"
+      },
+      {
+        "imported_module": "app.providers.embedding",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/memory.py",
+        "symbol_or_call": "MAX_EMBEDDING_BATCH"
+      },
+      {
+        "imported_module": "app.providers.embedding",
+        "normalized_location": "module",
+        "rule_id": "cross_layer_import",
+        "source_path": "backend/app/services/memory.py",
+        "symbol_or_call": "normalize_vector"
+      },
+      {
+        "imported_module": "typing.Protocol",
+        "normalized_location": "class:AnalysisProvider",
+        "rule_id": "provider_port_location",
+        "source_path": "backend/app/providers/analysis.py",
+        "symbol_or_call": "AnalysisProvider"
+      },
+      {
+        "imported_module": "typing.Protocol",
+        "normalized_location": "class:EmbeddingProvider",
+        "rule_id": "provider_port_location",
+        "source_path": "backend/app/providers/embedding.py",
+        "symbol_or_call": "EmbeddingProvider"
+      }
+  ],
+  "scan_scope": "all tracked Python modules under backend/app at source_commit",
+  "schema_version": 1,
+  "source_commit": "f4b58c1ec0d20d075b98d5a9ca3d146d0b4deb56",
+  "tracked_tests": [
+    "backend/tests/conftest.py",
+    "backend/tests/test_acq1_lease.py",
+    "backend/tests/test_acq1_profile_policy.py",
+    "backend/tests/test_acquisition.py",
+    "backend/tests/test_acquisition_parsers.py",
+    "backend/tests/test_alpha_e2e.py",
+    "backend/tests/test_analysis_provider.py",
+    "backend/tests/test_auth.py",
+    "backend/tests/test_config.py",
+    "backend/tests/test_contract_freeze.py",
+    "backend/tests/test_embedding_provider.py",
+    "backend/tests/test_error_paths.py",
+    "backend/tests/test_extraction.py",
+    "backend/tests/test_health.py",
+    "backend/tests/test_intelligence.py",
+    "backend/tests/test_logging.py",
+    "backend/tests/test_memory.py",
+    "backend/tests/test_models.py",
+    "backend/tests/test_notifications.py",
+    "backend/tests/test_resources.py",
+    "backend/tests/test_safe_fetcher.py",
+    "backend/tests/test_security.py",
+    "backend/tests/test_tasks.py",
+    "backend/tests/test_url_normalization.py",
+    "backend/tests/test_websocket.py"
+  ]
+}

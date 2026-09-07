@@ -2,7 +2,7 @@
 
 状态：BLOCKED / Not Admitted
 
-基准：`main@f4b58c1ec0d20d075b98d5a9ca3d146d0b4deb56`（PR #40 merge commit）
+基准：`main@fe99fac67f4489e273bcf9f40f839868ee9ec17f`（Architecture Governance Pass 收口 PR #52 merge commit）
 
 Phase：WP-3 / ACQ-1B Dynamic + H-browser
 

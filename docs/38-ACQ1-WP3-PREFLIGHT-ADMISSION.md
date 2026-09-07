@@ -2,7 +2,7 @@
 
 状态：Accepted（仅兼容性与隔离 Spike；本控制提交合并后生效）
 
-前置基准：`main@f4b58c1ec0d20d075b98d5a9ca3d146d0b4deb56`
+前置基准：`main@fe99fac67f4489e273bcf9f40f839868ee9ec17f`
 
 执行角色：现有 Backend 角色；完成后直接向总控汇报并 STOP
 

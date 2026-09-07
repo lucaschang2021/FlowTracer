@@ -1,22 +1,27 @@
 from __future__ import annotations
 
 import asyncio
-import json
 import time
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
-from decimal import ROUND_HALF_UP, Decimal
+from decimal import Decimal
 from typing import Any
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 from sqlalchemy import exists, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.core.config import Settings
 from app.core.errors import AppError
 from app.core.logging import get_logger
+from app.domains import intelligence_policy
+from app.domains.provider_ports import (
+    AnalysisProvider,
+    AnalysisRequest,
+    ProviderError,
+    ProviderResponse,
+)
 from app.models.entities import (
     AIUsageRecord,
     Analysis,
@@ -27,43 +32,12 @@ from app.models.entities import (
     Radar,
     Recommendation,
 )
-from app.providers.analysis import (
-    AnalysisProvider,
-    AnalysisRequest,
-    ProviderError,
-    ProviderResponse,
-)
 from app.services.cleaning import PIPELINE_VERSION
 from app.services.events import EventPublisher, build_event, publish_safely
 
 ANALYSIS_BUDGET_SECONDS = 90.0
 RUNNING_STALE_AFTER = timedelta(minutes=10)
-
-
-class AnalysisOutput(BaseModel):
-    model_config = ConfigDict(extra="forbid", strict=True)
-
-    summary: str = Field(min_length=1, max_length=2000)
-    category: str = Field(min_length=1, max_length=120)
-    relevance: int = Field(ge=0, le=100)
-    importance: int = Field(ge=0, le=100)
-    novelty: int = Field(ge=0, le=100)
-    impact: int = Field(ge=0, le=100)
-    reason: str = Field(min_length=1, max_length=1000)
-
-    @field_validator("summary", "category", "reason")
-    @classmethod
-    def safe_text(cls, value: str) -> str:
-        if any(ord(character) < 32 or 127 <= ord(character) <= 159 for character in value):
-            raise ValueError("must not contain control characters")
-        normalized = value.strip()
-        if not normalized:
-            raise ValueError("must not be blank")
-        try:
-            normalized.encode("utf-8")
-        except UnicodeEncodeError:
-            raise ValueError("must contain valid Unicode") from None
-        return normalized
+AnalysisOutput = intelligence_policy.AnalysisOutput
 
 
 @dataclass(frozen=True)
@@ -79,52 +53,37 @@ class ClaimedAnalysis:
 
 
 def calculate_score(relevance: int, importance: int, novelty: int, impact: int) -> Decimal:
-    value = (
-        Decimal(relevance) * Decimal("0.40")
-        + Decimal(importance) * Decimal("0.25")
-        + Decimal(novelty) * Decimal("0.20")
-        + Decimal(impact) * Decimal("0.15")
-    )
-    return value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+    return intelligence_policy.calculate_score(relevance, importance, novelty, impact)
 
 
 def recommendation_for(score: Decimal) -> Recommendation:
-    if score >= Decimal("85"):
-        return Recommendation.MUST_READ
-    if score >= Decimal("70"):
-        return Recommendation.READ
-    if score >= Decimal("50"):
-        return Recommendation.MONITOR
-    return Recommendation.ARCHIVE
+    return Recommendation(intelligence_policy.recommendation_for(score))
 
 
 def qualifies_for_notification(score: Decimal, threshold: int) -> bool:
-    return score >= Decimal(threshold)
+    return intelligence_policy.qualifies_for_notification(score, threshold)
 
 
 def calculate_cost(input_tokens: int, output_tokens: int, settings: Settings) -> Decimal:
-    value = (
-        Decimal(input_tokens) * settings.ai_input_cost_per_million
-        + Decimal(output_tokens) * settings.ai_output_cost_per_million
-    ) / Decimal(1_000_000)
-    return value.quantize(Decimal("0.000001"), rounding=ROUND_HALF_UP)
-
-
-def _reject_constant(value: str) -> None:
-    raise ValueError(f"invalid JSON constant: {value}")
+    return intelligence_policy.calculate_cost(
+        input_tokens,
+        output_tokens,
+        settings.ai_input_cost_per_million,
+        settings.ai_output_cost_per_million,
+    )
 
 
 def validate_output(content: str, categories: tuple[str, ...]) -> AnalysisOutput:
     try:
-        raw = json.loads(content, parse_constant=_reject_constant)
-        output = AnalysisOutput.model_validate(raw)
-    except (json.JSONDecodeError, ValueError, ValidationError):
+        return intelligence_policy.validate_output(content, categories)
+    except intelligence_policy.OutputValidationError as exc:
+        if exc.reason == "invalid_category":
+            raise ProviderError(
+                "ai_invalid_output", "AI returned an invalid category", retryable=False
+            ) from None
         raise ProviderError(
             "ai_invalid_output", "AI returned invalid output", retryable=False
         ) from None
-    if categories and output.category not in {*categories, "other"}:
-        raise ProviderError("ai_invalid_output", "AI returned an invalid category", retryable=False)
-    return output
 
 
 async def _claim_analysis(

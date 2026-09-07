@@ -37,13 +37,30 @@ from app.services.acquisition import (
     publish_collection_updated,
     schedule_due_sources,
 )
+from app.services.acquisition_run_repository import SqlAlchemyAcquisitionRunRepository
 from app.services.acquisition_types import CollectionError, FetchResponse
+from app.services.native_acquisition import NativeAcquisitionBackend
 from app.services.readiness import ReadinessService
 
 TABLES = (
     "notifications, ai_usage_records, document_chunks, bookmarks, analyses, documents, "
     "raw_items, radar_sources, collection_runs, sources, radars, refresh_tokens, users"
 )
+
+
+def execute_with_fetcher(
+    factory: async_sessionmaker[AsyncSession],
+    run_id: UUID,
+    *,
+    fetcher: Any,
+    **kwargs: Any,
+) -> Any:
+    return execute_run(
+        SqlAlchemyAcquisitionRunRepository(factory),
+        run_id,
+        backend=NativeAcquisitionBackend(fetcher),
+        **kwargs,
+    )
 
 
 async def healthy_probe() -> None:
@@ -329,14 +346,14 @@ async def test_worker_is_idempotent_partial_and_applies_three_level_deduplicatio
     raw_dispatches: list[str] = []
     publisher = RecordingPublisher()
     outcomes = await asyncio.gather(
-        execute_run(
+        execute_with_fetcher(
             factory,
             first_run,
             fetcher=first_fetcher,  # type: ignore[arg-type]
             raw_dispatch=lambda value, _correlation: raw_dispatches.append(value),
             publisher=publisher,
         ),
-        execute_run(
+        execute_with_fetcher(
             factory,
             first_run,
             fetcher=first_fetcher,  # type: ignore[arg-type]
@@ -367,7 +384,7 @@ async def test_worker_is_idempotent_partial_and_applies_three_level_deduplicatio
         <description>unique content</description></item>
       <item><guid>empty</guid><description> </description></item>
     </channel></rss>"""
-    assert await execute_run(
+    assert await execute_with_fetcher(
         factory,
         second_run,
         fetcher=StaticFetcher(second_feed),  # type: ignore[arg-type]
@@ -400,7 +417,7 @@ async def test_worker_is_idempotent_partial_and_applies_three_level_deduplicatio
     assert items.json()["items"][0]["metadata"] == {}
 
     failed_run = await new_run("worker-failure")
-    assert not await execute_run(
+    assert not await execute_with_fetcher(
         factory,
         failed_run,
         fetcher=FailingFetcher(),  # type: ignore[arg-type]
@@ -416,7 +433,7 @@ async def test_worker_is_idempotent_partial_and_applies_three_level_deduplicatio
         assert failed.error_message == "Safe parser failure"
 
     internal_run = await new_run("worker-internal-failure")
-    assert not await execute_run(
+    assert not await execute_with_fetcher(
         factory,
         internal_run,
         fetcher=ExplodingFetcher(),  # type: ignore[arg-type]
@@ -430,7 +447,7 @@ async def test_worker_is_idempotent_partial_and_applies_three_level_deduplicatio
 
     deleted_run = await new_run("worker-deleted-source")
     assert (await client.delete(f"/api/v1/sources/{source_id}", headers=headers)).status_code == 204
-    assert not await execute_run(
+    assert not await execute_with_fetcher(
         factory,
         deleted_run,
         fetcher=StaticFetcher(first_feed),  # type: ignore[arg-type]
@@ -468,12 +485,12 @@ async def test_feed_entries_without_links_remain_distinct_and_repeat_deduplicate
     </channel></rss>"""
     first_run_id = await create_run("linkless-first")
     second_run_id = await create_run("linkless-second")
-    assert await execute_run(
+    assert await execute_with_fetcher(
         factory,
         first_run_id,
         fetcher=StaticFetcher(feed),  # type: ignore[arg-type]
     )
-    assert await execute_run(
+    assert await execute_with_fetcher(
         factory,
         second_run_id,
         fetcher=StaticFetcher(feed),  # type: ignore[arg-type]

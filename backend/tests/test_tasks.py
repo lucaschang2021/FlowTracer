@@ -55,23 +55,22 @@ def test_acquisition_task_wrappers_and_dispatch(monkeypatch: pytest.MonkeyPatch)
 async def test_acquisition_database_wrapper_always_disposes(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    class Engine:
-        disposed = False
-
-        async def dispose(self) -> None:
-            self.disposed = True
-
-    engine = Engine()
     factory = object()
-    monkeypatch.setattr(acquisition, "create_database_engine", lambda _settings: engine)
-    monkeypatch.setattr(acquisition, "create_session_factory", lambda _engine: factory)
+    delegated = False
+
+    async def composed(_settings: object, operation: object) -> object:
+        nonlocal delegated
+        delegated = True
+        return await operation(factory)  # type: ignore[operator]
+
+    monkeypatch.setattr(acquisition, "with_database", composed)
 
     async def operation(value: object) -> str:
         assert value is factory
         return "ok"
 
     assert await acquisition._with_database(operation) == "ok"
-    assert engine.disposed
+    assert delegated
 
 
 def test_intelligence_task_wrappers_and_dispatch(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -120,23 +119,22 @@ def test_intelligence_task_wrappers_and_dispatch(monkeypatch: pytest.MonkeyPatch
 async def test_intelligence_database_wrapper_always_disposes(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    class Engine:
-        disposed = False
-
-        async def dispose(self) -> None:
-            self.disposed = True
-
-    engine = Engine()
     factory = object()
-    monkeypatch.setattr(intelligence, "create_database_engine", lambda _settings: engine)
-    monkeypatch.setattr(intelligence, "create_session_factory", lambda _engine: factory)
+    delegated = False
+
+    async def composed(_settings: object, operation: object) -> object:
+        nonlocal delegated
+        delegated = True
+        return await operation(factory)  # type: ignore[operator]
+
+    monkeypatch.setattr(intelligence, "with_database", composed)
 
     async def operation(value: object) -> str:
         assert value is factory
         return "ok"
 
     assert await intelligence._with_database(operation) == "ok"
-    assert engine.disposed
+    assert delegated
 
 
 def test_notification_dispatch_task_and_beat(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -178,7 +176,7 @@ def test_analysis_worker_publishes_then_dispatches_notification(
 
     monkeypatch.setattr(intelligence, "_with_database", with_database)
     monkeypatch.setattr(intelligence, "_with_events", with_events)
-    monkeypatch.setattr(intelligence, "build_provider", lambda _settings: object())
+    monkeypatch.setattr(intelligence, "build_analysis_dependency", lambda _settings: object())
     monkeypatch.setattr(intelligence, "run_analysis", run)
     monkeypatch.setattr(intelligence, "publish_analysis_completed", publish)
     monkeypatch.setattr(intelligence, "dispatch_notifications", notify)

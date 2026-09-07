@@ -7,7 +7,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import get_current_user, get_session
 from app.models.entities import User
-from app.providers.embedding import build_embedding_provider
 from app.schemas.errors import documented_error
 from app.schemas.memory import (
     BookmarkCreate,
@@ -97,9 +96,6 @@ async def search_memory(
     user: User = Depends(get_current_user),
 ) -> MemorySearchResponse:
     settings = request.app.state.settings
-    provider = getattr(request.app.state, "embedding_provider", None)
-    if provider is None:
-        provider = build_embedding_provider(settings)
     items = await memory.search_memory(
         request.app.state.session_factory,
         user_id=user.id,
@@ -109,7 +105,7 @@ async def search_memory(
         date_from=payload.date_from,
         date_to=payload.date_to,
         bookmarked_only=payload.bookmarked_only,
-        provider=provider,
+        provider=request.app.state.embedding_provider,
         settings=settings,
     )
     return MemorySearchResponse(items=items, query=payload.query, top_k=payload.top_k)

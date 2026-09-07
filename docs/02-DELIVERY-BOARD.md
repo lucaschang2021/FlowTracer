@@ -6,7 +6,9 @@
 
 **当前停点：ACQ-1 WP-3 Compatibility/Isolation Preflight 控制准入 — 仅证据 Spike 可在本控制提交合并后派发；WP-3 正式实现仍阻塞**
 
-本次同步事实基准：`main@f4b58c1ec0d20d075b98d5a9ca3d146d0b4deb56`（PR #40 merge commit）。
+Architecture Governance Pass 已完成。ACQ-1 WP-3（ACQ-1B Dynamic + H-browser）正式实现仍因兼容性与隔离证据未冻结而阻塞；Frontend、Integration 与 Release 同样未准入。
+
+本次同步事实基准：`main@fe99fac67f4489e273bcf9f40f839868ee9ec17f`（Architecture Governance Pass 收口 PR #52 merge commit）。
 
 ## 工作项
 
@@ -20,6 +22,13 @@
 | ARC-006 | WebSocket 事件契约 | 总控 | 完成 | ARC-004 | `03-BACKEND-CONTRACT-BASELINE.md` |
 | ARC-007 | AI 与评分规格 | 总控 | 完成 | ARC-003 | `03-BACKEND-CONTRACT-BASELINE.md` |
 | ARC-008 | 安全与部署规格 | 总控 | 完成 | ARC-002 | `01-ARCHITECTURE-DECISIONS.md`、`03-BACKEND-CONTRACT-BASELINE.md` |
+| ARC-AG0 | Architecture Governance 合同冻结与严重度校准 | Architecture / 总控 | 完成（已合并） | ARC-008 | PR #42、PR #43、`ARCHITECTURE.toml`、`ARCHITECTURE-GOVERNANCE.md` |
+| ARC-AG1 | Executable Gate Foundation | Backend / Architecture | 完成（已验收、已合并） | ARC-AG0 | PR #44、machine baseline、Architecture CI/gate/tests |
+| ARC-AG2 | Intelligence 纯领域策略与兼容委托 | Backend / Architecture | 完成（已验收、已合并） | ARC-AG1 | PR #45、`backend/app/domains/intelligence_policy.py` |
+| ARC-AG3 | Acquisition Ports 与最小 DI | Backend / Architecture | 完成（已验收、已合并） | ARC-AG2 | PR #47、候选 `ce26640e3c2f994c8036b18a2c2b984dee045c53`、merge commit `190a71754a7a0f3a5de3e664bbfa77e4eea945bc`；Architecture Gate `existing=152 / introduced=0 / resolved=5 / P0=0`，Backend CI success |
+| ARC-AG4 | Composition and Import Safety | Backend / Architecture | 完成（已验收、已合并） | ARC-AG3 | PR #49、候选 `78ddf49ed6ddf94204465cd16dd96163cb93d834`、merge commit `f1494c7f843782523f728913e08774331ec8163f`；Architecture Gate `existing=130 / introduced=0 / resolved=27 / P0=0`，CI run `34029206838` SUCCESS |
+| ARC-AG5 | Conditional Memory Policy | Backend / Architecture | 完成（no-code characterization audit） | ARC-AG4 | Memory ownership/bookmark/filter、cosine distance、稳定排序、top-k 保持 PostgreSQL/pgvector SQL；六位量化不单独抽取；无 retention contract；无代码/commit/测试变更，`introduced P0/P1/P2=0` |
+| ARC-AG6 | Final Compatibility Gate / Architecture Governance Pass 结项 | Backend / Architecture | 完成（no-code PASS） | ARC-AG5 | `main@81a9739c986eaef50fa43ba9a7d32689bceddf03`；Architecture `existing=130 / introduced=0 / resolved=27 / P0=0 / P1=114 / P2=16`；EX-001/003/004/007 关闭；356 passed、88.12%；OpenAPI/Alembic/Schema/ACQ/Compose/Ruff/Mypy 通过且零漂移 |
 | PM-001 | Backend 执行任务包 | 总控 | 完成 | ARC-003..008 | `10-BACKEND-WORK-PACKAGE.md` |
 | BE-0 | 工程盘点与实施计划 | Backend | 完成（已验收） | PM-001 | `11-BE-0-ACCEPTANCE.md` |
 | PM-002 | BE-1 工程基线 | 总控 | 完成 | BE-0 | `04-BE1-ENGINEERING-BASELINE.md` |

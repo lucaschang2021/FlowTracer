@@ -4,16 +4,16 @@ import asyncio
 from typing import Any
 from uuid import UUID
 
-from redis.asyncio import Redis
-
+from app.core.composition import (
+    build_analysis_dependency,
+    build_embedding_dependency,
+    with_database,
+    with_events,
+)
 from app.core.config import get_settings
 from app.core.context import bind_context, reset_context
 from app.core.logging import get_logger
-from app.db.session import create_database_engine, create_session_factory
-from app.providers.analysis import build_provider
-from app.providers.embedding import build_embedding_provider
 from app.services.cleaning import clean_raw_item, dispatch_fetched_raw_items
-from app.services.events import RedisEventPublisher
 from app.services.intelligence import (
     dispatch_pending_analyses,
     publish_analysis_completed,
@@ -26,20 +26,11 @@ from app.tasks.celery_app import celery_app
 
 
 async def _with_database(operation: Any) -> Any:
-    engine = create_database_engine(get_settings())
-    try:
-        return await operation(create_session_factory(engine))
-    finally:
-        await engine.dispose()
+    return await with_database(get_settings(), operation)
 
 
 async def _with_events(operation: Any) -> Any:
-    settings = get_settings()
-    redis_client = Redis.from_url(settings.redis_url.get_secret_value(), decode_responses=True)
-    try:
-        return await operation(RedisEventPublisher(redis_client))
-    finally:
-        await redis_client.aclose()
+    return await with_events(get_settings(), operation)
 
 
 def enqueue_raw_item(raw_item_id: str, correlation_id: str) -> None:
@@ -98,7 +89,7 @@ def analyze_document(self: Any, analysis_id: str, correlation_id: str | None = N
     tokens = bind_context(request_id=resolved, correlation_id=resolved)
     try:
         settings = get_settings()
-        provider = build_provider(settings)
+        provider = build_analysis_dependency(settings)
 
         async def analyze(factory: Any) -> bool:
             async def with_events(publisher: Any) -> bool:
@@ -126,7 +117,7 @@ def embed_document(self: Any, document_id: str, correlation_id: str | None = Non
     tokens = bind_context(request_id=resolved, correlation_id=resolved)
     try:
         settings = get_settings()
-        provider = build_embedding_provider(settings)
+        provider = build_embedding_dependency(settings)
         return bool(
             asyncio.run(
                 _with_database(

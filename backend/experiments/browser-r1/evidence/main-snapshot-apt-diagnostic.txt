@@ -1,0 +1,4 @@
+Get:1 https://snapshot-cloudflare.debian.org/archive/debian/20260824T000000Z bookworm InRelease [151 kB]
+Get:2 https://snapshot-cloudflare.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 Packages [8790 kB]
+Fetched 8941 kB in 2s (4548 kB/s)
+Reading package lists...

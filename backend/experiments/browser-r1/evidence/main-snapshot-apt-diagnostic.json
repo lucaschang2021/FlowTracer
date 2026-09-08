@@ -1,0 +1,13 @@
+{
+  "archive": "https://snapshot-cloudflare.debian.org/archive/debian/20260824T000000Z",
+  "base_image": "python@sha256:c45a22ea000adfd9cda29364bbe7edd23001ce5cc2ad15857cfbf7766943b9ca",
+  "command": "apt-get -o Acquire::Check-Valid-Until=false update",
+  "exit_code": 0,
+  "log_file": "main-snapshot-apt-diagnostic.txt",
+  "log_sha256": "75697d6c2038cdd4f89823b65225663b3da00bd4adb4157c93076a3880a89eb1",
+  "finished_at_utc": "2026-09-08T05:26:19.6472422Z",
+  "signed_by": "/usr/share/keyrings/debian-archive-keyring.gpg",
+  "started_at_utc": "2026-09-08T05:26:15.9521668Z",
+  "suite": "bookworm",
+  "component": "main"
+}

@@ -1,0 +1,298 @@
+#0 building with "flowtracer-r1-final-builder" instance using docker-container driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 2.67kB 0.1s done
+#1 DONE 0.1s
+
+#2 resolve image config for docker-image://docker.io/docker/dockerfile:1.7@sha256:a57df69d0ea827fb7266491f2813635de6f17269be881f696fbfdf2d83dda33e
+#2 ...
+
+#3 [auth] docker/dockerfile:pull token for registry-1.docker.io
+#3 DONE 0.0s
+
+#2 resolve image config for docker-image://docker.io/docker/dockerfile:1.7@sha256:a57df69d0ea827fb7266491f2813635de6f17269be881f696fbfdf2d83dda33e
+#2 DONE 1.9s
+
+#4 docker-image://docker.io/docker/dockerfile:1.7@sha256:a57df69d0ea827fb7266491f2813635de6f17269be881f696fbfdf2d83dda33e
+#4 resolve docker.io/docker/dockerfile:1.7@sha256:a57df69d0ea827fb7266491f2813635de6f17269be881f696fbfdf2d83dda33e 0.0s done
+#4 CACHED
+
+#5 [internal] load metadata for docker.io/library/python@sha256:c45a22ea000adfd9cda29364bbe7edd23001ce5cc2ad15857cfbf7766943b9ca
+#5 ...
+
+#6 [auth] library/python:pull token for registry-1.docker.io
+#6 DONE 0.0s
+
+#5 [internal] load metadata for docker.io/library/python@sha256:c45a22ea000adfd9cda29364bbe7edd23001ce5cc2ad15857cfbf7766943b9ca
+#5 DONE 0.8s
+
+#7 [internal] load .dockerignore
+#7 transferring context: 2B done
+#7 DONE 0.0s
+
+#8 [internal] load build context
+#8 DONE 0.0s
+
+#9 [1/6] FROM docker.io/library/python@sha256:c45a22ea000adfd9cda29364bbe7edd23001ce5cc2ad15857cfbf7766943b9ca
+#9 resolve docker.io/library/python@sha256:c45a22ea000adfd9cda29364bbe7edd23001ce5cc2ad15857cfbf7766943b9ca
+#9 resolve docker.io/library/python@sha256:c45a22ea000adfd9cda29364bbe7edd23001ce5cc2ad15857cfbf7766943b9ca 0.0s done
+#9 CACHED
+
+#8 [internal] load build context
+#8 transferring context: 464B 0.0s done
+#8 DONE 0.0s
+
+#10 [2/6] COPY requirements.lock /tmp/requirements.lock
+#10 DONE 0.1s
+
+#11 [3/6] COPY debian-packages.lock browser-files.sha256 browser-tree.manifest.json /opt/flowtracer-r1/locks/
+#11 DONE 0.1s
+
+#12 [4/6] COPY scripts /opt/flowtracer-r1/scripts
+#12 DONE 0.1s
+
+#13 [5/6] RUN sed -i       -e "s|URIs: http://deb.debian.org/debian-security|URIs: https://snapshot-cloudflare.debian.org/archive/debian-security/20260824T000000Z|"       -e "s|URIs: http://deb.debian.org/debian|URIs: http://snapshot.debian.org/archive/debian/20260824T000000Z|"       /etc/apt/sources.list.d/debian.sources     && printf '%s\n'       'Acquire::Check-Valid-Until "false";'       'Acquire::Retries "10";'       'Acquire::http::Timeout "60";'       > /etc/apt/apt.conf.d/99snapshot     && python -m pip install --no-compile --require-hashes -r /tmp/requirements.lock     && python -m patchright install --with-deps --only-shell chromium     && rm -f /tmp/requirements.lock     && chmod -R a+rX /opt/browser-r1 /opt/flowtracer-r1     && find /opt/browser-r1 -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum > /tmp/browser-files.actual     && diff -u /opt/flowtracer-r1/locks/browser-files.sha256 /tmp/browser-files.actual     && if [ "1" = "1" ]; then python /opt/flowtracer-r1/scripts/browser_tree_manifest.py --verify /opt/flowtracer-r1/locks/browser-tree.manifest.json; fi     && dpkg-query -W | tr '\t' '=' | LC_ALL=C sort > /tmp/debian-packages.actual     && diff -u /opt/flowtracer-r1/locks/debian-packages.lock /tmp/debian-packages.actual     && rm -f /tmp/browser-files.actual /tmp/debian-packages.actual     && find /usr/local/lib/python3.13/site-packages -type d -name __pycache__ -prune -exec rm -rf '{}' +     && rm -rf /var/cache/fontconfig/* /var/cache/ldconfig/aux-cache /var/log/apt/*     && rm -f /var/log/alternatives.log /var/log/dpkg.log     && useradd --create-home --uid 10001 flowtracer
+#13 3.766 Collecting anyio==4.14.2 (from -r /tmp/requirements.lock (line 3))
+#13 4.326   Downloading anyio-4.14.2-py3-none-any.whl (125 kB)
+#13 4.619 Collecting apify-fingerprint-datapoints==0.15.0 (from -r /tmp/requirements.lock (line 7))
+#13 4.778   Downloading apify_fingerprint_datapoints-0.15.0-py3-none-any.whl (761 kB)
+#13 4.985      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 761.8/761.8 kB 5.2 MB/s  0:00:00
+#13 5.144 Collecting browserforge==1.2.4 (from -r /tmp/requirements.lock (line 13))
+#13 5.309   Downloading browserforge-1.2.4-py3-none-any.whl (37 kB)
+#13 5.503 Collecting certifi==2026.7.22 (from -r /tmp/requirements.lock (line 17))
+#13 5.641   Downloading certifi-2026.7.22-py3-none-any.whl (136 kB)
+#13 6.307 Collecting cffi==2.1.1 (from -r /tmp/requirements.lock (line 21))
+#13 6.443   Downloading cffi-2.1.1-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (221 kB)
+#13 6.597 Collecting click==8.5.0 (from -r /tmp/requirements.lock (line 38))
+#13 6.731   Downloading click-8.5.0-py3-none-any.whl (125 kB)
+#13 6.861 Collecting cssselect==1.5.0 (from -r /tmp/requirements.lock (line 44))
+#13 6.997   Downloading cssselect-1.5.0-py3-none-any.whl (20 kB)
+#13 7.349 Collecting curl-cffi==0.16.3 (from -r /tmp/requirements.lock (line 48))
+#13 7.484   Downloading curl_cffi-0.16.3-cp310-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (13.5 MB)
+#13 8.419      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 13.5/13.5 MB 14.5 MB/s  0:00:00
+#13 9.096 Collecting greenlet==3.5.5 (from -r /tmp/requirements.lock (line 63))
+#13 9.236   Downloading greenlet-3.5.5-cp313-cp313-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (623 kB)
+#13 9.277      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 623.9/623.9 kB 17.1 MB/s  0:00:00
+#13 9.406 Collecting idna==3.19 (from -r /tmp/requirements.lock (line 78))
+#13 9.541   Downloading idna-3.19-py3-none-any.whl (68 kB)
+#13 10.39 Collecting lxml==6.1.3 (from -r /tmp/requirements.lock (line 82))
+#13 10.53   Downloading lxml-6.1.3-cp313-cp313-manylinux_2_26_x86_64.manylinux_2_28_x86_64.whl (5.2 MB)
+#13 10.77      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 5.2/5.2 MB 23.4 MB/s  0:00:00
+#13 11.01 Collecting msgspec==0.21.1 (from -r /tmp/requirements.lock (line 103))
+#13 11.15   Downloading msgspec-0.21.1-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (225 kB)
+#13 11.82 Collecting orjson==3.12.0 (from -r /tmp/requirements.lock (line 114))
+#13 11.95   Downloading orjson-3.12.0-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (131 kB)
+#13 12.10 Collecting patchright==1.62.3 (from -r /tmp/requirements.lock (line 128))
+#13 12.24   Downloading patchright-1.62.3-py3-none-manylinux1_x86_64.whl (47.7 MB)
+#13 14.72      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 47.7/47.7 MB 19.3 MB/s  0:00:02
+#13 14.92 Collecting playwright==1.62.0 (from -r /tmp/requirements.lock (line 140))
+#13 15.06   Downloading playwright-1.62.0-py3-none-manylinux1_x86_64.whl (47.7 MB)
+#13 17.46      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 47.7/47.7 MB 20.0 MB/s  0:00:02
+#13 17.61 Collecting protego==0.6.2 (from -r /tmp/requirements.lock (line 152))
+#13 17.75   Downloading protego-0.6.2-py3-none-any.whl (10 kB)
+#13 17.87 Collecting pycparser==3.0 (from -r /tmp/requirements.lock (line 156))
+#13 18.00   Downloading pycparser-3.0-py3-none-any.whl (48 kB)
+#13 18.13 Collecting pyee==13.0.1 (from -r /tmp/requirements.lock (line 160))
+#13 18.28   Downloading pyee-13.0.1-py3-none-any.whl (15 kB)
+#13 18.41 Collecting scrapling==0.4.15 (from -r /tmp/requirements.lock (line 166))
+#13 18.55   Downloading scrapling-0.4.15-py3-none-any.whl (180 kB)
+#13 18.81 Collecting tld==0.13.2 (from -r /tmp/requirements.lock (line 170))
+#13 18.95   Downloading tld-0.13.2-py2.py3-none-any.whl (296 kB)
+#13 19.10 Collecting typing-extensions==4.16.0 (from -r /tmp/requirements.lock (line 174))
+#13 19.23   Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+#13 19.36 Collecting w3lib==2.4.1 (from -r /tmp/requirements.lock (line 180))
+#13 19.49   Downloading w3lib-2.4.1-py3-none-any.whl (21 kB)
+#13 19.69 Installing collected packages: w3lib, typing-extensions, tld, pycparser, protego, orjson, msgspec, lxml, idna, greenlet, cssselect, click, certifi, apify-fingerprint-datapoints, scrapling, pyee, cffi, browserforge, anyio, playwright, patchright, curl-cffi
+#13 22.85 
+#13 22.85 Successfully installed anyio-4.14.2 apify-fingerprint-datapoints-0.15.0 browserforge-1.2.4 certifi-2026.7.22 cffi-2.1.1 click-8.5.0 cssselect-1.5.0 curl-cffi-0.16.3 greenlet-3.5.5 idna-3.19 lxml-6.1.3 msgspec-0.21.1 orjson-3.12.0 patchright-1.62.3 playwright-1.62.0 protego-0.6.2 pycparser-3.0 pyee-13.0.1 scrapling-0.4.15 tld-0.13.2 typing-extensions-4.16.0 w3lib-2.4.1
+#13 22.85 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+#13 23.82 Installing dependencies...
+#13 26.09 Get:1 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm InRelease [151 kB]
+#13 26.44 Get:2 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm-updates InRelease [55.4 kB]
+#13 27.75 Get:5 https://snapshot-cloudflare.debian.org/archive/debian-security/20260824T000000Z bookworm-security InRelease [34.8 kB]
+#13 27.86 Get:3 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 Packages [8790 kB]
+#13 28.08 Get:6 https://snapshot-cloudflare.debian.org/archive/debian-security/20260824T000000Z bookworm-security/main amd64 Packages [335 kB]
+#13 28.74 Get:4 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm-updates/main amd64 Packages [6924 B]
+#13 29.52 Fetched 9374 kB in 6s (1688 kB/s)
+#13 29.52 Reading package lists...
+#13 30.20 Reading package lists...
+#13 30.82 Building dependency tree...
+#13 31.00 Reading state information...
+#13 31.32 The following additional packages will be installed:
+#13 31.32   at-spi2-common fontconfig fontconfig-config libasound2-data libavahi-client3
+#13 31.32   libavahi-common-data libavahi-common3 libbrotli1 libbsd0 libdatrie1
+#13 31.32   libdrm-amdgpu1 libdrm-common libdrm-intel1 libdrm-nouveau2 libdrm-radeon1
+#13 31.32   libedit2 libelf1 libexpat1 libfontenc1 libfribidi0 libgl1 libgl1-mesa-dri
+#13 31.32   libglapi-mesa libglvnd0 libglx-mesa0 libglx0 libgraphite2-3 libgssapi-krb5-2
+#13 31.32   libharfbuzz0b libice6 libicu72 libk5crypto3 libkeyutils1 libkrb5-3
+#13 31.32   libkrb5support0 libllvm15 libpciaccess0 libpixman-1-0 libpng16-16
+#13 31.32   libsensors-config libsensors5 libsm6 libthai-data libthai0 libunwind8
+#13 31.32   libwayland-server0 libx11-data libx11-xcb1 libxau6 libxaw7 libxcb-dri2-0
+#13 31.32   libxcb-dri3-0 libxcb-glx0 libxcb-present0 libxcb-randr0 libxcb-render0
+#13 31.32   libxcb-shm0 libxcb-sync1 libxcb-xfixes0 libxdmcp6 libxfont2 libxi6
+#13 31.32   libxkbfile1 libxml2 libxmu6 libxpm4 libxrender1 libxshmfence1 libxt6
+#13 31.33   libxxf86vm1 libz3-4 x11-common x11-xkb-utils xfonts-encodings xfonts-utils
+#13 31.33   xkb-data xserver-common
+#13 31.33 Suggested packages:
+#13 31.33   libasound2-plugins alsa-utils cups-common low-memory-monitor krb5-doc
+#13 31.33   krb5-user pciutils lm-sensors
+#13 31.33 Recommended packages:
+#13 31.33   fonts-ipafont-mincho fonts-tlwg-loma alsa-ucm-conf alsa-topology-conf
+#13 31.33   at-spi2-core dbus libglib2.0-data shared-mime-info xdg-user-dirs
+#13 31.33   krb5-locales xfonts-base xauth
+#13 31.78 The following NEW packages will be installed:
+#13 31.78   at-spi2-common fontconfig fontconfig-config fonts-freefont-ttf
+#13 31.78   fonts-ipafont-gothic fonts-liberation fonts-noto-color-emoji
+#13 31.78   fonts-tlwg-loma-otf fonts-unifont fonts-wqy-zenhei libasound2
+#13 31.78   libasound2-data libatk-bridge2.0-0 libatk1.0-0 libatspi2.0-0
+#13 31.78   libavahi-client3 libavahi-common-data libavahi-common3 libbrotli1 libbsd0
+#13 31.78   libcairo2 libcups2 libdatrie1 libdbus-1-3 libdrm-amdgpu1 libdrm-common
+#13 31.78   libdrm-intel1 libdrm-nouveau2 libdrm-radeon1 libdrm2 libedit2 libelf1
+#13 31.78   libexpat1 libfontconfig1 libfontenc1 libfreetype6 libfribidi0 libgbm1 libgl1
+#13 31.78   libgl1-mesa-dri libglapi-mesa libglib2.0-0 libglvnd0 libglx-mesa0 libglx0
+#13 31.78   libgraphite2-3 libgssapi-krb5-2 libharfbuzz0b libice6 libicu72 libk5crypto3
+#13 31.78   libkeyutils1 libkrb5-3 libkrb5support0 libllvm15 libnspr4 libnss3
+#13 31.78   libpango-1.0-0 libpciaccess0 libpixman-1-0 libpng16-16 libsensors-config
+#13 31.78   libsensors5 libsm6 libthai-data libthai0 libunwind8 libwayland-server0
+#13 31.78   libx11-6 libx11-data libx11-xcb1 libxau6 libxaw7 libxcb-dri2-0 libxcb-dri3-0
+#13 31.78   libxcb-glx0 libxcb-present0 libxcb-randr0 libxcb-render0 libxcb-shm0
+#13 31.78   libxcb-sync1 libxcb-xfixes0 libxcb1 libxcomposite1 libxdamage1 libxdmcp6
+#13 31.78   libxext6 libxfixes3 libxfont2 libxi6 libxkbcommon0 libxkbfile1 libxml2
+#13 31.78   libxmu6 libxpm4 libxrandr2 libxrender1 libxshmfence1 libxt6 libxxf86vm1
+#13 31.78   libz3-4 x11-common x11-xkb-utils xfonts-encodings xfonts-scalable
+#13 31.78   xfonts-utils xkb-data xserver-common xvfb
+#13 32.31 0 upgraded, 109 newly installed, 0 to remove and 0 not upgraded.
+#13 32.31 Need to get 97.3 MB of archives.
+#13 32.31 After this operation, 327 MB of additional disk space will be used.
+#13 32.31 Get:1 https://snapshot-cloudflare.debian.org/archive/debian-security/20260824T000000Z bookworm-security/main amd64 libnss3 amd64 2:3.87.1-1+deb12u4 [1331 kB]
+#13 32.38 Get:2 https://snapshot-cloudflare.debian.org/archive/debian-security/20260824T000000Z bookworm-security/main amd64 libxfont2 amd64 1:2.0.6-1+deb12u1 [132 kB]
+#13 32.39 Get:3 https://snapshot-cloudflare.debian.org/archive/debian-security/20260824T000000Z bookworm-security/main amd64 xserver-common all 2:21.1.7-3+deb12u13 [2384 kB]
+#13 32.51 Get:4 https://snapshot-cloudflare.debian.org/archive/debian-security/20260824T000000Z bookworm-security/main amd64 xvfb amd64 2:21.1.7-3+deb12u13 [3154 kB]
+#13 65.59 Err:18 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 fonts-unifont all 1:15.0.01-2
+#13 65.59   502  Bad Gateway [IP: 198.18.0.94 80]
+#13 87.24 Get:5 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 fonts-ipafont-gothic all 00303-23 [3515 kB]
+#13 87.73 Get:6 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 at-spi2-common all 2.46.0-5 [162 kB]
+#13 88.14 Get:7 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libexpat1 amd64 2.5.0-1+deb12u2 [99.9 kB]
+#13 88.59 Get:8 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libbrotli1 amd64 1.0.9-2+b6 [275 kB]
+#13 89.06 Get:9 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libpng16-16 amd64 1.6.39-2+deb12u5 [277 kB]
+#13 89.47 Get:10 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libfreetype6 amd64 2.12.1+dfsg-5+deb12u4 [398 kB]
+#13 89.95 Get:11 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 fonts-liberation all 1:1.07.4-11 [828 kB]
+#13 91.00 Get:12 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 fonts-freefont-ttf all 20120503-10 [2552 kB]
+#13 91.71 Get:13 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 fontconfig-config amd64 2.14.1-4 [315 kB]
+#13 92.23 Get:14 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libfontconfig1 amd64 2.14.1-4 [386 kB]
+#13 92.65 Get:15 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 fontconfig amd64 2.14.1-4 [449 kB]
+#13 93.38 Get:16 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 fonts-noto-color-emoji all 2.042-0+deb12u1 [9894 kB]
+#13 94.22 Get:17 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 fonts-tlwg-loma-otf all 1:0.7.3-1 [147 kB]
+#13 94.93 Get:19 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 fonts-wqy-zenhei all 0.9.45-8 [7479 kB]
+#13 95.47 Get:20 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libasound2-data all 1.2.8-1 [20.5 kB]
+#13 125.8 Err:21 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libasound2 amd64 1.2.8-1+b1
+#13 125.8   500  reading HTTP response body: unexpected EOF [IP: 198.18.0.94 80]
+#13 126.4 Get:22 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libglib2.0-0 amd64 2.74.6-2+deb12u9 [1403 kB]
+#13 126.8 Get:23 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libatk1.0-0 amd64 2.46.0-5 [49.6 kB]
+#13 127.1 Get:24 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libdbus-1-3 amd64 1.14.10-1~deb12u1 [201 kB]
+#13 127.3 Get:25 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libxau6 amd64 1:1.0.9-1 [19.7 kB]
+#13 127.7 Get:26 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libbsd0 amd64 0.11.7-2 [117 kB]
+#13 128.0 Get:27 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libxdmcp6 amd64 1:1.1.2-3 [26.3 kB]
+#13 128.3 Get:28 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libxcb1 amd64 1.15-1 [144 kB]
+#13 128.7 Get:29 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libx11-data all 2:1.8.4-2+deb12u2 [292 kB]
+#13 129.2 Get:30 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libx11-6 amd64 2:1.8.4-2+deb12u2 [760 kB]
+#13 129.5 Get:31 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libxext6 amd64 2:1.3.4-1+b1 [52.9 kB]
+#13 129.9 Get:32 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libxi6 amd64 2:1.8-1+b1 [84.2 kB]
+#13 130.3 Get:33 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libatspi2.0-0 amd64 2.46.0-5 [75.4 kB]
+#13 130.5 Get:34 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libatk-bridge2.0-0 amd64 2.46.0-5 [64.6 kB]
+#13 130.8 Get:35 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libavahi-common-data amd64 0.8-10+deb12u1 [107 kB]
+#13 131.1 Get:36 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libavahi-common3 amd64 0.8-10+deb12u1 [42.1 kB]
+#13 131.4 Get:37 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libavahi-client3 amd64 0.8-10+deb12u1 [45.8 kB]
+#13 131.8 Get:38 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libpixman-1-0 amd64 0.42.2-1 [546 kB]
+#13 132.1 Get:39 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libxcb-render0 amd64 1.15-1 [115 kB]
+#13 132.5 Get:40 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libxcb-shm0 amd64 1.15-1 [105 kB]
+#13 132.7 Get:41 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libxrender1 amd64 1:0.9.10-1.1 [33.2 kB]
+#13 133.1 Get:42 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libcairo2 amd64 1.16.0-7 [575 kB]
+#13 133.4 Get:43 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libkrb5support0 amd64 1.20.1-2+deb12u5 [33.2 kB]
+#13 133.7 Get:44 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libk5crypto3 amd64 1.20.1-2+deb12u5 [79.7 kB]
+#13 133.9 Get:45 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libkeyutils1 amd64 1.6.3-2 [8808 B]
+#13 134.3 Get:46 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libkrb5-3 amd64 1.20.1-2+deb12u5 [332 kB]
+#13 134.6 Get:47 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libgssapi-krb5-2 amd64 1.20.1-2+deb12u5 [135 kB]
+#13 135.0 Get:48 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libcups2 amd64 2.4.2-3+deb12u9 [245 kB]
+#13 135.3 Get:49 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libdatrie1 amd64 0.2.13-2+b1 [43.3 kB]
+#13 135.5 Get:50 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libdrm-common all 2.4.114-1 [7112 B]
+#13 135.7 Get:51 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libdrm2 amd64 2.4.114-1+b1 [37.5 kB]
+#13 136.0 Get:52 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libdrm-amdgpu1 amd64 2.4.114-1+b1 [20.9 kB]
+#13 136.3 Get:53 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libpciaccess0 amd64 0.17-2 [51.4 kB]
+#13 136.5 Get:54 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libdrm-intel1 amd64 2.4.114-1+b1 [64.0 kB]
+#13 136.8 Get:55 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libdrm-nouveau2 amd64 2.4.114-1+b1 [19.1 kB]
+#13 137.0 Get:56 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libdrm-radeon1 amd64 2.4.114-1+b1 [21.8 kB]
+#13 137.3 Get:57 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libedit2 amd64 3.1-20221030-2 [93.0 kB]
+#13 137.7 Get:58 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libelf1 amd64 0.188-2.1 [174 kB]
+#13 139.5 Get:59 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libfontenc1 amd64 1:1.1.4-1 [24.3 kB]
+#13 139.8 Get:60 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libfribidi0 amd64 1.0.8-2.1 [65.0 kB]
+#13 140.1 Get:61 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libwayland-server0 amd64 1.21.0-1 [35.9 kB]
+#13 140.4 Get:62 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libgbm1 amd64 22.3.6-1+deb12u2 [38.1 kB]
+#13 140.7 Get:63 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libglvnd0 amd64 1.6.0-1 [51.8 kB]
+#13 140.9 Get:64 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libglapi-mesa amd64 22.3.6-1+deb12u2 [35.9 kB]
+#13 141.3 Get:65 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libx11-xcb1 amd64 2:1.8.4-2+deb12u2 [192 kB]
+#13 141.5 Get:66 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libxcb-dri2-0 amd64 1.15-1 [107 kB]
+#13 141.8 Get:67 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libxcb-dri3-0 amd64 1.15-1 [107 kB]
+#13 142.2 Get:68 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libxcb-glx0 amd64 1.15-1 [122 kB]
+#13 142.6 Get:69 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libxcb-present0 amd64 1.15-1 [105 kB]
+#13 142.9 Get:70 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libxcb-randr0 amd64 1.15-1 [117 kB]
+#13 143.3 Get:71 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libxcb-sync1 amd64 1.15-1 [109 kB]
+#13 143.6 Get:72 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libxcb-xfixes0 amd64 1.15-1 [109 kB]
+#13 143.8 Get:73 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libxfixes3 amd64 1:6.0.0-2 [22.7 kB]
+#13 144.1 Get:74 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libxshmfence1 amd64 1.3-1 [8820 B]
+#13 144.3 Get:75 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libxxf86vm1 amd64 1:1.1.4-1+b2 [20.8 kB]
+#13 145.2 Get:76 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libicu72 amd64 72.1-3+deb12u1 [9376 kB]
+#13 146.0 Get:77 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libxml2 amd64 2.9.14+dfsg-1.3~deb12u6 [689 kB]
+#13 147.0 Get:78 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libz3-4 amd64 4.8.12-3.1 [7216 kB]
+#13 148.5 Get:79 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libllvm15 amd64 1:15.0.6-4+b1 [23.1 MB]
+#13 150.1 Get:80 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libsensors-config all 1:3.6.0-7.1 [14.3 kB]
+#13 150.3 Get:81 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libsensors5 amd64 1:3.6.0-7.1 [34.2 kB]
+#13 151.2 Get:82 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libgl1-mesa-dri amd64 22.3.6-1+deb12u2 [7240 kB]
+#13 151.9 Get:83 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libglx-mesa0 amd64 22.3.6-1+deb12u2 [148 kB]
+#13 152.1 Get:84 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libglx0 amd64 1.6.0-1 [34.4 kB]
+#13 152.4 Get:85 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libgl1 amd64 1.6.0-1 [88.4 kB]
+#13 152.6 Get:86 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libgraphite2-3 amd64 1.3.14-1+deb12u1 [74.6 kB]
+#13 153.3 Get:87 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libharfbuzz0b amd64 6.0.0+dfsg-3 [1945 kB]
+#13 153.8 Get:88 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 x11-common all 1:7.7+23 [252 kB]
+#13 154.1 Get:89 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libice6 amd64 2:1.0.10-1 [58.5 kB]
+#13 154.4 Get:90 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libnspr4 amd64 2:4.35-1 [113 kB]
+#13 154.9 Get:91 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libthai-data all 0.1.29-1 [176 kB]
+#13 155.2 Get:92 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libthai0 amd64 0.1.29-1 [57.5 kB]
+#13 155.6 Get:93 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libpango-1.0-0 amd64 1.50.12+ds-1 [212 kB]
+#13 155.8 Get:94 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libsm6 amd64 2:1.2.3-1 [35.1 kB]
+#13 156.1 Get:95 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libunwind8 amd64 1.6.2-3 [51.2 kB]
+#13 156.4 Get:96 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libxt6 amd64 1:1.2.1-1.1 [186 kB]
+#13 156.8 Get:97 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libxmu6 amd64 2:1.1.3-3 [60.1 kB]
+#13 157.0 Get:98 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libxpm4 amd64 1:3.5.12-1.1+deb12u1 [48.6 kB]
+#13 157.4 Get:99 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libxaw7 amd64 2:1.0.14-1 [201 kB]
+#13 157.7 Get:100 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libxcomposite1 amd64 1:0.4.5-1 [16.6 kB]
+#13 157.9 Get:101 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libxdamage1 amd64 1:1.1.6-1 [15.1 kB]
+#13 158.5 Get:102 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 xkb-data all 2.35.1-1 [764 kB]
+#13 158.9 Get:103 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libxkbcommon0 amd64 1.5.0-1 [106 kB]
+#13 159.2 Get:104 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libxkbfile1 amd64 1:1.1.0-1 [75.2 kB]
+#13 159.4 Get:105 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libxrandr2 amd64 2:1.5.2-2+b1 [39.2 kB]
+#13 159.7 Get:106 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 x11-xkb-utils amd64 7.7+7 [165 kB]
+#13 160.3 Get:107 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 xfonts-encodings all 1:1.0.4-2.2 [577 kB]
+#13 160.6 Get:108 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 xfonts-utils amd64 1:7.7+6 [93.0 kB]
+#13 161.1 Get:109 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 xfonts-scalable all 1:1.0.3-1.3 [306 kB]
+#13 161.1 Fetched 94.9 MB in 2min 9s (734 kB/s)
+#13 161.1 E: Failed to fetch http://snapshot.debian.org/archive/debian/20260824T000000Z/pool/main/u/unifont/fonts-unifont_15.0.01-2_all.deb  502  Bad Gateway [IP: 198.18.0.94 80]
+#13 161.1 E: Failed to fetch http://snapshot.debian.org/file/35710896559733c596ac4351e1fcbac6da5b3bd3/libasound2_1.2.8-1%2Bb1_amd64.deb  500  reading HTTP response body: unexpected EOF [IP: 198.18.0.94 80]
+#13 161.1 E: Unable to fetch some archives, maybe run apt-get update or try with --fix-missing?
+#13 161.1 Failed to install browsers
+#13 161.1 Error: Installation process exited with code: 100
+#13 ERROR: process "/bin/sh -c sed -i       -e \"s|URIs: http://deb.debian.org/debian-security|URIs: https://snapshot-cloudflare.debian.org/archive/debian-security/${DEBIAN_SNAPSHOT}|\"       -e \"s|URIs: http://deb.debian.org/debian|URIs: http://snapshot.debian.org/archive/debian/${DEBIAN_SNAPSHOT}|\"       /etc/apt/sources.list.d/debian.sources     && printf '%s\\n'       'Acquire::Check-Valid-Until \"false\";'       'Acquire::Retries \"10\";'       'Acquire::http::Timeout \"60\";'       > /etc/apt/apt.conf.d/99snapshot     && python -m pip install --no-compile --require-hashes -r /tmp/requirements.lock     && python -m patchright install --with-deps --only-shell chromium     && rm -f /tmp/requirements.lock     && chmod -R a+rX /opt/browser-r1 /opt/flowtracer-r1     && find /opt/browser-r1 -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum > /tmp/browser-files.actual     && diff -u /opt/flowtracer-r1/locks/browser-files.sha256 /tmp/browser-files.actual     && if [ \"$VERIFY_BROWSER_TREE\" = \"1\" ]; then python /opt/flowtracer-r1/scripts/browser_tree_manifest.py --verify /opt/flowtracer-r1/locks/browser-tree.manifest.json; fi     && dpkg-query -W | tr '\\t' '=' | LC_ALL=C sort > /tmp/debian-packages.actual     && diff -u /opt/flowtracer-r1/locks/debian-packages.lock /tmp/debian-packages.actual     && rm -f /tmp/browser-files.actual /tmp/debian-packages.actual     && find /usr/local/lib/python3.13/site-packages -type d -name __pycache__ -prune -exec rm -rf '{}' +     && rm -rf /var/cache/fontconfig/* /var/cache/ldconfig/aux-cache /var/log/apt/*     && rm -f /var/log/alternatives.log /var/log/dpkg.log     && useradd --create-home --uid 10001 flowtracer" did not complete successfully: exit code: 1
+------
+ > [5/6] RUN sed -i       -e "s|URIs: http://deb.debian.org/debian-security|URIs: https://snapshot-cloudflare.debian.org/archive/debian-security/20260824T000000Z|"       -e "s|URIs: http://deb.debian.org/debian|URIs: http://snapshot.debian.org/archive/debian/20260824T000000Z|"       /etc/apt/sources.list.d/debian.sources     && printf '%s\n'       'Acquire::Check-Valid-Until "false";'       'Acquire::Retries "10";'       'Acquire::http::Timeout "60";'       > /etc/apt/apt.conf.d/99snapshot     && python -m pip install --no-compile --require-hashes -r /tmp/requirements.lock     && python -m patchright install --with-deps --only-shell chromium     && rm -f /tmp/requirements.lock     && chmod -R a+rX /opt/browser-r1 /opt/flowtracer-r1     && find /opt/browser-r1 -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum > /tmp/browser-files.actual     && diff -u /opt/flowtracer-r1/locks/browser-files.sha256 /tmp/browser-files.actual     && if [ "1" = "1" ]; then python /opt/flowtracer-r1/scripts/browser_tree_manifest.py --verify /opt/flowtracer-r1/locks/browser-tree.manifest.json; fi     && dpkg-query -W | tr '\t' '=' | LC_ALL=C sort > /tmp/debian-packages.actual     && diff -u /opt/flowtracer-r1/locks/debian-packages.lock /tmp/debian-packages.actual     && rm -f /tmp/browser-files.actual /tmp/debian-packages.actual     && find /usr/local/lib/python3.13/site-packages -type d -name __pycache__ -prune -exec rm -rf '{}' +     && rm -rf /var/cache/fontconfig/* /var/cache/ldconfig/aux-cache /var/log/apt/*     && rm -f /var/log/alternatives.log /var/log/dpkg.log     && useradd --create-home --uid 10001 flowtracer:
+159.7 Get:106 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 x11-xkb-utils amd64 7.7+7 [165 kB]
+160.3 Get:107 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 xfonts-encodings all 1:1.0.4-2.2 [577 kB]
+160.6 Get:108 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 xfonts-utils amd64 1:7.7+6 [93.0 kB]
+161.1 Get:109 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 xfonts-scalable all 1:1.0.3-1.3 [306 kB]
+161.1 Fetched 94.9 MB in 2min 9s (734 kB/s)
+161.1 E: Failed to fetch http://snapshot.debian.org/archive/debian/20260824T000000Z/pool/main/u/unifont/fonts-unifont_15.0.01-2_all.deb  502  Bad Gateway [IP: 198.18.0.94 80]
+161.1 E: Failed to fetch http://snapshot.debian.org/file/35710896559733c596ac4351e1fcbac6da5b3bd3/libasound2_1.2.8-1%2Bb1_amd64.deb  500  reading HTTP response body: unexpected EOF [IP: 198.18.0.94 80]
+161.1 E: Unable to fetch some archives, maybe run apt-get update or try with --fix-missing?
+161.1 Failed to install browsers
+161.1 Error: Installation process exited with code: 100
+------
+ERROR: failed to build: failed to solve: process "/bin/sh -c sed -i       -e \"s|URIs: http://deb.debian.org/debian-security|URIs: https://snapshot-cloudflare.debian.org/archive/debian-security/${DEBIAN_SNAPSHOT}|\"       -e \"s|URIs: http://deb.debian.org/debian|URIs: http://snapshot.debian.org/archive/debian/${DEBIAN_SNAPSHOT}|\"       /etc/apt/sources.list.d/debian.sources     && printf '%s\\n'       'Acquire::Check-Valid-Until \"false\";'       'Acquire::Retries \"10\";'       'Acquire::http::Timeout \"60\";'       > /etc/apt/apt.conf.d/99snapshot     && python -m pip install --no-compile --require-hashes -r /tmp/requirements.lock     && python -m patchright install --with-deps --only-shell chromium     && rm -f /tmp/requirements.lock     && chmod -R a+rX /opt/browser-r1 /opt/flowtracer-r1     && find /opt/browser-r1 -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum > /tmp/browser-files.actual     && diff -u /opt/flowtracer-r1/locks/browser-files.sha256 /tmp/browser-files.actual     && if [ \"$VERIFY_BROWSER_TREE\" = \"1\" ]; then python /opt/flowtracer-r1/scripts/browser_tree_manifest.py --verify /opt/flowtracer-r1/locks/browser-tree.manifest.json; fi     && dpkg-query -W | tr '\\t' '=' | LC_ALL=C sort > /tmp/debian-packages.actual     && diff -u /opt/flowtracer-r1/locks/debian-packages.lock /tmp/debian-packages.actual     && rm -f /tmp/browser-files.actual /tmp/debian-packages.actual     && find /usr/local/lib/python3.13/site-packages -type d -name __pycache__ -prune -exec rm -rf '{}' +     && rm -rf /var/cache/fontconfig/* /var/cache/ldconfig/aux-cache /var/log/apt/*     && rm -f /var/log/alternatives.log /var/log/dpkg.log     && useradd --create-home --uid 10001 flowtracer" did not complete successfully: exit code: 1

@@ -1,0 +1,179 @@
+#0 building with "flowtracer-r1-final-builder" instance using docker-container driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 2.67kB 0.0s done
+#1 DONE 0.0s
+
+#2 resolve image config for docker-image://docker.io/docker/dockerfile:1.7@sha256:a57df69d0ea827fb7266491f2813635de6f17269be881f696fbfdf2d83dda33e
+#2 DONE 0.0s
+
+#3 docker-image://docker.io/docker/dockerfile:1.7@sha256:a57df69d0ea827fb7266491f2813635de6f17269be881f696fbfdf2d83dda33e
+#3 resolve docker.io/docker/dockerfile:1.7@sha256:a57df69d0ea827fb7266491f2813635de6f17269be881f696fbfdf2d83dda33e 0.0s done
+#3 CACHED
+
+#4 [internal] load metadata for docker.io/library/python@sha256:c45a22ea000adfd9cda29364bbe7edd23001ce5cc2ad15857cfbf7766943b9ca
+#4 DONE 0.0s
+
+#5 [internal] load .dockerignore
+#5 transferring context: 2B done
+#5 DONE 0.0s
+
+#6 [internal] load build context
+#6 DONE 0.0s
+
+#7 [1/6] FROM docker.io/library/python@sha256:c45a22ea000adfd9cda29364bbe7edd23001ce5cc2ad15857cfbf7766943b9ca
+#7 resolve docker.io/library/python@sha256:c45a22ea000adfd9cda29364bbe7edd23001ce5cc2ad15857cfbf7766943b9ca 0.0s done
+#7 DONE 0.0s
+
+#7 [1/6] FROM docker.io/library/python@sha256:c45a22ea000adfd9cda29364bbe7edd23001ce5cc2ad15857cfbf7766943b9ca
+#7 CACHED
+
+#6 [internal] load build context
+#6 transferring context: 464B done
+#6 DONE 0.0s
+
+#8 [2/6] COPY requirements.lock /tmp/requirements.lock
+#8 DONE 0.1s
+
+#9 [3/6] COPY debian-packages.lock browser-files.sha256 browser-tree.manifest.json /opt/flowtracer-r1/locks/
+#9 DONE 0.1s
+
+#10 [4/6] COPY scripts /opt/flowtracer-r1/scripts
+#10 DONE 0.1s
+
+#11 [5/6] RUN sed -i       -e "s|URIs: http://deb.debian.org/debian-security|URIs: https://snapshot-cloudflare.debian.org/archive/debian-security/20260824T000000Z|"       -e "s|URIs: http://deb.debian.org/debian|URIs: http://snapshot.debian.org/archive/debian/20260824T000000Z|"       /etc/apt/sources.list.d/debian.sources     && printf '%s\n'       'Acquire::Check-Valid-Until "false";'       'Acquire::Retries "10";'       'Acquire::http::Timeout "60";'       > /etc/apt/apt.conf.d/99snapshot     && python -m pip install --no-compile --require-hashes -r /tmp/requirements.lock     && python -m patchright install --with-deps --only-shell chromium     && rm -f /tmp/requirements.lock     && chmod -R a+rX /opt/browser-r1 /opt/flowtracer-r1     && find /opt/browser-r1 -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum > /tmp/browser-files.actual     && diff -u /opt/flowtracer-r1/locks/browser-files.sha256 /tmp/browser-files.actual     && if [ "1" = "1" ]; then python /opt/flowtracer-r1/scripts/browser_tree_manifest.py --verify /opt/flowtracer-r1/locks/browser-tree.manifest.json; fi     && dpkg-query -W | tr '\t' '=' | LC_ALL=C sort > /tmp/debian-packages.actual     && diff -u /opt/flowtracer-r1/locks/debian-packages.lock /tmp/debian-packages.actual     && rm -f /tmp/browser-files.actual /tmp/debian-packages.actual     && find /usr/local/lib/python3.13/site-packages -type d -name __pycache__ -prune -exec rm -rf '{}' +     && rm -rf /var/cache/fontconfig/* /var/cache/ldconfig/aux-cache /var/log/apt/*     && rm -f /var/log/alternatives.log /var/log/dpkg.log     && useradd --create-home --uid 10001 flowtracer
+#11 2.000 Collecting anyio==4.14.2 (from -r /tmp/requirements.lock (line 3))
+#11 2.447   Downloading anyio-4.14.2-py3-none-any.whl (125 kB)
+#11 2.715 Collecting apify-fingerprint-datapoints==0.15.0 (from -r /tmp/requirements.lock (line 7))
+#11 2.831   Downloading apify_fingerprint_datapoints-0.15.0-py3-none-any.whl (761 kB)
+#11 2.992      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 761.8/761.8 kB 6.2 MB/s  0:00:00
+#11 3.134 Collecting browserforge==1.2.4 (from -r /tmp/requirements.lock (line 13))
+#11 3.378   Downloading browserforge-1.2.4-py3-none-any.whl (37 kB)
+#11 3.698 Collecting certifi==2026.7.22 (from -r /tmp/requirements.lock (line 17))
+#11 3.809   Downloading certifi-2026.7.22-py3-none-any.whl (136 kB)
+#11 4.244 Collecting cffi==2.1.1 (from -r /tmp/requirements.lock (line 21))
+#11 4.362   Downloading cffi-2.1.1-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (221 kB)
+#11 4.516 Collecting click==8.5.0 (from -r /tmp/requirements.lock (line 38))
+#11 4.629   Downloading click-8.5.0-py3-none-any.whl (125 kB)
+#11 4.775 Collecting cssselect==1.5.0 (from -r /tmp/requirements.lock (line 44))
+#11 4.888   Downloading cssselect-1.5.0-py3-none-any.whl (20 kB)
+#11 5.086 Collecting curl-cffi==0.16.3 (from -r /tmp/requirements.lock (line 48))
+#11 5.204   Downloading curl_cffi-0.16.3-cp310-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (13.5 MB)
+#11 5.836      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 13.5/13.5 MB 21.5 MB/s  0:00:00
+#11 6.202 Collecting greenlet==3.5.5 (from -r /tmp/requirements.lock (line 63))
+#11 6.323   Downloading greenlet-3.5.5-cp313-cp313-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (623 kB)
+#11 6.409      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 623.9/623.9 kB 30.5 MB/s  0:00:00
+#11 6.548 Collecting idna==3.19 (from -r /tmp/requirements.lock (line 78))
+#11 6.662   Downloading idna-3.19-py3-none-any.whl (68 kB)
+#11 7.049 Collecting lxml==6.1.3 (from -r /tmp/requirements.lock (line 82))
+#11 7.162   Downloading lxml-6.1.3-cp313-cp313-manylinux_2_26_x86_64.manylinux_2_28_x86_64.whl (5.2 MB)
+#11 7.362      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 5.2/5.2 MB 27.9 MB/s  0:00:00
+#11 7.546 Collecting msgspec==0.21.1 (from -r /tmp/requirements.lock (line 103))
+#11 7.661   Downloading msgspec-0.21.1-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (225 kB)
+#11 8.038 Collecting orjson==3.12.0 (from -r /tmp/requirements.lock (line 114))
+#11 8.151   Downloading orjson-3.12.0-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (131 kB)
+#11 8.306 Collecting patchright==1.62.3 (from -r /tmp/requirements.lock (line 128))
+#11 8.422   Downloading patchright-1.62.3-py3-none-manylinux1_x86_64.whl (47.7 MB)
+#11 10.68      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 47.7/47.7 MB 21.2 MB/s  0:00:02
+#11 10.88 Collecting playwright==1.62.0 (from -r /tmp/requirements.lock (line 140))
+#11 10.99   Downloading playwright-1.62.0-py3-none-manylinux1_x86_64.whl (47.7 MB)
+#11 13.14      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 47.7/47.7 MB 22.3 MB/s  0:00:02
+#11 13.31 Collecting protego==0.6.2 (from -r /tmp/requirements.lock (line 152))
+#11 13.43   Downloading protego-0.6.2-py3-none-any.whl (10 kB)
+#11 13.56 Collecting pycparser==3.0 (from -r /tmp/requirements.lock (line 156))
+#11 13.68   Downloading pycparser-3.0-py3-none-any.whl (48 kB)
+#11 13.82 Collecting pyee==13.0.1 (from -r /tmp/requirements.lock (line 160))
+#11 13.93   Downloading pyee-13.0.1-py3-none-any.whl (15 kB)
+#11 14.08 Collecting scrapling==0.4.15 (from -r /tmp/requirements.lock (line 166))
+#11 14.19   Downloading scrapling-0.4.15-py3-none-any.whl (180 kB)
+#11 14.34 Collecting tld==0.13.2 (from -r /tmp/requirements.lock (line 170))
+#11 14.46   Downloading tld-0.13.2-py2.py3-none-any.whl (296 kB)
+#11 14.62 Collecting typing-extensions==4.16.0 (from -r /tmp/requirements.lock (line 174))
+#11 14.73   Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+#11 14.87 Collecting w3lib==2.4.1 (from -r /tmp/requirements.lock (line 180))
+#11 14.98   Downloading w3lib-2.4.1-py3-none-any.whl (21 kB)
+#11 15.11 Installing collected packages: w3lib, typing-extensions, tld, pycparser, protego, orjson, msgspec, lxml, idna, greenlet, cssselect, click, certifi, apify-fingerprint-datapoints, scrapling, pyee, cffi, browserforge, anyio, playwright, patchright, curl-cffi
+#11 17.14 
+#11 17.15 Successfully installed anyio-4.14.2 apify-fingerprint-datapoints-0.15.0 browserforge-1.2.4 certifi-2026.7.22 cffi-2.1.1 click-8.5.0 cssselect-1.5.0 curl-cffi-0.16.3 greenlet-3.5.5 idna-3.19 lxml-6.1.3 msgspec-0.21.1 orjson-3.12.0 patchright-1.62.3 playwright-1.62.0 protego-0.6.2 pycparser-3.0 pyee-13.0.1 scrapling-0.4.15 tld-0.13.2 typing-extensions-4.16.0 w3lib-2.4.1
+#11 17.15 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager, possibly rendering your system unusable. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv. Use the --root-user-action option if you know what you are doing and want to suppress this warning.
+#11 17.86 Installing dependencies...
+#11 18.21 Get:1 https://snapshot-cloudflare.debian.org/archive/debian-security/20260824T000000Z bookworm-security InRelease [34.8 kB]
+#11 18.45 Get:2 https://snapshot-cloudflare.debian.org/archive/debian-security/20260824T000000Z bookworm-security/main amd64 Packages [335 kB]
+#11 20.44 Get:3 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm InRelease [151 kB]
+#11 20.82 Get:4 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm-updates InRelease [55.4 kB]
+#11 26.15 Ign:6 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm-updates/main amd64 Packages
+#11 27.13 Get:5 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 Packages [8790 kB]
+#11 28.62 Get:6 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm-updates/main amd64 Packages [6924 B]
+#11 28.63 Fetched 9374 kB in 11s (874 kB/s)
+#11 28.63 Reading package lists...
+#11 29.20 Reading package lists...
+#11 29.80 Building dependency tree...
+#11 30.00 Reading state information...
+#11 30.26 The following additional packages will be installed:
+#11 30.26   at-spi2-common fontconfig fontconfig-config libasound2-data libavahi-client3
+#11 30.26   libavahi-common-data libavahi-common3 libbrotli1 libbsd0 libdatrie1
+#11 30.26   libdrm-amdgpu1 libdrm-common libdrm-intel1 libdrm-nouveau2 libdrm-radeon1
+#11 30.26   libedit2 libelf1 libexpat1 libfontenc1 libfribidi0 libgl1 libgl1-mesa-dri
+#11 30.26   libglapi-mesa libglvnd0 libglx-mesa0 libglx0 libgraphite2-3 libgssapi-krb5-2
+#11 30.26   libharfbuzz0b libice6 libicu72 libk5crypto3 libkeyutils1 libkrb5-3
+#11 30.26   libkrb5support0 libllvm15 libpciaccess0 libpixman-1-0 libpng16-16
+#11 30.26   libsensors-config libsensors5 libsm6 libthai-data libthai0 libunwind8
+#11 30.26   libwayland-server0 libx11-data libx11-xcb1 libxau6 libxaw7 libxcb-dri2-0
+#11 30.26   libxcb-dri3-0 libxcb-glx0 libxcb-present0 libxcb-randr0 libxcb-render0
+#11 30.26   libxcb-shm0 libxcb-sync1 libxcb-xfixes0 libxdmcp6 libxfont2 libxi6
+#11 30.26   libxkbfile1 libxml2 libxmu6 libxpm4 libxrender1 libxshmfence1 libxt6
+#11 30.27   libxxf86vm1 libz3-4 x11-common x11-xkb-utils xfonts-encodings xfonts-utils
+#11 30.27   xkb-data xserver-common
+#11 30.27 Suggested packages:
+#11 30.27   libasound2-plugins alsa-utils cups-common low-memory-monitor krb5-doc
+#11 30.27   krb5-user pciutils lm-sensors
+#11 30.27 Recommended packages:
+#11 30.27   fonts-ipafont-mincho fonts-tlwg-loma alsa-ucm-conf alsa-topology-conf
+#11 30.27   at-spi2-core dbus libglib2.0-data shared-mime-info xdg-user-dirs
+#11 30.27   krb5-locales xfonts-base xauth
+#11 30.66 The following NEW packages will be installed:
+#11 30.66   at-spi2-common fontconfig fontconfig-config fonts-freefont-ttf
+#11 30.66   fonts-ipafont-gothic fonts-liberation fonts-noto-color-emoji
+#11 30.66   fonts-tlwg-loma-otf fonts-unifont fonts-wqy-zenhei libasound2
+#11 30.66   libasound2-data libatk-bridge2.0-0 libatk1.0-0 libatspi2.0-0
+#11 30.66   libavahi-client3 libavahi-common-data libavahi-common3 libbrotli1 libbsd0
+#11 30.66   libcairo2 libcups2 libdatrie1 libdbus-1-3 libdrm-amdgpu1 libdrm-common
+#11 30.66   libdrm-intel1 libdrm-nouveau2 libdrm-radeon1 libdrm2 libedit2 libelf1
+#11 30.66   libexpat1 libfontconfig1 libfontenc1 libfreetype6 libfribidi0 libgbm1 libgl1
+#11 30.66   libgl1-mesa-dri libglapi-mesa libglib2.0-0 libglvnd0 libglx-mesa0 libglx0
+#11 30.66   libgraphite2-3 libgssapi-krb5-2 libharfbuzz0b libice6 libicu72 libk5crypto3
+#11 30.66   libkeyutils1 libkrb5-3 libkrb5support0 libllvm15 libnspr4 libnss3
+#11 30.66   libpango-1.0-0 libpciaccess0 libpixman-1-0 libpng16-16 libsensors-config
+#11 30.66   libsensors5 libsm6 libthai-data libthai0 libunwind8 libwayland-server0
+#11 30.66   libx11-6 libx11-data libx11-xcb1 libxau6 libxaw7 libxcb-dri2-0 libxcb-dri3-0
+#11 30.66   libxcb-glx0 libxcb-present0 libxcb-randr0 libxcb-render0 libxcb-shm0
+#11 30.66   libxcb-sync1 libxcb-xfixes0 libxcb1 libxcomposite1 libxdamage1 libxdmcp6
+#11 30.66   libxext6 libxfixes3 libxfont2 libxi6 libxkbcommon0 libxkbfile1 libxml2
+#11 30.66   libxmu6 libxpm4 libxrandr2 libxrender1 libxshmfence1 libxt6 libxxf86vm1
+#11 30.66   libz3-4 x11-common x11-xkb-utils xfonts-encodings xfonts-scalable
+#11 30.66   xfonts-utils xkb-data xserver-common xvfb
+#11 35.19 0 upgraded, 109 newly installed, 0 to remove and 0 not upgraded.
+#11 35.19 Need to get 97.3 MB of archives.
+#11 35.19 After this operation, 327 MB of additional disk space will be used.
+#11 35.19 Get:3 https://snapshot-cloudflare.debian.org/archive/debian-security/20260824T000000Z bookworm-security/main amd64 libnss3 amd64 2:3.87.1-1+deb12u4 [1331 kB]
+#11 37.82 Get:6 https://snapshot-cloudflare.debian.org/archive/debian-security/20260824T000000Z bookworm-security/main amd64 libxfont2 amd64 1:2.0.6-1+deb12u1 [132 kB]
+#11 39.07 Get:8 https://snapshot-cloudflare.debian.org/archive/debian-security/20260824T000000Z bookworm-security/main amd64 xserver-common all 2:21.1.7-3+deb12u13 [2384 kB]
+#11 39.60 Err:11 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 fonts-liberation all 1:1.07.4-11
+#11 39.60   502  Bad Gateway [IP: 198.18.0.94 80]
+#11 42.13 Get:9 https://snapshot-cloudflare.debian.org/archive/debian-security/20260824T000000Z bookworm-security/main amd64 xvfb amd64 2:21.1.7-3+deb12u13 [3154 kB]
+#11 44.61 Err:12 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 fonts-freefont-ttf all 20120503-10
+#11 44.61   502  Bad Gateway [IP: 198.18.0.94 80]
+#11 51.24 Err:18 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 fonts-unifont all 1:15.0.01-2
+#11 51.24   502  Bad Gateway [IP: 198.18.0.94 80]
+#11 56.63 Err:20 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libasound2-data all 1.2.8-1
+#11 56.63   502  Bad Gateway [IP: 198.18.0.94 80]
+#11 64.44 Err:26 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libbsd0 amd64 0.11.7-2
+#11 64.44   502  Bad Gateway [IP: 198.18.0.94 80]
+#11 70.69 Ign:29 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libx11-data all 2:1.8.4-2+deb12u2
+#11 72.56 Get:29 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libx11-data all 2:1.8.4-2+deb12u2 [292 kB]
+#11 77.57 Err:34 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libatk-bridge2.0-0 amd64 2.46.0-5
+#11 77.57   502  Bad Gateway [IP: 198.18.0.94 80]
+#11 82.58 Err:35 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libavahi-common-data amd64 0.8-10+deb12u1
+#11 82.58   502  Bad Gateway [IP: 198.18.0.94 80]
+#11 88.53 Err:39 http://snapshot.debian.org/archive/debian/20260824T000000Z bookworm/main amd64 libxcb-render0 amd64 1.15-1
+#11 88.53   502  Bad Gateway [IP: 198.18.0.94 80]

@@ -2,7 +2,9 @@
 
 状态：Accepted（仅 R3 remediation evidence）
 
-稳定基准：`main@c5799082ba8e0ae5edf8ddfb861e24de784cdf93`
+前置稳定基准：`main@c5799082ba8e0ae5edf8ddfb861e24de784cdf93`（R2 证据 PR #56 merge commit）
+
+生效基准：`main@a0d30140c8bdb6665b0833f4d60defadce9c9166`（本 R3 激活 PR #57 merge commit）
 
 执行角色：Backend / Architecture
 

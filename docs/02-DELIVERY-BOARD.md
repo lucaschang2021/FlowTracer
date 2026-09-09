@@ -8,7 +8,7 @@
 
 Architecture Governance Pass 已完成。WP-3 Preflight 缺陷由顺序化 remediation evidence 处理；R1、R2 均以 P0/P1/P2=0/0/0 通过独立复审、Backend CI 并合并。R3-R5 仍须逐阶段证明。Frontend、Integration 与 Release 同样未准入。
 
-本次同步事实基准：`main@c5799082ba8e0ae5edf8ddfb861e24de784cdf93`（WP-3 R2 证据 PR #56 merge commit）。
+本次同步事实基准：`main@a0d30140c8bdb6665b0833f4d60defadce9c9166`（WP-3 R3 激活 PR #57 merge commit）。
 
 ## 工作项
 

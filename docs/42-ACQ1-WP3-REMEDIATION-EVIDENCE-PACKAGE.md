@@ -1,6 +1,6 @@
 # FlowTracer ACQ-1 WP-3 Remediation Evidence Package
 
-状态：R1 Accepted；R2 Admitted；R3-R5 Pending
+状态：R1 Accepted；R2 PASS — READY FOR INDEPENDENT REVIEW；R3-R5 Pending
 
 用途：本文件是 `docs/41-ACQ1-WP3-REMEDIATION-EVIDENCE-ADMISSION.md` 的强制证据模板。必须按 R1→R5 顺序填写实际值；`TBD`、估算、未执行、仅配置审阅、仅 mock 或未保存的口头观察均不构成通过证据。
 
@@ -8,13 +8,13 @@
 
 | 字段 | 必填实际值 / 证据 |
 | --- | --- |
-| `origin/main` | `4630ff137e64004fb45e2370419b1f66d2e8d0bc`（PR #53 merge commit） |
-| evidence branch / commit | R1 `feat/acq-1b-browser-remediation-evidence@89ed802f4f2ac608a260f68637f1aaf541cd3143`；PR #54 merge commit `34364d0082e4ecdbe4331d77a21ef6d25c2fca8a` |
+| `origin/main` | R1 `4630ff137e64004fb45e2370419b1f66d2e8d0bc`（PR #53 merge commit）；R2 `b6275cd4633207d23cff047d2b612aa4893a2888` |
+| evidence branch / commit | R1 `feat/acq-1b-browser-remediation-evidence@89ed802f4f2ac608a260f68637f1aaf541cd3143`；PR #54 merge commit `34364d0082e4ecdbe4331d77a21ef6d25c2fca8a`；R2 branch `feat/acq-1b-browser-remediation-evidence`，执行基准 `b6275cd4633207d23cff047d2b612aa4893a2888`，按准入要求未 commit |
 | host OS / architecture | Microsoft Windows 11 家庭版中文版 `10.0.26200`（build 26200），x64 |
 | Docker / Compose / BuildKit | client/engine 29.7.2；Compose v5.4.0；Buildx v0.36.1-desktop.1 (`83d819cf8237b52ef45a2a9857eeb83a7b10977f`)；专用 BuildKit v0.32.2，镜像 `moby/buildkit@sha256:28a898719c18a33f4e8000685287fa36fd0dd9560c6440227d3a732d79bb41d8` |
 | Python / Debian | CPython 3.13.15（GCC 12.2.0），Debian 12 Bookworm，`amd64` |
 | 工作目录 | `D:\FlowTracer-wt\backend` |
-| 公网访问 | 最终验证无公网访问：所有候选验证容器均显式 `--network none`；历史构建依赖读取仅限锁定的官方 Debian Snapshot，未访问真实目标站点 |
+| 公网访问 | R1 候选验证容器显式 `--network none`；R2 Browser/fixture 网络均为 `internal=true`，控制 canary 仅发布唯一宿主 loopback 端口且代码无 outbound，所有 DNS/target 均为离线合成数据；未访问真实目标站点 |
 | 初始对象清单 | fix builder 容器 `buildx_buildkit_flowtracer-r1-final-fix-builder0`（仅 `docker-init`/`buildkitd`）、专用 state volume 同名后缀 `_state`、可回收专用 cache 2.88 GB；fix images `3440b61564a0...` / `258cf127308b...`；另有非本次对象 `flowtracer-r1-final-builder`，不触碰；无 R1 业务容器/network |
 
 每个闸门统一记录：开始/结束时间、完整命令、exit code、关键计数、原始证据路径、失败/P0/P1/P2、创建对象、清理命令和清理后对象清单。
@@ -45,16 +45,16 @@ R1 cleanup：已删除 `flowtracer-browser-r1:r1-final-fix-build1/2`、`flowtrac
 
 | 测试 | 预期 | 实际命令/结果 | 判定 | 证据路径 |
 | --- | --- | --- | --- | --- |
-| 获准 HTTPS CONNECT 到 fixture | allow 且逐目标复验 |  |  |  |
-| 每跳 redirect A/AAAA/IP/port 复验 | unsafe hop deny |  |  |  |
-| 混合 A/AAAA / DNS rebinding | deny |  |  |  |
-| 私网/link-local/metadata/危险端口 | deny |  |  |  |
-| Browser 直连 fixture/IP/域名 | deny |  |  |  |
-| 系统 DNS / host gateway / host network | deny |  |  |  |
-| Docker socket / 未声明服务 | deny/不存在 |  |  |  |
-| Browser 绕过 proxy | deny |  |  |  |
+| 获准 HTTPS CONNECT 到 fixture | allow 且逐目标复验 | Browser 仅经 `198.51.100.20:18080` CONNECT `fixture-r2.test:8443`；双解析与 peer IP 一致性通过；4 个 allow events | PASS | `backend/experiments/browser-r2/evidence/{browser-probe.json,proxy-events.jsonl}` |
+| 每跳 redirect A/AAAA/IP/port 复验 | unsafe hop deny | safe redirect 重新 CONNECT 成功；unsafe redirect 到 metadata 地址返回 403；`connect_revalidations=3` | PASS | `backend/experiments/browser-r2/evidence/{browser-probe.json,proxy-events.jsonl}` |
+| 混合 A/AAAA / DNS rebinding | deny | mixed A/AAAA=`mixed_answer`；两次解析答案变化=`dns_rebinding` | PASS | `backend/experiments/browser-r2/evidence/proxy-events.jsonl` |
+| 私网/link-local/metadata/危险端口 | deny | loopback/private/link-local/metadata/multicast/reserved/unspecified/port 22 全部 403；共验证 13 类 policy denial | PASS | `backend/experiments/browser-r2/evidence/proxy-events.jsonl` |
+| Browser 直连 fixture/IP/域名 | deny | fixture、decoy、live host gateway canary、control-network canary 共 4 次均精确为 `ENETUNREACH` errno 101；validator 禁止 timeout、`ECONNREFUSED` 或其他 `OSError` | PASS | `backend/experiments/browser-r2/evidence/{browser-probe.json,control-client.json,topology.json}` |
+| 系统 DNS / host gateway / host network | deny | 宿主 readiness attempt 1 收到 marker；独立 control client 经同一 `192.168.65.254:49175` 收到 marker，而 Browser 对该精确 endpoint 为 errno 101；DNS 精确记录 A/AAAA 各 1、AA=true、RA=false、upstream=0；无 host network | PASS | `backend/experiments/browser-r2/evidence/{browser-probe.json,control-client.json,dns-events.jsonl,topology.json}` |
+| Docker socket / 未声明服务 | deny/不存在 | 实际 inspect：全部 8 服务 UID 10001、read-only、drop ALL、no-new-privileges、精确非 host NetworkMode；仅 host canary 有精确 loopback PortBinding；Docker socket 不存在 | PASS | `backend/experiments/browser-r2/evidence/{browser-probe.json,topology.json}` |
+| Browser 绕过 proxy | deny | proxy 仅接受 CONNECT，absolute-form GET 返回 405；Browser 无 fixture/control network route；policy log 精确 4 allow/14 deny，process healthcheck 零污染 | PASS | `backend/experiments/browser-r2/evidence/{browser-probe.json,proxy-events.jsonl,topology.json}` |
 
-R2 判定：`PASS / BLOCKED`。任何面仅有应用 mock 或配置审阅即 BLOCKED；只有 PASS 才可进入 R3。
+R2 判定：`PASS — READY FOR INDEPENDENT REVIEW`。R2 P0/P1/P2=`0/0/0`。cleanup 后 `127.0.0.1:49175` exclusive bind attempt 1 成功，R1 tag 经 inspect 保留为 `sha256:83464fd58248b3af79903c3d4ce3d33140f498bdfef4d9efec9c4552718a3eec`。实证命令、版本、对象与清理明细见 `backend/experiments/browser-r2/evidence/execution-ledger.md`。本轮仅完成 R2；未执行 R3，WP-3 正式实现仍 BLOCKED。
 
 ## 4. R3 — Application interception matrix
 

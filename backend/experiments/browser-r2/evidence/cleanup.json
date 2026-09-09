@@ -1,0 +1,16 @@
+{
+  "containers_remaining": [],
+  "host_port": {
+    "address": "127.0.0.1",
+    "attempts": 1,
+    "available_for_exclusive_bind": true,
+    "port": 49175
+  },
+  "networks_remaining": [],
+  "project": "flowtracer-r2-review4-20260909",
+  "r1_image": {
+    "id": "sha256:83464fd58248b3af79903c3d4ce3d33140f498bdfef4d9efec9c4552718a3eec",
+    "tag": "flowtracer-browser-r1:r1-final-build2"
+  },
+  "volumes_created": 0
+}

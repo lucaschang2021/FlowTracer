@@ -2,7 +2,7 @@
 
 更新时间：2026-09-09。
 
-- 当前稳定基准：`main@c5799082ba8e0ae5edf8ddfb861e24de784cdf93`；该基准包含 WP-3 Remediation Evidence 控制 PR #53、R1 证据 PR #54 与 R2 证据 PR #56。
+- 当前稳定基准：`main@a0d30140c8bdb6665b0833f4d60defadce9c9166`；该基准包含 WP-3 Remediation Evidence 控制 PR #53、R1 证据 PR #54、R2 证据 PR #56 与 R3 激活 PR #57。
 - 已完成：ACQ-1 Preflight、Contract Freeze、WP-1（ACQ-1A + H0）与 WP-2（ACQ-1B + D-static）均已通过总控验收并合并。
 - WP-2 验收：实现提交 `90c4645c95a96608a35565ca90b022dfb2f1f1a7`，merge commit `70a3b0462e9a9303ddb3f5be56c84ed5d2fead40`；286 passed、coverage 87.61%、P0/P1/P2 = 0/0/0。归档见 `docs/36-ACQ1-WP2-ACCEPTANCE.md`。
 - Architecture Governance：AG-0 至 AG-6 全部完成，Architecture Governance Pass 整体结项。AG-5 Conditional Memory Policy 以 no-code characterization audit 收口；AG-6 在 `main@81a9739c986eaef50fa43ba9a7d32689bceddf03` 完成 no-code Final Compatibility Gate 并判定 PASS，无新增代码或 commit。

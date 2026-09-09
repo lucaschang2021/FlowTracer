@@ -8,7 +8,7 @@
 
 | 字段 | 必填实际值 / 证据 |
 | --- | --- |
-| `origin/main` | R1 `4630ff137e64004fb45e2370419b1f66d2e8d0bc`（PR #53 merge commit）；R2 `b6275cd4633207d23cff047d2b612aa4893a2888` |
+| `origin/main` | R1 `4630ff137e64004fb45e2370419b1f66d2e8d0bc`（PR #53 merge commit）；R2 `b6275cd4633207d23cff047d2b612aa4893a2888`；R3 `a0d30140c8bdb6665b0833f4d60defadce9c9166`（PR #57 merge commit） |
 | evidence branch / commit | R1 `feat/acq-1b-browser-remediation-evidence@89ed802f4f2ac608a260f68637f1aaf541cd3143`；PR #54 merge commit `34364d0082e4ecdbe4331d77a21ef6d25c2fca8a`；R2 `feat/acq-1b-browser-remediation-evidence@7c6e778e05c34bb8341d6898eea729de5dc311b2`；PR #56 merge commit `c5799082ba8e0ae5edf8ddfb861e24de784cdf93` |
 | host OS / architecture | Microsoft Windows 11 家庭版中文版 `10.0.26200`（build 26200），x64 |
 | Docker / Compose / BuildKit | client/engine 29.7.2；Compose v5.4.0；Buildx v0.36.1-desktop.1 (`83d819cf8237b52ef45a2a9857eeb83a7b10977f`)；专用 BuildKit v0.32.2，镜像 `moby/buildkit@sha256:28a898719c18a33f4e8000685287fa36fd0dd9560c6440227d3a732d79bb41d8` |

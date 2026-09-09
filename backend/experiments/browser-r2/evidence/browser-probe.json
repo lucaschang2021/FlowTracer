@@ -1,0 +1,43 @@
+{
+  "allowed": [
+    "proxy",
+    "redis",
+    "fixture_via_connect"
+  ],
+  "connect_revalidations": 3,
+  "denied_policy_cases": 13,
+  "direct_network_denials": 4,
+  "direct_network_results": [
+    {
+      "address": "192.0.2.10",
+      "errno": 101,
+      "outcome": "unreachable",
+      "port": 8443
+    },
+    {
+      "address": "192.0.2.30",
+      "errno": 101,
+      "outcome": "unreachable",
+      "port": 9090
+    },
+    {
+      "address": "192.168.65.254",
+      "errno": 101,
+      "outcome": "unreachable",
+      "port": 49175
+    },
+    {
+      "address": "203.0.113.10",
+      "errno": 101,
+      "outcome": "unreachable",
+      "port": 49175
+    }
+  ],
+  "docker_socket": "absent",
+  "host_gateway_endpoint": {
+    "address": "192.168.65.254",
+    "port": 49175
+  },
+  "system_dns": "authoritative_nxdomain",
+  "uid": 10001
+}

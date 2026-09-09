@@ -1,0 +1,18 @@
+{"answers": ["192.0.2.10"], "decision": "allow", "host": "fixture-r2.test", "occurred_at": "2026-09-09T09:56:48.538985+00:00", "port": 8443, "reason": "validated"}
+{"answers": ["192.0.2.10"], "decision": "allow", "host": "fixture-r2.test", "occurred_at": "2026-09-09T09:56:48.547232+00:00", "port": 8443, "reason": "validated"}
+{"answers": ["192.0.2.10"], "decision": "allow", "host": "fixture-r2.test", "occurred_at": "2026-09-09T09:56:48.557892+00:00", "port": 8443, "reason": "validated"}
+{"answers": ["192.0.2.10"], "decision": "allow", "host": "fixture-r2.test", "occurred_at": "2026-09-09T09:56:48.568830+00:00", "port": 8443, "reason": "validated"}
+{"answers": ["169.254.169.254"], "decision": "deny", "host": "metadata-r2.test", "occurred_at": "2026-09-09T09:56:48.578968+00:00", "port": 8443, "reason": "metadata"}
+{"answers": ["192.0.2.10", "169.254.169.254"], "decision": "deny", "host": "rebind-r2.test", "occurred_at": "2026-09-09T09:56:48.580085+00:00", "port": 8443, "reason": "dns_rebinding"}
+{"answers": ["192.0.2.10", "fe80::1"], "decision": "deny", "host": "mixed-r2.test", "occurred_at": "2026-09-09T09:56:48.581124+00:00", "port": 8443, "reason": "mixed_answer"}
+{"answers": ["127.0.0.1"], "decision": "deny", "host": "loopback-r2.test", "occurred_at": "2026-09-09T09:56:48.582162+00:00", "port": 8443, "reason": "loopback"}
+{"answers": ["10.0.0.8"], "decision": "deny", "host": "private-r2.test", "occurred_at": "2026-09-09T09:56:48.583276+00:00", "port": 8443, "reason": "private"}
+{"answers": ["169.254.1.8"], "decision": "deny", "host": "linklocal-r2.test", "occurred_at": "2026-09-09T09:56:48.584705+00:00", "port": 8443, "reason": "link_local"}
+{"answers": ["169.254.169.254"], "decision": "deny", "host": "metadata-r2.test", "occurred_at": "2026-09-09T09:56:48.586574+00:00", "port": 8443, "reason": "metadata"}
+{"answers": ["224.0.0.1"], "decision": "deny", "host": "multicast-r2.test", "occurred_at": "2026-09-09T09:56:48.587470+00:00", "port": 8443, "reason": "multicast"}
+{"answers": ["240.0.0.8"], "decision": "deny", "host": "reserved-r2.test", "occurred_at": "2026-09-09T09:56:48.589165+00:00", "port": 8443, "reason": "reserved"}
+{"answers": ["0.0.0.0"], "decision": "deny", "host": "unspecified-r2.test", "occurred_at": "2026-09-09T09:56:48.590415+00:00", "port": 8443, "reason": "unspecified"}
+{"answers": ["93.184.216.34"], "decision": "deny", "host": "undeclared-r2.test", "occurred_at": "2026-09-09T09:56:48.592081+00:00", "port": 8443, "reason": "not_declared_fixture"}
+{"answers": [], "decision": "deny", "host": "fixture-r2.test", "occurred_at": "2026-09-09T09:56:48.593619+00:00", "port": 22, "reason": "dangerous_port"}
+{"answers": [], "decision": "deny", "host": "192.0.2.10", "occurred_at": "2026-09-09T09:56:48.595199+00:00", "port": 8443, "reason": "direct_ip"}
+{"answers": [], "decision": "deny", "host": "invalid", "occurred_at": "2026-09-09T09:56:48.596213+00:00", "port": 0, "reason": "connect_required"}

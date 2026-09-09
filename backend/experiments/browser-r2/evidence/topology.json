@@ -1,0 +1,147 @@
+{
+  "docker_socket_mounts": [],
+  "host_canary_control": {
+    "address": "127.0.0.1",
+    "attempts": 1,
+    "port": 49175,
+    "response": "R2_HOST_CANARY"
+  },
+  "internal_networks": [
+    "r2_browser",
+    "r2_fixture"
+  ],
+  "networks": {
+    "browser": [
+      "r2_browser"
+    ],
+    "control_client": [
+      "r2_control_client"
+    ],
+    "decoy": [
+      "r2_fixture"
+    ],
+    "dns_canary": [
+      "r2_browser"
+    ],
+    "fixture": [
+      "r2_fixture"
+    ],
+    "host_canary": [
+      "r2_host_canary"
+    ],
+    "proxy": [
+      "r2_browser",
+      "r2_fixture"
+    ],
+    "redis": [
+      "r2_browser"
+    ]
+  },
+  "privileged": [],
+  "project": "flowtracer-r2-review4-20260909",
+  "runtime": {
+    "browser": {
+      "cap_drop": [
+        "ALL"
+      ],
+      "network_mode": "flowtracer-r2-review4-20260909_r2_browser",
+      "port_bindings": {},
+      "read_only_rootfs": true,
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "user": "10001:10001"
+    },
+    "control_client": {
+      "cap_drop": [
+        "ALL"
+      ],
+      "network_mode": "flowtracer-r2-review4-20260909_r2_control_client",
+      "port_bindings": {},
+      "read_only_rootfs": true,
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "user": "10001:10001"
+    },
+    "decoy": {
+      "cap_drop": [
+        "ALL"
+      ],
+      "network_mode": "flowtracer-r2-review4-20260909_r2_fixture",
+      "port_bindings": {},
+      "read_only_rootfs": true,
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "user": "10001:10001"
+    },
+    "dns_canary": {
+      "cap_drop": [
+        "ALL"
+      ],
+      "network_mode": "flowtracer-r2-review4-20260909_r2_browser",
+      "port_bindings": {},
+      "read_only_rootfs": true,
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "user": "10001:10001"
+    },
+    "fixture": {
+      "cap_drop": [
+        "ALL"
+      ],
+      "network_mode": "flowtracer-r2-review4-20260909_r2_fixture",
+      "port_bindings": {},
+      "read_only_rootfs": true,
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "user": "10001:10001"
+    },
+    "host_canary": {
+      "cap_drop": [
+        "ALL"
+      ],
+      "network_mode": "flowtracer-r2-review4-20260909_r2_host_canary",
+      "port_bindings": {
+        "49175/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "49175"
+          }
+        ]
+      },
+      "read_only_rootfs": true,
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "user": "10001:10001"
+    },
+    "proxy": {
+      "cap_drop": [
+        "ALL"
+      ],
+      "network_mode": "flowtracer-r2-review4-20260909_r2_browser",
+      "port_bindings": {},
+      "read_only_rootfs": true,
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "user": "10001:10001"
+    },
+    "redis": {
+      "cap_drop": [
+        "ALL"
+      ],
+      "network_mode": "flowtracer-r2-review4-20260909_r2_browser",
+      "port_bindings": {},
+      "read_only_rootfs": true,
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "user": "10001:10001"
+    }
+  }
+}

@@ -1,0 +1,6 @@
+# Preserve evidence and source bytes across platforms while retaining text diffs.
+* -text diff
+
+# Raw build output and upstream license notices intentionally retain whitespace.
+attempts/** -whitespace
+evidence/** -whitespace

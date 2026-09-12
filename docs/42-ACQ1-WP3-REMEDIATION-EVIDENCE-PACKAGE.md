@@ -1,6 +1,6 @@
 # FlowTracer ACQ-1 WP-3 Remediation Evidence Package
 
-状态：R1 Accepted（Headless Shell historical）；R2 Accepted（Headless Shell historical）；R3 BLOCKED；R1C Admitted；R2C/R4-R5 Pending
+状态：R1 Accepted（Headless Shell historical）；R2 Accepted（Headless Shell historical）；R3 BLOCKED；R1C PASS — READY FOR INDEPENDENT REVIEW；R2C/R4-R5 Pending
 
 用途：本文件是 `docs/41-ACQ1-WP3-REMEDIATION-EVIDENCE-ADMISSION.md` 的强制证据模板。必须按 R1→R5 顺序填写实际值；`TBD`、估算、未执行、仅配置审阅、仅 mock 或未保存的口头观察均不构成通过证据。
 
@@ -80,6 +80,23 @@ R2 判定：`ACCEPTED`。R2 P0/P1/P2=`0/0/0`；独立复审、Backend CI 与 PR 
 - R1C 不得覆盖、改写或复用 R1 tag/证据文件冒充新结果；实际 revision、path、digest、tree、SBOM hash 与 license notice 必须来自运行证据。
 - R2C：R1C 验收合并后，必须用该精确镜像完整重跑 R2 controlled egress/namespace 证据；不得仅引用旧 Headless Shell 容器结果。
 - R3 只有在 R1C、R2C 分别 PASS、独立复审并合并后，才可重新准入。
+
+#### R1C 实际证据（2026-09-13）
+
+| 项目 | 实际值 | 判定 / 证据路径 |
+| --- | --- | --- |
+| 执行基准与范围 | `origin/main@fdcb4335982d69728adcfc29cfa422577a6ff43f`；分支 `feat/acq-1b-browser-remediation-evidence`；仅新增 `backend/experiments/browser-r1c/` 并更新本节，未改业务代码、默认 Compose、Schema/API/Pipeline 或 R1/R2/R3 | PASS；`backend/experiments/browser-r1c/evidence/versions.json` |
+| 完整 Browser artifact | Google Chrome for Testing `151.0.7922.34` / Chromium r1234；精确 executable `/opt/browser-r1c/chromium-1234/chrome-linux64/chrome`，SHA-256 `0b20b130e7edd9dd51873be867761295fe0cfad490c2b9a64f95bd3cfc08fa71`；FFmpeg r1011 SHA-256 `460d44f3416005662f528d4b92e7b94ace924e8a0288106d3803b73c56eaadc8`；完整 tree 619 entries，manifest SHA-256 `197d911b97e67180aef120d7cffb974436dcbcbe4acce566809b6d0e1363390a` | PASS；`browser-tree.manifest.json`、`evidence/sbom.cdx.json` |
+| Debian / SBOM / license | Debian snapshot 与 206-package lock 保持精确，lock SHA-256 `299a341b239c284c385ecac9d3882bdf29472b28421075b369009f998b54b83`；CycloneDX 1.6 共 231 components，SHA-256 `a8d6ae5e450b10bd40d90f6d56a0e69742479cfaff79398c0d2fb0696cfcf774`；206/206 Debian inventory 与 notices，inventory SHA-256 `bee9c30ae016be592521c383b9bb0be74f39892415ed28f9122d5b7ccced81da`；5 个精确 SPDX 标签，其余保持 notice-backed `LicenseRef-Debian-Notice-*` | PASS；`evidence/{sbom.cdx.json,debian-license-inventory.json,debian-notices/,notices/}` |
+| 两次独立构建 | 唯一 builder/session `flowtracer-r1c-20260913-p1-runtime-dirs-*`；两次均为 `--no-cache --pull=false --platform=linux/amd64`；image IDs 分别 `sha256:72fa7e697fe4460d2012bcd7ebf5daee646a776bd2d4c6a9785949f908df8c23`、`sha256:bd7540f7ed6652f3ea7dc9e95e46cd1c44e80a462177a02b4714bfdf8e94dee5`；root-only inspection 的 normalized identity 均为 `6ef0e9ecb34d0a72c2135282b06548f7bdac92be27f8df2444188216013bddea`；两镜像 SBOM/inventory streams 相同；10 份原始 build 输出已无损改为 Git 可见 `.txt`，旧/新路径、bytes 与相同 SHA-256 由独立 proof 复验 | PASS；`evidence/{build1.txt,build2.txt,build-comparison.json}`、`log-rename-sha256.json` |
+| root inspection 与 runtime 隔离 | identity inspection 明确 `--user 0` 且 network none/read-only/drop ALL/no-new-privileges；两个候选 runtime 均为 UID/GID `10001:10001`、network none、read-only rootfs、drop ALL、no-new-privileges、非 privileged、PID 128、memory 768 MiB、CPU 1、`/tmp` 256 MiB `rw,nosuid,noexec` tmpfs；外层 hard deadline 120 秒 | PASS；`evidence/build-comparison.json` |
+| 真实 DynamicFetcher | 两镜像均由 Scrapling 0.4.15 `DynamicFetcher.fetch` 使用 `retries=1`、显式 full executable 与独立 `user_data_dir`；进程内 loopback fixture 实际渲染 `dynamic-rendered`，render 分别 2410/3762 ms；关闭后的 fixture 均安全失败为 `Error`，分别 3039/2058 ms；非 Patchright 直调、非参数验证失败 | PASS；`evidence/build-comparison.json` |
+| Crashpad 与临时目录 | runtime-only `HOME=/tmp/flowtracer-r1c-home`、`XDG_CONFIG_HOME=/tmp/flowtracer-r1c-config`、`XDG_CACHE_HOME=/tmp/flowtracer-r1c-cache`；每次调用前由 UID10001 创建独立 mode 0700 目录并拒绝 symlink/越界；实际 database `/tmp/flowtracer-r1c-config/google-chrome-for-testing/Crash Reports`，UID/GID 10001、mode 0700；render/failure 前后 HOME/config/cache/profile 均验证 absent，Chrome/Crashpad process 均零残留 | PASS；`evidence/build-comparison.json` |
+| 执行与清理 | `2026-09-13T00:48:10.354776+08:00` 至 `00:57:34.493990+08:00`，564.139 秒，53 条命令；最终 builder、2 containers、3 R1C tags、专用 volumes 全部不存在；未 global prune；历史 R1 builder/images/固定 BuildKit image 前后完全一致；受保护 R3 12 文件 SHA-256 前后完全一致；四个失败 attempt 均保留；R1C package 共 702 个实际文件且 702 个均 Git 可见；locale-independent UTF-8 ordinal/code-point package tree 共 95,463 payload bytes，SHA-256 `de122725db834bdc871e0d7a8c56f18ed2ec2afc56db47a57acc9a06ec996cb2`；package-local `.gitattributes` 禁止 EOL clean 转换并保留 text diff，原始 evidence whitespace 仅关闭 diff-check 告警、不改字节 | PASS；`evidence/{execution-ledger.json,cleanup.json,protected-docker-objects.json,protected-r3-sha256.json}`、`attempts/`、`log-rename-sha256.json`、`.gitattributes` |
+
+R1C package tree 的机器可解析声明：`R1C_PACKAGE_TREE_V1 files=702 payload_bytes=95463 sha256=de122725db834bdc871e0d7a8c56f18ed2ec2afc56db47a57acc9a06ec996cb2`。算法递归包含 `browser-r1c/` 下全部普通文件，不读取 Git ignore、扩展名或 locale，也无隐式排除；symlink/其他 entry type fail closed。相对路径统一 `/` 后按 Unicode code point 排序，每个文件以原始 bytes 计算 lowercase SHA-256，再将 `<relative-path> <lowercase-content-sha256>\n` 编码为 UTF-8（无 BOM、最后一行保留 LF）并串接取最终 SHA-256。轻量复验命令：`py -3.13 -B backend/experiments/browser-r1c/scripts/validate_sbom.py backend/experiments/browser-r1c/evidence --package-tree-doc docs/42-ACQ1-WP3-REMEDIATION-EVIDENCE-PACKAGE.md`。
+
+R1C 判定：`PASS — READY FOR INDEPENDENT REVIEW`。R1C P0/P1/P2=`0/0/0`。本次不构成 R1C 独立验收、合并或 R2C/R3 准入；Backend 在此 STOP。
 
 ## 5. R4 — Deadline、回收与资源样本
 

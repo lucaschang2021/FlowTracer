@@ -1,0 +1,621 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "inspect",
+        "flowtracer-r1c-20260912-final-contract-builder"
+      ],
+      "ended_at": "2026-09-12T16:27:19.272560+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T16:27:19.012824+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "container",
+        "inspect",
+        "flowtracer-r1c-20260912-final-contract-runtime-build1"
+      ],
+      "ended_at": "2026-09-12T16:27:19.429304+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T16:27:19.272591+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "container",
+        "inspect",
+        "flowtracer-r1c-20260912-final-contract-runtime-build2"
+      ],
+      "ended_at": "2026-09-12T16:27:19.585857+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T16:27:19.429325+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "flowtracer-browser-r1c:r1c-20260912-final-contract-lock-export"
+      ],
+      "ended_at": "2026-09-12T16:27:19.743825+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T16:27:19.585879+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "flowtracer-browser-r1c:r1c-20260912-final-contract-build1"
+      ],
+      "ended_at": "2026-09-12T16:27:19.901015+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T16:27:19.743846+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "flowtracer-browser-r1c:r1c-20260912-final-contract-build2"
+      ],
+      "ended_at": "2026-09-12T16:27:20.059979+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T16:27:19.901046+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "volume",
+        "ls",
+        "-q",
+        "--filter",
+        "name=flowtracer-r1c-20260912-final-contract-builder"
+      ],
+      "ended_at": "2026-09-12T16:27:20.218995+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:27:20.060002+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "inspect",
+        "flowtracer-r1-final-builder"
+      ],
+      "ended_at": "2026-09-12T16:27:20.591697+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:27:20.219663+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "--format",
+        "{{.Id}}",
+        "flowtracer-browser-r1:r1-final-build1"
+      ],
+      "ended_at": "2026-09-12T16:27:20.780930+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:27:20.591729+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "--format",
+        "{{.Id}}",
+        "flowtracer-browser-r1:r1-final-build2"
+      ],
+      "ended_at": "2026-09-12T16:27:20.964492+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:27:20.780955+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "--format",
+        "{{.Id}}",
+        "moby/buildkit@sha256:28a898719c18a33f4e8000685287fa36fd0dd9560c6440227d3a732d79bb41d8"
+      ],
+      "ended_at": "2026-09-12T16:27:21.178215+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:27:20.964517+00:00"
+    },
+    {
+      "argv": [
+        "git",
+        "branch",
+        "--show-current"
+      ],
+      "ended_at": "2026-09-12T16:27:21.220808+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:27:21.178842+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "version"
+      ],
+      "ended_at": "2026-09-12T16:27:21.475841+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:27:21.220830+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "version",
+        "--format",
+        "{{json .}}"
+      ],
+      "ended_at": "2026-09-12T16:27:21.655179+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:27:21.475863+00:00"
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "ended_at": "2026-09-12T16:27:21.695556+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:27:21.655203+00:00"
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "origin/main"
+      ],
+      "ended_at": "2026-09-12T16:27:21.734442+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:27:21.695594+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "create",
+        "--name",
+        "flowtracer-r1c-20260912-final-contract-builder",
+        "--driver",
+        "docker-container",
+        "--driver-opt",
+        "network=bridge,image=moby/buildkit@sha256:28a898719c18a33f4e8000685287fa36fd0dd9560c6440227d3a732d79bb41d8"
+      ],
+      "ended_at": "2026-09-12T16:27:22.074255+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:27:21.794202+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "inspect",
+        "flowtracer-r1c-20260912-final-contract-builder",
+        "--bootstrap"
+      ],
+      "ended_at": "2026-09-12T16:27:28.436444+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:27:22.074275+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "build",
+        "--builder",
+        "flowtracer-r1c-20260912-final-contract-builder",
+        "--platform=linux/amd64",
+        "--no-cache",
+        "--pull=false",
+        "--progress=plain",
+        "--load",
+        "--target",
+        "final",
+        "-f",
+        "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r1c\\Dockerfile",
+        "-t",
+        "flowtracer-browser-r1c:r1c-20260912-final-contract-build1",
+        "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r1c"
+      ],
+      "ended_at": "2026-09-12T16:32:50.341002+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:27:28.436500+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "build",
+        "--builder",
+        "flowtracer-r1c-20260912-final-contract-builder",
+        "--platform=linux/amd64",
+        "--no-cache",
+        "--pull=false",
+        "--progress=plain",
+        "--load",
+        "--target",
+        "final",
+        "-f",
+        "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r1c\\Dockerfile",
+        "-t",
+        "flowtracer-browser-r1c:r1c-20260912-final-contract-build2",
+        "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r1c"
+      ],
+      "ended_at": "2026-09-12T16:37:30.096462+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:32:50.341501+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--network",
+        "none",
+        "--user",
+        "0",
+        "--read-only",
+        "--cap-drop",
+        "ALL",
+        "--security-opt",
+        "no-new-privileges",
+        "--entrypoint",
+        "python",
+        "flowtracer-browser-r1c:r1c-20260912-final-contract-build1",
+        "/opt/flowtracer-r1c/scripts/image_identity.py"
+      ],
+      "ended_at": "2026-09-12T16:37:51.684214+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:37:30.097016+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--network",
+        "none",
+        "--user",
+        "0",
+        "--read-only",
+        "--cap-drop",
+        "ALL",
+        "--security-opt",
+        "no-new-privileges",
+        "--entrypoint",
+        "python",
+        "flowtracer-browser-r1c:r1c-20260912-final-contract-build2",
+        "/opt/flowtracer-r1c/scripts/image_identity.py"
+      ],
+      "ended_at": "2026-09-12T16:37:54.759524+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:37:51.684248+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--network",
+        "none",
+        "--entrypoint",
+        "python",
+        "flowtracer-browser-r1c:r1c-20260912-final-contract-build1",
+        "/opt/flowtracer-r1c/scripts/generate_sbom.py"
+      ],
+      "ended_at": "2026-09-12T16:37:55.982273+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:37:54.759554+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--network",
+        "none",
+        "--entrypoint",
+        "python",
+        "flowtracer-browser-r1c:r1c-20260912-final-contract-build1",
+        "/opt/flowtracer-r1c/scripts/generate_sbom.py",
+        "--debian-license-inventory"
+      ],
+      "ended_at": "2026-09-12T16:37:56.905139+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:37:55.982294+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--network",
+        "none",
+        "--entrypoint",
+        "python",
+        "flowtracer-browser-r1c:r1c-20260912-final-contract-build1",
+        "/opt/flowtracer-r1c/scripts/export_notices.py"
+      ],
+      "ended_at": "2026-09-12T16:37:57.761746+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:37:56.908010+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--network",
+        "none",
+        "--entrypoint",
+        "python",
+        "flowtracer-browser-r1c:r1c-20260912-final-contract-build2",
+        "/opt/flowtracer-r1c/scripts/generate_sbom.py"
+      ],
+      "ended_at": "2026-09-12T16:37:59.212816+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:37:57.961687+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--network",
+        "none",
+        "--entrypoint",
+        "python",
+        "flowtracer-browser-r1c:r1c-20260912-final-contract-build2",
+        "/opt/flowtracer-r1c/scripts/generate_sbom.py",
+        "--debian-license-inventory"
+      ],
+      "ended_at": "2026-09-12T16:38:00.124604+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:37:59.212841+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "create",
+        "--name",
+        "flowtracer-r1c-20260912-final-contract-runtime-build1",
+        "--network",
+        "none",
+        "--read-only",
+        "--cap-drop",
+        "ALL",
+        "--security-opt",
+        "no-new-privileges",
+        "--tmpfs",
+        "/tmp:rw,nosuid,noexec,size=256m",
+        "--pids-limit",
+        "128",
+        "--memory",
+        "768m",
+        "--cpus",
+        "1",
+        "flowtracer-browser-r1c:r1c-20260912-final-contract-build1"
+      ],
+      "ended_at": "2026-09-12T16:38:00.358005+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:38:00.126158+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "container",
+        "inspect",
+        "flowtracer-r1c-20260912-final-contract-runtime-build1"
+      ],
+      "ended_at": "2026-09-12T16:38:00.514982+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:38:00.358046+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "start",
+        "-a",
+        "flowtracer-r1c-20260912-final-contract-runtime-build1"
+      ],
+      "ended_at": "2026-09-12T16:38:03.611473+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T16:38:00.515082+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "container",
+        "rm",
+        "-f",
+        "flowtracer-r1c-20260912-final-contract-runtime-build1"
+      ],
+      "ended_at": "2026-09-12T16:38:03.799528+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:38:03.611531+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "container",
+        "rm",
+        "-f",
+        "flowtracer-r1c-20260912-final-contract-runtime-build2"
+      ],
+      "ended_at": "2026-09-12T16:38:03.960400+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:38:03.799547+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "rm",
+        "flowtracer-browser-r1c:r1c-20260912-final-contract-lock-export",
+        "flowtracer-browser-r1c:r1c-20260912-final-contract-build1",
+        "flowtracer-browser-r1c:r1c-20260912-final-contract-build2"
+      ],
+      "ended_at": "2026-09-12T16:38:07.665666+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T16:38:03.960420+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "rm",
+        "flowtracer-r1c-20260912-final-contract-builder"
+      ],
+      "ended_at": "2026-09-12T16:38:11.310781+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:38:07.665697+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "inspect",
+        "flowtracer-r1c-20260912-final-contract-builder"
+      ],
+      "ended_at": "2026-09-12T16:38:11.585379+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T16:38:11.310804+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "container",
+        "inspect",
+        "flowtracer-r1c-20260912-final-contract-runtime-build1"
+      ],
+      "ended_at": "2026-09-12T16:38:11.741964+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T16:38:11.585408+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "container",
+        "inspect",
+        "flowtracer-r1c-20260912-final-contract-runtime-build2"
+      ],
+      "ended_at": "2026-09-12T16:38:11.916367+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T16:38:11.742002+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "flowtracer-browser-r1c:r1c-20260912-final-contract-lock-export"
+      ],
+      "ended_at": "2026-09-12T16:38:12.071538+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T16:38:11.916404+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "flowtracer-browser-r1c:r1c-20260912-final-contract-build1"
+      ],
+      "ended_at": "2026-09-12T16:38:12.232932+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T16:38:12.071567+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "flowtracer-browser-r1c:r1c-20260912-final-contract-build2"
+      ],
+      "ended_at": "2026-09-12T16:38:12.388816+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T16:38:12.232951+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "volume",
+        "ls",
+        "-q",
+        "--filter",
+        "name=flowtracer-r1c-20260912-final-contract-builder"
+      ],
+      "ended_at": "2026-09-12T16:38:12.587787+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:38:12.388839+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "inspect",
+        "flowtracer-r1-final-builder"
+      ],
+      "ended_at": "2026-09-12T16:38:13.575210+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:38:12.587811+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "--format",
+        "{{.Id}}",
+        "flowtracer-browser-r1:r1-final-build1"
+      ],
+      "ended_at": "2026-09-12T16:38:13.760891+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:38:13.575230+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "--format",
+        "{{.Id}}",
+        "flowtracer-browser-r1:r1-final-build2"
+      ],
+      "ended_at": "2026-09-12T16:38:13.941817+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:38:13.760911+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "--format",
+        "{{.Id}}",
+        "moby/buildkit@sha256:28a898719c18a33f4e8000685287fa36fd0dd9560c6440227d3a732d79bb41d8"
+      ],
+      "ended_at": "2026-09-12T16:38:14.151936+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:38:13.941838+00:00"
+    }
+  ],
+  "duration_seconds": 655.14,
+  "ended_at": "2026-09-12T16:38:14.152482+00:00",
+  "error": "RuntimeError: runtime probe failed for flowtracer-browser-r1c:r1c-20260912-final-contract-build1: erSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --disable-background-networking --disable-hang-monitor --password-store=basic --disable-search-engine-choice-screen --no-default-browser-check --no-first-run --disable-breakpad --no-service-autorun --no-pings --homepage=about:blank --disable-session-crashed-bubble --disable-infobars --user-data-dir=/tmp/flowtracer-r1c-render-profile --remote-debugging-pipe about:blank\n<launched> pid=21\n[pid=21][err] chrome_crashpad_handler: --database is required\n[pid=21][err] Try 'chrome_crashpad_handler --help' for more information.\n[pid=21][err] [21:21:0912/163803.130476:ERROR:third_party/crashpad/crashpad/util/linux/socket.cc:120] recvmsg: Connection reset by peer (104)\nCall log:\n  - <launching> /opt/browser-r1c/chromium-1234/chrome-linux64/chrome --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --no-default-browser-check --disable-dev-shm-usage --disable-edgeupdater --disable-features=AvoidUnnecessaryBeforeUnloadCheckSync,BoundaryEventDispatchTracksNodeRemoval,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,BlockOriginHeaderModificationOnRedirect,Translate,AutoDeElevate,OptimizationHints,msForceBrowserSignIn,msEdgeUpdateLaunchServicesPreferredVersion --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-prompt-on-repost --disable-renderer-backgrounding --disable-updater-scheduler --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --disable-infobars --disable-search-engine-choice-screen --disable-sync --enable-unsafe-swiftshader --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --disable-background-networking --disable-hang-monitor --password-store=basic --disable-search-engine-choice-screen --no-default-browser-check --no-first-run --disable-breakpad --no-service-autorun --no-pings --homepage=about:blank --disable-session-crashed-bubble --disable-infobars --user-data-dir=/tmp/flowtracer-r1c-render-profile --remote-debugging-pipe about:blank\n  - <launched> pid=21\n  - [pid=21][err] chrome_crashpad_handler: --database is required\n  - [pid=21][err] Try 'chrome_crashpad_handler --help' for more information.\n  - [pid=21][err] [21:21:0912/163803.130476:ERROR:third_party/crashpad/crashpad/util/linux/socket.cc:120] recvmsg: Connection reset by peer (104)\n  - [pid=21] <gracefully close start>\n  - [pid=21] <kill>\n  - [pid=21] <will force kill>\n  - [pid=21] <process did exit: exitCode=null, signal=SIGTRAP>\n  - [pid=21] starting temporary directories cleanup\n  - [pid=21] finished temporary directories cleanup\n  - [pid=21] <gracefully close end>\n\n",
+  "object_namespace": "flowtracer-r1c-20260912-final-contract-*",
+  "public_runtime_access": false,
+  "started_at": "2026-09-12T16:27:19.012817+00:00",
+  "status": "BLOCKED"
+}

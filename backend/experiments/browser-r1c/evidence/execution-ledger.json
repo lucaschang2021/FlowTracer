@@ -1,0 +1,736 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "inspect",
+        "flowtracer-r1c-20260913-p1-runtime-dirs-builder"
+      ],
+      "ended_at": "2026-09-12T16:48:10.616350+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T16:48:10.354783+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "container",
+        "inspect",
+        "flowtracer-r1c-20260913-p1-runtime-dirs-runtime-build1"
+      ],
+      "ended_at": "2026-09-12T16:48:10.772492+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T16:48:10.616381+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "container",
+        "inspect",
+        "flowtracer-r1c-20260913-p1-runtime-dirs-runtime-build2"
+      ],
+      "ended_at": "2026-09-12T16:48:10.930531+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T16:48:10.772513+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "flowtracer-browser-r1c:r1c-20260913-p1-runtime-dirs-lock-export"
+      ],
+      "ended_at": "2026-09-12T16:48:11.089768+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T16:48:10.930554+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "flowtracer-browser-r1c:r1c-20260913-p1-runtime-dirs-build1"
+      ],
+      "ended_at": "2026-09-12T16:48:11.250783+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T16:48:11.089792+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "flowtracer-browser-r1c:r1c-20260913-p1-runtime-dirs-build2"
+      ],
+      "ended_at": "2026-09-12T16:48:11.410691+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T16:48:11.250822+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "volume",
+        "ls",
+        "-q",
+        "--filter",
+        "name=flowtracer-r1c-20260913-p1-runtime-dirs-builder"
+      ],
+      "ended_at": "2026-09-12T16:48:11.568233+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:48:11.410734+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "inspect",
+        "flowtracer-r1-final-builder"
+      ],
+      "ended_at": "2026-09-12T16:48:12.138273+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:48:11.568905+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "--format",
+        "{{.Id}}",
+        "flowtracer-browser-r1:r1-final-build1"
+      ],
+      "ended_at": "2026-09-12T16:48:12.330062+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:48:12.138293+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "--format",
+        "{{.Id}}",
+        "flowtracer-browser-r1:r1-final-build2"
+      ],
+      "ended_at": "2026-09-12T16:48:12.523893+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:48:12.330087+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "--format",
+        "{{.Id}}",
+        "moby/buildkit@sha256:28a898719c18a33f4e8000685287fa36fd0dd9560c6440227d3a732d79bb41d8"
+      ],
+      "ended_at": "2026-09-12T16:48:12.740232+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:48:12.523917+00:00"
+    },
+    {
+      "argv": [
+        "git",
+        "branch",
+        "--show-current"
+      ],
+      "ended_at": "2026-09-12T16:48:12.783128+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:48:12.740707+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "version"
+      ],
+      "ended_at": "2026-09-12T16:48:13.038410+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:48:12.783151+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "version",
+        "--format",
+        "{{json .}}"
+      ],
+      "ended_at": "2026-09-12T16:48:13.220971+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:48:13.038433+00:00"
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "ended_at": "2026-09-12T16:48:13.260716+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:48:13.220997+00:00"
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "origin/main"
+      ],
+      "ended_at": "2026-09-12T16:48:13.301537+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:48:13.260766+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "create",
+        "--name",
+        "flowtracer-r1c-20260913-p1-runtime-dirs-builder",
+        "--driver",
+        "docker-container",
+        "--driver-opt",
+        "network=bridge,image=moby/buildkit@sha256:28a898719c18a33f4e8000685287fa36fd0dd9560c6440227d3a732d79bb41d8"
+      ],
+      "ended_at": "2026-09-12T16:48:13.592919+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:48:13.305118+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "inspect",
+        "flowtracer-r1c-20260913-p1-runtime-dirs-builder",
+        "--bootstrap"
+      ],
+      "ended_at": "2026-09-12T16:48:19.597008+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:48:13.592939+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "build",
+        "--builder",
+        "flowtracer-r1c-20260913-p1-runtime-dirs-builder",
+        "--platform=linux/amd64",
+        "--no-cache",
+        "--pull=false",
+        "--progress=plain",
+        "--load",
+        "--target",
+        "final",
+        "-f",
+        "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r1c\\Dockerfile",
+        "-t",
+        "flowtracer-browser-r1c:r1c-20260913-p1-runtime-dirs-build1",
+        "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r1c"
+      ],
+      "ended_at": "2026-09-12T16:52:48.169924+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:48:19.597062+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "build",
+        "--builder",
+        "flowtracer-r1c-20260913-p1-runtime-dirs-builder",
+        "--platform=linux/amd64",
+        "--no-cache",
+        "--pull=false",
+        "--progress=plain",
+        "--load",
+        "--target",
+        "final",
+        "-f",
+        "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r1c\\Dockerfile",
+        "-t",
+        "flowtracer-browser-r1c:r1c-20260913-p1-runtime-dirs-build2",
+        "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r1c"
+      ],
+      "ended_at": "2026-09-12T16:56:54.049394+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:52:48.170395+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--network",
+        "none",
+        "--user",
+        "0",
+        "--read-only",
+        "--cap-drop",
+        "ALL",
+        "--security-opt",
+        "no-new-privileges",
+        "--entrypoint",
+        "python",
+        "flowtracer-browser-r1c:r1c-20260913-p1-runtime-dirs-build1",
+        "/opt/flowtracer-r1c/scripts/image_identity.py"
+      ],
+      "ended_at": "2026-09-12T16:57:02.336837+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:56:54.049899+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--network",
+        "none",
+        "--user",
+        "0",
+        "--read-only",
+        "--cap-drop",
+        "ALL",
+        "--security-opt",
+        "no-new-privileges",
+        "--entrypoint",
+        "python",
+        "flowtracer-browser-r1c:r1c-20260913-p1-runtime-dirs-build2",
+        "/opt/flowtracer-r1c/scripts/image_identity.py"
+      ],
+      "ended_at": "2026-09-12T16:57:04.999074+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:57:02.336865+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--network",
+        "none",
+        "--entrypoint",
+        "python",
+        "flowtracer-browser-r1c:r1c-20260913-p1-runtime-dirs-build1",
+        "/opt/flowtracer-r1c/scripts/generate_sbom.py"
+      ],
+      "ended_at": "2026-09-12T16:57:06.195508+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:57:04.999107+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--network",
+        "none",
+        "--entrypoint",
+        "python",
+        "flowtracer-browser-r1c:r1c-20260913-p1-runtime-dirs-build1",
+        "/opt/flowtracer-r1c/scripts/generate_sbom.py",
+        "--debian-license-inventory"
+      ],
+      "ended_at": "2026-09-12T16:57:07.064942+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:57:06.195534+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--network",
+        "none",
+        "--entrypoint",
+        "python",
+        "flowtracer-browser-r1c:r1c-20260913-p1-runtime-dirs-build1",
+        "/opt/flowtracer-r1c/scripts/export_notices.py"
+      ],
+      "ended_at": "2026-09-12T16:57:07.858377+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:57:07.067773+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--network",
+        "none",
+        "--entrypoint",
+        "python",
+        "flowtracer-browser-r1c:r1c-20260913-p1-runtime-dirs-build2",
+        "/opt/flowtracer-r1c/scripts/generate_sbom.py"
+      ],
+      "ended_at": "2026-09-12T16:57:09.243085+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:57:08.105013+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--network",
+        "none",
+        "--entrypoint",
+        "python",
+        "flowtracer-browser-r1c:r1c-20260913-p1-runtime-dirs-build2",
+        "/opt/flowtracer-r1c/scripts/generate_sbom.py",
+        "--debian-license-inventory"
+      ],
+      "ended_at": "2026-09-12T16:57:10.112852+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:57:09.243120+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "create",
+        "--name",
+        "flowtracer-r1c-20260913-p1-runtime-dirs-runtime-build1",
+        "--network",
+        "none",
+        "--read-only",
+        "--cap-drop",
+        "ALL",
+        "--security-opt",
+        "no-new-privileges",
+        "--tmpfs",
+        "/tmp:rw,nosuid,noexec,size=256m",
+        "--env",
+        "HOME=/tmp/flowtracer-r1c-home",
+        "--env",
+        "XDG_CONFIG_HOME=/tmp/flowtracer-r1c-config",
+        "--env",
+        "XDG_CACHE_HOME=/tmp/flowtracer-r1c-cache",
+        "--pids-limit",
+        "128",
+        "--memory",
+        "768m",
+        "--cpus",
+        "1",
+        "flowtracer-browser-r1c:r1c-20260913-p1-runtime-dirs-build1"
+      ],
+      "ended_at": "2026-09-12T16:57:10.347038+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:57:10.114180+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "container",
+        "inspect",
+        "flowtracer-r1c-20260913-p1-runtime-dirs-runtime-build1"
+      ],
+      "ended_at": "2026-09-12T16:57:10.502499+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:57:10.347064+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "start",
+        "-a",
+        "flowtracer-r1c-20260913-p1-runtime-dirs-runtime-build1"
+      ],
+      "ended_at": "2026-09-12T16:57:17.953307+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:57:10.502611+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "container",
+        "rm",
+        "flowtracer-r1c-20260913-p1-runtime-dirs-runtime-build1"
+      ],
+      "ended_at": "2026-09-12T16:57:18.142203+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:57:17.953365+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "create",
+        "--name",
+        "flowtracer-r1c-20260913-p1-runtime-dirs-runtime-build2",
+        "--network",
+        "none",
+        "--read-only",
+        "--cap-drop",
+        "ALL",
+        "--security-opt",
+        "no-new-privileges",
+        "--tmpfs",
+        "/tmp:rw,nosuid,noexec,size=256m",
+        "--env",
+        "HOME=/tmp/flowtracer-r1c-home",
+        "--env",
+        "XDG_CONFIG_HOME=/tmp/flowtracer-r1c-config",
+        "--env",
+        "XDG_CACHE_HOME=/tmp/flowtracer-r1c-cache",
+        "--pids-limit",
+        "128",
+        "--memory",
+        "768m",
+        "--cpus",
+        "1",
+        "flowtracer-browser-r1c:r1c-20260913-p1-runtime-dirs-build2"
+      ],
+      "ended_at": "2026-09-12T16:57:18.368475+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:57:18.142241+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "container",
+        "inspect",
+        "flowtracer-r1c-20260913-p1-runtime-dirs-runtime-build2"
+      ],
+      "ended_at": "2026-09-12T16:57:18.523027+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:57:18.368495+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "start",
+        "-a",
+        "flowtracer-r1c-20260913-p1-runtime-dirs-runtime-build2"
+      ],
+      "ended_at": "2026-09-12T16:57:26.368157+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:57:18.523127+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "container",
+        "rm",
+        "flowtracer-r1c-20260913-p1-runtime-dirs-runtime-build2"
+      ],
+      "ended_at": "2026-09-12T16:57:26.579687+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:57:26.368224+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "flowtracer-browser-r1c:r1c-20260913-p1-runtime-dirs-build1"
+      ],
+      "ended_at": "2026-09-12T16:57:26.782744+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:57:26.583008+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "flowtracer-browser-r1c:r1c-20260913-p1-runtime-dirs-build2"
+      ],
+      "ended_at": "2026-09-12T16:57:26.967194+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:57:26.782824+00:00"
+    },
+    {
+      "argv": [
+        "C:\\Users\\liuj\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+        "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r1c\\scripts\\validate_sbom.py",
+        "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r1c\\evidence"
+      ],
+      "ended_at": "2026-09-12T16:57:28.338274+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:57:26.968313+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "container",
+        "rm",
+        "-f",
+        "flowtracer-r1c-20260913-p1-runtime-dirs-runtime-build1"
+      ],
+      "ended_at": "2026-09-12T16:57:28.492261+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:57:28.338297+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "container",
+        "rm",
+        "-f",
+        "flowtracer-r1c-20260913-p1-runtime-dirs-runtime-build2"
+      ],
+      "ended_at": "2026-09-12T16:57:28.647142+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:57:28.492279+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "rm",
+        "flowtracer-browser-r1c:r1c-20260913-p1-runtime-dirs-lock-export",
+        "flowtracer-browser-r1c:r1c-20260913-p1-runtime-dirs-build1",
+        "flowtracer-browser-r1c:r1c-20260913-p1-runtime-dirs-build2"
+      ],
+      "ended_at": "2026-09-12T16:57:29.416261+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T16:57:28.647162+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "rm",
+        "flowtracer-r1c-20260913-p1-runtime-dirs-builder"
+      ],
+      "ended_at": "2026-09-12T16:57:31.976457+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:57:29.416302+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "inspect",
+        "flowtracer-r1c-20260913-p1-runtime-dirs-builder"
+      ],
+      "ended_at": "2026-09-12T16:57:32.370205+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T16:57:31.976486+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "container",
+        "inspect",
+        "flowtracer-r1c-20260913-p1-runtime-dirs-runtime-build1"
+      ],
+      "ended_at": "2026-09-12T16:57:32.528793+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T16:57:32.370225+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "container",
+        "inspect",
+        "flowtracer-r1c-20260913-p1-runtime-dirs-runtime-build2"
+      ],
+      "ended_at": "2026-09-12T16:57:32.688505+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T16:57:32.528813+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "flowtracer-browser-r1c:r1c-20260913-p1-runtime-dirs-lock-export"
+      ],
+      "ended_at": "2026-09-12T16:57:32.936805+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T16:57:32.688553+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "flowtracer-browser-r1c:r1c-20260913-p1-runtime-dirs-build1"
+      ],
+      "ended_at": "2026-09-12T16:57:33.091530+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T16:57:32.936830+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "flowtracer-browser-r1c:r1c-20260913-p1-runtime-dirs-build2"
+      ],
+      "ended_at": "2026-09-12T16:57:33.245027+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T16:57:33.091550+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "volume",
+        "ls",
+        "-q",
+        "--filter",
+        "name=flowtracer-r1c-20260913-p1-runtime-dirs-builder"
+      ],
+      "ended_at": "2026-09-12T16:57:33.470947+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:57:33.245050+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "inspect",
+        "flowtracer-r1-final-builder"
+      ],
+      "ended_at": "2026-09-12T16:57:33.819467+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:57:33.470999+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "--format",
+        "{{.Id}}",
+        "flowtracer-browser-r1:r1-final-build1"
+      ],
+      "ended_at": "2026-09-12T16:57:34.056630+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:57:33.819485+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "--format",
+        "{{.Id}}",
+        "flowtracer-browser-r1:r1-final-build2"
+      ],
+      "ended_at": "2026-09-12T16:57:34.278287+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:57:34.056651+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "--format",
+        "{{.Id}}",
+        "moby/buildkit@sha256:28a898719c18a33f4e8000685287fa36fd0dd9560c6440227d3a732d79bb41d8"
+      ],
+      "ended_at": "2026-09-12T16:57:34.493048+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T16:57:34.278309+00:00"
+    }
+  ],
+  "duration_seconds": 564.139,
+  "ended_at": "2026-09-12T16:57:34.493990+00:00",
+  "error": null,
+  "object_namespace": "flowtracer-r1c-20260913-p1-runtime-dirs-*",
+  "public_runtime_access": false,
+  "started_at": "2026-09-12T16:48:10.354776+00:00",
+  "status": "PASS"
+}

@@ -1,0 +1,347 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "inspect",
+        "flowtracer-r1c-20260912-builder"
+      ],
+      "ended_at": "2026-09-12T11:44:47.932775+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T11:44:47.338839+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "container",
+        "inspect",
+        "flowtracer-r1c-20260912-runtime-build1"
+      ],
+      "ended_at": "2026-09-12T11:44:48.112562+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T11:44:47.932806+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "container",
+        "inspect",
+        "flowtracer-r1c-20260912-runtime-build2"
+      ],
+      "ended_at": "2026-09-12T11:44:48.289014+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T11:44:48.112582+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "flowtracer-browser-r1c:r1c-20260912-lock-export"
+      ],
+      "ended_at": "2026-09-12T11:44:48.470156+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T11:44:48.289045+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "flowtracer-browser-r1c:r1c-20260912-build1"
+      ],
+      "ended_at": "2026-09-12T11:44:48.644505+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T11:44:48.470181+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "flowtracer-browser-r1c:r1c-20260912-build2"
+      ],
+      "ended_at": "2026-09-12T11:44:48.821628+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T11:44:48.644526+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "volume",
+        "ls",
+        "-q",
+        "--filter",
+        "name=flowtracer-r1c-20260912-builder"
+      ],
+      "ended_at": "2026-09-12T11:44:49.010956+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T11:44:48.821662+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "version"
+      ],
+      "ended_at": "2026-09-12T11:44:49.318642+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T11:44:49.011779+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "version",
+        "--format",
+        "{{json .}}"
+      ],
+      "ended_at": "2026-09-12T11:44:49.570158+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T11:44:49.318668+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "create",
+        "--name",
+        "flowtracer-r1c-20260912-builder",
+        "--driver",
+        "docker-container",
+        "--driver-opt",
+        "network=bridge,image=moby/buildkit@sha256:28a898719c18a33f4e8000685287fa36fd0dd9560c6440227d3a732d79bb41d8"
+      ],
+      "ended_at": "2026-09-12T11:44:49.911771+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T11:44:49.570612+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "inspect",
+        "flowtracer-r1c-20260912-builder",
+        "--bootstrap"
+      ],
+      "ended_at": "2026-09-12T11:44:57.164380+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T11:44:49.911791+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "build",
+        "--builder",
+        "flowtracer-r1c-20260912-builder",
+        "--platform=linux/amd64",
+        "--no-cache",
+        "--pull=false",
+        "--progress=plain",
+        "--load",
+        "--target",
+        "lock-export",
+        "-f",
+        "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r1c\\Dockerfile",
+        "-t",
+        "flowtracer-browser-r1c:r1c-20260912-lock-export",
+        "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r1c"
+      ],
+      "ended_at": "2026-09-12T11:52:09.248032+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T11:44:57.164481+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--network",
+        "none",
+        "--entrypoint",
+        "python",
+        "flowtracer-browser-r1c:r1c-20260912-lock-export",
+        "/opt/flowtracer-r1c/scripts/browser_tree_manifest.py"
+      ],
+      "ended_at": "2026-09-12T11:52:19.275742+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T11:52:09.252772+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--network",
+        "none",
+        "--entrypoint",
+        "/usr/bin/dpkg-query",
+        "flowtracer-browser-r1c:r1c-20260912-lock-export",
+        "-W",
+        "-f=${binary:Package}\t${Version}\n"
+      ],
+      "ended_at": "2026-09-12T11:52:19.947080+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T11:52:19.279512+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "build",
+        "--builder",
+        "flowtracer-r1c-20260912-builder",
+        "--platform=linux/amd64",
+        "--no-cache",
+        "--pull=false",
+        "--progress=plain",
+        "--load",
+        "--target",
+        "final",
+        "-f",
+        "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r1c\\Dockerfile",
+        "-t",
+        "flowtracer-browser-r1c:r1c-20260912-build1",
+        "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r1c"
+      ],
+      "ended_at": "2026-09-12T11:54:20.283576+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T11:52:19.947755+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "container",
+        "rm",
+        "-f",
+        "flowtracer-r1c-20260912-runtime-build1"
+      ],
+      "ended_at": "2026-09-12T11:54:20.469648+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T11:54:20.285080+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "container",
+        "rm",
+        "-f",
+        "flowtracer-r1c-20260912-runtime-build2"
+      ],
+      "ended_at": "2026-09-12T11:54:20.648103+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T11:54:20.469675+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "rm",
+        "flowtracer-browser-r1c:r1c-20260912-lock-export",
+        "flowtracer-browser-r1c:r1c-20260912-build1",
+        "flowtracer-browser-r1c:r1c-20260912-build2"
+      ],
+      "ended_at": "2026-09-12T11:54:21.191916+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T11:54:20.648126+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "rm",
+        "flowtracer-r1c-20260912-builder"
+      ],
+      "ended_at": "2026-09-12T11:54:34.462224+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T11:54:21.191963+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "inspect",
+        "flowtracer-r1c-20260912-builder"
+      ],
+      "ended_at": "2026-09-12T11:54:34.813200+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T11:54:34.462245+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "container",
+        "inspect",
+        "flowtracer-r1c-20260912-runtime-build1"
+      ],
+      "ended_at": "2026-09-12T11:54:35.033113+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T11:54:34.813225+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "container",
+        "inspect",
+        "flowtracer-r1c-20260912-runtime-build2"
+      ],
+      "ended_at": "2026-09-12T11:54:35.248737+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T11:54:35.033144+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "flowtracer-browser-r1c:r1c-20260912-lock-export"
+      ],
+      "ended_at": "2026-09-12T11:54:35.421918+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T11:54:35.248768+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "flowtracer-browser-r1c:r1c-20260912-build1"
+      ],
+      "ended_at": "2026-09-12T11:54:35.596633+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T11:54:35.421938+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "flowtracer-browser-r1c:r1c-20260912-build2"
+      ],
+      "ended_at": "2026-09-12T11:54:35.770396+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T11:54:35.596680+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "volume",
+        "ls",
+        "-q",
+        "--filter",
+        "name=flowtracer-r1c-20260912-builder"
+      ],
+      "ended_at": "2026-09-12T11:54:35.956419+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T11:54:35.770428+00:00"
+    }
+  ],
+  "duration_seconds": 588.618,
+  "ended_at": "2026-09-12T11:54:35.956452+00:00",
+  "error": "RuntimeError: command failed (1): docker buildx build --builder flowtracer-r1c-20260912-builder\n 1.079 +libunwind8:amd64=1.6.2-3\n#12 1.079 +libuuid1:amd64=2.38.1-5+deb12u3\n#12 1.079 +libwayland-server0:amd64=1.21.0-1\n#12 1.079 +libx11-6:amd64=2:1.8.4-2+deb12u2\n#12 1.079 +libx11-data=2:1.8.4-2+deb12u2\n#12 1.079 +libx11-xcb1:amd64=2:1.8.4-2+deb12u2\n#12 1.079 +libxau6:amd64=1:1.0.9-1\n#12 1.079 +libxaw7:amd64=2:1.0.14-1\n#12 1.079 +libxcb-dri2-0:amd64=1.15-1\n#12 1.079 +libxcb-dri3-0:amd64=1.15-1\n#12 1.079 +libxcb-glx0:amd64=1.15-1\n#12 1.079 +libxcb-present0:amd64=1.15-1\n#12 1.079 +libxcb-randr0:amd64=1.15-1\n#12 1.079 +libxcb-render0:amd64=1.15-1\n#12 1.079 +libxcb-shm0:amd64=1.15-1\n#12 1.079 +libxcb-sync1:amd64=1.15-1\n#12 1.079 +libxcb-xfixes0:amd64=1.15-1\n#12 1.079 +libxcb1:amd64=1.15-1\n#12 1.079 +libxcomposite1:amd64=1:0.4.5-1\n#12 1.079 +libxdamage1:amd64=1:1.1.6-1\n#12 1.079 +libxdmcp6:amd64=1:1.1.2-3\n#12 1.079 +libxext6:amd64=2:1.3.4-1+b1\n#12 1.079 +libxfixes3:amd64=1:6.0.0-2\n#12 1.079 +libxfont2:amd64=1:2.0.6-1+deb12u1\n#12 1.079 +libxi6:amd64=2:1.8-1+b1\n#12 1.079 +libxkbcommon0:amd64=1.5.0-1\n#12 1.079 +libxkbfile1:amd64=1:1.1.0-1\n#12 1.079 +libxml2:amd64=2.9.14+dfsg-1.3~deb12u6\n#12 1.079 +libxmu6:amd64=2:1.1.3-3\n#12 1.079 +libxpm4:amd64=1:3.5.12-1.1+deb12u1\n#12 1.079 +libxrandr2:amd64=2:1.5.2-2+b1\n#12 1.079 +libxrender1:amd64=1:0.9.10-1.1\n#12 1.079 +libxshmfence1:amd64=1.3-1\n#12 1.079 +libxt6:amd64=1:1.2.1-1.1\n#12 1.079 +libxxf86vm1:amd64=1:1.1.4-1+b2\n#12 1.079 +libxxhash0:amd64=0.8.1-1\n#12 1.079 +libz3-4:amd64=4.8.12-3.1\n#12 1.079 +libzstd1:amd64=1.5.4+dfsg2-5\n#12 1.079 +login=1:4.13+dfsg1-1+deb12u2\n#12 1.079 +logsave=1.47.0-2+b2\n#12 1.079 +mawk=1.3.4.20200120-3.1\n#12 1.079 +mount=2.38.1-5+deb12u3\n#12 1.079 +ncurses-base=6.4-4\n#12 1.079 +ncurses-bin=6.4-4\n#12 1.079 +netbase=6.4\n#12 1.079 +openssl=3.0.20-1~deb12u2\n#12 1.079 +passwd=1:4.13+dfsg1-1+deb12u2\n#12 1.079 +perl-base=5.36.0-7+deb12u3\n#12 1.079 +readline-common=8.2-1.3\n#12 1.079 +sed=4.9-1+deb12u1\n#12 1.079 +sysvinit-utils=3.06-4\n#12 1.079 +tar=1.34+dfsg-1.2+deb12u1\n#12 1.079 +tzdata=2026b-0+deb12u1\n#12 1.079 +usr-is-merged=37~deb12u1\n#12 1.079 +util-linux-extra=2.38.1-5+deb12u3\n#12 1.079 +util-linux=2.38.1-5+deb12u3\n#12 1.079 +x11-common=1:7.7+23\n#12 1.079 +x11-xkb-utils=7.7+7\n#12 1.079 +xfonts-encodings=1:1.0.4-2.2\n#12 1.079 +xfonts-scalable=1:1.0.3-1.3\n#12 1.079 +xfonts-utils=1:7.7+6\n#12 1.079 +xkb-data=2.35.1-1\n#12 1.079 +xserver-common=2:21.1.7-3+deb12u13\n#12 1.079 +xvfb=2:21.1.7-3+deb12u13\n#12 1.079 +zlib1g:amd64=1:1.2.13.dfsg-1\n#12 ERROR: process \"/bin/sh -c python /opt/flowtracer-r1c/scripts/browser_tree_manifest.py       --verify /opt/flowtracer-r1c/locks/browser-tree.manifest.json     && dpkg-query -W | tr '\\\\t' '=' | LC_ALL=C sort > /tmp/debian-packages.actual     && diff -u /opt/flowtracer-r1c/locks/debian-packages.lock /tmp/debian-packages.actual     && rm -f /tmp/debian-packages.actual\" did not complete successfully: exit code: 1\n------\n > [final 2/3] RUN python /opt/flowtracer-r1c/scripts/browser_tree_manifest.py       --verify /opt/flowtracer-r1c/locks/browser-tree.manifest.json     && dpkg-query -W | tr '\\t' '=' | LC_ALL=C sort > /tmp/debian-packages.actual     && diff -u /opt/flowtracer-r1c/locks/debian-packages.lock /tmp/debian-packages.actual     && rm -f /tmp/debian-packages.actual:\n1.079 +util-linux=2.38.1-5+deb12u3\n1.079 +x11-common=1:7.7+23\n1.079 +x11-xkb-utils=7.7+7\n1.079 +xfonts-encodings=1:1.0.4-2.2\n1.079 +xfonts-scalable=1:1.0.3-1.3\n1.079 +xfonts-utils=1:7.7+6\n1.079 +xkb-data=2.35.1-1\n1.079 +xserver-common=2:21.1.7-3+deb12u13\n1.079 +xvfb=2:21.1.7-3+deb12u13\n1.079 +zlib1g:amd64=1:1.2.13.dfsg-1\n------\nERROR: failed to build: failed to solve: process \"/bin/sh -c python /opt/flowtracer-r1c/scripts/browser_tree_manifest.py       --verify /opt/flowtracer-r1c/locks/browser-tree.manifest.json     && dpkg-query -W | tr '\\\\t' '=' | LC_ALL=C sort > /tmp/debian-packages.actual     && diff -u /opt/flowtracer-r1c/locks/debian-packages.lock /tmp/debian-packages.actual     && rm -f /tmp/debian-packages.actual\" did not complete successfully: exit code: 1\n",
+  "object_namespace": "flowtracer-r1c-20260912-*",
+  "public_runtime_access": false,
+  "started_at": "2026-09-12T11:44:47.338829+00:00",
+  "status": "BLOCKED"
+}

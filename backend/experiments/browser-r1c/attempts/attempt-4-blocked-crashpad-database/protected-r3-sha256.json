@@ -1,0 +1,14 @@
+{
+  "README.md": "a05c0dc413f386a8f2ec06f12e0df5d0fe8ab1ab54d83c2f1a1aa7ca8b070642",
+  "browser_harness.py": "8ff2a2dd7c14b6bbf4aedd0e412a613f45b7115468a88c64f1759e69c7603b61",
+  "compose.yaml": "0f798148e5ef37b40d6d6badf4d681a826e11f0a39b493564f07b62fde80d24a",
+  "evidence/cleanup.json": "af60c9e323d57828258e0a74a17e8f5566e72bf63420124c47ef79057f3a80ef",
+  "evidence/completion.json": "d6779d987ae6674a16207b75eea3f8127a1a0f56b1186d5f08c0d62eaf14f221",
+  "evidence/execution-ledger.json": "070f5f7345384db27fa0fe09f7da2d6170f3cddda83f4673fd67a11a7f6fa69f",
+  "evidence/initial-objects.json": "2d6727c2151bc6aec19e12e1c1a232ebe9f241a1580b628c5dd54a9e82e582cd",
+  "fixture/fixture_server.py": "cabac7609e7d600162506167ce85424b8014466bfe34b26ffbea558873d4a0f4",
+  "negative_tests.py": "69b3755eae64504e49677514a0d41c8279724a659947c3393e79319cde104a4e",
+  "proxy/egress_proxy.py": "0e0586db1918b8ccf4443268e491aee2b4fcb9a26590c881c087d9e5feaaaece",
+  "run_r3.py": "75e81b3ebe81ca26219e623ebc1ed90d364c2eb9da76258e8005090493e0d813",
+  "validate_evidence.py": "abad4b781fd5a75b9ad3eba44bc64b458adc6568508f8c0251d4ad6b61ec33c8"
+}

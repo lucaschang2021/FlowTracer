@@ -1,0 +1,76 @@
+{
+  "claim": "Each ignored .log evidence file was renamed in place to .txt without changing its bytes.",
+  "files": [
+    {
+      "bytes": 71625,
+      "new_path": "attempts/attempt-1-blocked-20260912T114447Z/bootstrap-build.txt",
+      "new_sha256": "30c0b9cfa74283c1840c9c51fbe192dc342f7ef6b3301acd22dabf61d04e4f7d",
+      "old_path": "attempts/attempt-1-blocked-20260912T114447Z/bootstrap-build.log",
+      "old_sha256": "30c0b9cfa74283c1840c9c51fbe192dc342f7ef6b3301acd22dabf61d04e4f7d"
+    },
+    {
+      "bytes": 84241,
+      "new_path": "attempts/attempt-1-blocked-20260912T114447Z/build1.txt",
+      "new_sha256": "38d28372d2bfcc9859fa352470e9302bc778fd801cfec77a2fa396ed23dff64c",
+      "old_path": "attempts/attempt-1-blocked-20260912T114447Z/build1.log",
+      "old_sha256": "38d28372d2bfcc9859fa352470e9302bc778fd801cfec77a2fa396ed23dff64c"
+    },
+    {
+      "bytes": 72867,
+      "new_path": "attempts/attempt-2-blocked-root-inspection/build1.txt",
+      "new_sha256": "2684efde67cb15c17af06b27cb726e43cb9d8f221f44c4c5a8bcb2cd4833ab24",
+      "old_path": "attempts/attempt-2-blocked-root-inspection/build1.log",
+      "old_sha256": "2684efde67cb15c17af06b27cb726e43cb9d8f221f44c4c5a8bcb2cd4833ab24"
+    },
+    {
+      "bytes": 66628,
+      "new_path": "attempts/attempt-2-blocked-root-inspection/build2.txt",
+      "new_sha256": "22833a0f055bcb8b2989e898406dbba15c9148940578b67a9ca5b49bb8722fa8",
+      "old_path": "attempts/attempt-2-blocked-root-inspection/build2.log",
+      "old_sha256": "22833a0f055bcb8b2989e898406dbba15c9148940578b67a9ca5b49bb8722fa8"
+    },
+    {
+      "bytes": 72842,
+      "new_path": "attempts/attempt-3-blocked-retries-contract/build1.txt",
+      "new_sha256": "9419b2537cefd70085d7a2292568fd86c4984331a124e2fdca42d1cdd88ea0a0",
+      "old_path": "attempts/attempt-3-blocked-retries-contract/build1.log",
+      "old_sha256": "9419b2537cefd70085d7a2292568fd86c4984331a124e2fdca42d1cdd88ea0a0"
+    },
+    {
+      "bytes": 66633,
+      "new_path": "attempts/attempt-3-blocked-retries-contract/build2.txt",
+      "new_sha256": "cc03ef940502bdd2811d2d501e6b11618fbf2fdc0c769ca7764da13ae6ab04b6",
+      "old_path": "attempts/attempt-3-blocked-retries-contract/build2.log",
+      "old_sha256": "cc03ef940502bdd2811d2d501e6b11618fbf2fdc0c769ca7764da13ae6ab04b6"
+    },
+    {
+      "bytes": 73149,
+      "new_path": "attempts/attempt-4-blocked-crashpad-database/build1.txt",
+      "new_sha256": "724042a26f10bafdfb29c8109cef3732fc5ff9e07978bb4cc788b88383a8e2ac",
+      "old_path": "attempts/attempt-4-blocked-crashpad-database/build1.log",
+      "old_sha256": "724042a26f10bafdfb29c8109cef3732fc5ff9e07978bb4cc788b88383a8e2ac"
+    },
+    {
+      "bytes": 66636,
+      "new_path": "attempts/attempt-4-blocked-crashpad-database/build2.txt",
+      "new_sha256": "abb95490da0b8dd819012b8862a72a89f6b6a3e9a6a0744dbf019bd6548e0f16",
+      "old_path": "attempts/attempt-4-blocked-crashpad-database/build2.log",
+      "old_sha256": "abb95490da0b8dd819012b8862a72a89f6b6a3e9a6a0744dbf019bd6548e0f16"
+    },
+    {
+      "bytes": 72850,
+      "new_path": "evidence/build1.txt",
+      "new_sha256": "59e93536c98c6db28b9516bf345ef37f4c1ff56f29e3a3b9d53c2b2d992a4c56",
+      "old_path": "evidence/build1.log",
+      "old_sha256": "59e93536c98c6db28b9516bf345ef37f4c1ff56f29e3a3b9d53c2b2d992a4c56"
+    },
+    {
+      "bytes": 66641,
+      "new_path": "evidence/build2.txt",
+      "new_sha256": "42021b07d2a7dcd49e1ec38f9b7bada2fc71d743b00a262be5900aadc5bc238e",
+      "old_path": "evidence/build2.log",
+      "old_sha256": "42021b07d2a7dcd49e1ec38f9b7bada2fc71d743b00a262be5900aadc5bc238e"
+    }
+  ],
+  "schema": "flowtracer.browser-r1c.log-rename-proof.v1"
+}

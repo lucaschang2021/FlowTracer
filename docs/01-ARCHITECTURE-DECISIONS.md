@@ -247,3 +247,12 @@
 - 证据：所有实际值必须进入 `docs/42-ACQ1-WP3-REMEDIATION-EVIDENCE-PACKAGE.md`；`TBD`、估算、一次样本、仅配置审阅或 mock 不构成通过。未经证明的 package、revision、digest、proxy、queue 或资源限值不得冻结。
 - 边界：本 ADR 不准入正式 WP-3，不允许默认 API/worker、业务 Pipeline、公开 API、Schema/migration、Router、Discovery、Change、Opportunity 或下游阶段变化。R1→R5 全部通过也只可申请独立审查与后续 Contract Addendum/Admission。
 
+## ADR-032：Browser Runtime Identity 必须排除审计工具漂移并保存逐路径清单
+
+- 状态：Accepted（仅 R1D 证据修复；本控制提交合并后生效）
+- 背景：R2C 从已合并 R1C 输入重建时，Chrome、browser tree、Debian inventory、SBOM 与 license 全部匹配，但 full-root identity 不匹配。只读诊断证明 R1C Dockerfile 将整个 `scripts/` 复制到最终镜像；R1C 运行通过后，审计用 `validate_sbom.py` 因可提交性和 Ruff 修复而改变字节，使已冻结的单一摘要无法由合并后的权威来源重建。
+- 决策：新增 R1D Runtime Identity v2。最终 Browser runtime 镜像只允许包含明确列出的运行必需脚本；SBOM、license、manifest 与 package-tree validator 等审计工具必须通过独立 build/audit stage 或只读 build mount 执行，不得进入最终 runtime filesystem。不得仅修改或豁免旧 identity 期望值。
+- 身份：R1D 必须在相同锁定输入下执行两次独立 no-cache 构建，并保存两个完整的逐路径 normalized filesystem manifest。manifest 统一记录 path、entry type、mode、UID/GID、symlink target 与普通文件 SHA-256；规范化算法必须语言环境无关、机器可执行且 fail closed。通过条件是两个 manifest 与摘要完全一致。
+- 兼容：Chrome 版本/revision/path/executable SHA、619-entry browser tree、Debian 206 inventory、CycloneDX 231 components、license 206/206 与 R1C 完全一致；两个镜像均须重复 UID 10001 DynamicFetcher、read-only root、受控 `/tmp`/Crashpad 与清理验证。
+- 边界：R1D 只生成隔离证据资产，不准入 R2C 网络矩阵、R3-R5 或正式 WP-3。R1D 独立复审并合并后，R2C 才能以 Runtime Identity v2 重新执行。
+

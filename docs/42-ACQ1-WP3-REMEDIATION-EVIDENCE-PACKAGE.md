@@ -1,6 +1,6 @@
 # FlowTracer ACQ-1 WP-3 Remediation Evidence Package
 
-状态：R1 Accepted（Headless Shell historical）；R2 Accepted（Headless Shell historical）；R3 BLOCKED；R1C Accepted；R2C Admitted / Pending；R4-R5 Pending
+状态：R1/R2 Accepted（Headless Shell historical）；R3 BLOCKED；R1C Accepted；R2C BLOCKED；R1D Admitted / Pending；R4-R5 Pending
 
 用途：本文件是 `docs/41-ACQ1-WP3-REMEDIATION-EVIDENCE-ADMISSION.md` 的强制证据模板。必须按 R1→R5 顺序填写实际值；`TBD`、估算、未执行、仅配置审阅、仅 mock 或未保存的口头观察均不构成通过证据。
 
@@ -102,7 +102,15 @@ R1C 判定：`ACCEPTED`。R1C P0/P1/P2=`0/0/0`；独立复审 ALLOW，Backend CI
 
 执行基准：`main@df0c3512080f384dbd6c820d7627cbe721e37422`。准入与停点规则见 `docs/46-ACQ1-WP3-R2C-ACTIVATION.md`。
 
-R2C 必须在独立 `backend/experiments/browser-r2c/` 保存实际拓扑、镜像身份、DynamicFetcher、allow/deny、DNS、proxy、运行硬化和清理证据。不得覆盖本文件第 3 节的历史 Headless Shell R2 记录；完成前不得填写 PASS、重启 R3 或开始 R4-R5。
+R2C 首次执行在 identity 硬门禁处判定 BLOCKED，P0/P1/P2=`0/1/0`：Chrome 版本/path/SHA、619-entry browser tree、Debian 206、SBOM 231 与 license inventory 均匹配，但 merged-authoritative source 重建得到的 full-root identity 与 R1C 运行期摘要不一致。网络、proxy、fixture 与 DynamicFetcher 矩阵均未启动；本次对象已精确清理。
+
+只读诊断证明 R1C 最终镜像复制了审计用 `validate_sbom.py`，该文件在 R1C 运行完成后因可提交性/Ruff 修复改变字节；旧证据未保存逐路径 full-root manifest，不能诚实反演或现场缩窄旧期望。因此 R2C 暂停，不得直接把单次重建摘要写成新基线。
+
+#### R1D Runtime Identity v2
+
+R1D 准入与验收规则见 ADR-032 和 `docs/47-ACQ1-WP3-R1D-RUNTIME-IDENTITY.md`。实际证据必须保存在独立 `backend/experiments/browser-r1d/`，不得覆盖 R1C 或 R2C 失败现场。
+
+R1D 必填：最终 runtime 脚本 allowlist、审计工具不进入 runtime 的证明、两个独立 no-cache 镜像的逐路径 normalized manifests/摘要、R1C browser/SBOM/license identity、两个镜像的真实 DynamicFetcher/Crashpad/硬化/清理结果、历史资产保护哈希。通过前 R2C、R3 与 R4-R5 均暂停。
 
 ## 5. R4 — Deadline、回收与资源样本
 

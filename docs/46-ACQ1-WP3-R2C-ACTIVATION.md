@@ -1,6 +1,6 @@
 # FlowTracer ACQ-1 WP-3 R2C Activation
 
-状态：Accepted（仅 R2C Full Chromium controlled-egress 回归证据）
+状态：Suspended / BLOCKED（P1×1；等待 R1D Runtime Identity v2）
 
 稳定基准：`main@df0c3512080f384dbd6c820d7627cbe721e37422`
 
@@ -52,3 +52,9 @@ R2C 候选必须在执行网络矩阵前证明：
 - 长构建前检查 5 小时和每周额度；任一剩余比例小于或等于 5% 时保存现场并停点。
 - 通过时唯一允许结论为 `R2C PASS — READY FOR INDEPENDENT REVIEW`。Backend 不得自行 commit、push、PR、merge，也不得恢复 R3。
 - R2C 经独立复审与证据合并后，总控另行签发 R3 重新准入。R3、R4-R5 与 WP-3 正式实现在此之前继续 BLOCKED。
+
+## 6. 首次执行停点
+
+首次执行只完成 identity 硬门禁：Chrome 151.0.7922.34、完整 executable/path/SHA、619-entry browser tree、Debian 206、SBOM 231 与 license inventory 均匹配；full-root normalized identity 不匹配，P0/P1/P2=`0/1/0`。依本文件第 3 节，网络矩阵未启动并已 STOP。
+
+只读诊断确认旧期望在 R1C 运行后因审计验证器字节变化而陈旧，且旧证据没有逐路径 manifest，不能直接改写摘要或在 R2C 现场排除文件。R2C 由此暂停；只有 ADR-032 与 `docs/47-ACQ1-WP3-R1D-RUNTIME-IDENTITY.md` 的 R1D 证据独立验收并合并后，才能由新的控制 PR 重新激活。

@@ -38,9 +38,11 @@ ROOT_INSPECTION_ATTEMPT = ROOT / "attempts" / "attempt-2-blocked-root-inspection
 RETRIES_ATTEMPT = ROOT / "attempts" / "attempt-3-blocked-retries-contract"
 CRASHPAD_ATTEMPT = ROOT / "attempts" / "attempt-4-blocked-crashpad-database"
 RUNTIME_ENV = {
-    "HOME": "/tmp/flowtracer-r1c-home",
-    "XDG_CONFIG_HOME": "/tmp/flowtracer-r1c-config",
-    "XDG_CACHE_HOME": "/tmp/flowtracer-r1c-cache",
+    # Fixed paths are controlled UID-10001 mode-0700 directories on the isolated
+    # container tmpfs; dynamic host temp paths would weaken the evidence contract.
+    "HOME": "/tmp/flowtracer-r1c-home",  # noqa: S108
+    "XDG_CONFIG_HOME": "/tmp/flowtracer-r1c-config",  # noqa: S108
+    "XDG_CACHE_HOME": "/tmp/flowtracer-r1c-cache",  # noqa: S108
 }
 EXPECTED_R3_FILES = {
     "README.md": "a05c0dc413f386a8f2ec06f12e0df5d0fe8ab1ab54d83c2f1a1aa7ca8b070642",
@@ -145,15 +147,9 @@ def protected_docker_objects() -> dict[str, object]:
     builder = run("docker", "buildx", "inspect", PROTECTED_BUILDER, check=False)
     images: dict[str, str | None] = {}
     for name in PROTECTED_IMAGES:
-        result = run(
-            "docker", "image", "inspect", "--format", "{{.Id}}", name, check=False
-        )
-        images[name] = (
-            result.stdout.decode("utf-8").strip() if result.returncode == 0 else None
-        )
-    buildkit = run(
-        "docker", "image", "inspect", "--format", "{{.Id}}", BUILDKIT_IMAGE, check=False
-    )
+        result = run("docker", "image", "inspect", "--format", "{{.Id}}", name, check=False)
+        images[name] = result.stdout.decode("utf-8").strip() if result.returncode == 0 else None
+    buildkit = run("docker", "image", "inspect", "--format", "{{.Id}}", BUILDKIT_IMAGE, check=False)
     return {
         "buildkit_image_id": (
             buildkit.stdout.decode("utf-8").strip() if buildkit.returncode == 0 else None
@@ -245,29 +241,28 @@ def resume_provenance() -> dict[str, object]:
     if not root_inspection_ledger.is_file():
         raise RuntimeError("missing archived root-inspection failure evidence")
     root_inspection = json.loads(root_inspection_ledger.read_text(encoding="utf-8"))
-    if (
-        root_inspection.get("status") != "BLOCKED"
-        or "/etc/.pwd.lock" not in str(root_inspection.get("error"))
+    if root_inspection.get("status") != "BLOCKED" or "/etc/.pwd.lock" not in str(
+        root_inspection.get("error")
     ):
         raise RuntimeError("archived root-inspection failure identity mismatch")
     retries_ledger = RETRIES_ATTEMPT / "execution-ledger.json"
     if not retries_ledger.is_file():
         raise RuntimeError("missing archived retries-contract failure evidence")
     retries_failure = json.loads(retries_ledger.read_text(encoding="utf-8"))
-    if (
-        retries_failure.get("status") != "BLOCKED"
-        or "Expected `int` >= 1 - at `$.retries`"
-        not in str(retries_failure.get("error"))
+    if retries_failure.get(
+        "status"
+    ) != "BLOCKED" or "Expected `int` >= 1 - at `$.retries`" not in str(
+        retries_failure.get("error")
     ):
         raise RuntimeError("archived retries-contract failure identity mismatch")
     crashpad_ledger = CRASHPAD_ATTEMPT / "execution-ledger.json"
     if not crashpad_ledger.is_file():
         raise RuntimeError("missing archived Crashpad database failure evidence")
     crashpad_failure = json.loads(crashpad_ledger.read_text(encoding="utf-8"))
-    if (
-        crashpad_failure.get("status") != "BLOCKED"
-        or "chrome_crashpad_handler: --database is required"
-        not in str(crashpad_failure.get("error"))
+    if crashpad_failure.get(
+        "status"
+    ) != "BLOCKED" or "chrome_crashpad_handler: --database is required" not in str(
+        crashpad_failure.get("error")
     ):
         raise RuntimeError("archived Crashpad database failure identity mismatch")
     commands = ledger.get("commands", [])
@@ -387,9 +382,7 @@ def runtime_check(image: str, container: str) -> dict[str, object]:
             for key in RUNTIME_ENV
         },
     }
-    result = run(
-        "docker", "start", "-a", container, check=False, timeout=outer_deadline_seconds
-    )
+    result = run("docker", "start", "-a", container, check=False, timeout=outer_deadline_seconds)
     if result.returncode:
         raise RuntimeError(
             f"runtime probe failed for {image}: "
@@ -405,25 +398,29 @@ def runtime_check(image: str, container: str) -> dict[str, object]:
 
 
 def normalized_identity(image: str) -> dict[str, object]:
-    value = run(
-        "docker",
-        "run",
-        "--rm",
-        "--network",
-        "none",
-        "--user",
-        "0",
-        "--read-only",
-        "--cap-drop",
-        "ALL",
-        "--security-opt",
-        "no-new-privileges",
-        "--entrypoint",
-        "python",
-        image,
-        "/opt/flowtracer-r1c/scripts/image_identity.py",
-        timeout=180,
-    ).stdout.decode("ascii").strip()
+    value = (
+        run(
+            "docker",
+            "run",
+            "--rm",
+            "--network",
+            "none",
+            "--user",
+            "0",
+            "--read-only",
+            "--cap-drop",
+            "ALL",
+            "--security-opt",
+            "no-new-privileges",
+            "--entrypoint",
+            "python",
+            image,
+            "/opt/flowtracer-r1c/scripts/image_identity.py",
+            timeout=180,
+        )
+        .stdout.decode("ascii")
+        .strip()
+    )
     return {
         "cap_drop": ["ALL"],
         "network_mode": "none",

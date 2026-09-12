@@ -54,10 +54,7 @@ def package_tree_identity(package_root: Path) -> dict[str, int | str]:
     # always has a trailing LF and Encoding never emits a BOM.
     entries.sort(key=lambda item: item[0])
     payload = b"".join(
-        relative.encode("utf-8")
-        + b" "
-        + sha256(path).encode("ascii")
-        + b"\n"
+        relative.encode("utf-8") + b" " + sha256(path).encode("ascii") + b"\n"
         for relative, path in entries
     )
     return {
@@ -68,9 +65,7 @@ def package_tree_identity(package_root: Path) -> dict[str, int | str]:
 
 
 def validate_package_tree(evidence_root: Path, declaration_path: Path) -> dict[str, int | str]:
-    declarations = PACKAGE_TREE_DECLARATION.findall(
-        declaration_path.read_text(encoding="utf-8")
-    )
+    declarations = PACKAGE_TREE_DECLARATION.findall(declaration_path.read_text(encoding="utf-8"))
     if len(declarations) != 1:
         raise RuntimeError("expected exactly one R1C package tree declaration")
     files, payload_bytes, expected_sha256 = declarations[0]
@@ -124,9 +119,7 @@ def validate_log_rename_proof(evidence_root: Path) -> None:
 
 
 def validate_runtime_boundaries(evidence_root: Path) -> None:
-    comparison = json.loads(
-        (evidence_root / "build-comparison.json").read_text(encoding="utf-8")
-    )
+    comparison = json.loads((evidence_root / "build-comparison.json").read_text(encoding="utf-8"))
     identities = comparison.get("identity_inspections")
     if not isinstance(identities, dict) or set(identities) != {"build1", "build2"}:
         raise RuntimeError("missing root-only identity inspections")
@@ -216,8 +209,7 @@ def validate_runtime_boundaries(evidence_root: Path) -> None:
             )
         if (
             runtime.get("outer_deadline_seconds") != 120
-            or
-            probe.get("uid") != 10001
+            or probe.get("uid") != 10001
             or probe.get("network") != "none"
             or probe.get("read_only_rootfs") is not True
             or dynamic.get("rendered") != "dynamic-rendered"

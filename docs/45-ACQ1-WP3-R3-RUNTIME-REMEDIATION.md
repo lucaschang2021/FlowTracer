@@ -1,6 +1,6 @@
 # FlowTracer ACQ-1 WP-3 R3 Runtime Remediation
 
-状态：Accepted（仅 R1C Full Chromium compatibility evidence）
+状态：Completed（R1C 已由 PR #60 验收合并；本文件不再提供后续准入）
 
 前置基准：`main@767f1357fb1cac4e3f3c8913b0a3167146dfe81a`
 
@@ -40,3 +40,7 @@ R3 唯一执行项目 `flowtracer-r3-exec-20260909-a` 证明：`patchright insta
 - 长构建前必须检查额度；任一窗口剩余比例小于或等于 5% 时保留工作树并停止。
 - 通过时唯一结论为 `R1C PASS — READY FOR INDEPENDENT REVIEW`；不得自行执行 R2C、继续 R3、commit、push 或 PR。
 - R1C 经独立复审并合并后，总控另行签发 R2C 准入。R2C 必须用 R1C 精确镜像完整回归 R2 网络证据；通过前 R3、R4-R5 与 WP-3 正式实现继续 BLOCKED。
+
+## 5. 完成归档
+
+R1C candidate `787a0df0548e05431fa60426f48f239ba7195465` 已通过独立复审与 Backend CI，并由 PR #60 合并为 `main@df0c3512080f384dbd6c820d7627cbe721e37422`；P0/P1/P2=`0/0/0`。后续唯一有效准入为 `docs/46-ACQ1-WP3-R2C-ACTIVATION.md`，R3 仍暂停。

@@ -1,6 +1,6 @@
 # FlowTracer ACQ-1 WP-3 Remediation Evidence Package
 
-状态：R1 Accepted（Headless Shell historical）；R2 Accepted（Headless Shell historical）；R3 BLOCKED；R1C PASS — READY FOR INDEPENDENT REVIEW；R2C/R4-R5 Pending
+状态：R1 Accepted（Headless Shell historical）；R2 Accepted（Headless Shell historical）；R3 BLOCKED；R1C Accepted；R2C Admitted / Pending；R4-R5 Pending
 
 用途：本文件是 `docs/41-ACQ1-WP3-REMEDIATION-EVIDENCE-ADMISSION.md` 的强制证据模板。必须按 R1→R5 顺序填写实际值；`TBD`、估算、未执行、仅配置审阅、仅 mock 或未保存的口头观察均不构成通过证据。
 
@@ -96,7 +96,13 @@ R2 判定：`ACCEPTED`。R2 P0/P1/P2=`0/0/0`；独立复审、Backend CI 与 PR 
 
 R1C package tree 的机器可解析声明：`R1C_PACKAGE_TREE_V1 files=702 payload_bytes=95463 sha256=1983e42a55e2f896b88c4dd38cb113071026079a26cdb8167fb5f299af33699c`。算法递归包含 `browser-r1c/` 下全部普通文件，不读取 Git ignore、扩展名或 locale，也无隐式排除；symlink/其他 entry type fail closed。相对路径统一 `/` 后按 Unicode code point 排序，每个文件以原始 bytes 计算 lowercase SHA-256，再将 `<relative-path> <lowercase-content-sha256>\n` 编码为 UTF-8（无 BOM、最后一行保留 LF）并串接取最终 SHA-256。轻量复验命令：`py -3.13 -B backend/experiments/browser-r1c/scripts/validate_sbom.py backend/experiments/browser-r1c/evidence --package-tree-doc docs/42-ACQ1-WP3-REMEDIATION-EVIDENCE-PACKAGE.md`。
 
-R1C 判定：`PASS — READY FOR INDEPENDENT REVIEW`。R1C P0/P1/P2=`0/0/0`。本次不构成 R1C 独立验收、合并或 R2C/R3 准入；Backend 在此 STOP。
+R1C 判定：`ACCEPTED`。R1C P0/P1/P2=`0/0/0`；独立复审 ALLOW，Backend CI 通过，candidate `787a0df0548e05431fa60426f48f239ba7195465` 已由 PR #60 合并为 `main@df0c3512080f384dbd6c820d7627cbe721e37422`。该结论只关闭 R1C；R2C 由独立准入文件激活，R3 继续暂停。
+
+#### R2C 完整 Chromium controlled egress 回归
+
+执行基准：`main@df0c3512080f384dbd6c820d7627cbe721e37422`。准入与停点规则见 `docs/46-ACQ1-WP3-R2C-ACTIVATION.md`。
+
+R2C 必须在独立 `backend/experiments/browser-r2c/` 保存实际拓扑、镜像身份、DynamicFetcher、allow/deny、DNS、proxy、运行硬化和清理证据。不得覆盖本文件第 3 节的历史 Headless Shell R2 记录；完成前不得填写 PASS、重启 R3 或开始 R4-R5。
 
 ## 5. R4 — Deadline、回收与资源样本
 

@@ -1,0 +1,621 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "inspect",
+        "flowtracer-r1c-20260912-rootinspect-builder"
+      ],
+      "ended_at": "2026-09-12T14:21:15.803499+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T14:21:15.635170+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "container",
+        "inspect",
+        "flowtracer-r1c-20260912-rootinspect-runtime-build1"
+      ],
+      "ended_at": "2026-09-12T14:21:15.869769+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T14:21:15.803547+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "container",
+        "inspect",
+        "flowtracer-r1c-20260912-rootinspect-runtime-build2"
+      ],
+      "ended_at": "2026-09-12T14:21:15.933243+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T14:21:15.869791+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "flowtracer-browser-r1c:r1c-20260912-rootinspect-lock-export"
+      ],
+      "ended_at": "2026-09-12T14:21:15.997675+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T14:21:15.933272+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "flowtracer-browser-r1c:r1c-20260912-rootinspect-build1"
+      ],
+      "ended_at": "2026-09-12T14:21:16.066497+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T14:21:15.997698+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "flowtracer-browser-r1c:r1c-20260912-rootinspect-build2"
+      ],
+      "ended_at": "2026-09-12T14:21:16.131257+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T14:21:16.066527+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "volume",
+        "ls",
+        "-q",
+        "--filter",
+        "name=flowtracer-r1c-20260912-rootinspect-builder"
+      ],
+      "ended_at": "2026-09-12T14:21:16.194554+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T14:21:16.131287+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "inspect",
+        "flowtracer-r1-final-builder"
+      ],
+      "ended_at": "2026-09-12T14:21:16.614896+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T14:21:16.195055+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "--format",
+        "{{.Id}}",
+        "flowtracer-browser-r1:r1-final-build1"
+      ],
+      "ended_at": "2026-09-12T14:21:16.720768+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T14:21:16.614916+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "--format",
+        "{{.Id}}",
+        "flowtracer-browser-r1:r1-final-build2"
+      ],
+      "ended_at": "2026-09-12T14:21:16.817045+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T14:21:16.720817+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "--format",
+        "{{.Id}}",
+        "moby/buildkit@sha256:28a898719c18a33f4e8000685287fa36fd0dd9560c6440227d3a732d79bb41d8"
+      ],
+      "ended_at": "2026-09-12T14:21:16.943849+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T14:21:16.817068+00:00"
+    },
+    {
+      "argv": [
+        "git",
+        "branch",
+        "--show-current"
+      ],
+      "ended_at": "2026-09-12T14:21:16.990282+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T14:21:16.944438+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "version"
+      ],
+      "ended_at": "2026-09-12T14:21:17.152759+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T14:21:16.990304+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "version",
+        "--format",
+        "{{json .}}"
+      ],
+      "ended_at": "2026-09-12T14:21:17.240967+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T14:21:17.152783+00:00"
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "ended_at": "2026-09-12T14:21:17.280986+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T14:21:17.240999+00:00"
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "origin/main"
+      ],
+      "ended_at": "2026-09-12T14:21:17.320023+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T14:21:17.281014+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "create",
+        "--name",
+        "flowtracer-r1c-20260912-rootinspect-builder",
+        "--driver",
+        "docker-container",
+        "--driver-opt",
+        "network=bridge,image=moby/buildkit@sha256:28a898719c18a33f4e8000685287fa36fd0dd9560c6440227d3a732d79bb41d8"
+      ],
+      "ended_at": "2026-09-12T14:21:17.520676+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T14:21:17.323235+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "inspect",
+        "flowtracer-r1c-20260912-rootinspect-builder",
+        "--bootstrap"
+      ],
+      "ended_at": "2026-09-12T14:21:27.733234+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T14:21:17.520735+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "build",
+        "--builder",
+        "flowtracer-r1c-20260912-rootinspect-builder",
+        "--platform=linux/amd64",
+        "--no-cache",
+        "--pull=false",
+        "--progress=plain",
+        "--load",
+        "--target",
+        "final",
+        "-f",
+        "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r1c\\Dockerfile",
+        "-t",
+        "flowtracer-browser-r1c:r1c-20260912-rootinspect-build1",
+        "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r1c"
+      ],
+      "ended_at": "2026-09-12T14:32:26.248423+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T14:21:27.733308+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "build",
+        "--builder",
+        "flowtracer-r1c-20260912-rootinspect-builder",
+        "--platform=linux/amd64",
+        "--no-cache",
+        "--pull=false",
+        "--progress=plain",
+        "--load",
+        "--target",
+        "final",
+        "-f",
+        "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r1c\\Dockerfile",
+        "-t",
+        "flowtracer-browser-r1c:r1c-20260912-rootinspect-build2",
+        "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r1c"
+      ],
+      "ended_at": "2026-09-12T14:42:27.965586+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T14:32:26.249196+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--network",
+        "none",
+        "--user",
+        "0",
+        "--read-only",
+        "--cap-drop",
+        "ALL",
+        "--security-opt",
+        "no-new-privileges",
+        "--entrypoint",
+        "python",
+        "flowtracer-browser-r1c:r1c-20260912-rootinspect-build1",
+        "/opt/flowtracer-r1c/scripts/image_identity.py"
+      ],
+      "ended_at": "2026-09-12T14:42:43.872653+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T14:42:27.967873+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--network",
+        "none",
+        "--user",
+        "0",
+        "--read-only",
+        "--cap-drop",
+        "ALL",
+        "--security-opt",
+        "no-new-privileges",
+        "--entrypoint",
+        "python",
+        "flowtracer-browser-r1c:r1c-20260912-rootinspect-build2",
+        "/opt/flowtracer-r1c/scripts/image_identity.py"
+      ],
+      "ended_at": "2026-09-12T14:42:46.773356+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T14:42:43.872686+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--network",
+        "none",
+        "--entrypoint",
+        "python",
+        "flowtracer-browser-r1c:r1c-20260912-rootinspect-build1",
+        "/opt/flowtracer-r1c/scripts/generate_sbom.py"
+      ],
+      "ended_at": "2026-09-12T14:42:47.895974+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T14:42:46.773389+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--network",
+        "none",
+        "--entrypoint",
+        "python",
+        "flowtracer-browser-r1c:r1c-20260912-rootinspect-build1",
+        "/opt/flowtracer-r1c/scripts/generate_sbom.py",
+        "--debian-license-inventory"
+      ],
+      "ended_at": "2026-09-12T14:42:48.721818+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T14:42:47.896000+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--network",
+        "none",
+        "--entrypoint",
+        "python",
+        "flowtracer-browser-r1c:r1c-20260912-rootinspect-build1",
+        "/opt/flowtracer-r1c/scripts/export_notices.py"
+      ],
+      "ended_at": "2026-09-12T14:42:49.444414+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T14:42:48.724820+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--network",
+        "none",
+        "--entrypoint",
+        "python",
+        "flowtracer-browser-r1c:r1c-20260912-rootinspect-build2",
+        "/opt/flowtracer-r1c/scripts/generate_sbom.py"
+      ],
+      "ended_at": "2026-09-12T14:42:50.853941+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T14:42:49.747874+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "run",
+        "--rm",
+        "--network",
+        "none",
+        "--entrypoint",
+        "python",
+        "flowtracer-browser-r1c:r1c-20260912-rootinspect-build2",
+        "/opt/flowtracer-r1c/scripts/generate_sbom.py",
+        "--debian-license-inventory"
+      ],
+      "ended_at": "2026-09-12T14:42:51.691028+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T14:42:50.853974+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "create",
+        "--name",
+        "flowtracer-r1c-20260912-rootinspect-runtime-build1",
+        "--network",
+        "none",
+        "--read-only",
+        "--cap-drop",
+        "ALL",
+        "--security-opt",
+        "no-new-privileges",
+        "--tmpfs",
+        "/tmp:rw,nosuid,noexec,size=256m",
+        "--pids-limit",
+        "128",
+        "--memory",
+        "768m",
+        "--cpus",
+        "1",
+        "flowtracer-browser-r1c:r1c-20260912-rootinspect-build1"
+      ],
+      "ended_at": "2026-09-12T14:42:51.842525+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T14:42:51.692571+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "container",
+        "inspect",
+        "flowtracer-r1c-20260912-rootinspect-runtime-build1"
+      ],
+      "ended_at": "2026-09-12T14:42:51.920450+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T14:42:51.842555+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "start",
+        "-a",
+        "flowtracer-r1c-20260912-rootinspect-runtime-build1"
+      ],
+      "ended_at": "2026-09-12T14:42:53.791832+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T14:42:51.920564+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "container",
+        "rm",
+        "-f",
+        "flowtracer-r1c-20260912-rootinspect-runtime-build1"
+      ],
+      "ended_at": "2026-09-12T14:42:53.890382+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T14:42:53.791889+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "container",
+        "rm",
+        "-f",
+        "flowtracer-r1c-20260912-rootinspect-runtime-build2"
+      ],
+      "ended_at": "2026-09-12T14:42:53.963760+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T14:42:53.890409+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "rm",
+        "flowtracer-browser-r1c:r1c-20260912-rootinspect-lock-export",
+        "flowtracer-browser-r1c:r1c-20260912-rootinspect-build1",
+        "flowtracer-browser-r1c:r1c-20260912-rootinspect-build2"
+      ],
+      "ended_at": "2026-09-12T14:42:54.756035+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T14:42:53.963782+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "rm",
+        "flowtracer-r1c-20260912-rootinspect-builder"
+      ],
+      "ended_at": "2026-09-12T14:43:01.189364+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T14:42:54.756054+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "inspect",
+        "flowtracer-r1c-20260912-rootinspect-builder"
+      ],
+      "ended_at": "2026-09-12T14:43:01.419167+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T14:43:01.189392+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "container",
+        "inspect",
+        "flowtracer-r1c-20260912-rootinspect-runtime-build1"
+      ],
+      "ended_at": "2026-09-12T14:43:01.475339+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T14:43:01.419192+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "container",
+        "inspect",
+        "flowtracer-r1c-20260912-rootinspect-runtime-build2"
+      ],
+      "ended_at": "2026-09-12T14:43:01.528807+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T14:43:01.475359+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "flowtracer-browser-r1c:r1c-20260912-rootinspect-lock-export"
+      ],
+      "ended_at": "2026-09-12T14:43:01.583074+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T14:43:01.528828+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "flowtracer-browser-r1c:r1c-20260912-rootinspect-build1"
+      ],
+      "ended_at": "2026-09-12T14:43:01.636825+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T14:43:01.583100+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "flowtracer-browser-r1c:r1c-20260912-rootinspect-build2"
+      ],
+      "ended_at": "2026-09-12T14:43:01.692179+00:00",
+      "exit_code": 1,
+      "started_at": "2026-09-12T14:43:01.636846+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "volume",
+        "ls",
+        "-q",
+        "--filter",
+        "name=flowtracer-r1c-20260912-rootinspect-builder"
+      ],
+      "ended_at": "2026-09-12T14:43:01.774782+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T14:43:01.692211+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "inspect",
+        "flowtracer-r1-final-builder"
+      ],
+      "ended_at": "2026-09-12T14:43:02.060766+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T14:43:01.774811+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "--format",
+        "{{.Id}}",
+        "flowtracer-browser-r1:r1-final-build1"
+      ],
+      "ended_at": "2026-09-12T14:43:02.157381+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T14:43:02.060795+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "--format",
+        "{{.Id}}",
+        "flowtracer-browser-r1:r1-final-build2"
+      ],
+      "ended_at": "2026-09-12T14:43:02.250508+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T14:43:02.157400+00:00"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "inspect",
+        "--format",
+        "{{.Id}}",
+        "moby/buildkit@sha256:28a898719c18a33f4e8000685287fa36fd0dd9560c6440227d3a732d79bb41d8"
+      ],
+      "ended_at": "2026-09-12T14:43:02.371810+00:00",
+      "exit_code": 0,
+      "started_at": "2026-09-12T14:43:02.250531+00:00"
+    }
+  ],
+  "duration_seconds": 1306.737,
+  "ended_at": "2026-09-12T14:43:02.372310+00:00",
+  "error": "RuntimeError: runtime probe failed for flowtracer-browser-r1c:r1c-20260912-rootinspect-build1: Traceback (most recent call last):\n  File \"/usr/local/lib/python3.13/site-packages/scrapling/engines/_browsers/_validators.py\", line 250, in validate\n    return convert(filtered, model)\nmsgspec.ValidationError: Expected `int` >= 1 - at `$.retries`\n\nThe above exception was the direct cause of the following exception:\n\nTraceback (most recent call last):\n  File \"/opt/flowtracer-r1c/scripts/runtime_probe.py\", line 153, in <module>\n    main()\n    ~~~~^^\n  File \"/opt/flowtracer-r1c/scripts/runtime_probe.py\", line 79, in main\n    response = DynamicFetcher.fetch(\n        f\"http://127.0.0.1:{port}/deterministic\",\n    ...<7 lines>...\n        extra_flags=[\"--disable-background-networking\"],\n    )\n  File \"/usr/local/lib/python3.13/site-packages/scrapling/fetchers/chrome.py\", line 50, in fetch\n    with DynamicSession(**kwargs) as session:\n         ~~~~~~~~~~~~~~^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/site-packages/scrapling/engines/_browsers/_controllers.py\", line 69, in __init__\n    self.__validate__(**kwargs)\n    ~~~~~~~~~~~~~~~~~^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/site-packages/scrapling/engines/_browsers/_base.py\", line 538, in __validate__\n    self._config = self.__validate_routine__(params, model=PlaywrightConfig)\n                   ~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/local/lib/python3.13/site-packages/scrapling/engines/_browsers/_base.py\", line 452, in __validate_routine__\n    config = validate(params, model=model)\n  File \"/usr/local/lib/python3.13/site-packages/scrapling/engines/_browsers/_validators.py\", line 252, in validate\n    raise TypeError(f\"Invalid argument type: {e}\") from e\nTypeError: Invalid argument type: Expected `int` >= 1 - at `$.retries`\n",
+  "object_namespace": "flowtracer-r1c-20260912-rootinspect-*",
+  "public_runtime_access": false,
+  "started_at": "2026-09-12T14:21:15.635161+00:00",
+  "status": "BLOCKED"
+}

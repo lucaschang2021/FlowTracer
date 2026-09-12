@@ -1,0 +1,8 @@
+{
+  "buildkit_image_id": "sha256:28a898719c18a33f4e8000685287fa36fd0dd9560c6440227d3a732d79bb41d8",
+  "historical_r1_builder_exists": true,
+  "historical_r1_images": {
+    "flowtracer-browser-r1:r1-final-build1": "sha256:1d067af0acd03aa6c665af33c635deffc0789159380d4da96f99c9efab37387c",
+    "flowtracer-browser-r1:r1-final-build2": "sha256:83464fd58248b3af79903c3d4ce3d33140f498bdfef4d9efec9c4552718a3eec"
+  }
+}

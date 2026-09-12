@@ -1,0 +1,37 @@
+{
+  "archived_attempt": "attempts/attempt-1-blocked-20260912T114447Z",
+  "archived_execution_ledger_sha256": "97e0586da1e861edc88503da8ff6dae2155d80ce8c5972667b2755edd9143fcd",
+  "archived_lock_crlf_sha256": "5b15d61f74a38907bc00edab81191f4d3b18d46d80a0a5e3c4ba23d0ce40ed0a",
+  "bootstrap_build": {
+    "argv": [
+      "docker",
+      "buildx",
+      "build",
+      "--builder",
+      "flowtracer-r1c-20260912-builder",
+      "--platform=linux/amd64",
+      "--no-cache",
+      "--pull=false",
+      "--progress=plain",
+      "--load",
+      "--target",
+      "lock-export",
+      "-f",
+      "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r1c\\Dockerfile",
+      "-t",
+      "flowtracer-browser-r1c:r1c-20260912-lock-export",
+      "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r1c"
+    ],
+    "ended_at": "2026-09-12T11:52:09.248032+00:00",
+    "exit_code": 0,
+    "started_at": "2026-09-12T11:44:57.164481+00:00"
+  },
+  "browser_manifest_sha256": "197d911b97e67180aef120d7cffb974436dcbcbe4acce566809b6d0e1363390a",
+  "debian_lock_lf_sha256": "299a341b239c284c385ecacd9d3882bdf29472b28421075b369009f998b54b83",
+  "reason": "resume after host CRLF versus container LF lock comparison failure",
+  "root_inspection_failure": {
+    "archived_attempt": "attempts/attempt-2-blocked-root-inspection",
+    "execution_ledger_sha256": "b9b6208f6ab504fb17e8b30a6ecc5f1f2c1c86b0409174b35318a44aaaca5b2b",
+    "remediation": "identity inspection only uses explicit docker --user 0"
+  }
+}

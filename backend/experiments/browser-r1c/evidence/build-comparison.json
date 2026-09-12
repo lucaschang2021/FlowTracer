@@ -1,0 +1,256 @@
+{
+  "browser_manifest_entries": 619,
+  "debian_packages": 206,
+  "identity_inspections": {
+    "build1": {
+      "cap_drop": [
+        "ALL"
+      ],
+      "network_mode": "none",
+      "no_new_privileges": true,
+      "purpose": "root-only normalized filesystem inspection",
+      "read_only_rootfs": true,
+      "sha256": "6ef0e9ecb34d0a72c2135282b06548f7bdac92be27f8df2444188216013bddea",
+      "user": "0"
+    },
+    "build2": {
+      "cap_drop": [
+        "ALL"
+      ],
+      "network_mode": "none",
+      "no_new_privileges": true,
+      "purpose": "root-only normalized filesystem inspection",
+      "read_only_rootfs": true,
+      "sha256": "6ef0e9ecb34d0a72c2135282b06548f7bdac92be27f8df2444188216013bddea",
+      "user": "0"
+    }
+  },
+  "image_ids": {
+    "build1": "sha256:72fa7e697fe4460d2012bcd7ebf5daee646a776bd2d4c6a9785949f908df8c23",
+    "build2": "sha256:bd7540f7ed6652f3ea7dc9e95e46cd1c44e80a462177a02b4714bfdf8e94dee5"
+  },
+  "normalized_identity": "6ef0e9ecb34d0a72c2135282b06548f7bdac92be27f8df2444188216013bddea",
+  "runtimes": {
+    "build1": {
+      "outer_deadline_seconds": 120,
+      "probe": {
+        "browser_revision": 1234,
+        "dynamic_fetcher": {
+          "call_contract": {
+            "executable_path": "/opt/browser-r1c/chromium-1234/chrome-linux64/chrome",
+            "failure": {
+              "headless": true,
+              "retries": 1,
+              "timeout": 2500,
+              "user_data_dir": "/tmp/flowtracer-r1c-failure-profile"
+            },
+            "render": {
+              "disable_resources": false,
+              "headless": true,
+              "network_idle": true,
+              "retries": 1,
+              "timeout": 8000,
+              "user_data_dir": "/tmp/flowtracer-r1c-render-profile"
+            }
+          },
+          "crashpad_databases": {
+            "failure": {
+              "gid": 10001,
+              "mode": "0700",
+              "path": "/tmp/flowtracer-r1c-config/google-chrome-for-testing/Crash Reports",
+              "uid": 10001
+            },
+            "render": {
+              "gid": 10001,
+              "mode": "0700",
+              "path": "/tmp/flowtracer-r1c-config/google-chrome-for-testing/Crash Reports",
+              "uid": 10001
+            }
+          },
+          "failure_elapsed_ms": 3039,
+          "failure_type": "Error",
+          "fixture_requests": 2,
+          "fixture_scope": "in-process-loopback",
+          "render_elapsed_ms": 2410,
+          "rendered": "dynamic-rendered",
+          "runtime_directories_absent_after": {
+            "failure": {
+              "/tmp/flowtracer-r1c-cache": true,
+              "/tmp/flowtracer-r1c-config": true,
+              "/tmp/flowtracer-r1c-failure-profile": true,
+              "/tmp/flowtracer-r1c-home": true
+            },
+            "render": {
+              "/tmp/flowtracer-r1c-cache": true,
+              "/tmp/flowtracer-r1c-config": true,
+              "/tmp/flowtracer-r1c-home": true,
+              "/tmp/flowtracer-r1c-render-profile": true
+            }
+          },
+          "runtime_directories_absent_before": {
+            "failure": {
+              "/tmp/flowtracer-r1c-cache": true,
+              "/tmp/flowtracer-r1c-config": true,
+              "/tmp/flowtracer-r1c-failure-profile": true,
+              "/tmp/flowtracer-r1c-home": true
+            },
+            "render": {
+              "/tmp/flowtracer-r1c-cache": true,
+              "/tmp/flowtracer-r1c-config": true,
+              "/tmp/flowtracer-r1c-home": true,
+              "/tmp/flowtracer-r1c-render-profile": true
+            }
+          },
+          "runtime_environment": {
+            "HOME": "/tmp/flowtracer-r1c-home",
+            "XDG_CACHE_HOME": "/tmp/flowtracer-r1c-cache",
+            "XDG_CONFIG_HOME": "/tmp/flowtracer-r1c-config"
+          },
+          "terminal_browser_processes": [],
+          "terminal_fixture_thread": "stopped"
+        },
+        "engine_channel": "chromium",
+        "engine_version": "151.0.7922.34",
+        "executable": "/opt/browser-r1c/chromium-1234/chrome-linux64/chrome",
+        "network": "none",
+        "read_only_rootfs": true,
+        "uid": 10001
+      },
+      "security": {
+        "cap_drop": [
+          "ALL"
+        ],
+        "network_mode": "none",
+        "no_new_privileges": true,
+        "pids_limit": 128,
+        "privileged": false,
+        "read_only_rootfs": true,
+        "runtime_environment": {
+          "HOME": "/tmp/flowtracer-r1c-home",
+          "XDG_CACHE_HOME": "/tmp/flowtracer-r1c-cache",
+          "XDG_CONFIG_HOME": "/tmp/flowtracer-r1c-config"
+        },
+        "tmpfs": {
+          "/tmp": "rw,nosuid,noexec,size=256m"
+        },
+        "user": "10001:10001"
+      }
+    },
+    "build2": {
+      "outer_deadline_seconds": 120,
+      "probe": {
+        "browser_revision": 1234,
+        "dynamic_fetcher": {
+          "call_contract": {
+            "executable_path": "/opt/browser-r1c/chromium-1234/chrome-linux64/chrome",
+            "failure": {
+              "headless": true,
+              "retries": 1,
+              "timeout": 2500,
+              "user_data_dir": "/tmp/flowtracer-r1c-failure-profile"
+            },
+            "render": {
+              "disable_resources": false,
+              "headless": true,
+              "network_idle": true,
+              "retries": 1,
+              "timeout": 8000,
+              "user_data_dir": "/tmp/flowtracer-r1c-render-profile"
+            }
+          },
+          "crashpad_databases": {
+            "failure": {
+              "gid": 10001,
+              "mode": "0700",
+              "path": "/tmp/flowtracer-r1c-config/google-chrome-for-testing/Crash Reports",
+              "uid": 10001
+            },
+            "render": {
+              "gid": 10001,
+              "mode": "0700",
+              "path": "/tmp/flowtracer-r1c-config/google-chrome-for-testing/Crash Reports",
+              "uid": 10001
+            }
+          },
+          "failure_elapsed_ms": 2058,
+          "failure_type": "Error",
+          "fixture_requests": 2,
+          "fixture_scope": "in-process-loopback",
+          "render_elapsed_ms": 3762,
+          "rendered": "dynamic-rendered",
+          "runtime_directories_absent_after": {
+            "failure": {
+              "/tmp/flowtracer-r1c-cache": true,
+              "/tmp/flowtracer-r1c-config": true,
+              "/tmp/flowtracer-r1c-failure-profile": true,
+              "/tmp/flowtracer-r1c-home": true
+            },
+            "render": {
+              "/tmp/flowtracer-r1c-cache": true,
+              "/tmp/flowtracer-r1c-config": true,
+              "/tmp/flowtracer-r1c-home": true,
+              "/tmp/flowtracer-r1c-render-profile": true
+            }
+          },
+          "runtime_directories_absent_before": {
+            "failure": {
+              "/tmp/flowtracer-r1c-cache": true,
+              "/tmp/flowtracer-r1c-config": true,
+              "/tmp/flowtracer-r1c-failure-profile": true,
+              "/tmp/flowtracer-r1c-home": true
+            },
+            "render": {
+              "/tmp/flowtracer-r1c-cache": true,
+              "/tmp/flowtracer-r1c-config": true,
+              "/tmp/flowtracer-r1c-home": true,
+              "/tmp/flowtracer-r1c-render-profile": true
+            }
+          },
+          "runtime_environment": {
+            "HOME": "/tmp/flowtracer-r1c-home",
+            "XDG_CACHE_HOME": "/tmp/flowtracer-r1c-cache",
+            "XDG_CONFIG_HOME": "/tmp/flowtracer-r1c-config"
+          },
+          "terminal_browser_processes": [],
+          "terminal_fixture_thread": "stopped"
+        },
+        "engine_channel": "chromium",
+        "engine_version": "151.0.7922.34",
+        "executable": "/opt/browser-r1c/chromium-1234/chrome-linux64/chrome",
+        "network": "none",
+        "read_only_rootfs": true,
+        "uid": 10001
+      },
+      "security": {
+        "cap_drop": [
+          "ALL"
+        ],
+        "network_mode": "none",
+        "no_new_privileges": true,
+        "pids_limit": 128,
+        "privileged": false,
+        "read_only_rootfs": true,
+        "runtime_environment": {
+          "HOME": "/tmp/flowtracer-r1c-home",
+          "XDG_CACHE_HOME": "/tmp/flowtracer-r1c-cache",
+          "XDG_CONFIG_HOME": "/tmp/flowtracer-r1c-config"
+        },
+        "tmpfs": {
+          "/tmp": "rw,nosuid,noexec,size=256m"
+        },
+        "user": "10001:10001"
+      }
+    }
+  },
+  "supply_chain": {
+    "build1": {
+      "debian_inventory_sha256": "bee9c30ae016be592521c383b9bb0be74f39892415ed28f9122d5b7ccced81da",
+      "sbom_sha256": "a8d6ae5e450b10bd40d90f6d56a0e69742479cfaff79398c0d2fb0696cfcf774"
+    },
+    "build2": {
+      "debian_inventory_sha256": "bee9c30ae016be592521c383b9bb0be74f39892415ed28f9122d5b7ccced81da",
+      "sbom_sha256": "a8d6ae5e450b10bd40d90f6d56a0e69742479cfaff79398c0d2fb0696cfcf774"
+    }
+  },
+  "validation": "R1C_EVIDENCE_VALIDATION=PASS components=231 debian=206 identity_user=0 runtime_uid=10001"
+}

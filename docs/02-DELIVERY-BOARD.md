@@ -4,9 +4,9 @@
 
 **M0：架构初步冻结 — 已完成**
 
-**当前停点：ACQ-1 WP-3 Remediation R2 已验收合并；仅 R3 应用拦截矩阵证据已准入，WP-3 正式实现仍阻塞**
+**当前停点：ACQ-1 WP-3 R3 因完整 Chromium runtime 缺失而 BLOCKED；仅 R1C 兼容性修复证据已准入**
 
-Architecture Governance Pass 已完成。WP-3 Preflight 缺陷由顺序化 remediation evidence 处理；R1、R2 均以 P0/P1/P2=0/0/0 通过独立复审、Backend CI 并合并。R3-R5 仍须逐阶段证明。Frontend、Integration 与 Release 同样未准入。
+Architecture Governance Pass 已完成。R1、R2 的 Headless Shell 证据已验收合并，但 R3 真实 DynamicFetcher 暴露 P1 runtime 不兼容。当前必须按 R1C→R2C→R3 顺序修复并复验；R4-R5、正式 WP-3、Frontend、Integration 与 Release 均未准入。
 
 本次同步事实基准：`main@a0d30140c8bdb6665b0833f4d60defadce9c9166`（WP-3 R3 激活 PR #57 merge commit）。
 
@@ -66,7 +66,9 @@ Architecture Governance Pass 已完成。WP-3 Preflight 缺陷由顺序化 remed
 | PM-020 | ACQ-1 WP-3 Remediation Evidence 顺序闸门准入 | 总控 | 完成（PR #53 已合并） | ACQ-1-WP3-PF、ADR-031 | `41-ACQ1-WP3-REMEDIATION-EVIDENCE-ADMISSION.md`；仅 R1→R5 证据/原型，不准入正式 WP-3 |
 | ACQ-1-WP3-R1 | Locked image、SBOM/license 与双 no-cache 构建证据 | Backend / Architecture | 完成（PR #54 已验收合并） | PM-020 | `42-ACQ1-WP3-REMEDIATION-EVIDENCE-PACKAGE.md`；commit `89ed802f4f2ac608a260f68637f1aaf541cd3143`；merge `34364d0082e4ecdbe4331d77a21ef6d25c2fca8a`；P0/P1/P2=0/0/0 |
 | ACQ-1-WP3-R2 | Production-shaped controlled egress proxy/namespace 证据 | Backend / Architecture | 完成（PR #56 已验收合并） | ACQ-1-WP3-R1 | `43-ACQ1-WP3-R2-ACTIVATION.md`、`42-ACQ1-WP3-REMEDIATION-EVIDENCE-PACKAGE.md`；commit `7c6e778e05c34bb8341d6898eea729de5dc311b2`；merge `c5799082ba8e0ae5edf8ddfb861e24de784cdf93`；P0/P1/P2=0/0/0 |
-| ACQ-1-WP3-R3 | Application interception matrix 证据 | Backend / Architecture | 已准入；待执行 | ACQ-1-WP3-R2 | `44-ACQ1-WP3-R3-ACTIVATION.md`；所有请求面必须有应用层与网络层双层离线证据 |
+| ACQ-1-WP3-R3 | Application interception matrix 证据 | Backend / Architecture | BLOCKED（P1×1） | ACQ-1-WP3-R2 | `44-ACQ1-WP3-R3-ACTIVATION.md`；DynamicFetcher 要求完整 Chromium，现有 R1 Headless Shell 不兼容 |
+| ACQ-1-WP3-R1C | Full Chromium runtime compatibility remediation | Backend / Architecture | 已准入；待执行 | ACQ-1-WP3-R3 BLOCKED | `45-ACQ1-WP3-R3-RUNTIME-REMEDIATION.md`；只准入新隔离证据资产，不覆盖 R1 历史证据 |
+| ACQ-1-WP3-R2C | R1C 镜像上的 controlled egress 完整回归 | Backend / Architecture | 未准入 | ACQ-1-WP3-R1C PASS | 必须另行书面准入；通过前不得重启 R3 |
 | ACQ-1-WP3-R4..R5 | 回收/资源与双 worker 隔离证据 | Backend | 未准入 | 前序 remediation gate 逐项 PASS | `41-ACQ1-WP3-REMEDIATION-EVIDENCE-ADMISSION.md`；不得并行或跳过 |
 | ACQ-1-WP3 | Dynamic/Advanced Browser、隔离 worker/queue 与受控 egress | Backend | 正式实现未准入 | PM-018 后续正式 Admission PR 合并 | `29-ACQ1-WORK-PACKAGES.md`；不得由 Preflight 直接续做 |
 | ACQ-1-WP4..8 | ACQ-1 后续工作包 | Backend | 未准入 | WP-3 起逐阶段验收 | `29-ACQ1-WORK-PACKAGES.md` |

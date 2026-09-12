@@ -1,6 +1,6 @@
 # FlowTracer 当前阶段闸门
 
-更新时间：2026-09-09。
+更新时间：2026-09-10。
 
 - 当前稳定基准：`main@a0d30140c8bdb6665b0833f4d60defadce9c9166`；该基准包含 WP-3 Remediation Evidence 控制 PR #53、R1 证据 PR #54、R2 证据 PR #56 与 R3 激活 PR #57。
 - 已完成：ACQ-1 Preflight、Contract Freeze、WP-1（ACQ-1A + H0）与 WP-2（ACQ-1B + D-static）均已通过总控验收并合并。
@@ -12,9 +12,10 @@
 - 阻塞缺陷：P0×1（download 默认拒绝无双层证明）；P1×5（hang/回收、DynamicFetcher runtime、双 worker queue 隔离、durable lock/SBOM/双构建、Chromium/engine license）；P2×2（仅 `n=1` 资源样本、BuildKit cache 归属不精确）。完整记录见 `docs/40-ACQ1-WP3-PREFLIGHT-BLOCKED-REPORT.md`。
 - R1 结论：PR #54 已通过独立复审与 Backend CI 并合并；R1 P0/P1/P2=`0/0/0`。两次锁定 no-cache 构建、规范化文件系统身份、SBOM/license、301-entry tree、非 root/read-only/network-none 离线运行与精确清理证据完整。
 - R2 结论：PR #56 已通过独立复审与 Backend CI 并合并；R2 P0/P1/P2=`0/0/0`。Browser 与独立 control-client 对相同 host-gateway endpoint 的相反可达性、A/AAAA DNS canary、受控 CONNECT/redirect/rebinding 策略、真实运行态硬化与精确清理均形成机器可验证证据。
-- 当前停点：WP-3 正式实现继续 BLOCKED。仅准入 R3 Application interception matrix 证据阶段；R4-R5 必须继续等待各自上游 PASS，见 `docs/44-ACQ1-WP3-R3-ACTIVATION.md`。
+- R3 首次执行结论：**BLOCKED**，P0/P1/P2=`0/1/0`。R1 锁定镜像只包含 Chromium Headless Shell，而 Scrapling DynamicFetcher 实际要求完整 Chromium executable；DynamicFetcher 未能启动，矩阵未继续，失败项目与临时资源已精确清理。
+- 当前停点：WP-3 正式实现继续 BLOCKED，R3 暂停。仅准入 R1C Full Chromium runtime compatibility remediation；完成独立复审与合并后仍须使用 R1C 镜像回归 R2，R2C 通过后才可重新准入 R3。见 `docs/45-ACQ1-WP3-R3-RUNTIME-REMEDIATION.md`。
 - 未准入：WP-3 正式实现及 WP-4..WP-8；生产 Browser、Router、Discovery、Change、Opportunity；PLUGIN-1；Frontend、Integration 与 Release。
 
 WP-3 的阶段名称、顺序、允许范围和安全原则已由 `docs/22-ACQ1-MASTER-BASELINE.md`、`docs/23-ACQ1-ACQUISITION-CONTRACT.md`、ADR-023/026 与 `docs/29-ACQ1-WORK-PACKAGES.md` 冻结。但其实现前硬门禁要求的 Browser package/revision、系统依赖、独立镜像 digest、受控 egress 方案和容器资源精确限值尚无可复现实证；不得由 Backend 或总控凭空填写。
 
-下一步：在新任务中执行 R3，对 navigation、redirect、iframe、script、XHR/fetch、WebSocket、download、popup、service worker register/update/fetch 逐项形成应用拦截与 R2 网络层双层离线证据。任一 hang、遗漏、旁路或单层证明即 STOP；R3 经独立复审并合并前不得进入 R4。R1→R5 全部通过也只可申请独立总控复核；仍须另提 WP-3 Contract Addendum + 正式 Admission 控制 PR 并合并后，才可进入正式实现。
+下一步：在新任务中执行 R1C，只生成完整 Chromium 的锁定、SBOM/license、双 no-cache 构建、规范化身份和真实 DynamicFetcher 离线启动证据；不得继续 R3 矩阵。R1C PASS 经独立复审与合并后，另行准入 R2C 完整网络隔离回归。R1C/R2C/R3 均通过后才能申请 R4；R1→R5 全部通过也仍须另提 WP-3 Contract Addendum + 正式 Admission 控制 PR。

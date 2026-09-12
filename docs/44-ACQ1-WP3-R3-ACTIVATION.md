@@ -1,6 +1,6 @@
 # FlowTracer ACQ-1 WP-3 R3 Activation
 
-状态：Accepted（仅 R3 remediation evidence）
+状态：Suspended / BLOCKED（R1C、R2C 完成前不得续跑）
 
 前置稳定基准：`main@c5799082ba8e0ae5edf8ddfb861e24de784cdf93`（R2 证据 PR #56 merge commit）
 
@@ -15,6 +15,8 @@
 ## 1. 准入结论
 
 R2 已由 PR #56 验收合并，P0/P1/P2=`0/0/0`。依据 `docs/41-ACQ1-WP3-REMEDIATION-EVIDENCE-ADMISSION.md` 的顺序门禁，本文件仅激活 R3 Application interception matrix 证据阶段。
+
+首次执行已发现 P1：R1 镜像只包含 Headless Shell，真实 DynamicFetcher 要求完整 Chromium executable，因而未能启动。该准入现暂停；`docs/45-ACQ1-WP3-R3-RUNTIME-REMEDIATION.md` 的 R1C 及后续 R2C 未分别验收合并前，本文件不得作为续跑 R3 的授权。
 
 本准入不包含 R4-R5、WP-3 正式实现、默认 API/worker/Compose、Router、RawItem Pipeline、Schema/migration、公开 API、Frontend、Integration、Release 或 PLUGIN-1。
 

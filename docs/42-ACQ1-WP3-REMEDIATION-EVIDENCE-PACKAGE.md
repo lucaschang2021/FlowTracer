@@ -1,6 +1,6 @@
 # FlowTracer ACQ-1 WP-3 Remediation Evidence Package
 
-状态：R1 Accepted；R2 Accepted；R3 Admitted；R4-R5 Pending
+状态：R1 Accepted（Headless Shell historical）；R2 Accepted（Headless Shell historical）；R3 BLOCKED；R1C Admitted；R2C/R4-R5 Pending
 
 用途：本文件是 `docs/41-ACQ1-WP3-REMEDIATION-EVIDENCE-ADMISSION.md` 的强制证据模板。必须按 R1→R5 顺序填写实际值；`TBD`、估算、未执行、仅配置审阅、仅 mock 或未保存的口头观察均不构成通过证据。
 
@@ -58,6 +58,8 @@ R2 判定：`ACCEPTED`。R2 P0/P1/P2=`0/0/0`；独立复审、Backend CI 与 PR 
 
 ## 4. R3 — Application interception matrix
 
+首次执行停点：`BLOCKED`，P0/P1/P2=`0/1/0`。唯一项目 `flowtracer-r3-exec-20260909-a` 在 7.155 秒内非超时失败；DynamicFetcher 寻找 `/opt/browser-r1/chromium-1234/chrome-linux64/chrome`，但 R1 镜像仅含 `/opt/browser-r1/chromium_headless_shell-1234/chrome-headless-shell-linux64/chrome-headless-shell`。DynamicFetcher 未真实启动，因此不得填写或继续下列矩阵。临时 containers/networks 均已归零，无新增 volume/image/cache，R1 镜像身份保持不变。
+
 | 面 | fixture | 应用 event/hook | proxy/网络结果 | policy/scope/budget | fail-closed | 判定 |
 | --- | --- | --- | --- | --- | --- | --- |
 | navigation |  |  |  |  |  |  |
@@ -71,6 +73,13 @@ R2 判定：`ACCEPTED`。R2 P0/P1/P2=`0/0/0`；独立复审、Backend CI 与 PR 
 | service worker register/update/fetch |  |  |  |  |  |  |
 
 另附 DynamicFetcher 实际启动、渲染、终止和失败输出。R3 判定：`PASS / BLOCKED`；任何 hang、遗漏或非双层证明即 BLOCKED，只有 PASS 才可进入 R4。
+
+### 4.1 R1C / R2C 纠偏链
+
+- R1C：在独立 `backend/experiments/browser-r1c/` 锁定完整 Chromium runtime，生成全新 manifest、SBOM/license、双 no-cache 构建和规范化身份；真实 DynamicFetcher 必须在无公网的进程内 fixture 上完成启动、渲染、终止与安全失败。
+- R1C 不得覆盖、改写或复用 R1 tag/证据文件冒充新结果；实际 revision、path、digest、tree、SBOM hash 与 license notice 必须来自运行证据。
+- R2C：R1C 验收合并后，必须用该精确镜像完整重跑 R2 controlled egress/namespace 证据；不得仅引用旧 Headless Shell 容器结果。
+- R3 只有在 R1C、R2C 分别 PASS、独立复审并合并后，才可重新准入。
 
 ## 5. R4 — Deadline、回收与资源样本
 

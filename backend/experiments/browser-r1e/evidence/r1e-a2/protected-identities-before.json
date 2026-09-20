@@ -1,0 +1,32 @@
+{
+  "browser-r1": {
+    "files": 233,
+    "payload_bytes": 26271,
+    "sha256": "9966ab56ac7d3c352369405541394f9a51023d8e2b3966f7a12774cf52ca2870"
+  },
+  "browser-r1c": {
+    "files": 702,
+    "payload_bytes": 95463,
+    "sha256": "1983e42a55e2f896b88c4dd38cb113071026079a26cdb8167fb5f299af33699c"
+  },
+  "browser-r1d": {
+    "files": 170,
+    "payload_bytes": 16889,
+    "sha256": "4d62e46320a9f691e9dc84a6cf89e04bcd02f110c073c9da63f280b29ad0814e"
+  },
+  "browser-r2": {
+    "files": 19,
+    "payload_bytes": 1645,
+    "sha256": "81640b0a18f196aca2c159c4759e58cf58277e1fbfd1a51a4e3a7f97c4a218f6"
+  },
+  "browser-r2c": {
+    "files": 124,
+    "payload_bytes": 12485,
+    "sha256": "963317fca6327f9767db69940a790a9d71ae27df8d6d70656a264ad8d732b2b7"
+  },
+  "browser-r3": {
+    "files": 12,
+    "payload_bytes": 1027,
+    "sha256": "58efd172a2e4b7e0ff665ba01b2dcd679b6e65587e2c4fcbbb6b17c4e427e708"
+  }
+}

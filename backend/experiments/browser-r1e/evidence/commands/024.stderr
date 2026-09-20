@@ -1,0 +1,5 @@
+[2026-09-20 13:31:54] INFO: Fetched (200) <GET http://127.0.0.1:36193/deterministic> (referer: None)
+[2026-09-20 13:31:56] ERROR: Failed after 1 attempts: Page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:36193/closed
+Call log:
+  - navigating to "http://127.0.0.1:36193/closed", waiting until "load"
+

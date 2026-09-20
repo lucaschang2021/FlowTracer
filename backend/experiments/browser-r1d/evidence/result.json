@@ -1,0 +1,23 @@
+{
+  "cleanup": {
+    "builder_absent": true,
+    "containers_absent": {
+      "build1": true,
+      "build2": true
+    },
+    "images_absent": {
+      "build1": true,
+      "build2": true
+    },
+    "skipped": "pre-existing exact-name object detected; no cleanup authority",
+    "volumes": []
+  },
+  "ended_at": "2026-09-19T15:24:09.048327+00:00",
+  "error": "RuntimeError: R1C locked inputs changed: {'browser-tree.manifest.json': '197d911b97e67180aef120d7cffb974436dcbcbe4acce566809b6d0e1363390a', 'debian-packages.lock': '299a341b239c284c385ecacd9d3882bdf29472b28421075b369009f998b54b83', 'requirements.lock': '93ecf377d3a0dba3abb0a6dbb818ffb566a496df528de70435fd9366da3c488b'} != {'browser-tree.manifest.json': '197d911b97e67180aef120d7cffb974436dcbcbe4acce566809b6d0e1363390a', 'debian-packages.lock': '299a341b239c284c385ecac9d3882bdf29472b28421075b369009f998b54b83', 'requirements.lock': '93ecf377d3a0dba3abb0a6dbb818ffb566a496df528de70435fd9366da3c488b'}",
+  "protected_docker_unchanged": false,
+  "protected_files_unchanged": true,
+  "protected_identities_unchanged": true,
+  "run_id": "flowtracer-r1d-20260919-final-a",
+  "started_at": "2026-09-19T15:24:06.446432+00:00",
+  "status": "BLOCKED"
+}

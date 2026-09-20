@@ -1,0 +1,201 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "ls",
+        "--format",
+        "{{.Name}} {{.Driver}} {{.Status}}"
+      ],
+      "ended_at": "2026-09-19T15:24:05.487117+00:00",
+      "exit_code": 1,
+      "input_sha256": null,
+      "started_at": "2026-09-19T15:24:04.977388+00:00",
+      "stderr_bytes": 131,
+      "stderr_path": "evidence/commands/001.stderr",
+      "stderr_sha256": "14310a98f29b1b7d956654a60b704c785c8b8f5026452d9b128cde9fd876458d",
+      "stdout_bytes": 0,
+      "stdout_path": "evidence/commands/001.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "docker",
+        "ps",
+        "-a",
+        "--no-trunc",
+        "--format",
+        "{{.ID}} {{.Image}} {{.Names}}"
+      ],
+      "ended_at": "2026-09-19T15:24:05.759321+00:00",
+      "exit_code": 0,
+      "input_sha256": null,
+      "started_at": "2026-09-19T15:24:05.487264+00:00",
+      "stderr_bytes": 0,
+      "stderr_path": "evidence/commands/002.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 740,
+      "stdout_path": "evidence/commands/002.stdout",
+      "stdout_sha256": "f8ae5d38112767dd64a69677539c1abd34c115a1d9d1a194c645be8815ebbc1c"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "ls",
+        "--no-trunc",
+        "--format",
+        "{{.Repository}}:{{.Tag}} {{.ID}}"
+      ],
+      "ended_at": "2026-09-19T15:24:06.090507+00:00",
+      "exit_code": 0,
+      "input_sha256": null,
+      "started_at": "2026-09-19T15:24:05.759470+00:00",
+      "stderr_bytes": 0,
+      "stderr_path": "evidence/commands/003.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 1469,
+      "stdout_path": "evidence/commands/003.stdout",
+      "stdout_sha256": "5ee6a7acccff456eed1d539854d5a8bc31d3963f48bfd008c6273c605a6ff0c5"
+    },
+    {
+      "argv": [
+        "docker",
+        "network",
+        "ls",
+        "--no-trunc",
+        "--format",
+        "{{.ID}} {{.Name}}"
+      ],
+      "ended_at": "2026-09-19T15:24:06.259986+00:00",
+      "exit_code": 0,
+      "input_sha256": null,
+      "started_at": "2026-09-19T15:24:06.090623+00:00",
+      "stderr_bytes": 0,
+      "stderr_path": "evidence/commands/004.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 296,
+      "stdout_path": "evidence/commands/004.stdout",
+      "stdout_sha256": "9d95f93baf031170d6eb17086fb23f4a54c940d12fa80788da744f9b87de4ab9"
+    },
+    {
+      "argv": [
+        "docker",
+        "volume",
+        "ls",
+        "--format",
+        "{{.Name}}"
+      ],
+      "ended_at": "2026-09-19T15:24:06.443107+00:00",
+      "exit_code": 0,
+      "input_sha256": null,
+      "started_at": "2026-09-19T15:24:06.260112+00:00",
+      "stderr_bytes": 0,
+      "stderr_path": "evidence/commands/005.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 423,
+      "stdout_path": "evidence/commands/005.stdout",
+      "stdout_sha256": "5f020412450e5f9172b9e38cf0201e38c4473c88006a0637cef04e5a53ffcd84"
+    },
+    {
+      "argv": [
+        "docker",
+        "buildx",
+        "ls",
+        "--format",
+        "{{.Name}} {{.Driver}} {{.Status}}"
+      ],
+      "ended_at": "2026-09-19T15:24:08.216383+00:00",
+      "exit_code": 1,
+      "input_sha256": null,
+      "started_at": "2026-09-19T15:24:07.873863+00:00",
+      "stderr_bytes": 131,
+      "stderr_path": "evidence/commands/006.stderr",
+      "stderr_sha256": "14310a98f29b1b7d956654a60b704c785c8b8f5026452d9b128cde9fd876458d",
+      "stdout_bytes": 0,
+      "stdout_path": "evidence/commands/006.stdout",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "docker",
+        "ps",
+        "-a",
+        "--no-trunc",
+        "--format",
+        "{{.ID}} {{.Image}} {{.Names}}"
+      ],
+      "ended_at": "2026-09-19T15:24:08.428310+00:00",
+      "exit_code": 0,
+      "input_sha256": null,
+      "started_at": "2026-09-19T15:24:08.216505+00:00",
+      "stderr_bytes": 0,
+      "stderr_path": "evidence/commands/007.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 740,
+      "stdout_path": "evidence/commands/007.stdout",
+      "stdout_sha256": "f8ae5d38112767dd64a69677539c1abd34c115a1d9d1a194c645be8815ebbc1c"
+    },
+    {
+      "argv": [
+        "docker",
+        "image",
+        "ls",
+        "--no-trunc",
+        "--format",
+        "{{.Repository}}:{{.Tag}} {{.ID}}"
+      ],
+      "ended_at": "2026-09-19T15:24:08.727094+00:00",
+      "exit_code": 0,
+      "input_sha256": null,
+      "started_at": "2026-09-19T15:24:08.428410+00:00",
+      "stderr_bytes": 0,
+      "stderr_path": "evidence/commands/008.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 1469,
+      "stdout_path": "evidence/commands/008.stdout",
+      "stdout_sha256": "9062e5ac60dca8a44ec5fd0b2517a131ac23a0d4734f0964e8cad7a7966012e7"
+    },
+    {
+      "argv": [
+        "docker",
+        "network",
+        "ls",
+        "--no-trunc",
+        "--format",
+        "{{.ID}} {{.Name}}"
+      ],
+      "ended_at": "2026-09-19T15:24:08.884679+00:00",
+      "exit_code": 0,
+      "input_sha256": null,
+      "started_at": "2026-09-19T15:24:08.727196+00:00",
+      "stderr_bytes": 0,
+      "stderr_path": "evidence/commands/009.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 296,
+      "stdout_path": "evidence/commands/009.stdout",
+      "stdout_sha256": "9d95f93baf031170d6eb17086fb23f4a54c940d12fa80788da744f9b87de4ab9"
+    },
+    {
+      "argv": [
+        "docker",
+        "volume",
+        "ls",
+        "--format",
+        "{{.Name}}"
+      ],
+      "ended_at": "2026-09-19T15:24:09.044357+00:00",
+      "exit_code": 0,
+      "input_sha256": null,
+      "started_at": "2026-09-19T15:24:08.884834+00:00",
+      "stderr_bytes": 0,
+      "stderr_path": "evidence/commands/010.stderr",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_bytes": 423,
+      "stdout_path": "evidence/commands/010.stdout",
+      "stdout_sha256": "5f020412450e5f9172b9e38cf0201e38c4473c88006a0637cef04e5a53ffcd84"
+    }
+  ],
+  "run_id": "flowtracer-r1d-20260919-final-a"
+}

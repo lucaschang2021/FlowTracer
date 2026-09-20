@@ -228,9 +228,7 @@ def self_check() -> dict[str, Any]:
         "Driver": "docker",
         "Dynamic": False,
         "Name": "a",
-        "Nodes": [
-            {"Endpoint": "a", "Name": "a0", "Status": "running", "Version": "v1"}
-        ],
+        "Nodes": [{"Endpoint": "a", "Name": "a0", "Status": "running", "Version": "v1"}],
     }
     builder_b = {
         "Driver": "docker-container",
@@ -248,8 +246,10 @@ def self_check() -> dict[str, Any]:
             }
         ],
     }
+
     def encoded(value: object) -> bytes:
         return json.dumps(value, separators=(",", ":")).encode() + b"\n"
+
     left = parse_builder_snapshot(encoded(builder_b) + encoded(builder_a) + encoded(builder_a))
     right = parse_builder_snapshot(encoded(builder_a) + encoded(builder_b))
     if left != right or [item["name"] for item in left] != ["a", "b"]:
@@ -260,8 +260,7 @@ def self_check() -> dict[str, Any]:
         (b"not-json\n", 0),
         (encoded({"Name": "a", "Driver": "docker", "Dynamic": False, "Nodes": []}), 0),
         (
-            encoded(builder_a)
-            + encoded({**builder_a, "Driver": "docker-container"}),
+            encoded(builder_a) + encoded({**builder_a, "Driver": "docker-container"}),
             0,
         ),
     )
@@ -445,9 +444,7 @@ def docker_snapshot() -> dict[str, Any]:
         ).stdout
     )
     networks = canonical_snapshot_lines(
-        run(
-            ["docker", "network", "ls", "--no-trunc", "--format", "{{.ID}} {{.Name}}"]
-        ).stdout
+        run(["docker", "network", "ls", "--no-trunc", "--format", "{{.ID}} {{.Name}}"]).stdout
     )
     if not images or not networks:
         raise RuntimeError("Docker snapshot image/network set is unexpectedly empty")
@@ -463,7 +460,7 @@ def docker_snapshot() -> dict[str, Any]:
         "images": images,
         "networks": networks,
         "volumes": canonical_snapshot_lines(
-            run(["docker", "volume", "ls", "--format", "{{.Name}}" ]).stdout
+            run(["docker", "volume", "ls", "--format", "{{.Name}}"]).stdout
         ),
     }
 

@@ -1,0 +1,43 @@
+{
+  "builders": [],
+  "containers": [
+    "7beb76c2ed379751c581a787ad6b861776c0f2a85545b408447a2cdbc8a80b98 moby/buildkit@sha256:28a898719c18a33f4e8000685287fa36fd0dd9560c6440227d3a732d79bb41d8 buildx_buildkit_flowtracer-r1-final-builder0",
+    "ee229dbd3a890f16e2033e73e0df3fca03280bfcd2434a19ad6e50f2eeaabf8d redis:7.4.11-alpine3.21 flowtracer-redis-1",
+    "2592da143d2f714c52175187dd8bedd33893dd0194c0be49fa10fe01a026f35d sha256:0b395689f810616e5c4c234bb82704d4e26409dcb831ef2e379c38c51932cd60 flowtracer-api-1",
+    "53c64b350284dc0bb0fd15110eeb0df081ccc966df9118a6e140e9d46c72910f sha256:0b395689f810616e5c4c234bb82704d4e26409dcb831ef2e379c38c51932cd60 flowtracer-worker-1",
+    "b487278c4e4a253de9d8cc2a6eac1d3ca6022b80d5299f37f4ff5d5220a9c5fa pgvector/pgvector:0.8.6-pg16-bookworm flowtracer-postgres-1"
+  ],
+  "images": [
+    "flowtracer-browser-r1:r1-final-build2 sha256:83464fd58248b3af79903c3d4ce3d33140f498bdfef4d9efec9c4552718a3eec",
+    "flowtracer-browser-r1:r1-final-build1 sha256:1d067af0acd03aa6c665af33c635deffc0789159380d4da96f99c9efab37387c",
+    "flowtracer-backend:wp2 sha256:8aff52c4088534e965761eb559c7832b069195ee4b4e953ac4a3983dd1c03ea3",
+    "flowtracer-backend:be6 sha256:b01c23a38361db09ca5a095a82c786c9dd6fae7a24d8eebdf4c69e73d6419379",
+    "flowtracer-backend:be5 sha256:74c70ee0b9fd5f2eab1f07f67b548e7a270c735b3d1d2597c28ac0e243e2b069",
+    "flowtracer-backend:be4 sha256:a9ad4ece9720810e54a69505e65e9845c32a6cb8e62cc1faa222fd25de6343cc",
+    "python:3.13-slim-bookworm sha256:c45a22ea000adfd9cda29364bbe7edd23001ce5cc2ad15857cfbf7766943b9ca",
+    "flowtracer-backend:be2 sha256:49044b2f9916032644643c980e7412f12d9d3a9ebb9da1437c73e461b940a13f",
+    "flowtracer-backend:be1 sha256:2d384a00cc007391c5bc5a31331f6fef9750ecad0ed513768c702c0d133a3a2f",
+    "flowtracer-worker:latest sha256:bb95dd9f1f5fb693bba07bfcdccbf772db9eca116730b78b64ec6d032b724e00",
+    "flowtracer-api:latest sha256:bec166364159b92661dadffd4ceb47793fe27e98385c842656616f60ac495184",
+    "redis:7.4.11-alpine3.21 sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf",
+    "pgvector/pgvector:0.8.6-pg16-bookworm sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b",
+    "moby/buildkit:<none> sha256:28a898719c18a33f4e8000685287fa36fd0dd9560c6440227d3a732d79bb41d8",
+    "hello-world:latest sha256:5dd0d3e6e255913fc30f90b9f2b1d359cc2cbdb48090cc4b65f1676e203243cc"
+  ],
+  "networks": [
+    "a715c49cf97add549eb8acfc78a8fed9940ae4f49c4ab25973382542d8679793 bridge",
+    "5525f6f4dd8ecb7ee0923b0359f73e6f8b301e0bc0f43cd9ea7fbb1c01d2964a flowtracer_default",
+    "1a07798b04a36550536c718b44fd8f60874a4ee746f9b6ebdd291c265e7329de host",
+    "37439d75cc79b50dd3bae2a20449c04a67ad4ff853692bfb6e49f0f9b346c6fb none"
+  ],
+  "volumes": [
+    "7b92cd398551ef6d1d54f8ff2dc61dd6ad11f913a1f19ee1f31dc2e97c0453b3",
+    "312521efb6ff99f1a8251d3b3deeb413a1708e6c2b4ace67926f0ea0fd3fac34",
+    "b3f4173c9b97b172280d1f0d48c2fca705d95bd5f6714b62dd65da14b7afdfd0",
+    "b53e86372e4e02ae9d1f9317f58ced04efe5cd3ec59372daf477cc2a27b864c9",
+    "buildx_buildkit_flowtracer-r1-final-builder0_state",
+    "fce525943b1618592c0cb4f2df671d6476778b2f38eea119a6fe4cd2c6f934e4",
+    "flowtracer_postgres_data",
+    "flowtracer_redis_data"
+  ]
+}

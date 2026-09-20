@@ -1,6 +1,6 @@
 # FlowTracer ACQ-1 WP-3 R2C Activation
 
-状态：Accepted（R1D PR #63 合并后重新激活；仅 R2C）
+状态：Suspended / BLOCKED（P1×1；等待 R1E deterministic account metadata）
 
 稳定基准：`main@db9c4fad0ca826b472d18d85c69db53848cfcd94`
 
@@ -58,3 +58,9 @@ R2C 候选必须在执行网络矩阵前证明：
 首次执行只完成 identity 硬门禁：Chrome 151.0.7922.34、完整 executable/path/SHA、619-entry browser tree、Debian 206、SBOM 231 与 license inventory 均匹配；full-root normalized identity 不匹配，P0/P1/P2=`0/1/0`。依本文件第 3 节，网络矩阵未启动并已 STOP。
 
 只读诊断确认旧期望在 R1C 运行后因审计验证器字节变化而陈旧，且旧证据没有逐路径 manifest，不能直接改写摘要或在 R2C 现场排除文件。该阻塞已由 ADR-032、`docs/47-ACQ1-WP3-R1D-RUNTIME-IDENTITY.md` 与 PR #63 的 Runtime Identity v2 证据关闭；本控制更新只重新激活 R2C，不改变首次失败记录。
+
+## 7. A2 执行停点
+
+R2C-A2 从 `main@aac317d5ad1bf6f041c5a75d4ce2da2479bb14ba` 重建候选并在网络矩阵前执行 Runtime Identity v2 硬门禁。10,340 个路径中仅 `/etc/shadow` 的原始字节 SHA 不一致；entry count、payload bytes、path/type/mode/UID/GID 与其他 10,339 项一致。Chrome 151.0.7922.34、619-entry browser tree、Debian 206、SBOM 231、license 206/206 与 final script allowlist 全部匹配。网络矩阵未启动，临时对象已精确清理。
+
+只读诊断确认唯一变更来自 `useradd --create-home --uid 10001 flowtracer` 将 UTC 构建日写入 shadow 第 3 字段 `sp_lstchg`：R1D 为 epoch-day 20715，R2C-A2 为 20716。完整 shadow 行和密码字段未进入报告或证据。R2C 由此再次暂停；只有 ADR-033 与 `docs/48-ACQ1-WP3-R1E-DETERMINISTIC-ACCOUNT.md` 的 R1E 新 authority 独立验收并合并后，才能由新的控制 PR 再次激活。

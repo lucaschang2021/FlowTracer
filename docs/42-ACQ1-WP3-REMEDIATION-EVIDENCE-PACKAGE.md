@@ -1,6 +1,6 @@
 # FlowTracer ACQ-1 WP-3 Remediation Evidence Package
 
-状态：R1/R2 Accepted（Headless Shell historical）；R3 BLOCKED；R1C Accepted；R2C BLOCKED；R1D PASS — READY FOR INDEPENDENT REVIEW；R4-R5 Pending
+状态：R1/R2 Accepted（Headless Shell historical）；R3 BLOCKED；R1C Accepted；R2C BLOCKED；R1D Accepted；R1E PASS — READY FOR INDEPENDENT REVIEW；R4-R5 Pending
 
 用途：本文件是 `docs/41-ACQ1-WP3-REMEDIATION-EVIDENCE-ADMISSION.md` 的强制证据模板。必须按 R1→R5 顺序填写实际值；`TBD`、估算、未执行、仅配置审阅、仅 mock 或未保存的口头观察均不构成通过证据。
 
@@ -124,6 +124,23 @@ R1D 必填：最终 runtime 脚本 allowlist、审计工具不进入 runtime 的
 | 保护、证据包与清理 | R1/R2/R1C/R2C/R3 文件及身份前后不变；旧 BLOCKED evidence 前后不变；Docker 对象集合前后不变；A2 builder、两镜像、两容器、专用 volume 均不存在；禁止项 global prune 未执行；完整 `browser-r1d` package tree 为 170 files / 16,889 payload bytes / SHA-256 `4d62e46320a9f691e9dc84a6cf89e04bcd02f110c073c9da63f280b29ad0814e`，Git ignored `0` | PASS；`evidence/r1d-a2/{protected-*,prior-failure-*,result.json}`；`audit/package_tree.py` |
 
 R1D 判定：`R1D PASS — READY FOR INDEPENDENT REVIEW`。R1D P0/P1/P2=`0/0/0`。本结论仅完成 R1D 证据，不构成独立验收、commit、push、PR、merge、R2C/R3 重新准入或正式 WP-3 准入；Backend 在此 STOP。
+
+#### R1E deterministic account metadata
+
+R1E 准入与验收规则见 ADR-033 和 `docs/48-ACQ1-WP3-R1E-DETERMINISTIC-ACCOUNT.md`。执行基准为 `main@f52f32974ce19da24499b996a3c523d7cb6c630e`，分支 `feat/acq1-wp3-r1e-deterministic-account`。首次会话 `flowtracer-r1e-20260920-final-a` 的本地 result 为 PASS，但独立复审因 builder snapshot 使用当前 buildx 不支持的 `.Driver` 模板且命令失败被静默为空，判定 P2×1/BLOCK；该会话全部 result、ledger 与 raw logs 原样保留。修复后正式通过会话为 `flowtracer-r1e-a2-20260920-final-a`，使用独立 `evidence/r1e-a2/`，未覆盖首次现场。
+
+| R1E 项目 | 实际值 | 结果 / 证据 |
+| --- | --- | --- |
+| 确定性系统账户 | `useradd` 后由标准 `chage --lastday 0 flowtracer` 固定非密码账户日期字段，并确定性同步 shadow backup；build-time 断言与独立 root-only audit 均只输出脱敏结构：账户名 `flowtracer`、记录数 `1`、字段数 `9`、密码字段保持 locked=`true`、`sp_lstchg=0`；未输出完整 shadow 行或密码字段内容 | PASS；`Dockerfile`、`audit/account_metadata.py`、`evidence/r1e-a2/result.json` |
+| builder snapshot 修复 | commands 001/049 均使用当前 buildx 支持的 `docker buildx ls --format json`，exit `0`、stderr `0` bytes；两次 raw stdout 均为 4,475 bytes 且 SHA-256 `b55f17b982708d6b4e074bb419cae7fb9496ef470d95aa046c1496611fcbb1c7`。NDJSON 严格解析后按稳定字段排序/去重，精确得到 `default`、`desktop-linux`、`flowtracer-r1-final-builder` 三个 builder，before/after 完全一致；非零、空集、非法 JSON、空 nodes、冲突重复五个负例均 fail closed | PASS；`evidence/r1e-a2/{commands/001.*,commands/049.*,protected-docker-before.json,protected-docker-after.json,execution-ledger.json}`、`run_r1e.py --self-check` |
+| 两次独立构建 | 两次命令均包含 `--no-cache --pull=false --platform=linux/amd64 --target final`，使用唯一 builder/tag；会话从 `2026-09-20T13:44:20.987661+00:00` 至 `2026-09-20T13:55:11.248704+00:00`，共 53 条命令 | PASS；`evidence/r1e-a2/{build1.txt,build2.txt,execution-ledger.json}` |
+| Runtime Identity v2 新 authority | `/etc/shadow` 未排除、未规范化其内容，且两个 manifest 均含该普通文件；两份完整 manifest 字节完全一致，format v2，10,340 entries，payload 1,750,557 bytes，payload SHA-256 `5f4cf5acdf06a86f9b8907375f6f8f239ecf18152762b889f1e254b01e447e3b`，manifest SHA-256 均为 `f8d8bd0b64dfac53e244b00f29fbc9f18ed44b94491323b3f49ba2af191912e8` | PASS；`evidence/r1e-a2/identity-build{1,2}.json`、`evidence/r1e-a2/result.json` |
+| Runtime/audit 边界 | 最终项目文件恰好为 `/opt/flowtracer-r1e/runtime/entrypoint.py`、`runtime_probe.py`；account/browser/SBOM/license/identity/package 审计工具均未进入 final filesystem | PASS；`evidence/r1e-a2/result.json` |
+| Browser 与供应链 | Chrome for Testing `151.0.7922.34` / r1234；executable SHA-256 `0b20b130e7edd9dd51873be867761295fe0cfad490c2b9a64f95bd3cfc08fa71`；browser tree 619；Debian lock 206，SHA-256 `299a341b239c284c385ecacd9d3882bdf29472b28421075b369009f998b54b83`；CycloneDX 231，SHA-256 `a8d6ae5e450b10bd40d90f6d56a0e69742479cfaff79398c0d2fb0696cfcf774`；license inventory 206/206，SHA-256 `bee9c30ae016be592521c383b9bb0be74f39892415ed28f9122d5b7ccced81da`；每镜像 208 个 notice，archive SHA-256 `4c89ab4aaca629a09009ef0a00b14dcbbc9e2418c32ffb40987a4f4ff621c780` | PASS；两镜像结果完全一致；`evidence/r1e-a2/{browser-tree-*,sbom-*,debian-license-inventory-*,licenses-*}` |
+| 两镜像 runtime | UID/GID `10001:10001`、network none、read-only rootfs、drop ALL、no-new-privileges、非 privileged、PID 128、memory 768 MiB、CPU 1、`/tmp` 256 MiB；真实 DynamicFetcher 显式完整 Chromium、`retries=1`；loopback 均渲染 `dynamic-rendered`，安全失败均为 `Error`；Crashpad UID/GID 10001、mode 0700；终态 browser process 为空、fixture thread 停止、HOME/XDG/profile 目录前后均不存在 | PASS；`evidence/r1e-a2/runtime-build{1,2}.txt`、`evidence/r1e-a2/result.json` |
+| 保护、证据包与清理 | R1/R2/R1C/R1D/R2C-A2/R3 文件与 package identity 前后不变；首次 R1E 与 R2C-A2 共 219 个历史 evidence 文件前后字节一致；Docker builders/containers/images/networks/volumes 集合前后不变；R1E-A2 builder、两镜像、两容器、专用 volume 均不存在；未执行 global prune；完整 `browser-r1e` package tree 为 277 files / 27,023 payload bytes / SHA-256 `4197d00d35bb7004a0913fbd1f9684be022c0494fc56a0227d0992301da7f119`，Git ignored `0` | PASS；`evidence/r1e-a2/{protected-*,historical-evidence-*,result.json}`、`audit/package_tree.py` |
+
+R1E 判定：`R1E PASS — READY FOR INDEPENDENT REVIEW`。R1E P0/P1/P2=`0/0/0`。本结论只生成 deterministic account metadata 与新的 Runtime Identity v2 authority；不构成独立验收、commit、push、PR、merge、R2C/R3 重新准入或正式 WP-3 准入；Backend 在此 STOP。
 
 ## 5. R4 — Deadline、回收与资源样本
 

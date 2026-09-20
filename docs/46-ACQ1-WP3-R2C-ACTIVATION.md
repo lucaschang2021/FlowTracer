@@ -1,8 +1,8 @@
 # FlowTracer ACQ-1 WP-3 R2C Activation
 
-状态：Suspended / BLOCKED（P1×1；等待 R1E deterministic account metadata）
+状态：Accepted（R1E PR #66 合并后重新激活；仅 R2C-A3）
 
-稳定基准：`main@db9c4fad0ca826b472d18d85c69db53848cfcd94`
+稳定基准：`main@cac5b4e1908801ff4ed1a96c2388a0a71653d6ee`
 
 执行角色：Backend / Architecture
 
@@ -12,14 +12,14 @@
 
 ## 1. 准入结论
 
-R1C 已由 PR #60 验收合并；R1D 已由 PR #63 独立复审、Backend CI 验收并合并，candidate `a804a371ec99615278c2cd60f442dc58299ff7c5`，merge commit `db9c4fad0ca826b472d18d85c69db53848cfcd94`，P0/P1/P2=`0/0/0`。本文件仅重新激活 R2C：使用已合并 R1D 的锁定输入、完整 Chromium和可重建 Runtime Identity v2，重新执行 production-shaped controlled egress proxy/namespace 全矩阵。
+R1C 已由 PR #60 验收合并；R1D 已由 PR #63 验收合并；R1E 已由 PR #66 独立复审、Backend CI 验收并合并，最终 head `3636dd261ece31c046406aa7b2279f6f7bd7dad8`，merge commit `cac5b4e1908801ff4ed1a96c2388a0a71653d6ee`，P0/P1/P2=`0/0/0`。本文件仅重新激活 R2C-A3：使用已合并 R1E 的锁定输入、完整 Chromium和跨日可重建 Runtime Identity v2，重新执行 production-shaped controlled egress proxy/namespace 全矩阵。
 
 本准入不包含 R3-R5、WP-3 正式实现、默认 API/worker/Compose、Router、RawItem Pipeline、Schema/migration、公开 API、Frontend、Integration、Release 或 PLUGIN-1。
 
 ## 2. 允许范围
 
 - 仅新增 `backend/experiments/browser-r2c/`，并更新 `docs/42-ACQ1-WP3-REMEDIATION-EVIDENCE-PACKAGE.md` 的 R2C 实际证据。
-- 从已合并 `backend/experiments/browser-r1d/` 的 Dockerfile、锁文件、browser tree、SBOM/license、Runtime Identity v2 manifest 与验证器重建独立 R2C 候选镜像；使用唯一 tag、builder、network、container、volume/cache 和证据路径。
+- 从已合并 `backend/experiments/browser-r1e/` 的 Dockerfile、锁文件、browser tree、SBOM/license、Runtime Identity v2 manifest 与验证器重建独立 R2C-A3 候选镜像；使用唯一 tag、builder、network、container、volume/cache 和证据路径。
 - 可复制并最小调整历史 `browser-r2/` harness 以指向 R1C 完整 Chromium，但不得覆盖或改写 `browser-r1/`、`browser-r2/`、`browser-r1c/`、`browser-r3/` 的历史资产。
 - 仅使用离线 fixture、保留地址和唯一宿主 loopback control canary；不得访问真实目标站点、公网 DNS、凭据或登录态。禁止 global prune。
 
@@ -27,8 +27,8 @@ R1C 已由 PR #60 验收合并；R1D 已由 PR #63 独立复审、Backend CI 验
 
 R2C 候选必须在执行网络矩阵前证明：
 
-1. Chrome for Testing 版本、revision、executable path、executable SHA-256、619-entry browser tree manifest、Debian lock、CycloneDX SBOM 与 license inventory 精确匹配已合并 R1D。
-2. Runtime Identity v2 必须由当前候选生成完整逐路径 manifest，并与已合并 R1D 的 10,340-entry manifest 逐条、payload bytes、payload SHA-256 `06e891370ef3af86bda0bcf5539bb292e42ffdd3c6db3a55abc3023fc1e4761e` 及 manifest SHA-256 `8428859de54769e2faa0470f92c8ae8e0f94464b2003b98f0497b7fcc4bdd49a` 完全一致；只比较总摘要或排除审计文件均不构成通过。
+1. Chrome for Testing 版本、revision、executable path、executable SHA-256、619-entry browser tree manifest、Debian lock、CycloneDX SBOM 与 license inventory 精确匹配已合并 R1E。
+2. Runtime Identity v2 必须由当前候选生成完整逐路径 manifest，并与已合并 R1E 的 10,340-entry manifest 逐条、payload bytes `1750557`、payload SHA-256 `5f4cf5acdf06a86f9b8907375f6f8f239ecf18152762b889f1e254b01e447e3b` 及 manifest SHA-256 `f8d8bd0b64dfac53e244b00f29fbc9f18ed44b94491323b3f49ba2af191912e8` 完全一致；`/etc/shadow` 必须保持在 identity 中，只比较总摘要或排除路径均不构成通过。
 3. Browser runtime 为 UID/GID 10001、read-only rootfs、drop ALL、no-new-privileges、非 privileged，并具有冻结的 PID、memory、CPU 与 `/tmp` 限值。
 4. 真实 Scrapling `DynamicFetcher` 使用显式完整 Chromium executable、`retries=1` 与受控 `/tmp` HOME/XDG/profile；不得用 Patchright/Playwright 直调替代。
 
@@ -64,3 +64,5 @@ R2C 候选必须在执行网络矩阵前证明：
 R2C-A2 从 `main@aac317d5ad1bf6f041c5a75d4ce2da2479bb14ba` 重建候选并在网络矩阵前执行 Runtime Identity v2 硬门禁。10,340 个路径中仅 `/etc/shadow` 的原始字节 SHA 不一致；entry count、payload bytes、path/type/mode/UID/GID 与其他 10,339 项一致。Chrome 151.0.7922.34、619-entry browser tree、Debian 206、SBOM 231、license 206/206 与 final script allowlist 全部匹配。网络矩阵未启动，临时对象已精确清理。
 
 只读诊断确认唯一变更来自 `useradd --create-home --uid 10001 flowtracer` 将 UTC 构建日写入 shadow 第 3 字段 `sp_lstchg`：R1D 为 epoch-day 20715，R2C-A2 为 20716。完整 shadow 行和密码字段未进入报告或证据。R2C 由此再次暂停；只有 ADR-033 与 `docs/48-ACQ1-WP3-R1E-DETERMINISTIC-ACCOUNT.md` 的 R1E 新 authority 独立验收并合并后，才能由新的控制 PR 再次激活。
+
+该阻塞已由 PR #66 的 R1E authority 关闭；本控制更新只重新激活 R2C-A3，不改变 A2 失败记录。R2C-A3 必须以 R1E authority 开启全新证据会话并完整保留 A2 现场。

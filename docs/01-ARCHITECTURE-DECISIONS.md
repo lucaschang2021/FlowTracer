@@ -256,3 +256,11 @@
 - 兼容：Chrome 版本/revision/path/executable SHA、619-entry browser tree、Debian 206 inventory、CycloneDX 231 components、license 206/206 与 R1C 完全一致；两个镜像均须重复 UID 10001 DynamicFetcher、read-only root、受控 `/tmp`/Crashpad 与清理验证。
 - 边界：R1D 只生成隔离证据资产，不准入 R2C 网络矩阵、R3-R5 或正式 WP-3。R1D 独立复审并合并后，R2C 才能以 Runtime Identity v2 重新执行。
 
+## ADR-033：Browser 系统账户元数据必须跨日确定
+
+- 状态：Accepted（仅 R1E 证据修复；本控制提交合并后生效）
+- 背景：R2C-A2 从已合并 R1D 输入次日重建时，Runtime Identity v2 的 10,340 个路径中仅 `/etc/shadow` 字节不一致。只读诊断确认 `useradd` 将构建日写入 `flowtracer` 账户的 `sp_lstchg`；R1D 两次构建发生在同一 UTC 日期，未暴露该跨日漂移。
+- 决策：新增 R1E，派生独立 `browser-r1e/`，在创建 UID/GID 10001 的锁定非密码账户后显式固定 `sp_lstchg=0`，并以不输出 shadow 内容的结构断言验证账户唯一、字段数、锁定状态与确定值。不得排除 `/etc/shadow`、放宽 Runtime Identity v2、直接替换期望摘要或改写 R1D/R2C 失败证据。
+- 验证：R1E 必须重新执行两次独立 no-cache 构建，生成完整逐路径 manifests 与新 authority；重复 Browser 619、Debian 206、SBOM 231、license 206/206、UID 10001、DynamicFetcher、Crashpad、runtime/audit 边界、历史资产保护与精确清理门禁。
+- 顺序：R1E 独立复审并合并后，R2C 才能以新 authority 开启全新会话。R3-R5 与正式 WP-3 继续阻塞。
+

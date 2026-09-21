@@ -1,0 +1,5 @@
+{"host": "dynamic-r2c.test", "method": "GET", "occurred_at": "2026-09-21T01:56:40.259569+00:00", "path": "/dynamic"}
+{"host": "dynamic-r2c.test", "method": "GET", "occurred_at": "2026-09-21T01:56:40.336300+00:00", "path": "/favicon.ico"}
+{"host": "redirect-r2c.test", "method": "GET", "occurred_at": "2026-09-21T01:56:42.639148+00:00", "path": "/start"}
+{"host": "redirect-target-r2c.test", "method": "GET", "occurred_at": "2026-09-21T01:56:42.694521+00:00", "path": "/final"}
+{"host": "redirect-target-r2c.test", "method": "GET", "occurred_at": "2026-09-21T01:56:42.765380+00:00", "path": "/favicon.ico"}

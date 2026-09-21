@@ -1,0 +1,6 @@
+ Network flowtracer-r2c-a4-20260920-final-a_r2c_control Creating 
+ Network flowtracer-r2c-a4-20260920-final-a_r2c_control Creating 
+ Network flowtracer-r2c-a4-20260920-final-a_r2c_control Created 
+ Network flowtracer-r2c-a4-20260920-final-a_r2c_control Created 
+ Container flowtracer-r2c-a4-20260920-final-a-control-client Creating 
+ Container flowtracer-r2c-a4-20260920-final-a-control-client Created 

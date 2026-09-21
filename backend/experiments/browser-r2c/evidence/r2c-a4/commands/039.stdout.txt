@@ -1,0 +1,315 @@
+[
+    {
+        "Id": "69045e5c6af9bf20ff0000a4152bbd37d8459fa7ba05553a9420d9be6838a448",
+        "Created": "2026-09-21T01:56:30.440278776Z",
+        "Path": "python",
+        "Args": [
+            "/opt/r2c/host_canary.py"
+        ],
+        "State": {
+            "Status": "running",
+            "Running": true,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 6318,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-09-21T01:56:31.273893862Z",
+            "FinishedAt": "0001-01-01T00:00:00Z",
+            "Health": {
+                "Status": "healthy",
+                "FailingStreak": 0,
+                "Log": [
+                    {
+                        "Start": "2026-09-21T01:56:42.095061256Z",
+                        "End": "2026-09-21T01:56:42.295154306Z",
+                        "ExitCode": 0,
+                        "Output": ""
+                    },
+                    {
+                        "Start": "2026-09-21T01:56:43.296498253Z",
+                        "End": "2026-09-21T01:56:43.493609137Z",
+                        "ExitCode": 0,
+                        "Output": ""
+                    },
+                    {
+                        "Start": "2026-09-21T01:56:44.494545087Z",
+                        "End": "2026-09-21T01:56:44.697672518Z",
+                        "ExitCode": 0,
+                        "Output": ""
+                    },
+                    {
+                        "Start": "2026-09-21T01:56:45.699190041Z",
+                        "End": "2026-09-21T01:56:45.972823852Z",
+                        "ExitCode": 0,
+                        "Output": ""
+                    },
+                    {
+                        "Start": "2026-09-21T01:56:46.974279796Z",
+                        "End": "2026-09-21T01:56:47.207979772Z",
+                        "ExitCode": 0,
+                        "Output": ""
+                    }
+                ]
+            }
+        },
+        "Image": "sha256:38de7edf86d01b37b3958a707d0c3265b9fb36cecf9a7ffedc996821b1f0571d",
+        "ResolvConfPath": "/var/lib/docker/containers/69045e5c6af9bf20ff0000a4152bbd37d8459fa7ba05553a9420d9be6838a448/resolv.conf",
+        "HostnamePath": "/var/lib/docker/containers/69045e5c6af9bf20ff0000a4152bbd37d8459fa7ba05553a9420d9be6838a448/hostname",
+        "HostsPath": "/var/lib/docker/containers/69045e5c6af9bf20ff0000a4152bbd37d8459fa7ba05553a9420d9be6838a448/hosts",
+        "LogPath": "/var/lib/docker/containers/69045e5c6af9bf20ff0000a4152bbd37d8459fa7ba05553a9420d9be6838a448/69045e5c6af9bf20ff0000a4152bbd37d8459fa7ba05553a9420d9be6838a448-json.log",
+        "Name": "/flowtracer-r2c-a4-20260920-final-a-host-canary-1",
+        "RestartCount": 0,
+        "Driver": "overlayfs",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "",
+        "ExecIDs": [
+            "38ebf5049fd7d62e1acee4b4a374e2c8c60c5bb54539a43411788869c818743f"
+        ],
+        "HostConfig": {
+            "Binds": [
+                "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r2c\\r2c_a4\\fixture\\host_canary.py:/opt/r2c/host_canary.py:ro"
+            ],
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "json-file",
+                "Config": {}
+            },
+            "NetworkMode": "flowtracer-r2c-a4-20260920-final-a_r2c_host_canary",
+            "PortBindings": {
+                "49274/tcp": [
+                    {
+                        "HostIp": "127.0.0.1",
+                        "HostPort": "49274"
+                    }
+                ]
+            },
+            "RestartPolicy": {
+                "Name": "no",
+                "MaximumRetryCount": 0
+            },
+            "AutoRemove": false,
+            "VolumeDriver": "",
+            "VolumesFrom": null,
+            "ConsoleSize": [
+                0,
+                0
+            ],
+            "CapAdd": null,
+            "CapDrop": [
+                "ALL"
+            ],
+            "CgroupnsMode": "private",
+            "Dns": [
+                "127.0.0.1"
+            ],
+            "DnsOptions": null,
+            "DnsSearch": null,
+            "ExtraHosts": [],
+            "GroupAdd": null,
+            "IpcMode": "private",
+            "Cgroup": "",
+            "Links": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyRootfs": true,
+            "SecurityOpt": [
+                "no-new-privileges:true"
+            ],
+            "Tmpfs": {
+                "/tmp": "rw,nosuid,nodev,noexec,size=64m,mode=1777"
+            },
+            "UTSMode": "",
+            "UsernsMode": "",
+            "ShmSize": 67108864,
+            "Runtime": "runc",
+            "Isolation": "",
+            "CpuShares": 0,
+            "Memory": 268435456,
+            "NanoCpus": 500000000,
+            "CgroupParent": "",
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": null,
+            "BlkioDeviceReadBps": null,
+            "BlkioDeviceWriteBps": null,
+            "BlkioDeviceReadIOps": null,
+            "BlkioDeviceWriteIOps": null,
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "Devices": null,
+            "DeviceCgroupRules": null,
+            "DeviceRequests": null,
+            "MemoryReservation": 0,
+            "MemorySwap": 536870912,
+            "MemorySwappiness": null,
+            "OomKillDisable": null,
+            "PidsLimit": 64,
+            "Ulimits": null,
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "IOMaximumIOps": 0,
+            "IOMaximumBandwidth": 0,
+            "MaskedPaths": [
+                "/proc/acpi",
+                "/proc/asound",
+                "/proc/interrupts",
+                "/proc/kcore",
+                "/proc/keys",
+                "/proc/latency_stats",
+                "/proc/sched_debug",
+                "/proc/scsi",
+                "/proc/timer_list",
+                "/proc/timer_stats",
+                "/sys/devices/virtual/powercap",
+                "/sys/firmware"
+            ],
+            "ReadonlyPaths": [
+                "/proc/bus",
+                "/proc/fs",
+                "/proc/irq",
+                "/proc/sys",
+                "/proc/sysrq-trigger"
+            ]
+        },
+        "Storage": {
+            "RootFS": {
+                "Snapshot": {
+                    "Name": "overlayfs"
+                }
+            }
+        },
+        "Mounts": [
+            {
+                "Type": "bind",
+                "Source": "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r2c\\r2c_a4\\fixture\\host_canary.py",
+                "Destination": "/opt/r2c/host_canary.py",
+                "Mode": "ro",
+                "RW": false,
+                "Propagation": "rprivate"
+            }
+        ],
+        "Config": {
+            "Hostname": "69045e5c6af9",
+            "Domainname": "",
+            "User": "10001:10001",
+            "AttachStdin": false,
+            "AttachStdout": true,
+            "AttachStderr": true,
+            "ExposedPorts": {
+                "49274/tcp": {}
+            },
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "GPG_KEY=7169605F62C751356D054A26A821E680E5FA6305",
+                "PYTHON_VERSION=3.13.15",
+                "PYTHON_SHA256=1e66a7945a48390ee4c2a4268a0e4185884059a13c4aab6d148aa208deea4a76",
+                "DEBIAN_FRONTEND=noninteractive",
+                "PIP_DISABLE_PIP_VERSION_CHECK=1",
+                "PIP_NO_CACHE_DIR=1",
+                "PLAYWRIGHT_BROWSERS_PATH=/opt/browser-r1c",
+                "PLAYWRIGHT_DOWNLOAD_CONNECTION_TIMEOUT=120000",
+                "PLAYWRIGHT_SKIP_BROWSER_GC=1",
+                "PYTHONDONTWRITEBYTECODE=1",
+                "PYTHONUNBUFFERED=1"
+            ],
+            "Cmd": null,
+            "Healthcheck": {
+                "Test": [
+                    "CMD",
+                    "python",
+                    "-c",
+                    "import socket; s=socket.create_connection(('127.0.0.1',49274),1); assert s.recv(32).startswith(b'R2C_HOST_CANARY')"
+                ],
+                "Interval": 1000000000,
+                "Timeout": 2000000000,
+                "Retries": 20
+            },
+            "Image": "flowtracer-browser-r2c:flowtracer-r2c-a4-20260920-final-a-build1",
+            "Volumes": null,
+            "WorkingDir": "/work",
+            "Entrypoint": [
+                "python",
+                "/opt/r2c/host_canary.py"
+            ],
+            "Labels": {
+                "com.docker.compose.config-hash": "312b38e9f2e4d2b557bf9f86dce916b1cf4f50d3b0346c774b73992c7e3c3bde",
+                "com.docker.compose.container-number": "1",
+                "com.docker.compose.depends_on": "",
+                "com.docker.compose.image": "sha256:38de7edf86d01b37b3958a707d0c3265b9fb36cecf9a7ffedc996821b1f0571d",
+                "com.docker.compose.oneoff": "False",
+                "com.docker.compose.project": "flowtracer-r2c-a4-20260920-final-a",
+                "com.docker.compose.project.config_files": "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r2c\\r2c_a4\\compose.yaml",
+                "com.docker.compose.project.working_dir": "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r2c\\r2c_a4",
+                "com.docker.compose.service": "host-canary",
+                "com.docker.compose.version": "5.4.0"
+            }
+        },
+        "NetworkSettings": {
+            "SandboxID": "13da5e5307810cb2f7079d0d2c11b68f4188a15f5343018f43d427d2ec31e77d",
+            "SandboxKey": "/var/run/docker/netns/13da5e530781",
+            "Ports": {
+                "49274/tcp": [
+                    {
+                        "HostIp": "127.0.0.1",
+                        "HostPort": "49274"
+                    }
+                ]
+            },
+            "Networks": {
+                "flowtracer-r2c-a4-20260920-final-a_r2c_host_canary": {
+                    "IPAMConfig": {
+                        "IPv4Address": "203.0.113.10"
+                    },
+                    "Links": null,
+                    "Aliases": [
+                        "flowtracer-r2c-a4-20260920-final-a-host-canary-1",
+                        "host-canary"
+                    ],
+                    "DriverOpts": null,
+                    "GwPriority": 0,
+                    "NetworkID": "349b556243eedd24c43a832bd5bbb2a3556cf4c6d0c16dadb8749ccbbc73b8dd",
+                    "EndpointID": "42e68d935e463fab92396782c6cf0a49606e27bbfcc2efc4e4812c696bff975e",
+                    "Gateway": "203.0.113.1",
+                    "IPAddress": "203.0.113.10",
+                    "MacAddress": "96:04:00:65:7f:c5",
+                    "IPPrefixLen": 24,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "DNSNames": [
+                        "flowtracer-r2c-a4-20260920-final-a-host-canary-1",
+                        "host-canary",
+                        "69045e5c6af9"
+                    ]
+                }
+            }
+        },
+        "ImageManifestDescriptor": {
+            "mediaType": "application/vnd.oci.image.manifest.v1+json",
+            "digest": "sha256:38de7edf86d01b37b3958a707d0c3265b9fb36cecf9a7ffedc996821b1f0571d",
+            "size": 2002,
+            "annotations": {
+                "io.containerd.image.name": "docker.io/library/flowtracer-browser-r2c:flowtracer-r2c-a4-20260920-final-a-build1",
+                "org.opencontainers.image.created": "2026-09-21T01:50:29Z",
+                "org.opencontainers.image.ref.name": "flowtracer-r2c-a4-20260920-final-a-build1"
+            },
+            "platform": {
+                "architecture": "amd64",
+                "os": "linux"
+            }
+        }
+    }
+]

@@ -1,0 +1,235 @@
+{
+  "docker_socket_mounts": [],
+  "host_canary_control": {
+    "address": "127.0.0.1",
+    "attempts": 1,
+    "port": 49274,
+    "response": "R2C_HOST_CANARY"
+  },
+  "internal_networks": [
+    "r2c_browser",
+    "r2c_fixture"
+  ],
+  "networks": {
+    "browser": [
+      "r2c_browser"
+    ],
+    "control_client": [
+      "r2c_control"
+    ],
+    "decoy": [
+      "r2c_fixture"
+    ],
+    "dns_canary": [
+      "r2c_browser"
+    ],
+    "fixture": [
+      "r2c_fixture"
+    ],
+    "host_canary": [
+      "r2c_host_canary"
+    ],
+    "proxy": [
+      "r2c_browser",
+      "r2c_fixture"
+    ],
+    "redis": [
+      "r2c_browser"
+    ]
+  },
+  "privileged": [],
+  "project": "flowtracer-r2c-a4-20260920-final-a",
+  "runtime": {
+    "browser": {
+      "cap_drop": [
+        "ALL"
+      ],
+      "dns": [
+        "198.51.100.40"
+      ],
+      "docker_socket": false,
+      "memory": 805306368,
+      "nano_cpus": 1000000000,
+      "network_mode": "flowtracer-r2c-a4-20260920-final-a_r2c_browser",
+      "pids_limit": 128,
+      "port_bindings": {},
+      "privileged": false,
+      "read_only_rootfs": true,
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "tmpfs": {
+        "/tmp": "rw,nosuid,noexec,size=256m"
+      },
+      "user": "10001:10001"
+    },
+    "control_client": {
+      "cap_drop": [
+        "ALL"
+      ],
+      "dns": [
+        "127.0.0.1"
+      ],
+      "docker_socket": false,
+      "memory": 268435456,
+      "nano_cpus": 500000000,
+      "network_mode": "flowtracer-r2c-a4-20260920-final-a_r2c_control",
+      "pids_limit": 64,
+      "port_bindings": {},
+      "privileged": false,
+      "read_only_rootfs": true,
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "tmpfs": {
+        "/tmp": "rw,nosuid,nodev,noexec,size=64m,mode=1777"
+      },
+      "user": "10001:10001"
+    },
+    "decoy": {
+      "cap_drop": [
+        "ALL"
+      ],
+      "dns": [
+        "127.0.0.1"
+      ],
+      "docker_socket": false,
+      "memory": 268435456,
+      "nano_cpus": 500000000,
+      "network_mode": "flowtracer-r2c-a4-20260920-final-a_r2c_fixture",
+      "pids_limit": 64,
+      "port_bindings": {},
+      "privileged": false,
+      "read_only_rootfs": true,
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "tmpfs": {
+        "/tmp": "rw,nosuid,nodev,noexec,size=64m,mode=1777"
+      },
+      "user": "10001:10001"
+    },
+    "dns_canary": {
+      "cap_drop": [
+        "ALL"
+      ],
+      "dns": [
+        "127.0.0.1"
+      ],
+      "docker_socket": false,
+      "memory": 268435456,
+      "nano_cpus": 500000000,
+      "network_mode": "flowtracer-r2c-a4-20260920-final-a_r2c_browser",
+      "pids_limit": 64,
+      "port_bindings": {},
+      "privileged": false,
+      "read_only_rootfs": true,
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "tmpfs": {
+        "/tmp": "rw,nosuid,nodev,noexec,size=64m,mode=1777"
+      },
+      "user": "10001:10001"
+    },
+    "fixture": {
+      "cap_drop": [
+        "ALL"
+      ],
+      "dns": [
+        "127.0.0.1"
+      ],
+      "docker_socket": false,
+      "memory": 268435456,
+      "nano_cpus": 500000000,
+      "network_mode": "flowtracer-r2c-a4-20260920-final-a_r2c_fixture",
+      "pids_limit": 64,
+      "port_bindings": {},
+      "privileged": false,
+      "read_only_rootfs": true,
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "tmpfs": {
+        "/tmp": "rw,nosuid,nodev,noexec,size=64m,mode=1777"
+      },
+      "user": "10001:10001"
+    },
+    "host_canary": {
+      "cap_drop": [
+        "ALL"
+      ],
+      "dns": [
+        "127.0.0.1"
+      ],
+      "docker_socket": false,
+      "memory": 268435456,
+      "nano_cpus": 500000000,
+      "network_mode": "flowtracer-r2c-a4-20260920-final-a_r2c_host_canary",
+      "pids_limit": 64,
+      "port_bindings": {
+        "49274/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "49274"
+          }
+        ]
+      },
+      "privileged": false,
+      "read_only_rootfs": true,
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "tmpfs": {
+        "/tmp": "rw,nosuid,nodev,noexec,size=64m,mode=1777"
+      },
+      "user": "10001:10001"
+    },
+    "proxy": {
+      "cap_drop": [
+        "ALL"
+      ],
+      "dns": [
+        "127.0.0.1"
+      ],
+      "docker_socket": false,
+      "memory": 268435456,
+      "nano_cpus": 500000000,
+      "network_mode": "flowtracer-r2c-a4-20260920-final-a_r2c_browser",
+      "pids_limit": 64,
+      "port_bindings": {},
+      "privileged": false,
+      "read_only_rootfs": true,
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "tmpfs": {
+        "/tmp": "rw,nosuid,nodev,noexec,size=64m,mode=1777"
+      },
+      "user": "10001:10001"
+    },
+    "redis": {
+      "cap_drop": [
+        "ALL"
+      ],
+      "dns": [
+        "127.0.0.1"
+      ],
+      "docker_socket": false,
+      "memory": 67108864,
+      "nano_cpus": 250000000,
+      "network_mode": "flowtracer-r2c-a4-20260920-final-a_r2c_browser",
+      "pids_limit": 32,
+      "port_bindings": {},
+      "privileged": false,
+      "read_only_rootfs": true,
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "tmpfs": {
+        "/data": "rw,nosuid,nodev,noexec,size=16m"
+      },
+      "user": "10001:10001"
+    }
+  }
+}

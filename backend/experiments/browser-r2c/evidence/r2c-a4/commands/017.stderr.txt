@@ -1,0 +1,6 @@
+#1 [internal] booting buildkit
+#1 pulling image moby/buildkit@sha256:28a898719c18a33f4e8000685287fa36fd0dd9560c6440227d3a732d79bb41d8
+#1 pulling image moby/buildkit@sha256:28a898719c18a33f4e8000685287fa36fd0dd9560c6440227d3a732d79bb41d8 3.5s done
+#1 creating container buildx_buildkit_flowtracer-r2c-a4-20260920-final-a-build2-builder0
+#1 creating container buildx_buildkit_flowtracer-r2c-a4-20260920-final-a-build2-builder0 7.1s done
+#1 DONE 10.7s

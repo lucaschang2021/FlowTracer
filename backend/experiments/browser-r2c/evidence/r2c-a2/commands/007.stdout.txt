@@ -1,0 +1,62 @@
+[
+    {
+        "Id": "sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf",
+        "RepoTags": [
+            "redis:7.4.11-alpine3.21"
+        ],
+        "RepoDigests": [
+            "redis@sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf"
+        ],
+        "Comment": "buildkit.dockerfile.v0",
+        "Created": "2026-08-18T16:56:46.926554149Z",
+        "Config": {
+            "ExposedPorts": {
+                "6379/tcp": {}
+            },
+            "Env": [
+                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "REDIS_VERSION=7.4.11"
+            ],
+            "Entrypoint": [
+                "docker-entrypoint.sh"
+            ],
+            "Cmd": [
+                "redis-server"
+            ],
+            "Volumes": {
+                "/data": {}
+            },
+            "WorkingDir": "/data"
+        },
+        "Architecture": "amd64",
+        "Os": "linux",
+        "Size": 16276863,
+        "RootFS": {
+            "Type": "layers",
+            "Layers": [
+                "sha256:7211d01aba8fa2e9eb71ad34395cd313df5fc51a6b69b92d2dfad32cc37759cb",
+                "sha256:a0caa8bc04fc2a6bc37012dfcb190e6e1711e18bb1bfdf3768bafe736da6001b",
+                "sha256:2898dc82d6a9e325f70948c4da63e430a8a57b5b556024653d4291db83077b58",
+                "sha256:a6f8bf15c6b1bd407aaaeb094b75e619c8a91905c6f4d7f2f6a07cabaf542875",
+                "sha256:fd2bae83d0a7a6d58ed98af0be51b6468c5a989bf457c4bc289bf64a72acfda5",
+                "sha256:5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef",
+                "sha256:96bf91f53b18ebaf5f197fb649a488a4fc428521cbe86e6e73fe7eefda68a15d"
+            ]
+        },
+        "Metadata": {
+            "LastTagTime": "2026-08-24T04:10:04.892265181Z"
+        },
+        "Descriptor": {
+            "mediaType": "application/vnd.oci.image.index.v1+json",
+            "digest": "sha256:ff02b58f971e7d7d156a1267e283fcbbeee91773b6aa36c49dac28ecfe28eadf",
+            "size": 10213
+        },
+        "Identity": {
+            "Pull": [
+                {
+                    "Repository": "docker.io/library/redis"
+                }
+            ]
+        }
+    }
+]

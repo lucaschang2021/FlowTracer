@@ -1,0 +1,306 @@
+[
+    {
+        "Id": "abab640f5954f6ff99e483359423149ea3edf0a107253141bc288b63ad18119c",
+        "Created": "2026-09-21T01:56:30.451812777Z",
+        "Path": "python",
+        "Args": [
+            "/opt/r2c/fixture_server.py"
+        ],
+        "State": {
+            "Status": "running",
+            "Running": true,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 6162,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-09-21T01:56:30.879603393Z",
+            "FinishedAt": "0001-01-01T00:00:00Z",
+            "Health": {
+                "Status": "healthy",
+                "FailingStreak": 0,
+                "Log": [
+                    {
+                        "Start": "2026-09-21T01:56:42.22383145Z",
+                        "End": "2026-09-21T01:56:42.423419425Z",
+                        "ExitCode": 0,
+                        "Output": ""
+                    },
+                    {
+                        "Start": "2026-09-21T01:56:43.424409702Z",
+                        "End": "2026-09-21T01:56:43.632666094Z",
+                        "ExitCode": 0,
+                        "Output": ""
+                    },
+                    {
+                        "Start": "2026-09-21T01:56:44.633362244Z",
+                        "End": "2026-09-21T01:56:44.850691207Z",
+                        "ExitCode": 0,
+                        "Output": ""
+                    },
+                    {
+                        "Start": "2026-09-21T01:56:45.851677585Z",
+                        "End": "2026-09-21T01:56:46.116841609Z",
+                        "ExitCode": 0,
+                        "Output": ""
+                    },
+                    {
+                        "Start": "2026-09-21T01:56:47.117899398Z",
+                        "End": "2026-09-21T01:56:47.406905482Z",
+                        "ExitCode": 0,
+                        "Output": ""
+                    }
+                ]
+            }
+        },
+        "Image": "sha256:38de7edf86d01b37b3958a707d0c3265b9fb36cecf9a7ffedc996821b1f0571d",
+        "ResolvConfPath": "/var/lib/docker/containers/abab640f5954f6ff99e483359423149ea3edf0a107253141bc288b63ad18119c/resolv.conf",
+        "HostnamePath": "/var/lib/docker/containers/abab640f5954f6ff99e483359423149ea3edf0a107253141bc288b63ad18119c/hostname",
+        "HostsPath": "/var/lib/docker/containers/abab640f5954f6ff99e483359423149ea3edf0a107253141bc288b63ad18119c/hosts",
+        "LogPath": "/var/lib/docker/containers/abab640f5954f6ff99e483359423149ea3edf0a107253141bc288b63ad18119c/abab640f5954f6ff99e483359423149ea3edf0a107253141bc288b63ad18119c-json.log",
+        "Name": "/flowtracer-r2c-a4-20260920-final-a-fixture-1",
+        "RestartCount": 0,
+        "Driver": "overlayfs",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "",
+        "ExecIDs": null,
+        "HostConfig": {
+            "Binds": [
+                "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r2c\\r2c_a4\\fixture\\fixture_server.py:/opt/r2c/fixture_server.py:ro",
+                "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r2c\\evidence\\r2c-a4:/evidence:rw"
+            ],
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "json-file",
+                "Config": {}
+            },
+            "NetworkMode": "flowtracer-r2c-a4-20260920-final-a_r2c_fixture",
+            "PortBindings": {},
+            "RestartPolicy": {
+                "Name": "no",
+                "MaximumRetryCount": 0
+            },
+            "AutoRemove": false,
+            "VolumeDriver": "",
+            "VolumesFrom": null,
+            "ConsoleSize": [
+                0,
+                0
+            ],
+            "CapAdd": null,
+            "CapDrop": [
+                "ALL"
+            ],
+            "CgroupnsMode": "private",
+            "Dns": [
+                "127.0.0.1"
+            ],
+            "DnsOptions": null,
+            "DnsSearch": null,
+            "ExtraHosts": [],
+            "GroupAdd": null,
+            "IpcMode": "private",
+            "Cgroup": "",
+            "Links": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyRootfs": true,
+            "SecurityOpt": [
+                "no-new-privileges:true"
+            ],
+            "Tmpfs": {
+                "/tmp": "rw,nosuid,nodev,noexec,size=64m,mode=1777"
+            },
+            "UTSMode": "",
+            "UsernsMode": "",
+            "ShmSize": 67108864,
+            "Runtime": "runc",
+            "Isolation": "",
+            "CpuShares": 0,
+            "Memory": 268435456,
+            "NanoCpus": 500000000,
+            "CgroupParent": "",
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": null,
+            "BlkioDeviceReadBps": null,
+            "BlkioDeviceWriteBps": null,
+            "BlkioDeviceReadIOps": null,
+            "BlkioDeviceWriteIOps": null,
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "Devices": null,
+            "DeviceCgroupRules": null,
+            "DeviceRequests": null,
+            "MemoryReservation": 0,
+            "MemorySwap": 536870912,
+            "MemorySwappiness": null,
+            "OomKillDisable": null,
+            "PidsLimit": 64,
+            "Ulimits": null,
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "IOMaximumIOps": 0,
+            "IOMaximumBandwidth": 0,
+            "MaskedPaths": [
+                "/proc/acpi",
+                "/proc/asound",
+                "/proc/interrupts",
+                "/proc/kcore",
+                "/proc/keys",
+                "/proc/latency_stats",
+                "/proc/sched_debug",
+                "/proc/scsi",
+                "/proc/timer_list",
+                "/proc/timer_stats",
+                "/sys/devices/virtual/powercap",
+                "/sys/firmware"
+            ],
+            "ReadonlyPaths": [
+                "/proc/bus",
+                "/proc/fs",
+                "/proc/irq",
+                "/proc/sys",
+                "/proc/sysrq-trigger"
+            ]
+        },
+        "Storage": {
+            "RootFS": {
+                "Snapshot": {
+                    "Name": "overlayfs"
+                }
+            }
+        },
+        "Mounts": [
+            {
+                "Type": "bind",
+                "Source": "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r2c\\r2c_a4\\fixture\\fixture_server.py",
+                "Destination": "/opt/r2c/fixture_server.py",
+                "Mode": "ro",
+                "RW": false,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r2c\\evidence\\r2c-a4",
+                "Destination": "/evidence",
+                "Mode": "rw",
+                "RW": true,
+                "Propagation": "rprivate"
+            }
+        ],
+        "Config": {
+            "Hostname": "abab640f5954",
+            "Domainname": "",
+            "User": "10001:10001",
+            "AttachStdin": false,
+            "AttachStdout": true,
+            "AttachStderr": true,
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "R2C_FIXTURE_EVENTS=/evidence/fixture-events.jsonl",
+                "PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "GPG_KEY=7169605F62C751356D054A26A821E680E5FA6305",
+                "PYTHON_VERSION=3.13.15",
+                "PYTHON_SHA256=1e66a7945a48390ee4c2a4268a0e4185884059a13c4aab6d148aa208deea4a76",
+                "DEBIAN_FRONTEND=noninteractive",
+                "PIP_DISABLE_PIP_VERSION_CHECK=1",
+                "PIP_NO_CACHE_DIR=1",
+                "PLAYWRIGHT_BROWSERS_PATH=/opt/browser-r1c",
+                "PLAYWRIGHT_DOWNLOAD_CONNECTION_TIMEOUT=120000",
+                "PLAYWRIGHT_SKIP_BROWSER_GC=1",
+                "PYTHONDONTWRITEBYTECODE=1",
+                "PYTHONUNBUFFERED=1"
+            ],
+            "Cmd": null,
+            "Healthcheck": {
+                "Test": [
+                    "CMD",
+                    "python",
+                    "-c",
+                    "import socket; socket.create_connection(('127.0.0.1',8443),1).close()"
+                ],
+                "Interval": 1000000000,
+                "Timeout": 2000000000,
+                "Retries": 20
+            },
+            "Image": "flowtracer-browser-r2c:flowtracer-r2c-a4-20260920-final-a-build1",
+            "Volumes": null,
+            "WorkingDir": "/work",
+            "Entrypoint": [
+                "python",
+                "/opt/r2c/fixture_server.py"
+            ],
+            "Labels": {
+                "com.docker.compose.config-hash": "d9dac98ab18b57db1438250961ca14105d7f27f7d35767fb7b6b2ff778af888b",
+                "com.docker.compose.container-number": "1",
+                "com.docker.compose.depends_on": "",
+                "com.docker.compose.image": "sha256:38de7edf86d01b37b3958a707d0c3265b9fb36cecf9a7ffedc996821b1f0571d",
+                "com.docker.compose.oneoff": "False",
+                "com.docker.compose.project": "flowtracer-r2c-a4-20260920-final-a",
+                "com.docker.compose.project.config_files": "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r2c\\r2c_a4\\compose.yaml",
+                "com.docker.compose.project.working_dir": "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r2c\\r2c_a4",
+                "com.docker.compose.service": "fixture",
+                "com.docker.compose.version": "5.4.0"
+            }
+        },
+        "NetworkSettings": {
+            "SandboxID": "372bb24fb6bc04fa43ae3e090dcf83f83c3f15775167d2c88c0a80dbb2799a85",
+            "SandboxKey": "/var/run/docker/netns/372bb24fb6bc",
+            "Ports": {},
+            "Networks": {
+                "flowtracer-r2c-a4-20260920-final-a_r2c_fixture": {
+                    "IPAMConfig": {
+                        "IPv4Address": "192.0.2.10"
+                    },
+                    "Links": null,
+                    "Aliases": [
+                        "flowtracer-r2c-a4-20260920-final-a-fixture-1",
+                        "fixture"
+                    ],
+                    "DriverOpts": null,
+                    "GwPriority": 0,
+                    "NetworkID": "00db312dc79c08631af3b0a9af6d4518e73dda299c064e2499052dcd77d68f2d",
+                    "EndpointID": "7c131f68fda15c4069ba66c8d5db02e7b49d3ca96e5419e6089aa36eff11cafd",
+                    "Gateway": "",
+                    "IPAddress": "192.0.2.10",
+                    "MacAddress": "5e:a6:df:4f:6e:bd",
+                    "IPPrefixLen": 24,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "DNSNames": [
+                        "flowtracer-r2c-a4-20260920-final-a-fixture-1",
+                        "fixture",
+                        "abab640f5954"
+                    ]
+                }
+            }
+        },
+        "ImageManifestDescriptor": {
+            "mediaType": "application/vnd.oci.image.manifest.v1+json",
+            "digest": "sha256:38de7edf86d01b37b3958a707d0c3265b9fb36cecf9a7ffedc996821b1f0571d",
+            "size": 2002,
+            "annotations": {
+                "io.containerd.image.name": "docker.io/library/flowtracer-browser-r2c:flowtracer-r2c-a4-20260920-final-a-build1",
+                "org.opencontainers.image.created": "2026-09-21T01:50:29Z",
+                "org.opencontainers.image.ref.name": "flowtracer-r2c-a4-20260920-final-a-build1"
+            },
+            "platform": {
+                "architecture": "amd64",
+                "os": "linux"
+            }
+        }
+    }
+]

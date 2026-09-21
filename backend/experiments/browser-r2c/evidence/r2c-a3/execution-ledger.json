@@ -1,0 +1,131 @@
+[
+  {
+    "argv": [
+      "docker",
+      "ps",
+      "-aq",
+      "--filter",
+      "label=com.docker.compose.project=flowtracer-r2c-a3-20260920-final-a"
+    ],
+    "ended_at": "2026-09-21T01:23:37.687366+00:00",
+    "exit_code": 1,
+    "input_sha256": null,
+    "started_at": "2026-09-21T01:23:37.343001+00:00",
+    "stderr_bytes": 224,
+    "stderr_path": "evidence/r2c-a3/commands/001.stderr.txt",
+    "stderr_sha256": "e9133cf10b02b0b91c8b119848513db0ac541e7c3c19681266939e4b9952f7cc",
+    "stdout_bytes": 0,
+    "stdout_path": "evidence/r2c-a3/commands/001.stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "argv": [
+      "docker",
+      "network",
+      "ls",
+      "-q",
+      "--filter",
+      "label=com.docker.compose.project=flowtracer-r2c-a3-20260920-final-a"
+    ],
+    "ended_at": "2026-09-21T01:23:37.844859+00:00",
+    "exit_code": 1,
+    "input_sha256": null,
+    "started_at": "2026-09-21T01:23:37.687567+00:00",
+    "stderr_bytes": 224,
+    "stderr_path": "evidence/r2c-a3/commands/002.stderr.txt",
+    "stderr_sha256": "e9133cf10b02b0b91c8b119848513db0ac541e7c3c19681266939e4b9952f7cc",
+    "stdout_bytes": 0,
+    "stdout_path": "evidence/r2c-a3/commands/002.stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "argv": [
+      "docker",
+      "buildx",
+      "inspect",
+      "flowtracer-r2c-a3-20260920-final-a-builder"
+    ],
+    "ended_at": "2026-09-21T01:23:38.446455+00:00",
+    "exit_code": 1,
+    "input_sha256": null,
+    "started_at": "2026-09-21T01:23:37.844992+00:00",
+    "stderr_bytes": 69,
+    "stderr_path": "evidence/r2c-a3/commands/003.stderr.txt",
+    "stderr_sha256": "1beac11cc5971f44d96ee753f3383ff26473b5a89784415ce530baae1b22b6b2",
+    "stdout_bytes": 0,
+    "stdout_path": "evidence/r2c-a3/commands/003.stdout.txt",
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "argv": [
+      "docker",
+      "image",
+      "inspect",
+      "flowtracer-browser-r2c:flowtracer-r2c-a3-20260920-final-a"
+    ],
+    "ended_at": "2026-09-21T01:23:38.605185+00:00",
+    "exit_code": 1,
+    "input_sha256": null,
+    "started_at": "2026-09-21T01:23:38.446573+00:00",
+    "stderr_bytes": 224,
+    "stderr_path": "evidence/r2c-a3/commands/004.stderr.txt",
+    "stderr_sha256": "e9133cf10b02b0b91c8b119848513db0ac541e7c3c19681266939e4b9952f7cc",
+    "stdout_bytes": 3,
+    "stdout_path": "evidence/r2c-a3/commands/004.stdout.txt",
+    "stdout_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+  },
+  {
+    "argv": [
+      "docker",
+      "container",
+      "inspect",
+      "flowtracer-r2c-a3-20260920-final-a-browser-probe"
+    ],
+    "ended_at": "2026-09-21T01:23:38.759618+00:00",
+    "exit_code": 1,
+    "input_sha256": null,
+    "started_at": "2026-09-21T01:23:38.605293+00:00",
+    "stderr_bytes": 224,
+    "stderr_path": "evidence/r2c-a3/commands/005.stderr.txt",
+    "stderr_sha256": "e9133cf10b02b0b91c8b119848513db0ac541e7c3c19681266939e4b9952f7cc",
+    "stdout_bytes": 3,
+    "stdout_path": "evidence/r2c-a3/commands/005.stdout.txt",
+    "stdout_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+  },
+  {
+    "argv": [
+      "docker",
+      "container",
+      "inspect",
+      "flowtracer-r2c-a3-20260920-final-a-control-client"
+    ],
+    "ended_at": "2026-09-21T01:23:38.914669+00:00",
+    "exit_code": 1,
+    "input_sha256": null,
+    "started_at": "2026-09-21T01:23:38.759733+00:00",
+    "stderr_bytes": 224,
+    "stderr_path": "evidence/r2c-a3/commands/006.stderr.txt",
+    "stderr_sha256": "e9133cf10b02b0b91c8b119848513db0ac541e7c3c19681266939e4b9952f7cc",
+    "stdout_bytes": 3,
+    "stdout_path": "evidence/r2c-a3/commands/006.stdout.txt",
+    "stdout_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+  },
+  {
+    "argv": [
+      "docker",
+      "image",
+      "inspect",
+      "redis:7.4.11-alpine3.21"
+    ],
+    "ended_at": "2026-09-21T01:23:39.072219+00:00",
+    "exit_code": 1,
+    "input_sha256": null,
+    "started_at": "2026-09-21T01:23:38.915123+00:00",
+    "stderr_bytes": 224,
+    "stderr_path": "evidence/r2c-a3/commands/007.stderr.txt",
+    "stderr_sha256": "e9133cf10b02b0b91c8b119848513db0ac541e7c3c19681266939e4b9952f7cc",
+    "stdout_bytes": 3,
+    "stdout_path": "evidence/r2c-a3/commands/007.stdout.txt",
+    "stdout_sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+  }
+]

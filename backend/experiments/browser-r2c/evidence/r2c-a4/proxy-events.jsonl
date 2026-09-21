@@ -1,0 +1,54 @@
+{"decision": "deny", "host": "rebind-r2c.test", "occurred_at": "2026-09-21T01:56:36.558093+00:00", "peer_ip": null, "port": 8443, "reason": "dns_rebinding", "resolution_passes": [{"A": ["192.0.2.10"], "AAAA": []}, {"A": ["169.254.169.254"], "AAAA": []}]}
+{"decision": "deny", "host": "mixed-r2c.test", "occurred_at": "2026-09-21T01:56:36.560157+00:00", "peer_ip": null, "port": 8443, "reason": "mixed_answer", "resolution_passes": [{"A": ["192.0.2.10"], "AAAA": ["fe80::1"]}]}
+{"decision": "deny", "host": "loopback-r2c.test", "occurred_at": "2026-09-21T01:56:36.561418+00:00", "peer_ip": null, "port": 8443, "reason": "loopback", "resolution_passes": [{"A": ["127.0.0.1"], "AAAA": ["::1"]}]}
+{"decision": "deny", "host": "private-r2c.test", "occurred_at": "2026-09-21T01:56:36.562533+00:00", "peer_ip": null, "port": 8443, "reason": "private", "resolution_passes": [{"A": ["10.0.0.8"], "AAAA": ["fd00::8"]}]}
+{"decision": "deny", "host": "linklocal-r2c.test", "occurred_at": "2026-09-21T01:56:36.563847+00:00", "peer_ip": null, "port": 8443, "reason": "link_local", "resolution_passes": [{"A": ["169.254.1.8"], "AAAA": ["fe80::8"]}]}
+{"decision": "deny", "host": "metadata-r2c.test", "occurred_at": "2026-09-21T01:56:36.564754+00:00", "peer_ip": null, "port": 8443, "reason": "metadata", "resolution_passes": [{"A": ["169.254.169.254"], "AAAA": []}]}
+{"decision": "deny", "host": "multicast-r2c.test", "occurred_at": "2026-09-21T01:56:36.565737+00:00", "peer_ip": null, "port": 8443, "reason": "multicast", "resolution_passes": [{"A": ["224.0.0.1"], "AAAA": ["ff02::1"]}]}
+{"decision": "deny", "host": "reserved-r2c.test", "occurred_at": "2026-09-21T01:56:36.566677+00:00", "peer_ip": null, "port": 8443, "reason": "reserved", "resolution_passes": [{"A": ["240.0.0.8"], "AAAA": []}]}
+{"decision": "deny", "host": "unspecified-r2c.test", "occurred_at": "2026-09-21T01:56:36.567842+00:00", "peer_ip": null, "port": 8443, "reason": "unspecified", "resolution_passes": [{"A": ["0.0.0.0"], "AAAA": ["::"]}]}
+{"decision": "deny", "host": "undeclared-r2c.test", "occurred_at": "2026-09-21T01:56:36.568768+00:00", "peer_ip": null, "port": 8443, "reason": "not_declared_fixture", "resolution_passes": [{"A": ["198.51.100.99"], "AAAA": ["2001:db8::99"]}]}
+{"decision": "deny", "host": "fixture-r2c.test", "occurred_at": "2026-09-21T01:56:36.569933+00:00", "peer_ip": null, "port": 22, "reason": "dangerous_port", "resolution_passes": []}
+{"decision": "deny", "host": "192.0.2.10", "occurred_at": "2026-09-21T01:56:36.571053+00:00", "peer_ip": null, "port": 8443, "reason": "direct_ip", "resolution_passes": []}
+{"decision": "deny", "host": "unknown-r2c.test", "occurred_at": "2026-09-21T01:56:36.572093+00:00", "peer_ip": null, "port": 8443, "reason": "undeclared_host", "resolution_passes": []}
+{"decision": "deny", "host": "invalid", "occurred_at": "2026-09-21T01:56:36.573114+00:00", "peer_ip": null, "port": 0, "reason": "connect_required", "resolution_passes": []}
+{"decision": "deny", "host": "www.google.com", "occurred_at": "2026-09-21T01:56:39.923681+00:00", "peer_ip": null, "port": 443, "reason": "dangerous_port", "resolution_passes": []}
+{"decision": "deny", "host": "invalid", "occurred_at": "2026-09-21T01:56:39.924462+00:00", "peer_ip": null, "port": 0, "reason": "connect_required", "resolution_passes": []}
+{"decision": "deny", "host": "www.google.com", "occurred_at": "2026-09-21T01:56:40.017911+00:00", "peer_ip": null, "port": 443, "reason": "dangerous_port", "resolution_passes": []}
+{"decision": "deny", "host": "accounts.google.com", "occurred_at": "2026-09-21T01:56:40.020504+00:00", "peer_ip": null, "port": 443, "reason": "dangerous_port", "resolution_passes": []}
+{"decision": "deny", "host": "www.google.com", "occurred_at": "2026-09-21T01:56:40.021070+00:00", "peer_ip": null, "port": 443, "reason": "dangerous_port", "resolution_passes": []}
+{"decision": "deny", "host": "www.google.com", "occurred_at": "2026-09-21T01:56:40.118196+00:00", "peer_ip": null, "port": 443, "reason": "dangerous_port", "resolution_passes": []}
+{"decision": "deny", "host": "www.google.com", "occurred_at": "2026-09-21T01:56:40.129029+00:00", "peer_ip": null, "port": 443, "reason": "dangerous_port", "resolution_passes": []}
+{"decision": "allow", "host": "dynamic-r2c.test", "occurred_at": "2026-09-21T01:56:40.233997+00:00", "peer_ip": "192.0.2.10", "port": 8443, "reason": "validated", "resolution_passes": [{"A": ["192.0.2.10"], "AAAA": []}, {"A": ["192.0.2.10"], "AAAA": []}]}
+{"decision": "allow", "host": "dynamic-r2c.test", "occurred_at": "2026-09-21T01:56:40.234114+00:00", "peer_ip": "192.0.2.10", "port": 8443, "reason": "validated", "resolution_passes": [{"A": ["192.0.2.10"], "AAAA": []}, {"A": ["192.0.2.10"], "AAAA": []}]}
+{"decision": "deny", "host": "www.google.com", "occurred_at": "2026-09-21T01:56:40.330952+00:00", "peer_ip": null, "port": 443, "reason": "dangerous_port", "resolution_passes": []}
+{"decision": "deny", "host": "www.google.com", "occurred_at": "2026-09-21T01:56:40.924368+00:00", "peer_ip": null, "port": 443, "reason": "dangerous_port", "resolution_passes": []}
+{"decision": "deny", "host": "www.google.com", "occurred_at": "2026-09-21T01:56:40.943719+00:00", "peer_ip": null, "port": 443, "reason": "dangerous_port", "resolution_passes": []}
+{"decision": "deny", "host": "invalid", "occurred_at": "2026-09-21T01:56:42.313856+00:00", "peer_ip": null, "port": 0, "reason": "connect_required", "resolution_passes": []}
+{"decision": "deny", "host": "www.google.com", "occurred_at": "2026-09-21T01:56:42.319582+00:00", "peer_ip": null, "port": 443, "reason": "dangerous_port", "resolution_passes": []}
+{"decision": "deny", "host": "accounts.google.com", "occurred_at": "2026-09-21T01:56:42.322455+00:00", "peer_ip": null, "port": 443, "reason": "dangerous_port", "resolution_passes": []}
+{"decision": "deny", "host": "www.google.com", "occurred_at": "2026-09-21T01:56:42.323454+00:00", "peer_ip": null, "port": 443, "reason": "dangerous_port", "resolution_passes": []}
+{"decision": "deny", "host": "www.google.com", "occurred_at": "2026-09-21T01:56:42.421886+00:00", "peer_ip": null, "port": 443, "reason": "dangerous_port", "resolution_passes": []}
+{"decision": "deny", "host": "www.google.com", "occurred_at": "2026-09-21T01:56:42.515878+00:00", "peer_ip": null, "port": 443, "reason": "dangerous_port", "resolution_passes": []}
+{"decision": "deny", "host": "www.google.com", "occurred_at": "2026-09-21T01:56:42.521436+00:00", "peer_ip": null, "port": 443, "reason": "dangerous_port", "resolution_passes": []}
+{"decision": "allow", "host": "redirect-r2c.test", "occurred_at": "2026-09-21T01:56:42.621690+00:00", "peer_ip": "192.0.2.10", "port": 8443, "reason": "validated", "resolution_passes": [{"A": ["192.0.2.10"], "AAAA": []}, {"A": ["192.0.2.10"], "AAAA": []}]}
+{"decision": "allow", "host": "redirect-r2c.test", "occurred_at": "2026-09-21T01:56:42.627553+00:00", "peer_ip": "192.0.2.10", "port": 8443, "reason": "validated", "resolution_passes": [{"A": ["192.0.2.10"], "AAAA": []}, {"A": ["192.0.2.10"], "AAAA": []}]}
+{"decision": "allow", "host": "redirect-target-r2c.test", "occurred_at": "2026-09-21T01:56:42.687541+00:00", "peer_ip": "192.0.2.10", "port": 8443, "reason": "validated", "resolution_passes": [{"A": ["192.0.2.10"], "AAAA": []}, {"A": ["192.0.2.10"], "AAAA": []}]}
+{"decision": "deny", "host": "www.google.com", "occurred_at": "2026-09-21T01:56:42.755518+00:00", "peer_ip": null, "port": 443, "reason": "dangerous_port", "resolution_passes": []}
+{"decision": "deny", "host": "accounts.google.com", "occurred_at": "2026-09-21T01:56:43.295083+00:00", "peer_ip": null, "port": 443, "reason": "dangerous_port", "resolution_passes": []}
+{"decision": "deny", "host": "www.google.com", "occurred_at": "2026-09-21T01:56:43.341366+00:00", "peer_ip": null, "port": 443, "reason": "dangerous_port", "resolution_passes": []}
+{"decision": "deny", "host": "www.google.com", "occurred_at": "2026-09-21T01:56:43.359447+00:00", "peer_ip": null, "port": 443, "reason": "dangerous_port", "resolution_passes": []}
+{"decision": "deny", "host": "invalid", "occurred_at": "2026-09-21T01:56:44.616859+00:00", "peer_ip": null, "port": 0, "reason": "connect_required", "resolution_passes": []}
+{"decision": "deny", "host": "www.google.com", "occurred_at": "2026-09-21T01:56:44.621459+00:00", "peer_ip": null, "port": 443, "reason": "dangerous_port", "resolution_passes": []}
+{"decision": "deny", "host": "accounts.google.com", "occurred_at": "2026-09-21T01:56:44.624374+00:00", "peer_ip": null, "port": 443, "reason": "dangerous_port", "resolution_passes": []}
+{"decision": "deny", "host": "www.google.com", "occurred_at": "2026-09-21T01:56:44.625510+00:00", "peer_ip": null, "port": 443, "reason": "dangerous_port", "resolution_passes": []}
+{"decision": "deny", "host": "www.google.com", "occurred_at": "2026-09-21T01:56:44.743375+00:00", "peer_ip": null, "port": 443, "reason": "dangerous_port", "resolution_passes": []}
+{"decision": "deny", "host": "www.google.com", "occurred_at": "2026-09-21T01:56:44.828823+00:00", "peer_ip": null, "port": 443, "reason": "dangerous_port", "resolution_passes": []}
+{"decision": "deny", "host": "www.google.com", "occurred_at": "2026-09-21T01:56:44.834382+00:00", "peer_ip": null, "port": 443, "reason": "dangerous_port", "resolution_passes": []}
+{"decision": "deny", "host": "www.google.com", "occurred_at": "2026-09-21T01:56:44.916670+00:00", "peer_ip": null, "port": 443, "reason": "dangerous_port", "resolution_passes": []}
+{"decision": "deny", "host": "metadata-r2c.test", "occurred_at": "2026-09-21T01:56:44.927708+00:00", "peer_ip": null, "port": 8443, "reason": "metadata", "resolution_passes": [{"A": ["169.254.169.254"], "AAAA": []}]}
+{"decision": "deny", "host": "metadata-r2c.test", "occurred_at": "2026-09-21T01:56:44.933640+00:00", "peer_ip": null, "port": 8443, "reason": "metadata", "resolution_passes": [{"A": ["169.254.169.254"], "AAAA": []}]}
+{"decision": "deny", "host": "metadata-r2c.test", "occurred_at": "2026-09-21T01:56:44.934222+00:00", "peer_ip": null, "port": 8443, "reason": "metadata", "resolution_passes": [{"A": ["169.254.169.254"], "AAAA": []}]}
+{"decision": "deny", "host": "www.google.com", "occurred_at": "2026-09-21T01:56:46.829181+00:00", "peer_ip": null, "port": 443, "reason": "dangerous_port", "resolution_passes": []}
+{"decision": "deny", "host": "accounts.google.com", "occurred_at": "2026-09-21T01:56:46.830145+00:00", "peer_ip": null, "port": 443, "reason": "dangerous_port", "resolution_passes": []}
+{"decision": "deny", "host": "www.google.com", "occurred_at": "2026-09-21T01:56:46.850770+00:00", "peer_ip": null, "port": 443, "reason": "dangerous_port", "resolution_passes": []}

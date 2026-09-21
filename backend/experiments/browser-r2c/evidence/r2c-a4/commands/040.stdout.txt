@@ -1,0 +1,332 @@
+[
+    {
+        "Id": "6e070eadbfdf75e555ed2c9e502379a5f65ba071a40c87f9e0a820cb5643c5dc",
+        "Created": "2026-09-21T01:56:30.477647779Z",
+        "Path": "python",
+        "Args": [
+            "/opt/r2c/egress_proxy.py"
+        ],
+        "State": {
+            "Status": "running",
+            "Running": true,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 6189,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-09-21T01:56:30.891763696Z",
+            "FinishedAt": "0001-01-01T00:00:00Z",
+            "Health": {
+                "Status": "healthy",
+                "FailingStreak": 0,
+                "Log": [
+                    {
+                        "Start": "2026-09-21T01:56:43.956661382Z",
+                        "End": "2026-09-21T01:56:44.030521033Z",
+                        "ExitCode": 0,
+                        "Output": ""
+                    },
+                    {
+                        "Start": "2026-09-21T01:56:45.031927457Z",
+                        "End": "2026-09-21T01:56:45.13279913Z",
+                        "ExitCode": 0,
+                        "Output": ""
+                    },
+                    {
+                        "Start": "2026-09-21T01:56:46.134286117Z",
+                        "End": "2026-09-21T01:56:46.211705795Z",
+                        "ExitCode": 0,
+                        "Output": ""
+                    },
+                    {
+                        "Start": "2026-09-21T01:56:47.212484154Z",
+                        "End": "2026-09-21T01:56:47.291137023Z",
+                        "ExitCode": 0,
+                        "Output": ""
+                    },
+                    {
+                        "Start": "2026-09-21T01:56:48.292199725Z",
+                        "End": "2026-09-21T01:56:48.375790288Z",
+                        "ExitCode": 0,
+                        "Output": ""
+                    }
+                ]
+            }
+        },
+        "Image": "sha256:38de7edf86d01b37b3958a707d0c3265b9fb36cecf9a7ffedc996821b1f0571d",
+        "ResolvConfPath": "/var/lib/docker/containers/6e070eadbfdf75e555ed2c9e502379a5f65ba071a40c87f9e0a820cb5643c5dc/resolv.conf",
+        "HostnamePath": "/var/lib/docker/containers/6e070eadbfdf75e555ed2c9e502379a5f65ba071a40c87f9e0a820cb5643c5dc/hostname",
+        "HostsPath": "/var/lib/docker/containers/6e070eadbfdf75e555ed2c9e502379a5f65ba071a40c87f9e0a820cb5643c5dc/hosts",
+        "LogPath": "/var/lib/docker/containers/6e070eadbfdf75e555ed2c9e502379a5f65ba071a40c87f9e0a820cb5643c5dc/6e070eadbfdf75e555ed2c9e502379a5f65ba071a40c87f9e0a820cb5643c5dc-json.log",
+        "Name": "/flowtracer-r2c-a4-20260920-final-a-proxy-1",
+        "RestartCount": 0,
+        "Driver": "overlayfs",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "",
+        "ExecIDs": null,
+        "HostConfig": {
+            "Binds": [
+                "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r2c\\r2c_a4\\proxy\\egress_proxy.py:/opt/r2c/egress_proxy.py:ro",
+                "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r2c\\evidence\\r2c-a4:/evidence:rw"
+            ],
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "json-file",
+                "Config": {}
+            },
+            "NetworkMode": "flowtracer-r2c-a4-20260920-final-a_r2c_browser",
+            "PortBindings": {},
+            "RestartPolicy": {
+                "Name": "no",
+                "MaximumRetryCount": 0
+            },
+            "AutoRemove": false,
+            "VolumeDriver": "",
+            "VolumesFrom": null,
+            "ConsoleSize": [
+                0,
+                0
+            ],
+            "CapAdd": null,
+            "CapDrop": [
+                "ALL"
+            ],
+            "CgroupnsMode": "private",
+            "Dns": [
+                "127.0.0.1"
+            ],
+            "DnsOptions": null,
+            "DnsSearch": null,
+            "ExtraHosts": [],
+            "GroupAdd": null,
+            "IpcMode": "private",
+            "Cgroup": "",
+            "Links": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyRootfs": true,
+            "SecurityOpt": [
+                "no-new-privileges:true"
+            ],
+            "Tmpfs": {
+                "/tmp": "rw,nosuid,nodev,noexec,size=64m,mode=1777"
+            },
+            "UTSMode": "",
+            "UsernsMode": "",
+            "ShmSize": 67108864,
+            "Runtime": "runc",
+            "Isolation": "",
+            "CpuShares": 0,
+            "Memory": 268435456,
+            "NanoCpus": 500000000,
+            "CgroupParent": "",
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": null,
+            "BlkioDeviceReadBps": null,
+            "BlkioDeviceWriteBps": null,
+            "BlkioDeviceReadIOps": null,
+            "BlkioDeviceWriteIOps": null,
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "Devices": null,
+            "DeviceCgroupRules": null,
+            "DeviceRequests": null,
+            "MemoryReservation": 0,
+            "MemorySwap": 536870912,
+            "MemorySwappiness": null,
+            "OomKillDisable": null,
+            "PidsLimit": 64,
+            "Ulimits": null,
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "IOMaximumIOps": 0,
+            "IOMaximumBandwidth": 0,
+            "MaskedPaths": [
+                "/proc/acpi",
+                "/proc/asound",
+                "/proc/interrupts",
+                "/proc/kcore",
+                "/proc/keys",
+                "/proc/latency_stats",
+                "/proc/sched_debug",
+                "/proc/scsi",
+                "/proc/timer_list",
+                "/proc/timer_stats",
+                "/sys/devices/virtual/powercap",
+                "/sys/firmware"
+            ],
+            "ReadonlyPaths": [
+                "/proc/bus",
+                "/proc/fs",
+                "/proc/irq",
+                "/proc/sys",
+                "/proc/sysrq-trigger"
+            ]
+        },
+        "Storage": {
+            "RootFS": {
+                "Snapshot": {
+                    "Name": "overlayfs"
+                }
+            }
+        },
+        "Mounts": [
+            {
+                "Type": "bind",
+                "Source": "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r2c\\evidence\\r2c-a4",
+                "Destination": "/evidence",
+                "Mode": "rw",
+                "RW": true,
+                "Propagation": "rprivate"
+            },
+            {
+                "Type": "bind",
+                "Source": "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r2c\\r2c_a4\\proxy\\egress_proxy.py",
+                "Destination": "/opt/r2c/egress_proxy.py",
+                "Mode": "ro",
+                "RW": false,
+                "Propagation": "rprivate"
+            }
+        ],
+        "Config": {
+            "Hostname": "6e070eadbfdf",
+            "Domainname": "",
+            "User": "10001:10001",
+            "AttachStdin": false,
+            "AttachStdout": true,
+            "AttachStderr": true,
+            "Tty": false,
+            "OpenStdin": false,
+            "StdinOnce": false,
+            "Env": [
+                "R2C_PROXY_EVENTS=/evidence/proxy-events.jsonl",
+                "PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "GPG_KEY=7169605F62C751356D054A26A821E680E5FA6305",
+                "PYTHON_VERSION=3.13.15",
+                "PYTHON_SHA256=1e66a7945a48390ee4c2a4268a0e4185884059a13c4aab6d148aa208deea4a76",
+                "DEBIAN_FRONTEND=noninteractive",
+                "PIP_DISABLE_PIP_VERSION_CHECK=1",
+                "PIP_NO_CACHE_DIR=1",
+                "PLAYWRIGHT_BROWSERS_PATH=/opt/browser-r1c",
+                "PLAYWRIGHT_DOWNLOAD_CONNECTION_TIMEOUT=120000",
+                "PLAYWRIGHT_SKIP_BROWSER_GC=1",
+                "PYTHONDONTWRITEBYTECODE=1",
+                "PYTHONUNBUFFERED=1"
+            ],
+            "Cmd": null,
+            "Healthcheck": {
+                "Test": [
+                    "CMD",
+                    "python",
+                    "-c",
+                    "import os; os.kill(1,0)"
+                ],
+                "Interval": 1000000000,
+                "Timeout": 2000000000,
+                "Retries": 20
+            },
+            "Image": "flowtracer-browser-r2c:flowtracer-r2c-a4-20260920-final-a-build1",
+            "Volumes": null,
+            "WorkingDir": "/work",
+            "Entrypoint": [
+                "python",
+                "/opt/r2c/egress_proxy.py"
+            ],
+            "Labels": {
+                "com.docker.compose.config-hash": "cc103534c3e5266384383f351a39ccf6446e46d55d0d928aede324688b73aa10",
+                "com.docker.compose.container-number": "1",
+                "com.docker.compose.depends_on": "",
+                "com.docker.compose.image": "sha256:38de7edf86d01b37b3958a707d0c3265b9fb36cecf9a7ffedc996821b1f0571d",
+                "com.docker.compose.oneoff": "False",
+                "com.docker.compose.project": "flowtracer-r2c-a4-20260920-final-a",
+                "com.docker.compose.project.config_files": "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r2c\\r2c_a4\\compose.yaml",
+                "com.docker.compose.project.working_dir": "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r2c\\r2c_a4",
+                "com.docker.compose.service": "proxy",
+                "com.docker.compose.version": "5.4.0"
+            }
+        },
+        "NetworkSettings": {
+            "SandboxID": "7ae79433487b9254a6f5c57aab61bd23e61bb3ff9b8460e1af3e5689f10add91",
+            "SandboxKey": "/var/run/docker/netns/7ae79433487b",
+            "Ports": {},
+            "Networks": {
+                "flowtracer-r2c-a4-20260920-final-a_r2c_browser": {
+                    "IPAMConfig": {
+                        "IPv4Address": "198.51.100.20"
+                    },
+                    "Links": null,
+                    "Aliases": [
+                        "flowtracer-r2c-a4-20260920-final-a-proxy-1",
+                        "proxy"
+                    ],
+                    "DriverOpts": null,
+                    "GwPriority": 0,
+                    "NetworkID": "5b6d70adb2b96c1caa8fec9d096b5d526b3a465b2317f010ec2b29c58ad35481",
+                    "EndpointID": "1759b0ab158fcdde0acfa3c4096be083e2af0f117ab6637331c48ec7e144eb8b",
+                    "Gateway": "",
+                    "IPAddress": "198.51.100.20",
+                    "MacAddress": "ce:f5:69:a6:05:de",
+                    "IPPrefixLen": 24,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "DNSNames": [
+                        "flowtracer-r2c-a4-20260920-final-a-proxy-1",
+                        "proxy",
+                        "6e070eadbfdf"
+                    ]
+                },
+                "flowtracer-r2c-a4-20260920-final-a_r2c_fixture": {
+                    "IPAMConfig": {
+                        "IPv4Address": "192.0.2.20"
+                    },
+                    "Links": null,
+                    "Aliases": [
+                        "flowtracer-r2c-a4-20260920-final-a-proxy-1",
+                        "proxy"
+                    ],
+                    "DriverOpts": null,
+                    "GwPriority": 0,
+                    "NetworkID": "00db312dc79c08631af3b0a9af6d4518e73dda299c064e2499052dcd77d68f2d",
+                    "EndpointID": "3205bbeb108693d51b1d720c4f17196db202193419fa84ed32ffd333ebd9962d",
+                    "Gateway": "",
+                    "IPAddress": "192.0.2.20",
+                    "MacAddress": "aa:0d:48:eb:f8:8b",
+                    "IPPrefixLen": 24,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "DNSNames": [
+                        "flowtracer-r2c-a4-20260920-final-a-proxy-1",
+                        "proxy",
+                        "6e070eadbfdf"
+                    ]
+                }
+            }
+        },
+        "ImageManifestDescriptor": {
+            "mediaType": "application/vnd.oci.image.manifest.v1+json",
+            "digest": "sha256:38de7edf86d01b37b3958a707d0c3265b9fb36cecf9a7ffedc996821b1f0571d",
+            "size": 2002,
+            "annotations": {
+                "io.containerd.image.name": "docker.io/library/flowtracer-browser-r2c:flowtracer-r2c-a4-20260920-final-a-build1",
+                "org.opencontainers.image.created": "2026-09-21T01:50:29Z",
+                "org.opencontainers.image.ref.name": "flowtracer-r2c-a4-20260920-final-a-build1"
+            },
+            "platform": {
+                "architecture": "amd64",
+                "os": "linux"
+            }
+        }
+    }
+]

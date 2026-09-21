@@ -1,6 +1,6 @@
 # FlowTracer ACQ-1 WP-3 Remediation Evidence Package
 
-状态：R1/R2 Accepted（Headless Shell historical）；R3 BLOCKED；R1C Accepted；R2C BLOCKED；R1D Accepted；R1E PASS — READY FOR INDEPENDENT REVIEW；R4-R5 Pending
+状态：R1/R2 Accepted（Headless Shell historical）；R3 BLOCKED；R1C Accepted；R2C PASS — READY FOR INDEPENDENT REVIEW；R1D Accepted；R1E Accepted；R4-R5 Pending
 
 用途：本文件是 `docs/41-ACQ1-WP3-REMEDIATION-EVIDENCE-ADMISSION.md` 的强制证据模板。必须按 R1→R5 顺序填写实际值；`TBD`、估算、未执行、仅配置审阅、仅 mock 或未保存的口头观察均不构成通过证据。
 
@@ -141,6 +141,22 @@ R1E 准入与验收规则见 ADR-033 和 `docs/48-ACQ1-WP3-R1E-DETERMINISTIC-ACC
 | 保护、证据包与清理 | R1/R2/R1C/R1D/R2C-A2/R3 文件与 package identity 前后不变；首次 R1E 与 R2C-A2 共 219 个历史 evidence 文件前后字节一致；Docker builders/containers/images/networks/volumes 集合前后不变；R1E-A2 builder、两镜像、两容器、专用 volume 均不存在；未执行 global prune；完整 `browser-r1e` package tree 为 277 files / 27,023 payload bytes / SHA-256 `4197d00d35bb7004a0913fbd1f9684be022c0494fc56a0227d0992301da7f119`，Git ignored `0` | PASS；`evidence/r1e-a2/{protected-*,historical-evidence-*,result.json}`、`audit/package_tree.py` |
 
 R1E 判定：`R1E PASS — READY FOR INDEPENDENT REVIEW`。R1E P0/P1/P2=`0/0/0`。本结论只生成 deterministic account metadata 与新的 Runtime Identity v2 authority；不构成独立验收、commit、push、PR、merge、R2C/R3 重新准入或正式 WP-3 准入；Backend 在此 STOP。
+
+#### R2C-A4 完整 Chromium controlled egress 回归（2026-09-21）
+
+执行基准为 `main@06e6638ec1d6bae6f57423d1a568e332fe2e0aaf`，分支 `feat/acq1-wp3-r2c`，正式通过会话 `flowtracer-r2c-a4-20260920-final-a`。A3 因本地缺少冻结 Redis 镜像而在构建前 fail closed；其 result、ledger 与 raw logs 原样保存在 `backend/experiments/browser-r2c/evidence/r2c-a3/`。总控独立拉取并核验 `redis:7.4.11-alpine3.21@sha256:520775a41a63e77e06c73e35d2fd9cc15921a609516818796b4ecbb813078bc7` 后，A4 使用全新 runner、harness、对象名、loopback 端口与 evidence 路径，未覆盖任何旧现场。
+
+| R2C-A4 项目 | 实际值 | 结果 / 证据 |
+| --- | --- | --- |
+| 两次独立候选构建 | 两次均使用不同唯一 builder/tag，命令包含 `--no-cache --pull=false --platform=linux/amd64 --target final`；raw build logs 分别为 72,443 / 72,479 bytes，SHA-256 `c73c9c364c2d6a68744d64263550c2809e80f5cb805cbece822a94264173900b` / `0bb55a9fe8486cfaeded9200988f54d015c831d7e566ba6efbd97afdf5226a23` | PASS；`evidence/r2c-a4/{build1.txt,build2.txt,execution-ledger.json}` |
+| Runtime Identity v2 | 两个候选 manifest 字节完全一致，且分别与 R1E authority 逐路径/逐字节一致；10,340 entries，payload 1,750,557 bytes，payload SHA-256 `5f4cf5acdf06a86f9b8907375f6f8f239ecf18152762b889f1e254b01e447e3b`，manifest SHA-256 `f8d8bd0b64dfac53e244b00f29fbc9f18ed44b94491323b3f49ba2af191912e8`；`/etc/shadow` 保持纳入身份 | PASS；`evidence/r2c-a4/{identity-build1.json,identity-build2.json,identity-gate.json}` |
+| Runtime 与供应链边界 | 确定性 `flowtracer` account 结构为唯一记录、9 字段、密码 locked、`sp_lstchg=0`；最终项目脚本仅 `/opt/flowtracer-r1e/runtime/{entrypoint.py,runtime_probe.py}`，audit 文件为 0；Chrome `151.0.7922.34` / r1234、executable SHA-256 `0b20b130e7edd9dd51873be867761295fe0cfad490c2b9a64f95bd3cfc08fa71`、browser tree 619、Debian 206、SBOM 231、license inventory 206/206 和 208-member notice archive 全部匹配冻结值 | PASS；`evidence/r2c-a4/{identity-gate.json,browser-tree.actual.json,sbom.cdx.json,debian-license-inventory.json,licenses.tar}` |
+| production-shaped topology 与旁路拒绝 | Browser/Redis/DNS 仅在 `r2c_browser` internal network；proxy 双归属 `r2c_browser`/`r2c_fixture`；fixture/decoy 仅在 internal fixture network；独立 control client 经隔离 control network 对同一宿主 endpoint `192.168.65.254:49274` 收到 `R2C_HOST_CANARY`，Browser 对该 endpoint 及 fixture/decoy/第二 canary 共 4 次均精确 `ENETUNREACH` errno 101；系统 DNS 为 authoritative A/AAAA NXDOMAIN、无 upstream；8 个角色均 UID/GID 10001、read-only、drop ALL、no-new-privileges、非 privileged、非 host network、无 Docker socket，Browser 另固定 PID 128、768 MiB、CPU 1、`/tmp` 256 MiB | PASS；`evidence/r2c-a4/{topology.json,control-client.json,browser-result.json,dns-events.jsonl}` |
+| CONNECT、redirect 与 policy matrix | proxy 只接受 CONNECT；每个 allow target 在连接前后各执行完整 A/AAAA 解析并复验 peer；DynamicFetcher 与 redirect 链共产生 5 个 allow events。absolute-form 返回 405；direct IP、危险端口、unknown/undeclared host、mixed answer、rebinding、loopback/private/link-local/metadata/multicast/reserved/unspecified 均拒绝，共 49 个 deny events、14 个唯一 denial reasons | PASS；`evidence/r2c-a4/{proxy-events.jsonl,browser-result.json,fixture-events.jsonl}` |
+| 真实 DynamicFetcher 与终态 | Scrapling `DynamicFetcher.fetch` 使用显式完整 Chromium、受控 proxy、`retries=1` 和受控 HOME/XDG/profile；正常渲染 `dynamic-rendered` 用时 4,519 ms，逐跳 redirect 渲染 `redirect-rendered` 用时 2,430 ms，受控安全失败为 `Error`、3,502 ms；三条路径 Crashpad 均在受控 XDG config、UID/GID 10001、mode 0700；调用前后 HOME/XDG/profile 目录不存在，终态 Browser process 为空 | PASS；`evidence/r2c-a4/{browser-result.json,browser-runtime.txt}` |
+| 保护、证据与精确清理 | 会话从 `2026-09-21T01:45:56.362186+00:00` 至 `01:57:08.044165+00:00`，671.682 秒、62 条命令；R2C-A3 及更早 157 个文件、R1/R2/R1C/R1D/R1E/R3 全树、首次/A2 失败证据均前后字节一致；两个 builder、两个 candidate image、容器、网络、专用 volume 均不存在，loopback port 首次 exclusive bind 成功，Docker before/after snapshot 完全一致，未执行 global prune；A4 evidence manifest 覆盖 152 个普通文件、payload 14,019 bytes、SHA-256 `b6ee34838f3f77262f6bf89e63ed5052e12f33e6b5fc3cfe2eb33be13bd8e514`，manifest 文件 SHA-256 `c30ba668211952f72bf023bf0d42f418c0d1fe3c9f73a1496dea313cda64df0b`，Git ignored `0` | PASS；`evidence/r2c-a4/{result.json,cleanup.json,protected-*,historical-r2c-*,evidence-manifest.json}` |
+
+R2C 判定：`R2C PASS — READY FOR INDEPENDENT REVIEW`。R2C-A4 P0/P1/P2=`0/0/0`。本结论只完成冻结的 controlled-egress 安全证据，不构成独立验收、commit、push、PR、merge 或 R3/R4/R5 准入；Backend 在此 STOP。
 
 ## 5. R4 — Deadline、回收与资源样本
 

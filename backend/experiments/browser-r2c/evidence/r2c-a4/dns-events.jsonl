@@ -1,0 +1,2 @@
+{"authoritative": true, "decision": "nxdomain", "name": "fixture-r2c.test", "occurred_at": "2026-09-21T01:56:36.535800+00:00", "qtype": "A", "recursion_available": false, "source": "browser-system-resolver", "upstream_queries": 0}
+{"authoritative": true, "decision": "nxdomain", "name": "fixture-r2c.test", "occurred_at": "2026-09-21T01:56:36.543934+00:00", "qtype": "AAAA", "recursion_available": false, "source": "browser-system-resolver", "upstream_queries": 0}

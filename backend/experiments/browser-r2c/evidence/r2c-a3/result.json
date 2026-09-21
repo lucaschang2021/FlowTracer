@@ -1,0 +1,23 @@
+{
+  "blocking_error": "RuntimeError: frozen Redis image is not locally available; refusing pull",
+  "cleanup": {
+    "builder_absent": true,
+    "containers_remaining": [],
+    "docker_snapshot_unchanged": true,
+    "host_port_attempts": 0,
+    "host_port_available": true,
+    "image_absent": true,
+    "networks_remaining": [],
+    "volumes_remaining": []
+  },
+  "duration_seconds": 11.596,
+  "ended_at": "2026-09-21T01:23:40.229712+00:00",
+  "network_matrix_started": false,
+  "prior_failure_unchanged": true,
+  "protected_files_unchanged": true,
+  "public_network_or_target": false,
+  "run_id": "flowtracer-r2c-a3-20260920-final-a",
+  "severity": "P1",
+  "started_at": "2026-09-21T01:23:28.633567+00:00",
+  "status": "BLOCKED"
+}

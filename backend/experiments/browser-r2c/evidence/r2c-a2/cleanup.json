@@ -1,0 +1,10 @@
+{
+  "builder_absent": true,
+  "containers_remaining": [],
+  "docker_snapshot_unchanged": true,
+  "host_port_attempts": 1,
+  "host_port_available": true,
+  "image_absent": true,
+  "networks_remaining": [],
+  "volumes_remaining": []
+}

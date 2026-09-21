@@ -1,0 +1,113 @@
+{
+  "cleanup": {
+    "builder_absent": true,
+    "builders_absent": {
+      "flowtracer-r2c-a4-20260920-final-a-build1-builder": true,
+      "flowtracer-r2c-a4-20260920-final-a-build2-builder": true
+    },
+    "containers_remaining": [],
+    "docker_snapshot_unchanged": true,
+    "host_port_attempts": 1,
+    "host_port_available": true,
+    "image_absent": true,
+    "images_absent": {
+      "flowtracer-browser-r2c:flowtracer-r2c-a4-20260920-final-a-build1": true,
+      "flowtracer-browser-r2c:flowtracer-r2c-a4-20260920-final-a-build2": true
+    },
+    "networks_remaining": [],
+    "volumes_remaining": []
+  },
+  "duration_seconds": 671.682,
+  "ended_at": "2026-09-21T01:57:08.044165+00:00",
+  "historical_r2c_unchanged": true,
+  "identity_gate": {
+    "build2_identity": {
+      "entry_count": 10340,
+      "manifest_sha256": "f8d8bd0b64dfac53e244b00f29fbc9f18ed44b94491323b3f49ba2af191912e8",
+      "payload_bytes": 1750557,
+      "payload_sha256": "5f4cf5acdf06a86f9b8907375f6f8f239ecf18152762b889f1e254b01e447e3b"
+    },
+    "builds_byte_identical": true,
+    "identity": {
+      "entry_count": 10340,
+      "manifest_sha256": "f8d8bd0b64dfac53e244b00f29fbc9f18ed44b94491323b3f49ba2af191912e8",
+      "payload_bytes": 1750557,
+      "payload_sha256": "5f4cf5acdf06a86f9b8907375f6f8f239ecf18152762b889f1e254b01e447e3b"
+    },
+    "manifest_byte_identical": true,
+    "status": "PASS",
+    "supply_chain": {
+      "account_metadata": {
+        "account_name": "flowtracer",
+        "field_count": 9,
+        "password_locked": true,
+        "record_count": 1,
+        "sp_lstchg": "0"
+      },
+      "audit_files": [],
+      "browser": {
+        "path": "/opt/browser-r1c/chromium-1234/chrome-linux64/chrome",
+        "sha256": "0b20b130e7edd9dd51873be867761295fe0cfad490c2b9a64f95bd3cfc08fa71",
+        "version": "Google Chrome for Testing 151.0.7922.34"
+      },
+      "browser_tree_entries": 619,
+      "checks": {
+        "account_metadata": true,
+        "audit_absent": true,
+        "browser_manifest": true,
+        "browser_path": true,
+        "browser_sha256": true,
+        "browser_version": true,
+        "debian_inventory": true,
+        "debian_lock": true,
+        "license_inventory": true,
+        "runtime_allowlist": true,
+        "sbom": true,
+        "shadow_in_identity": true
+      },
+      "debian_inventory_components": 206,
+      "debian_inventory_sha256": "bee9c30ae016be592521c383b9bb0be74f39892415ed28f9122d5b7ccced81da",
+      "debian_license_notice_records": 206,
+      "debian_lock_sha256": "299a341b239c284c385ecacd9d3882bdf29472b28421075b369009f998b54b83",
+      "license_archive_sha256": "4c89ab4aaca629a09009ef0a00b14dcbbc9e2418c32ffb40987a4f4ff621c780",
+      "license_archive_validation": {
+        "files": 208,
+        "members_match_inventory": true
+      },
+      "project_files": [
+        "/opt/flowtracer-r1e/runtime/entrypoint.py",
+        "/opt/flowtracer-r1e/runtime/runtime_probe.py"
+      ],
+      "sbom_components": 231,
+      "sbom_sha256": "a8d6ae5e450b10bd40d90f6d56a0e69742479cfaff79398c0d2fb0696cfcf774"
+    }
+  },
+  "network": {
+    "browser_uid": 10001,
+    "control_endpoint": {
+      "endpoint_ip": "192.168.65.254",
+      "port": 49274,
+      "response": "R2C_HOST_CANARY",
+      "uid": 10001
+    },
+    "internal_networks": [
+      "r2c_browser",
+      "r2c_fixture"
+    ]
+  },
+  "network_matrix_started": true,
+  "prior_failure_unchanged": true,
+  "protected_files_unchanged": true,
+  "public_network_or_target": false,
+  "run_id": "flowtracer-r2c-a4-20260920-final-a",
+  "severity": null,
+  "started_at": "2026-09-21T01:45:56.362186+00:00",
+  "status": "PASS",
+  "validation": {
+    "dns_events": 2,
+    "fixture_events": 5,
+    "proxy_allow_events": 5,
+    "proxy_deny_events": 49,
+    "result": "R2C_PASS"
+  }
+}

@@ -1,0 +1,252 @@
+[
+    {
+        "Id": "bc78d43ad290c31f47c258d24fb4962bea19559e98eb5085bb8068ac96daab78",
+        "Created": "2026-09-21T01:56:35.029464397Z",
+        "Path": "python",
+        "Args": [
+            "/opt/r2c/browser_probe.py"
+        ],
+        "State": {
+            "Status": "exited",
+            "Running": false,
+            "Paused": false,
+            "Restarting": false,
+            "OOMKilled": false,
+            "Dead": false,
+            "Pid": 0,
+            "ExitCode": 0,
+            "Error": "",
+            "StartedAt": "2026-09-21T01:56:35.160207577Z",
+            "FinishedAt": "2026-09-21T01:56:47.136972553Z"
+        },
+        "Image": "sha256:38de7edf86d01b37b3958a707d0c3265b9fb36cecf9a7ffedc996821b1f0571d",
+        "ResolvConfPath": "/var/lib/docker/containers/bc78d43ad290c31f47c258d24fb4962bea19559e98eb5085bb8068ac96daab78/resolv.conf",
+        "HostnamePath": "/var/lib/docker/containers/bc78d43ad290c31f47c258d24fb4962bea19559e98eb5085bb8068ac96daab78/hostname",
+        "HostsPath": "/var/lib/docker/containers/bc78d43ad290c31f47c258d24fb4962bea19559e98eb5085bb8068ac96daab78/hosts",
+        "LogPath": "/var/lib/docker/containers/bc78d43ad290c31f47c258d24fb4962bea19559e98eb5085bb8068ac96daab78/bc78d43ad290c31f47c258d24fb4962bea19559e98eb5085bb8068ac96daab78-json.log",
+        "Name": "/flowtracer-r2c-a4-20260920-final-a-browser-probe",
+        "RestartCount": 0,
+        "Driver": "overlayfs",
+        "Platform": "linux",
+        "MountLabel": "",
+        "ProcessLabel": "",
+        "AppArmorProfile": "",
+        "ExecIDs": null,
+        "HostConfig": {
+            "Binds": [
+                "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r2c\\r2c_a4\\browser_probe.py:/opt/r2c/browser_probe.py:ro"
+            ],
+            "ContainerIDFile": "",
+            "LogConfig": {
+                "Type": "json-file",
+                "Config": {}
+            },
+            "NetworkMode": "flowtracer-r2c-a4-20260920-final-a_r2c_browser",
+            "PortBindings": {},
+            "RestartPolicy": {
+                "Name": "no",
+                "MaximumRetryCount": 0
+            },
+            "AutoRemove": false,
+            "VolumeDriver": "",
+            "VolumesFrom": null,
+            "ConsoleSize": [
+                0,
+                0
+            ],
+            "CapAdd": null,
+            "CapDrop": [
+                "ALL"
+            ],
+            "CgroupnsMode": "private",
+            "Dns": [
+                "198.51.100.40"
+            ],
+            "DnsOptions": null,
+            "DnsSearch": null,
+            "ExtraHosts": [
+                "host-canary-r2c.test:host-gateway"
+            ],
+            "GroupAdd": null,
+            "IpcMode": "private",
+            "Cgroup": "",
+            "Links": null,
+            "OomScoreAdj": 0,
+            "PidMode": "",
+            "Privileged": false,
+            "PublishAllPorts": false,
+            "ReadonlyRootfs": true,
+            "SecurityOpt": [
+                "no-new-privileges:true"
+            ],
+            "Tmpfs": {
+                "/tmp": "rw,nosuid,noexec,size=256m"
+            },
+            "UTSMode": "",
+            "UsernsMode": "",
+            "ShmSize": 67108864,
+            "Runtime": "runc",
+            "Isolation": "",
+            "CpuShares": 0,
+            "Memory": 805306368,
+            "NanoCpus": 1000000000,
+            "CgroupParent": "",
+            "BlkioWeight": 0,
+            "BlkioWeightDevice": null,
+            "BlkioDeviceReadBps": null,
+            "BlkioDeviceWriteBps": null,
+            "BlkioDeviceReadIOps": null,
+            "BlkioDeviceWriteIOps": null,
+            "CpuPeriod": 0,
+            "CpuQuota": 0,
+            "CpuRealtimePeriod": 0,
+            "CpuRealtimeRuntime": 0,
+            "CpusetCpus": "",
+            "CpusetMems": "",
+            "Devices": null,
+            "DeviceCgroupRules": null,
+            "DeviceRequests": null,
+            "MemoryReservation": 0,
+            "MemorySwap": 1610612736,
+            "MemorySwappiness": null,
+            "OomKillDisable": null,
+            "PidsLimit": 128,
+            "Ulimits": null,
+            "CpuCount": 0,
+            "CpuPercent": 0,
+            "IOMaximumIOps": 0,
+            "IOMaximumBandwidth": 0,
+            "MaskedPaths": [
+                "/proc/acpi",
+                "/proc/asound",
+                "/proc/interrupts",
+                "/proc/kcore",
+                "/proc/keys",
+                "/proc/latency_stats",
+                "/proc/sched_debug",
+                "/proc/scsi",
+                "/proc/timer_list",
+                "/proc/timer_stats",
+                "/sys/devices/virtual/powercap",
+                "/sys/firmware"
+            ],
+            "ReadonlyPaths": [
+                "/proc/bus",
+                "/proc/fs",
+                "/proc/irq",
+                "/proc/sys",
+                "/proc/sysrq-trigger"
+            ]
+        },
+        "Storage": {
+            "RootFS": {
+                "Snapshot": {
+                    "Name": "overlayfs"
+                }
+            }
+        },
+        "Mounts": [
+            {
+                "Type": "bind",
+                "Source": "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r2c\\r2c_a4\\browser_probe.py",
+                "Destination": "/opt/r2c/browser_probe.py",
+                "Mode": "ro",
+                "RW": false,
+                "Propagation": "rprivate"
+            }
+        ],
+        "Config": {
+            "Hostname": "bc78d43ad290",
+            "Domainname": "",
+            "User": "10001:10001",
+            "AttachStdin": true,
+            "AttachStdout": true,
+            "AttachStderr": true,
+            "Tty": false,
+            "OpenStdin": true,
+            "StdinOnce": true,
+            "Env": [
+                "XDG_CACHE_HOME=/tmp/flowtracer-r2c-cache",
+                "HOME=/tmp/flowtracer-r2c-home",
+                "XDG_CONFIG_HOME=/tmp/flowtracer-r2c-config",
+                "PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+                "GPG_KEY=7169605F62C751356D054A26A821E680E5FA6305",
+                "PYTHON_VERSION=3.13.15",
+                "PYTHON_SHA256=1e66a7945a48390ee4c2a4268a0e4185884059a13c4aab6d148aa208deea4a76",
+                "DEBIAN_FRONTEND=noninteractive",
+                "PIP_DISABLE_PIP_VERSION_CHECK=1",
+                "PIP_NO_CACHE_DIR=1",
+                "PLAYWRIGHT_BROWSERS_PATH=/opt/browser-r1c",
+                "PLAYWRIGHT_DOWNLOAD_CONNECTION_TIMEOUT=120000",
+                "PLAYWRIGHT_SKIP_BROWSER_GC=1",
+                "PYTHONDONTWRITEBYTECODE=1",
+                "PYTHONUNBUFFERED=1"
+            ],
+            "Cmd": null,
+            "Image": "flowtracer-browser-r2c:flowtracer-r2c-a4-20260920-final-a-build1",
+            "Volumes": null,
+            "WorkingDir": "/work",
+            "Entrypoint": [
+                "python",
+                "/opt/r2c/browser_probe.py"
+            ],
+            "Labels": {
+                "com.docker.compose.config-hash": "6e96954d7fc5e888a8b57356447bb7d0b061011621c6bd7134fd65f477d95b19",
+                "com.docker.compose.depends_on": "",
+                "com.docker.compose.image": "sha256:38de7edf86d01b37b3958a707d0c3265b9fb36cecf9a7ffedc996821b1f0571d",
+                "com.docker.compose.oneoff": "True",
+                "com.docker.compose.project": "flowtracer-r2c-a4-20260920-final-a",
+                "com.docker.compose.project.config_files": "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r2c\\r2c_a4\\compose.yaml",
+                "com.docker.compose.project.working_dir": "D:\\FlowTracer-wt\\backend\\backend\\experiments\\browser-r2c\\r2c_a4",
+                "com.docker.compose.service": "browser",
+                "com.docker.compose.slug": "e7a39190097c00bec4dcbdd9e85c989c85563cdf123ae6c4a0fdbdc622137502",
+                "com.docker.compose.version": "5.4.0"
+            }
+        },
+        "NetworkSettings": {
+            "SandboxID": "",
+            "SandboxKey": "",
+            "Ports": {},
+            "Networks": {
+                "flowtracer-r2c-a4-20260920-final-a_r2c_browser": {
+                    "IPAMConfig": {
+                        "IPv4Address": "198.51.100.10"
+                    },
+                    "Links": null,
+                    "Aliases": [
+                        "flowtracer-r2c-a4-20260920-final-a-browser-probe"
+                    ],
+                    "DriverOpts": null,
+                    "GwPriority": 0,
+                    "NetworkID": "5b6d70adb2b96c1caa8fec9d096b5d526b3a465b2317f010ec2b29c58ad35481",
+                    "EndpointID": "",
+                    "Gateway": "",
+                    "IPAddress": "",
+                    "MacAddress": "",
+                    "IPPrefixLen": 0,
+                    "IPv6Gateway": "",
+                    "GlobalIPv6Address": "",
+                    "GlobalIPv6PrefixLen": 0,
+                    "DNSNames": [
+                        "flowtracer-r2c-a4-20260920-final-a-browser-probe",
+                        "bc78d43ad290"
+                    ]
+                }
+            }
+        },
+        "ImageManifestDescriptor": {
+            "mediaType": "application/vnd.oci.image.manifest.v1+json",
+            "digest": "sha256:38de7edf86d01b37b3958a707d0c3265b9fb36cecf9a7ffedc996821b1f0571d",
+            "size": 2002,
+            "annotations": {
+                "io.containerd.image.name": "docker.io/library/flowtracer-browser-r2c:flowtracer-r2c-a4-20260920-final-a-build1",
+                "org.opencontainers.image.created": "2026-09-21T01:50:29Z",
+                "org.opencontainers.image.ref.name": "flowtracer-r2c-a4-20260920-final-a-build1"
+            },
+            "platform": {
+                "architecture": "amd64",
+                "os": "linux"
+            }
+        }
+    }
+]

@@ -4,11 +4,11 @@
 
 **M0：架构初步冻结 — 已完成**
 
-**当前阶段：R1E 已验收合并；R2C-A3 controlled egress 完整回归重新准入**
+**当前阶段：R2C 已验收合并；R3 应用拦截矩阵待本控制 PR 合并后重新准入**
 
-Architecture Governance Pass 已完成。R1E 已通过独立复审、Backend CI 与 PR #66 合并，`/etc/shadow` 保持纳入 Runtime Identity v2 且账户元数据跨日确定。当前仅重新准入 R2C-A3；R3、R4-R5、正式 WP-3、Frontend、Integration 与 Release 均未准入。
+Architecture Governance Pass 已完成。R2C-A4 已通过独立复审、Backend CI 与 PR #68 合并，Runtime Identity v2、controlled egress 和真实 DynamicFetcher 均已验证。仅 R3 待本控制 PR 合并后重新准入；R4-R5、正式 WP-3、Frontend、Integration 与 Release 继续未准入。
 
-本次同步事实基准：`main@cac5b4e1908801ff4ed1a96c2388a0a71653d6ee`（R1E PR #66 merge commit）。
+本次同步的来源基准：`main@c584fd06ff136025dc6a0aba9815291b16682aa2`（R2C PR #68 merge commit）；控制 PR 合并后的 `main` 应为该提交的后代。
 
 ## 工作项
 
@@ -66,11 +66,11 @@ Architecture Governance Pass 已完成。R1E 已通过独立复审、Backend CI 
 | PM-020 | ACQ-1 WP-3 Remediation Evidence 顺序闸门准入 | 总控 | 完成（PR #53 已合并） | ACQ-1-WP3-PF、ADR-031 | `41-ACQ1-WP3-REMEDIATION-EVIDENCE-ADMISSION.md`；仅 R1→R5 证据/原型，不准入正式 WP-3 |
 | ACQ-1-WP3-R1 | Locked image、SBOM/license 与双 no-cache 构建证据 | Backend / Architecture | 完成（PR #54 已验收合并） | PM-020 | `42-ACQ1-WP3-REMEDIATION-EVIDENCE-PACKAGE.md`；commit `89ed802f4f2ac608a260f68637f1aaf541cd3143`；merge `34364d0082e4ecdbe4331d77a21ef6d25c2fca8a`；P0/P1/P2=0/0/0 |
 | ACQ-1-WP3-R2 | Production-shaped controlled egress proxy/namespace 证据 | Backend / Architecture | 完成（PR #56 已验收合并） | ACQ-1-WP3-R1 | `43-ACQ1-WP3-R2-ACTIVATION.md`、`42-ACQ1-WP3-REMEDIATION-EVIDENCE-PACKAGE.md`；commit `7c6e778e05c34bb8341d6898eea729de5dc311b2`；merge `c5799082ba8e0ae5edf8ddfb861e24de784cdf93`；P0/P1/P2=0/0/0 |
-| ACQ-1-WP3-R3 | Application interception matrix 证据 | Backend / Architecture | BLOCKED（P1×1） | ACQ-1-WP3-R2 | `44-ACQ1-WP3-R3-ACTIVATION.md`；DynamicFetcher 要求完整 Chromium，现有 R1 Headless Shell 不兼容 |
+| ACQ-1-WP3-R3 | Application interception matrix 证据 | Backend / Architecture | 历史首次 BLOCKED（P1×1）；本控制 PR 合并后重新准入 | ACQ-1-WP3-R2C Accepted | 旧 `44-ACQ1-WP3-R3-ACTIVATION.md` 保留历史；新 `49-ACQ1-WP3-R3-REACTIVATION.md` 仅准入离线双层证据 |
 | ACQ-1-WP3-R1C | Full Chromium runtime compatibility remediation | Backend / Architecture | 完成（PR #60 已验收合并） | ACQ-1-WP3-R3 BLOCKED | `45-ACQ1-WP3-R3-RUNTIME-REMEDIATION.md`、`42-ACQ1-WP3-REMEDIATION-EVIDENCE-PACKAGE.md`；candidate `787a0df0548e05431fa60426f48f239ba7195465`；merge `df0c3512080f384dbd6c820d7627cbe721e37422`；P0/P1/P2=0/0/0 |
 | ACQ-1-WP3-R1D | Runtime Identity v2 与 runtime/audit 边界修复 | Backend / Architecture | 完成（PR #63 已验收合并） | ACQ-1-WP3-R2C BLOCKED | ADR-032、`47-ACQ1-WP3-R1D-RUNTIME-IDENTITY.md`；candidate `a804a371ec99615278c2cd60f442dc58299ff7c5`；merge `db9c4fad0ca826b472d18d85c69db53848cfcd94`；P0/P1/P2=0/0/0 |
 | ACQ-1-WP3-R1E | Deterministic account metadata 与跨日 Runtime Identity v2 修复 | Backend / Architecture | 完成（PR #66 已验收合并） | ACQ-1-WP3-R2C-A2 BLOCKED | ADR-033、`48-ACQ1-WP3-R1E-DETERMINISTIC-ACCOUNT.md`；head `3636dd261ece31c046406aa7b2279f6f7bd7dad8`；merge `cac5b4e1908801ff4ed1a96c2388a0a71653d6ee`；P0/P1/P2=0/0/0 |
-| ACQ-1-WP3-R2C | R1C/R1D/R1E 完整 Chromium 上的 controlled egress 完整回归 | Backend / Architecture | 已重新准入；待执行 | ACQ-1-WP3-R1E Accepted | `46-ACQ1-WP3-R2C-ACTIVATION.md`；仅准入网络矩阵与证据，不含 R3 |
+| ACQ-1-WP3-R2C | R1C/R1D/R1E 完整 Chromium 上的 controlled egress 完整回归 | Backend / Architecture | 完成（PR #68 已验收合并） | ACQ-1-WP3-R1E Accepted | A4 head `e4f636bd88ba8c298ca7b1ec1e074b5bcd1351e1`；merge `c584fd06ff136025dc6a0aba9815291b16682aa2`；P0/P1/P2=0/0/0；`42-ACQ1-WP3-REMEDIATION-EVIDENCE-PACKAGE.md` |
 | ACQ-1-WP3-R4..R5 | 回收/资源与双 worker 隔离证据 | Backend | 未准入 | 前序 remediation gate 逐项 PASS | `41-ACQ1-WP3-REMEDIATION-EVIDENCE-ADMISSION.md`；不得并行或跳过 |
 | ACQ-1-WP3 | Dynamic/Advanced Browser、隔离 worker/queue 与受控 egress | Backend | 正式实现未准入 | PM-018 后续正式 Admission PR 合并 | `29-ACQ1-WORK-PACKAGES.md`；不得由 Preflight 直接续做 |
 | ACQ-1-WP4..8 | ACQ-1 后续工作包 | Backend | 未准入 | WP-3 起逐阶段验收 | `29-ACQ1-WORK-PACKAGES.md` |

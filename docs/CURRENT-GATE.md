@@ -1,8 +1,8 @@
 # FlowTracer 当前阶段闸门
 
-更新时间：2026-09-20。
+更新时间：2026-09-21。
 
-- 当前稳定基准：`main@cac5b4e1908801ff4ed1a96c2388a0a71653d6ee`；该基准包含 R1E 确定性账户与新 Runtime Identity v2 authority PR #66。
+- 本控制提交的来源基准：`main@c584fd06ff136025dc6a0aba9815291b16682aa2`；该基准包含 R2C-A4 受控出口证据 PR #68。控制 PR 合并后的 `main` 应为此提交的后代，不要求与父基准 SHA 相等。
 - 已完成：ACQ-1 Preflight、Contract Freeze、WP-1（ACQ-1A + H0）与 WP-2（ACQ-1B + D-static）均已通过总控验收并合并。
 - WP-2 验收：实现提交 `90c4645c95a96608a35565ca90b022dfb2f1f1a7`，merge commit `70a3b0462e9a9303ddb3f5be56c84ed5d2fead40`；286 passed、coverage 87.61%、P0/P1/P2 = 0/0/0。归档见 `docs/36-ACQ1-WP2-ACCEPTANCE.md`。
 - Architecture Governance：AG-0 至 AG-6 全部完成，Architecture Governance Pass 整体结项。AG-5 Conditional Memory Policy 以 no-code characterization audit 收口；AG-6 在 `main@81a9739c986eaef50fa43ba9a7d32689bceddf03` 完成 no-code Final Compatibility Gate 并判定 PASS，无新增代码或 commit。
@@ -18,9 +18,10 @@
 - R1D 结论：PR #63 已通过独立复审、Backend CI 并合并；candidate `a804a371ec99615278c2cd60f442dc58299ff7c5`，merge commit `db9c4fad0ca826b472d18d85c69db53848cfcd94`，P0/P1/P2=`0/0/0`。两次 no-cache 构建的 Runtime Identity v2 逐路径 manifest 字节一致，完整 Chromium、SBOM/license、UID 10001 DynamicFetcher、Crashpad、历史资产保护及精确清理证据完整。
 - R2C-A2 结论：**BLOCKED**，P0/P1/P2=`0/1/0`。网络矩阵前的 Runtime Identity v2 门禁发现 10,340 个路径中仅 `/etc/shadow` 字节跨日漂移；Chrome、browser tree、Debian、SBOM/license 与 runtime/audit 边界均匹配，网络矩阵未启动，临时对象已精确清理。
 - R1E 结论：PR #66 已通过独立复审、Backend CI 并合并；最终 head `3636dd261ece31c046406aa7b2279f6f7bd7dad8`，merge commit `cac5b4e1908801ff4ed1a96c2388a0a71653d6ee`，P0/P1/P2=`0/0/0`。`/etc/shadow` 保持完整纳入 identity，锁定非密码账户 `sp_lstchg=0`；双 manifest authority 为 payload SHA `5f4cf5acdf06a86f9b8907375f6f8f239ecf18152762b889f1e254b01e447e3b`、manifest SHA `f8d8bd0b64dfac53e244b00f29fbc9f18ed44b94491323b3f49ba2af191912e8`。
-- 当前停点：R3-R5 与 WP-3 正式实现暂停；R2C-A3 controlled egress 完整回归重新准入，必须使用已合并 R1E authority。见 `docs/46-ACQ1-WP3-R2C-ACTIVATION.md`。
+- R2C 结论：PR #68 已通过独立复审、Backend CI 并合并；最终 head `e4f636bd88ba8c298ca7b1ec1e074b5bcd1351e1`，merge commit `c584fd06ff136025dc6a0aba9815291b16682aa2`，P0/P1/P2=`0/0/0`。A4 双 no-cache 构建与 R1E 逐路径 Runtime Identity v2 完全一致；受控出口、旁路拒绝、真实 DynamicFetcher 和精确清理证据均通过。旧 A3 BLOCKED 证据保持不变。
+- 当前停点：仅 R3 Application interception matrix 待本控制 PR 合并后重新准入；R4-R5 与 WP-3 正式实现继续暂停。见 `docs/49-ACQ1-WP3-R3-REACTIVATION.md`。
 - 未准入：WP-3 正式实现及 WP-4..WP-8；生产 Browser、Router、Discovery、Change、Opportunity；PLUGIN-1；Frontend、Integration 与 Release。
 
-WP-3 的阶段名称、顺序、允许范围和安全原则已由 `docs/22-ACQ1-MASTER-BASELINE.md`、`docs/23-ACQ1-ACQUISITION-CONTRACT.md`、ADR-023/026 与 `docs/29-ACQ1-WORK-PACKAGES.md` 冻结。但其实现前硬门禁要求的 Browser package/revision、系统依赖、独立镜像 digest、受控 egress 方案和容器资源精确限值尚无可复现实证；不得由 Backend 或总控凭空填写。
+WP-3 的阶段名称、顺序、允许范围和安全原则已由 `docs/22-ACQ1-MASTER-BASELINE.md`、`docs/23-ACQ1-ACQUISITION-CONTRACT.md`、ADR-023/026 与 `docs/29-ACQ1-WORK-PACKAGES.md` 冻结。R1C/R1D/R1E/R2C 已提供 Browser runtime、供应链身份和受控出口实证；应用拦截、强制回收/资源样本及双 worker 隔离仍分别等待 R3-R5，不得以已有证据推定通过。
 
-下一步：本控制 PR 合并后，在新的 Backend 任务中执行 R2C-A3，只回归 production-shaped controlled egress/namespace 全矩阵并更新独立证据；不得进入 R3。R2C 独立复审并合并后，总控才能重新激活 R3；R2C/R3 均通过后才能申请 R4。R1→R5 全部通过也仍须另提 WP-3 Contract Addendum + 正式 Admission 控制 PR。
+下一步：本控制 PR 合并后，在新的 Backend 任务中仅执行 R3 应用拦截双层证据；通过后停点并经独立复审/PR 合并，才能另行申请 R4。R1→R5 全部通过也仍须另提 WP-3 Contract Addendum + 正式 Admission 控制 PR。

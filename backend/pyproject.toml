@@ -52,6 +52,13 @@ show_missing = true
 [tool.ruff]
 line-length = 100
 target-version = "py313"
+# Frozen R2C-A2 evidence sources are byte-protected by the accepted R1E/R2C gates.
+extend-exclude = [
+    "experiments/browser-r2c/run_r2c_a2.py",
+    "experiments/browser-r2c/r2c_a2/browser_probe.py",
+    "experiments/browser-r2c/r2c_a2/proxy/egress_proxy.py",
+    "experiments/browser-r2c/r2c_a2/validate_evidence.py",
+]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "ASYNC", "S", "RUF"]

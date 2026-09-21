@@ -1,0 +1,71 @@
+[
+    {
+        "Name": "flowtracer-r2c-a4-20260920-final-a_r2c_fixture",
+        "Id": "00db312dc79c08631af3b0a9af6d4518e73dda299c064e2499052dcd77d68f2d",
+        "Created": "2026-09-21T01:56:30.33322078Z",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv4": true,
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": null,
+            "Config": [
+                {
+                    "Subnet": "192.0.2.0/24",
+                    "Gateway": "192.0.2.1"
+                }
+            ]
+        },
+        "Internal": true,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Options": {
+            "com.docker.network.enable_ipv4": "true",
+            "com.docker.network.enable_ipv6": "false"
+        },
+        "Labels": {
+            "com.docker.compose.config-hash": "dec296965bc2bd60ef3ec595d26a334c60556fc6b808ccdb471e1ede0468d46f",
+            "com.docker.compose.network": "r2c_fixture",
+            "com.docker.compose.project": "flowtracer-r2c-a4-20260920-final-a",
+            "com.docker.compose.version": "5.4.0"
+        },
+        "Containers": {
+            "6e070eadbfdf75e555ed2c9e502379a5f65ba071a40c87f9e0a820cb5643c5dc": {
+                "Name": "flowtracer-r2c-a4-20260920-final-a-proxy-1",
+                "EndpointID": "3205bbeb108693d51b1d720c4f17196db202193419fa84ed32ffd333ebd9962d",
+                "MacAddress": "aa:0d:48:eb:f8:8b",
+                "IPv4Address": "192.0.2.20/24",
+                "IPv6Address": ""
+            },
+            "abab640f5954f6ff99e483359423149ea3edf0a107253141bc288b63ad18119c": {
+                "Name": "flowtracer-r2c-a4-20260920-final-a-fixture-1",
+                "EndpointID": "7c131f68fda15c4069ba66c8d5db02e7b49d3ca96e5419e6089aa36eff11cafd",
+                "MacAddress": "5e:a6:df:4f:6e:bd",
+                "IPv4Address": "192.0.2.10/24",
+                "IPv6Address": ""
+            },
+            "c4fd1efc01edae1f88f5753e5a49ffe7ed4641cd8af47302fa5c3ff1bbd02e93": {
+                "Name": "flowtracer-r2c-a4-20260920-final-a-decoy-1",
+                "EndpointID": "55711bdf6ce43a8d204d82310ac00dfd6f04161e89560910569f7558950486db",
+                "MacAddress": "6a:ff:15:9b:56:c2",
+                "IPv4Address": "192.0.2.30/24",
+                "IPv6Address": ""
+            }
+        },
+        "Status": {
+            "IPAM": {
+                "Subnets": {
+                    "192.0.2.0/24": {
+                        "IPsInUse": 6,
+                        "DynamicIPsAvailable": 250
+                    }
+                }
+            }
+        }
+    }
+]

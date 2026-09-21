@@ -1,0 +1,18 @@
+{
+  "builder_absent": true,
+  "builders_absent": {
+    "flowtracer-r2c-a4-20260920-final-a-build1-builder": true,
+    "flowtracer-r2c-a4-20260920-final-a-build2-builder": true
+  },
+  "containers_remaining": [],
+  "docker_snapshot_unchanged": true,
+  "host_port_attempts": 1,
+  "host_port_available": true,
+  "image_absent": true,
+  "images_absent": {
+    "flowtracer-browser-r2c:flowtracer-r2c-a4-20260920-final-a-build1": true,
+    "flowtracer-browser-r2c:flowtracer-r2c-a4-20260920-final-a-build2": true
+  },
+  "networks_remaining": [],
+  "volumes_remaining": []
+}

@@ -1,0 +1,1 @@
+{"dns_events": 2, "fixture_events": 5, "proxy_allow_events": 5, "proxy_deny_events": 49, "result": "R2C_PASS"}

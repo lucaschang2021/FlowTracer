@@ -1,0 +1,23 @@
+{
+  "blocking_error": "RuntimeError: Runtime Identity v2 or supply-chain hard gate failed",
+  "cleanup": {
+    "builder_absent": true,
+    "containers_remaining": [],
+    "docker_snapshot_unchanged": true,
+    "host_port_attempts": 1,
+    "host_port_available": true,
+    "image_absent": true,
+    "networks_remaining": [],
+    "volumes_remaining": []
+  },
+  "duration_seconds": 363.965,
+  "ended_at": "2026-09-20T04:03:55.137982+00:00",
+  "network_matrix_started": false,
+  "prior_failure_unchanged": true,
+  "protected_files_unchanged": true,
+  "public_network_or_target": false,
+  "run_id": "flowtracer-r2c-a2-20260920-final-a",
+  "severity": "P1",
+  "started_at": "2026-09-20T03:57:51.173298+00:00",
+  "status": "BLOCKED"
+}

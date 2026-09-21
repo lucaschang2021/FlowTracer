@@ -1,0 +1,2569 @@
+{
+  "components": [
+    {
+      "license_expression": "LicenseRef-Debian-Notice-b143053a4862",
+      "license_notice_file": "debian-notices/adduser.copyright",
+      "license_notice_sha256": "b143053a4862ab354831487b5f8bd31dc9ffdc589d15de9d9c764332a0209796",
+      "license_raw_headers": [
+        "GPL-2+"
+      ],
+      "name": "adduser",
+      "version": "3.134"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-b4701305243d",
+      "license_notice_file": "debian-notices/apt.copyright",
+      "license_notice_sha256": "b4701305243d8d746f4acaafe15d94f946251b05691bd6917fef41dd15e9ee12",
+      "license_raw_headers": [
+        "BSD-3-clause",
+        "Expat",
+        "GPL-2",
+        "GPL-2+"
+      ],
+      "name": "apt",
+      "version": "2.6.1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-ea8d12c1f331",
+      "license_notice_file": "debian-notices/at-spi2-common.copyright",
+      "license_notice_sha256": "ea8d12c1f33112087063f680432565a22d04dd36bec364652e9d1e831a360935",
+      "license_raw_headers": [
+        "AFL-2.1",
+        "AFL-2.1 or GPL-2+",
+        "GPL-2",
+        "GPL-2+",
+        "LGPL-2+",
+        "LGPL-2.1+",
+        "public-domain"
+      ],
+      "name": "at-spi2-common",
+      "version": "2.46.0-5"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-fd7e4aae7e7b",
+      "license_notice_file": "debian-notices/base-files.copyright",
+      "license_notice_sha256": "fd7e4aae7e7b05f217bcf2d02322825c360e66c52c4c2f1b28d784d6297a1c23",
+      "license_raw_headers": [],
+      "name": "base-files",
+      "version": "12.4+deb12u15"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-0f1cde79bd80",
+      "license_notice_file": "debian-notices/base-passwd.copyright",
+      "license_notice_sha256": "0f1cde79bd80a75f9029ae9a8c252b642223027ef36f6989c63a8230aae576a7",
+      "license_raw_headers": [
+        "GPL-2",
+        "public-domain"
+      ],
+      "name": "base-passwd",
+      "version": "3.6.1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-06319d84c3e5",
+      "license_notice_file": "debian-notices/bash.copyright",
+      "license_notice_sha256": "06319d84c3e5ed096036f6a9310a030c7e84e50dff2b8a6792285c83ec0ada73",
+      "license_raw_headers": [
+        "BSD-4-clause-UC",
+        "BSD-4-clause-UC and MIT-like",
+        "GFDL-NIV-1.3",
+        "GPL-2+",
+        "GPL-3+",
+        "GPL-3+ with Bison exception",
+        "Latex2e",
+        "MIT-like",
+        "permissive"
+      ],
+      "name": "bash",
+      "version": "5.2.15-2+b13"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-30539a2df6a8",
+      "license_notice_file": "debian-notices/bsdutils.copyright",
+      "license_notice_sha256": "30539a2df6a89d844f43c727505a3193a60515f8ec6cdede8cc515ed22941d1c",
+      "license_raw_headers": [
+        "BSD-3-clause",
+        "BSD-4-clause",
+        "BSLA",
+        "GPL-2",
+        "GPL-2+",
+        "GPL-3+",
+        "LGPL",
+        "LGPL-2+",
+        "LGPL-2.1+",
+        "LGPL-3+",
+        "MIT",
+        "public-domain"
+      ],
+      "name": "bsdutils",
+      "version": "1:2.38.1-5+deb12u3"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-e85e1bcad3a9",
+      "license_notice_file": "debian-notices/ca-certificates.copyright",
+      "license_notice_sha256": "e85e1bcad3a915dc7e6f41412bc5bdeba275cadd817896ea0451f2140a93967c",
+      "license_raw_headers": [
+        "GPL-2+",
+        "MPL-2.0"
+      ],
+      "name": "ca-certificates",
+      "version": "20250419~deb12u1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-24e86c5ca53d",
+      "license_notice_file": "debian-notices/coreutils.copyright",
+      "license_notice_sha256": "24e86c5ca53d6bfd8e0c47988160daa62d10a74997fe11f651e1d9533c78bff6",
+      "license_raw_headers": [
+        "BSD-4-clause-UC",
+        "FSFULLR",
+        "GFDL-NIV-1.3",
+        "GPL-3+",
+        "GPL-3+ and BSD-4-clause-UC",
+        "GPL-3+ and ISC",
+        "ISC"
+      ],
+      "name": "coreutils",
+      "version": "9.1-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-d98c53f28132",
+      "license_notice_file": "debian-notices/dash.copyright",
+      "license_notice_sha256": "d98c53f281321baad38164aa9ae6e368a9253be6ec51bd26a759b5e72b326f4a",
+      "license_raw_headers": [
+        "BSD-3-Clause",
+        "BSD-3-clause",
+        "GPL-2+",
+        "public-domain"
+      ],
+      "name": "dash",
+      "version": "0.5.12-2"
+    },
+    {
+      "license_expression": "BSD-2-Clause",
+      "license_notice_file": "debian-notices/debconf.copyright",
+      "license_notice_sha256": "57163c71bd8a5289660892827dd0dfaa7fef47f89deedc9dc6711ced7d0a28d7",
+      "license_raw_headers": [
+        "BSD-2-clause"
+      ],
+      "name": "debconf",
+      "version": "1.5.82"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-b32aecaae846",
+      "license_notice_file": "debian-notices/debian-archive-keyring.copyright",
+      "license_notice_sha256": "b32aecaae84643700a33bc9ee83fa9b36938d35aa7b61b5042092eca77ddb732",
+      "license_raw_headers": [],
+      "name": "debian-archive-keyring",
+      "version": "2023.3+deb12u2"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-fd2d797e208b",
+      "license_notice_file": "debian-notices/debianutils.copyright",
+      "license_notice_sha256": "fd2d797e208bcfb713510e47a89867191180943e1167d44c2acd8ff1b88e5c10",
+      "license_raw_headers": [
+        "GPL-2+",
+        "SMAIL-GPL",
+        "public-domain"
+      ],
+      "name": "debianutils",
+      "version": "5.7-0.5~deb12u1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-8654d7cc7cda",
+      "license_notice_file": "debian-notices/diffutils.copyright",
+      "license_notice_sha256": "8654d7cc7cdae1f31bb67a3ce5bf35d512c0bdfffd071df757edc54153cc7930",
+      "license_raw_headers": [
+        "FSFAP",
+        "FSFULLR",
+        "GFDL-NIV-1.3",
+        "GPL-2+",
+        "GPL-3+",
+        "GPL-3+ and FSFULLR",
+        "GPL-3+ with autoconf exception",
+        "GPL-3+ with texinfo exception",
+        "LGPL-2.0+",
+        "LGPL-2.1+",
+        "LGPL-3.0+",
+        "LGPL-3.0+ or GPL-2+",
+        "X11",
+        "public-domain"
+      ],
+      "name": "diffutils",
+      "version": "1:3.8-4"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-7442bdadcd44",
+      "license_notice_file": "debian-notices/dpkg.copyright",
+      "license_notice_sha256": "7442bdadcd44e818fddd786057db07639cc68225c389c7c240d3bb3984b05173",
+      "license_raw_headers": [
+        "BSD-2-clause",
+        "GPL-2",
+        "GPL-2+",
+        "public-domain-s-s-d"
+      ],
+      "name": "dpkg",
+      "version": "1.21.23"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-1ca415a294c0",
+      "license_notice_file": "debian-notices/e2fsprogs.copyright",
+      "license_notice_sha256": "1ca415a294c0e56958c4f795b3f1f69ea3479bca53d7811f5cdd020a258949db",
+      "license_raw_headers": [
+        "Apache-2",
+        "BSD-3-Clause",
+        "GPL or MIT-US-export",
+        "GPL-2",
+        "GPL-2+ with Texinfo exception",
+        "ISC",
+        "Kazlib",
+        "LGPL-2",
+        "Latex2e"
+      ],
+      "name": "e2fsprogs",
+      "version": "1.47.0-2+b2"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-8fbcc77ed31f",
+      "license_notice_file": "debian-notices/findutils.copyright",
+      "license_notice_sha256": "8fbcc77ed31f480a85654e9b6d1d25cbb95b62e9dc5159ae1565bca684c3e1dc",
+      "license_raw_headers": [
+        "BSD-3-clause",
+        "BSD-3-clause and/or GPL-3+",
+        "FSFAP",
+        "FSFULLR",
+        "GFDL-NIV-1.3+",
+        "GPL with automake exception",
+        "GPL-2+",
+        "GPL-2+ with Autoconf-data exception",
+        "GPL-3+",
+        "GPL-3+ with Autoconf-data exception",
+        "GPL-3+ with Bison-2.2 exception",
+        "ISC",
+        "ISC and/or LGPL-2.1+",
+        "LGPL-2+",
+        "LGPL-2.1+",
+        "LGPL-3",
+        "LGPL-3+",
+        "X11",
+        "public-domain"
+      ],
+      "name": "findutils",
+      "version": "4.9.0-4"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-b215a61cdd3e",
+      "license_notice_file": "debian-notices/fontconfig.copyright",
+      "license_notice_sha256": "b215a61cdd3e62b5b17cc28b1852c78acb3dd38be0fb30706f7efc050dba91db",
+      "license_raw_headers": [],
+      "name": "fontconfig",
+      "version": "2.14.1-4"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-b215a61cdd3e",
+      "license_notice_file": "debian-notices/fontconfig-config.copyright",
+      "license_notice_sha256": "b215a61cdd3e62b5b17cc28b1852c78acb3dd38be0fb30706f7efc050dba91db",
+      "license_raw_headers": [],
+      "name": "fontconfig-config",
+      "version": "2.14.1-4"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-dc12a0bc9870",
+      "license_notice_file": "debian-notices/fonts-freefont-ttf.copyright",
+      "license_notice_sha256": "dc12a0bc9870cca7aae5a787c246e3b53b6eb5bdfb96ed7898b72062bd11edfd",
+      "license_raw_headers": [
+        "GPL-3+",
+        "GPL-3+ with Special Font Exception"
+      ],
+      "name": "fonts-freefont-ttf",
+      "version": "20120503-10"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-2d31c8d4db39",
+      "license_notice_file": "debian-notices/fonts-ipafont-gothic.copyright",
+      "license_notice_sha256": "2d31c8d4db39084b966849c9aaddf94949dc99b3ed53626c112c66342b054d6a",
+      "license_raw_headers": [
+        "GPL-3+",
+        "IPA-1"
+      ],
+      "name": "fonts-ipafont-gothic",
+      "version": "00303-23"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-bcb5f95766d5",
+      "license_notice_file": "debian-notices/fonts-liberation.copyright",
+      "license_notice_sha256": "bcb5f95766d5dc969748869eef4559dd991fd31f7e0d30c29e140276cc3c24ee",
+      "license_raw_headers": [
+        "This agreement governs the use of the Software and any updates to the Software,"
+      ],
+      "name": "fonts-liberation",
+      "version": "1:1.07.4-11"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-3720722d2046",
+      "license_notice_file": "debian-notices/fonts-noto-color-emoji.copyright",
+      "license_notice_sha256": "3720722d2046accb40e1696f096b57c658b0b47d74031b3d114cf7545b840b3c",
+      "license_raw_headers": [
+        "Apache-2.0",
+        "SIL-1.1"
+      ],
+      "name": "fonts-noto-color-emoji",
+      "version": "2.042-0+deb12u1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-46d029d17ed9",
+      "license_notice_file": "debian-notices/fonts-tlwg-loma-otf.copyright",
+      "license_notice_sha256": "46d029d17ed9adb2a95761bbb750e5c66a7d455dfaa09a8be6cd2b5f3d8d5006",
+      "license_raw_headers": [
+        "GPL-2+",
+        "GPL-2+ with Font exception",
+        "LPPL",
+        "other"
+      ],
+      "name": "fonts-tlwg-loma-otf",
+      "version": "1:0.7.3-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-0986c8df2fc5",
+      "license_notice_file": "debian-notices/fonts-unifont.copyright",
+      "license_notice_sha256": "0986c8df2fc58c2103248700e14dca643db03aa64bb2b84638d4c99780f37f77",
+      "license_raw_headers": [
+        "GFDL-NIV",
+        "GPL-2+"
+      ],
+      "name": "fonts-unifont",
+      "version": "1:15.0.01-2"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-d183af7db6d7",
+      "license_notice_file": "debian-notices/fonts-wqy-zenhei.copyright",
+      "license_notice_sha256": "d183af7db6d782fe7009eeafef0cef67099ef50ef18dd81513de8004b0361cb7",
+      "license_raw_headers": [
+        "GPL-2 with Font embedding exception",
+        "GPL-2 with Font embedding exception and M+ FONTS License",
+        "M+ FONTS License"
+      ],
+      "name": "fonts-wqy-zenhei",
+      "version": "0.9.45-8"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-da8191658b34",
+      "license_notice_file": "debian-notices/gcc-12-base__amd64.copyright",
+      "license_notice_sha256": "da8191658b3452ce9caf31638ba61dab31a38c619fa39df119812e050f592fd3",
+      "license_raw_headers": [],
+      "name": "gcc-12-base:amd64",
+      "version": "12.2.0-14+deb12u1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-84dab06b5c1b",
+      "license_notice_file": "debian-notices/gpgv.copyright",
+      "license_notice_sha256": "84dab06b5c1baf3a7a45c3cdc5f98fb121234e98fdd6266c3f773d54fcdc4f54",
+      "license_raw_headers": [
+        "BSD-3-clause",
+        "CC0-1.0",
+        "Expat",
+        "GPL-3+",
+        "GPL-3+ or BSD-3-clause",
+        "LGPL-2.1+",
+        "LGPL-3+",
+        "RFC-Reference",
+        "TinySCHEME",
+        "permissive"
+      ],
+      "name": "gpgv",
+      "version": "2.2.40-1.1+deb12u2"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-42d9b4d61039",
+      "license_notice_file": "debian-notices/grep.copyright",
+      "license_notice_sha256": "42d9b4d610396b1e8d1303dcb9487af3f5a2d2709623cf03a04cf76acdf6c5e3",
+      "license_raw_headers": [
+        "GPL-3+"
+      ],
+      "name": "grep",
+      "version": "3.8-5"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-1ca5dd5098fe",
+      "license_notice_file": "debian-notices/gzip.copyright",
+      "license_notice_sha256": "1ca5dd5098fe2e1c0f0d05196f5b3da8b414a807702e6ca8b536eb5fd3059130",
+      "license_raw_headers": [
+        "FSF-manpages",
+        "GFDL-1.3+-no-invariant",
+        "GPL-3+"
+      ],
+      "name": "gzip",
+      "version": "1.12-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-94189fc5a9a7",
+      "license_notice_file": "debian-notices/hostname.copyright",
+      "license_notice_sha256": "94189fc5a9a7b7224d96e1a0cfdfe9be0df2018b04bf21d591627ab96b30cad1",
+      "license_raw_headers": [
+        "GPL-2"
+      ],
+      "name": "hostname",
+      "version": "3.23+nmu1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-7534601cc4fa",
+      "license_notice_file": "debian-notices/init-system-helpers.copyright",
+      "license_notice_sha256": "7534601cc4fa513804d16490359f5831e7b6a1212da3bbf948bebdd4c8799783",
+      "license_raw_headers": [
+        "BSD-3-clause",
+        "GPL-2+"
+      ],
+      "name": "init-system-helpers",
+      "version": "1.65.2+deb12u1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-9a2dfb4a5abc",
+      "license_notice_file": "debian-notices/libacl1__amd64.copyright",
+      "license_notice_sha256": "9a2dfb4a5abc7e84be2cc41f1089be665519c9409549296f6c19de57ab1d37c2",
+      "license_raw_headers": [
+        "GPL-2+",
+        "LGPL-2+"
+      ],
+      "name": "libacl1:amd64",
+      "version": "2.3.1-3"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-b4701305243d",
+      "license_notice_file": "debian-notices/libapt-pkg6.0__amd64.copyright",
+      "license_notice_sha256": "b4701305243d8d746f4acaafe15d94f946251b05691bd6917fef41dd15e9ee12",
+      "license_raw_headers": [
+        "BSD-3-clause",
+        "Expat",
+        "GPL-2",
+        "GPL-2+"
+      ],
+      "name": "libapt-pkg6.0:amd64",
+      "version": "2.6.1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-1e389062b3d4",
+      "license_notice_file": "debian-notices/libasound2-data.copyright",
+      "license_notice_sha256": "1e389062b3d44557d569d488e6075b162efd946e4bced56d20cbf62f9f53d7f6",
+      "license_raw_headers": [
+        "LPGL-2.1+"
+      ],
+      "name": "libasound2-data",
+      "version": "1.2.8-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-1e389062b3d4",
+      "license_notice_file": "debian-notices/libasound2__amd64.copyright",
+      "license_notice_sha256": "1e389062b3d44557d569d488e6075b162efd946e4bced56d20cbf62f9f53d7f6",
+      "license_raw_headers": [
+        "LPGL-2.1+"
+      ],
+      "name": "libasound2:amd64",
+      "version": "1.2.8-1+b1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-ea8d12c1f331",
+      "license_notice_file": "debian-notices/libatk-bridge2.0-0__amd64.copyright",
+      "license_notice_sha256": "ea8d12c1f33112087063f680432565a22d04dd36bec364652e9d1e831a360935",
+      "license_raw_headers": [
+        "AFL-2.1",
+        "AFL-2.1 or GPL-2+",
+        "GPL-2",
+        "GPL-2+",
+        "LGPL-2+",
+        "LGPL-2.1+",
+        "public-domain"
+      ],
+      "name": "libatk-bridge2.0-0:amd64",
+      "version": "2.46.0-5"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-ea8d12c1f331",
+      "license_notice_file": "debian-notices/libatk1.0-0__amd64.copyright",
+      "license_notice_sha256": "ea8d12c1f33112087063f680432565a22d04dd36bec364652e9d1e831a360935",
+      "license_raw_headers": [
+        "AFL-2.1",
+        "AFL-2.1 or GPL-2+",
+        "GPL-2",
+        "GPL-2+",
+        "LGPL-2+",
+        "LGPL-2.1+",
+        "public-domain"
+      ],
+      "name": "libatk1.0-0:amd64",
+      "version": "2.46.0-5"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-ea8d12c1f331",
+      "license_notice_file": "debian-notices/libatspi2.0-0__amd64.copyright",
+      "license_notice_sha256": "ea8d12c1f33112087063f680432565a22d04dd36bec364652e9d1e831a360935",
+      "license_raw_headers": [
+        "AFL-2.1",
+        "AFL-2.1 or GPL-2+",
+        "GPL-2",
+        "GPL-2+",
+        "LGPL-2+",
+        "LGPL-2.1+",
+        "public-domain"
+      ],
+      "name": "libatspi2.0-0:amd64",
+      "version": "2.46.0-5"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-0cbec745d85e",
+      "license_notice_file": "debian-notices/libattr1__amd64.copyright",
+      "license_notice_sha256": "0cbec745d85ea775450b2d54fac55277197f429e52d611f72852ed420450620e",
+      "license_raw_headers": [
+        "GPL-2+",
+        "LGPL-2+"
+      ],
+      "name": "libattr1:amd64",
+      "version": "1:2.5.1-4"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-6c7011e93f64",
+      "license_notice_file": "debian-notices/libaudit-common.copyright",
+      "license_notice_sha256": "6c7011e93f643b112c4cc3622131e28a30477afad6c4f5efe466b13aa7f603cc",
+      "license_raw_headers": [
+        "GPL-2",
+        "LGPL-2.1"
+      ],
+      "name": "libaudit-common",
+      "version": "1:3.0.9-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-6c7011e93f64",
+      "license_notice_file": "debian-notices/libaudit1__amd64.copyright",
+      "license_notice_sha256": "6c7011e93f643b112c4cc3622131e28a30477afad6c4f5efe466b13aa7f603cc",
+      "license_raw_headers": [
+        "GPL-2",
+        "LGPL-2.1"
+      ],
+      "name": "libaudit1:amd64",
+      "version": "1:3.0.9-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-66849d0ab7cb",
+      "license_notice_file": "debian-notices/libavahi-client3__amd64.copyright",
+      "license_notice_sha256": "66849d0ab7cbf0d770e40e00276ed8d264ed8974c0e064fb12814c0f80430c5d",
+      "license_raw_headers": [],
+      "name": "libavahi-client3:amd64",
+      "version": "0.8-10+deb12u1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-66849d0ab7cb",
+      "license_notice_file": "debian-notices/libavahi-common-data__amd64.copyright",
+      "license_notice_sha256": "66849d0ab7cbf0d770e40e00276ed8d264ed8974c0e064fb12814c0f80430c5d",
+      "license_raw_headers": [],
+      "name": "libavahi-common-data:amd64",
+      "version": "0.8-10+deb12u1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-66849d0ab7cb",
+      "license_notice_file": "debian-notices/libavahi-common3__amd64.copyright",
+      "license_notice_sha256": "66849d0ab7cbf0d770e40e00276ed8d264ed8974c0e064fb12814c0f80430c5d",
+      "license_raw_headers": [],
+      "name": "libavahi-common3:amd64",
+      "version": "0.8-10+deb12u1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-30539a2df6a8",
+      "license_notice_file": "debian-notices/libblkid1__amd64.copyright",
+      "license_notice_sha256": "30539a2df6a89d844f43c727505a3193a60515f8ec6cdede8cc515ed22941d1c",
+      "license_raw_headers": [
+        "BSD-3-clause",
+        "BSD-4-clause",
+        "BSLA",
+        "GPL-2",
+        "GPL-2+",
+        "GPL-3+",
+        "LGPL",
+        "LGPL-2+",
+        "LGPL-2.1+",
+        "LGPL-3+",
+        "MIT",
+        "public-domain"
+      ],
+      "name": "libblkid1:amd64",
+      "version": "2.38.1-5+deb12u3"
+    },
+    {
+      "license_expression": "MIT",
+      "license_notice_file": "debian-notices/libbrotli1__amd64.copyright",
+      "license_notice_sha256": "24a64e5bb83d0960d1835696a1e23c0896ad6055b0ca47c66ab0eb9a766324b1",
+      "license_raw_headers": [
+        "MIT"
+      ],
+      "name": "libbrotli1:amd64",
+      "version": "1.0.9-2+b6"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-00fd7be5d907",
+      "license_notice_file": "debian-notices/libbsd0__amd64.copyright",
+      "license_notice_sha256": "00fd7be5d907a6bcc409a80f2d565f508673db4761d54623691f89ae3aa20fc7",
+      "license_raw_headers": [
+        "BSD-2-clause",
+        "BSD-2-clause-NetBSD",
+        "BSD-2-clause-author",
+        "BSD-2-clause-verbatim",
+        "BSD-3-clause",
+        "BSD-3-clause-John-Birrell",
+        "BSD-3-clause-Regents",
+        "BSD-3-clause-Regents and BSD-2-clause-NetBSD",
+        "BSD-3-clause-author",
+        "BSD-4-clause-Niels-Provos",
+        "Beerware",
+        "Expat",
+        "ISC",
+        "ISC-Original",
+        "libutil-David-Nugent",
+        "public-domain"
+      ],
+      "name": "libbsd0:amd64",
+      "version": "0.11.7-2"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-832ed535ff3c",
+      "license_notice_file": "debian-notices/libbz2-1.0__amd64.copyright",
+      "license_notice_sha256": "832ed535ff3c3d025a8d2348eb1b697b89addcf2eaadbc17650262040b9145e2",
+      "license_raw_headers": [
+        "BSD-variant",
+        "GPL-2"
+      ],
+      "name": "libbz2-1.0:amd64",
+      "version": "1.0.8-5+b1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-40c7e1f21185",
+      "license_notice_file": "debian-notices/libc-bin.copyright",
+      "license_notice_sha256": "40c7e1f2118531f038ca22999bd976901254e1bc5cd1b0f0211bdd064c599987",
+      "license_raw_headers": [],
+      "name": "libc-bin",
+      "version": "2.36-9+deb12u14"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-40c7e1f21185",
+      "license_notice_file": "debian-notices/libc6__amd64.copyright",
+      "license_notice_sha256": "40c7e1f2118531f038ca22999bd976901254e1bc5cd1b0f0211bdd064c599987",
+      "license_raw_headers": [],
+      "name": "libc6:amd64",
+      "version": "2.36-9+deb12u14"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-408fb9e704e8",
+      "license_notice_file": "debian-notices/libcairo2__amd64.copyright",
+      "license_notice_sha256": "408fb9e704e875cd42d432e7c9b3b378f568e3c89db2b5c5ef3d11c025319574",
+      "license_raw_headers": [],
+      "name": "libcairo2:amd64",
+      "version": "1.16.0-7"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-49b5db19990a",
+      "license_notice_file": "debian-notices/libcap-ng0__amd64.copyright",
+      "license_notice_sha256": "49b5db19990a3e3cc1a9ed716aed231f6f3c1c217e58f62ae4dc2818c6d3e9cc",
+      "license_raw_headers": [
+        "GPL-2+",
+        "GPL-3",
+        "LGPL-2.1+"
+      ],
+      "name": "libcap-ng0:amd64",
+      "version": "0.8.3-1+b3"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-e60a5642e12e",
+      "license_notice_file": "debian-notices/libcap2__amd64.copyright",
+      "license_notice_sha256": "e60a5642e12e340060e4e519a65b2eb0330be2917854841c644e36268f607d54",
+      "license_raw_headers": [
+        "BSD-3-clause",
+        "BSD-3-clause or GPL-2",
+        "BSD-3-clause or GPL-2+",
+        "GPL-2",
+        "GPL-2+"
+      ],
+      "name": "libcap2:amd64",
+      "version": "1:2.66-4+deb12u3+b1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-1ca415a294c0",
+      "license_notice_file": "debian-notices/libcom-err2__amd64.copyright",
+      "license_notice_sha256": "1ca415a294c0e56958c4f795b3f1f69ea3479bca53d7811f5cdd020a258949db",
+      "license_raw_headers": [
+        "Apache-2",
+        "BSD-3-Clause",
+        "GPL or MIT-US-export",
+        "GPL-2",
+        "GPL-2+ with Texinfo exception",
+        "ISC",
+        "Kazlib",
+        "LGPL-2",
+        "Latex2e"
+      ],
+      "name": "libcom-err2:amd64",
+      "version": "1.47.0-2+b2"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-5a5e7ca0e9f3",
+      "license_notice_file": "debian-notices/libcrypt1__amd64.copyright",
+      "license_notice_sha256": "5a5e7ca0e9f3f9679977e3a3e9ede45ad92885a3297ea78e766979f9866c5a16",
+      "license_raw_headers": [],
+      "name": "libcrypt1:amd64",
+      "version": "1:4.4.33-2"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-adf89b2f8c8a",
+      "license_notice_file": "debian-notices/libcups2__amd64.copyright",
+      "license_notice_sha256": "adf89b2f8c8abb8cd0770184a4536266e5b816e59cf78a3d2bdaf8916067de6e",
+      "license_raw_headers": [
+        "Apache-2.0",
+        "Apache-2.0-with-GPL2-LGPL2-Exception",
+        "Apache-2.0-with-GPL2-LGPL2-Exception or BSD-2-clause",
+        "BSD-2-Clause",
+        "FSFUL",
+        "Zlib"
+      ],
+      "name": "libcups2:amd64",
+      "version": "2.4.2-3+deb12u9"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-1169f159b101",
+      "license_notice_file": "debian-notices/libdatrie1__amd64.copyright",
+      "license_notice_sha256": "1169f159b101610f58bdc54949c153de129ef8363294f532f45912de9f94b69c",
+      "license_raw_headers": [
+        "GPL-2+",
+        "LGPL-2.1+"
+      ],
+      "name": "libdatrie1:amd64",
+      "version": "0.2.13-2+b1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-8b53da37d732",
+      "license_notice_file": "debian-notices/libdb5.3__amd64.copyright",
+      "license_notice_sha256": "8b53da37d73289d9df7317b3a2dbe16491f1fa9fec8b77b86d69704b40ce2c26",
+      "license_raw_headers": [
+        "Artistic or BSD-3-clause",
+        "BSD-3-clause",
+        "BSD-3-clause-fjord",
+        "GPL",
+        "GPL or Artistic",
+        "GPL-3",
+        "MIT-old",
+        "Ms-PL",
+        "Sleepycat",
+        "Sleepycat and BSD-3-clause",
+        "TCL-like",
+        "X11",
+        "zlib"
+      ],
+      "name": "libdb5.3:amd64",
+      "version": "5.3.28+dfsg2-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-4cfc9f33368f",
+      "license_notice_file": "debian-notices/libdbus-1-3__amd64.copyright",
+      "license_notice_sha256": "4cfc9f33368f3b95429992704c96fa598818ec796046426a9979ce4d9b8b1900",
+      "license_raw_headers": [
+        "AFL-2.1",
+        "BSD-3-clause",
+        "BSD-3-clause and BSD-3-clause-generic",
+        "BSD-3-clause-generic",
+        "Expat",
+        "FSF-unlimited-permission",
+        "GPL-2+",
+        "GPL-2+ or AFL-2.1, and Expat and Tcl-BSDish",
+        "GPL-2+ with Autoconf exception",
+        "LGPL-2.1+",
+        "Tcl-BSDish",
+        "autoconf-archive-permissive",
+        "g10-permissive"
+      ],
+      "name": "libdbus-1-3:amd64",
+      "version": "1.14.10-1~deb12u1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-cf63099896d1",
+      "license_notice_file": "debian-notices/libdebconfclient0__amd64.copyright",
+      "license_notice_sha256": "cf63099896d1c0f6529c41b8d95738e6fea342ffba609187d339c4f38ce36ecc",
+      "license_raw_headers": [
+        "BSD-2-Clause",
+        "BSD-2-clause",
+        "GPL-2+"
+      ],
+      "name": "libdebconfclient0:amd64",
+      "version": "0.270"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-512c9a57fd8b",
+      "license_notice_file": "debian-notices/libdrm-amdgpu1__amd64.copyright",
+      "license_notice_sha256": "512c9a57fd8b449aa157351da9df07bf8e19f767e496a72205a4020268ddb2e0",
+      "license_raw_headers": [],
+      "name": "libdrm-amdgpu1:amd64",
+      "version": "2.4.114-1+b1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-512c9a57fd8b",
+      "license_notice_file": "debian-notices/libdrm-common.copyright",
+      "license_notice_sha256": "512c9a57fd8b449aa157351da9df07bf8e19f767e496a72205a4020268ddb2e0",
+      "license_raw_headers": [],
+      "name": "libdrm-common",
+      "version": "2.4.114-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-512c9a57fd8b",
+      "license_notice_file": "debian-notices/libdrm-intel1__amd64.copyright",
+      "license_notice_sha256": "512c9a57fd8b449aa157351da9df07bf8e19f767e496a72205a4020268ddb2e0",
+      "license_raw_headers": [],
+      "name": "libdrm-intel1:amd64",
+      "version": "2.4.114-1+b1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-512c9a57fd8b",
+      "license_notice_file": "debian-notices/libdrm-nouveau2__amd64.copyright",
+      "license_notice_sha256": "512c9a57fd8b449aa157351da9df07bf8e19f767e496a72205a4020268ddb2e0",
+      "license_raw_headers": [],
+      "name": "libdrm-nouveau2:amd64",
+      "version": "2.4.114-1+b1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-512c9a57fd8b",
+      "license_notice_file": "debian-notices/libdrm-radeon1__amd64.copyright",
+      "license_notice_sha256": "512c9a57fd8b449aa157351da9df07bf8e19f767e496a72205a4020268ddb2e0",
+      "license_raw_headers": [],
+      "name": "libdrm-radeon1:amd64",
+      "version": "2.4.114-1+b1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-512c9a57fd8b",
+      "license_notice_file": "debian-notices/libdrm2__amd64.copyright",
+      "license_notice_sha256": "512c9a57fd8b449aa157351da9df07bf8e19f767e496a72205a4020268ddb2e0",
+      "license_raw_headers": [],
+      "name": "libdrm2:amd64",
+      "version": "2.4.114-1+b1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-2b53671050f6",
+      "license_notice_file": "debian-notices/libedit2__amd64.copyright",
+      "license_notice_sha256": "2b53671050f6319be6fcdcafa434e8ccb8af629359b4afc83185867204f3927d",
+      "license_raw_headers": [
+        "BSD-3-clause"
+      ],
+      "name": "libedit2:amd64",
+      "version": "3.1-20221030-2"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-d754a0edec1a",
+      "license_notice_file": "debian-notices/libelf1__amd64.copyright",
+      "license_notice_sha256": "d754a0edec1a510561aa643040456266536e3ec26bdb22e69a11c3f7b5de2339",
+      "license_raw_headers": [
+        "BSD-2-clause",
+        "GFDL-NIV-1.3",
+        "GPL-3+",
+        "GPL-3+ with Bison exception",
+        "LGPL-2.1+",
+        "LGPL-3+ or GPL-2+"
+      ],
+      "name": "libelf1:amd64",
+      "version": "0.188-2.1"
+    },
+    {
+      "license_expression": "MIT",
+      "license_notice_file": "debian-notices/libexpat1__amd64.copyright",
+      "license_notice_sha256": "60919fe1a156395ff14511bb6ff79756c50ade2fff59ac60c9bae1d8a7fe6292",
+      "license_raw_headers": [
+        "MIT"
+      ],
+      "name": "libexpat1:amd64",
+      "version": "2.5.0-1+deb12u2"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-1ca415a294c0",
+      "license_notice_file": "debian-notices/libext2fs2__amd64.copyright",
+      "license_notice_sha256": "1ca415a294c0e56958c4f795b3f1f69ea3479bca53d7811f5cdd020a258949db",
+      "license_raw_headers": [
+        "Apache-2",
+        "BSD-3-Clause",
+        "GPL or MIT-US-export",
+        "GPL-2",
+        "GPL-2+ with Texinfo exception",
+        "ISC",
+        "Kazlib",
+        "LGPL-2",
+        "Latex2e"
+      ],
+      "name": "libext2fs2:amd64",
+      "version": "1.47.0-2+b2"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-f83d2ecba1ea",
+      "license_notice_file": "debian-notices/libffi8__amd64.copyright",
+      "license_notice_sha256": "f83d2ecba1ea4d99957e81c50bebbd076a128194288a3ec22cc8ccdb77c43087",
+      "license_raw_headers": [
+        "Expat",
+        "GPL",
+        "GPL-2+",
+        "GPL-3+",
+        "MPL-1.1 or GPL-2+ or LGPL-2.1+",
+        "X11",
+        "public-domain"
+      ],
+      "name": "libffi8:amd64",
+      "version": "3.4.4-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-b215a61cdd3e",
+      "license_notice_file": "debian-notices/libfontconfig1__amd64.copyright",
+      "license_notice_sha256": "b215a61cdd3e62b5b17cc28b1852c78acb3dd38be0fb30706f7efc050dba91db",
+      "license_raw_headers": [],
+      "name": "libfontconfig1:amd64",
+      "version": "2.14.1-4"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-a7cb43c56c51",
+      "license_notice_file": "debian-notices/libfontenc1__amd64.copyright",
+      "license_notice_sha256": "a7cb43c56c51407bc6539032a47c5351cd03962ed6a30b4f52dec6ed7db54383",
+      "license_raw_headers": [],
+      "name": "libfontenc1:amd64",
+      "version": "1:1.1.4-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-70a7a0a06e64",
+      "license_notice_file": "debian-notices/libfreetype6__amd64.copyright",
+      "license_notice_sha256": "70a7a0a06e6440777417f6875476cb712b03943010abed1c32297798c8cc8ed8",
+      "license_raw_headers": [
+        "BSD-3-Clause",
+        "BSL-1.0",
+        "FSFAP",
+        "FTL",
+        "FTL and MIT",
+        "GPL-2+",
+        "GPL-3+",
+        "MIT",
+        "OpenGroup-BSD-like",
+        "Public-Domain",
+        "Zlib"
+      ],
+      "name": "libfreetype6:amd64",
+      "version": "2.12.1+dfsg-5+deb12u4"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-39000badbcd1",
+      "license_notice_file": "debian-notices/libfribidi0__amd64.copyright",
+      "license_notice_sha256": "39000badbcd15a4a144cfa2d2f0d906d4d9183f42350e8193ac775baded86b7c",
+      "license_raw_headers": [
+        "LGPL-2.1+"
+      ],
+      "name": "libfribidi0:amd64",
+      "version": "1.0.8-2.1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-30c36421275b",
+      "license_notice_file": "debian-notices/libgbm1__amd64.copyright",
+      "license_notice_sha256": "30c36421275bf40e318d5d3e8662db6e332f97f047fa963bdb44e28ef9112232",
+      "license_raw_headers": [
+        "Apache-2.0",
+        "BSD-2-clause",
+        "BSD-3-google",
+        "BSL",
+        "GPL",
+        "Khronos",
+        "MIT",
+        "MLAA",
+        "SGI"
+      ],
+      "name": "libgbm1:amd64",
+      "version": "22.3.6-1+deb12u2"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-da8191658b34",
+      "license_notice_file": "debian-notices/libgcc-s1__amd64.copyright",
+      "license_notice_sha256": "da8191658b3452ce9caf31638ba61dab31a38c619fa39df119812e050f592fd3",
+      "license_raw_headers": [],
+      "name": "libgcc-s1:amd64",
+      "version": "12.2.0-14+deb12u1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-95db2f9da663",
+      "license_notice_file": "debian-notices/libgcrypt20__amd64.copyright",
+      "license_notice_sha256": "95db2f9da663f2bfe2aabe9c72fce9d6c9ae767b912f397d7823f50bd55a1a7d",
+      "license_raw_headers": [
+        "Most of the package is licensed under the GNU Lesser General Public"
+      ],
+      "name": "libgcrypt20:amd64",
+      "version": "1.10.1-3+deb12u1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-8bea8cf2f94c",
+      "license_notice_file": "debian-notices/libgdbm6__amd64.copyright",
+      "license_notice_sha256": "8bea8cf2f94cd8b37a0b8b3a2b974122b9194c1165e6ad508e366c74679e8817",
+      "license_raw_headers": [
+        "GFDL-NIV-1.3+",
+        "GPL-2+",
+        "GPL-3+"
+      ],
+      "name": "libgdbm6:amd64",
+      "version": "1.23-3"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-30c36421275b",
+      "license_notice_file": "debian-notices/libgl1-mesa-dri__amd64.copyright",
+      "license_notice_sha256": "30c36421275bf40e318d5d3e8662db6e332f97f047fa963bdb44e28ef9112232",
+      "license_raw_headers": [
+        "Apache-2.0",
+        "BSD-2-clause",
+        "BSD-3-google",
+        "BSL",
+        "GPL",
+        "Khronos",
+        "MIT",
+        "MLAA",
+        "SGI"
+      ],
+      "name": "libgl1-mesa-dri:amd64",
+      "version": "22.3.6-1+deb12u2"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-cf246da9d897",
+      "license_notice_file": "debian-notices/libgl1__amd64.copyright",
+      "license_notice_sha256": "cf246da9d8979f9be80e5b9c3ce0010c09786f11a55637ff3d09f1a36d269b25",
+      "license_raw_headers": [
+        "Apache-2.0",
+        "BSD-1-clause",
+        "GPL",
+        "GPL-3+",
+        "MIT",
+        "public-domain"
+      ],
+      "name": "libgl1:amd64",
+      "version": "1.6.0-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-30c36421275b",
+      "license_notice_file": "debian-notices/libglapi-mesa__amd64.copyright",
+      "license_notice_sha256": "30c36421275bf40e318d5d3e8662db6e332f97f047fa963bdb44e28ef9112232",
+      "license_raw_headers": [
+        "Apache-2.0",
+        "BSD-2-clause",
+        "BSD-3-google",
+        "BSL",
+        "GPL",
+        "Khronos",
+        "MIT",
+        "MLAA",
+        "SGI"
+      ],
+      "name": "libglapi-mesa:amd64",
+      "version": "22.3.6-1+deb12u2"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-03cbcd6142c9",
+      "license_notice_file": "debian-notices/libglib2.0-0__amd64.copyright",
+      "license_notice_sha256": "03cbcd6142c92bb14c997af557b8c73b1534710c34fe7f69788f8e8fc5fd941d",
+      "license_raw_headers": [
+        "AFL-2.0",
+        "AFL-2.0 or LGPL-2.1+",
+        "Apache-2.0 with LLVM exception",
+        "BSD-3-clause-pcre",
+        "CC-BY-SA-3.0",
+        "CC0-1.0",
+        "Expat",
+        "FSFULLR",
+        "GPL-2+",
+        "GPL-2+ with Autoconf exception",
+        "Iconv-PD",
+        "Janik-permissive",
+        "Kuchling-PD",
+        "LGPL-2+",
+        "LGPL-2+ and LGPL-2.1+ and FSFULLR and CC0-1.0 and Janik-permissive and Iconv-PD and Mingw-PD and Old-GLib-Tests-permissive",
+        "LGPL-2.1+",
+        "LGPL-2.1+ and BSD-3-clause-pcre",
+        "LGPL-2.1+ and Expat",
+        "LGPL-2.1+ and Kuchling-PD and Plumb-PD",
+        "LGPL-3+",
+        "Mingw-PD",
+        "Old-GLib-Tests-permissive",
+        "Plumb-PD",
+        "Unicode-DFS-2016",
+        "bzip2-1.0.6"
+      ],
+      "name": "libglib2.0-0:amd64",
+      "version": "2.74.6-2+deb12u9"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-cf246da9d897",
+      "license_notice_file": "debian-notices/libglvnd0__amd64.copyright",
+      "license_notice_sha256": "cf246da9d8979f9be80e5b9c3ce0010c09786f11a55637ff3d09f1a36d269b25",
+      "license_raw_headers": [
+        "Apache-2.0",
+        "BSD-1-clause",
+        "GPL",
+        "GPL-3+",
+        "MIT",
+        "public-domain"
+      ],
+      "name": "libglvnd0:amd64",
+      "version": "1.6.0-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-30c36421275b",
+      "license_notice_file": "debian-notices/libglx-mesa0__amd64.copyright",
+      "license_notice_sha256": "30c36421275bf40e318d5d3e8662db6e332f97f047fa963bdb44e28ef9112232",
+      "license_raw_headers": [
+        "Apache-2.0",
+        "BSD-2-clause",
+        "BSD-3-google",
+        "BSL",
+        "GPL",
+        "Khronos",
+        "MIT",
+        "MLAA",
+        "SGI"
+      ],
+      "name": "libglx-mesa0:amd64",
+      "version": "22.3.6-1+deb12u2"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-cf246da9d897",
+      "license_notice_file": "debian-notices/libglx0__amd64.copyright",
+      "license_notice_sha256": "cf246da9d8979f9be80e5b9c3ce0010c09786f11a55637ff3d09f1a36d269b25",
+      "license_raw_headers": [
+        "Apache-2.0",
+        "BSD-1-clause",
+        "GPL",
+        "GPL-3+",
+        "MIT",
+        "public-domain"
+      ],
+      "name": "libglx0:amd64",
+      "version": "1.6.0-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-7d366aef5ba3",
+      "license_notice_file": "debian-notices/libgmp10__amd64.copyright",
+      "license_notice_sha256": "7d366aef5ba325150246de1d7820c4c9926cd27ca61a69948492b26cd3b61601",
+      "license_raw_headers": [
+        "GPL-2+",
+        "GPL-2+ or LGPL-3+",
+        "GPL-3+",
+        "GPL-3+ with Bison exception",
+        "LGPL-3+"
+      ],
+      "name": "libgmp10:amd64",
+      "version": "2:6.2.1+dfsg1-1.1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-bb7e5c24b3e2",
+      "license_notice_file": "debian-notices/libgnutls30__amd64.copyright",
+      "license_notice_sha256": "bb7e5c24b3e27bbba5671dd710d159a0066833bda4caa1d55d8027ffed539337",
+      "license_raw_headers": [
+        "* Redistribution and use in source and binary forms, with or without",
+        "Apache-2.0",
+        "BSD-3-Clause",
+        "CC0 license",
+        "Expat",
+        "GPLv3+",
+        "LGPLv2.1+",
+        "LGPLv3+_or_GPLv2+",
+        "Public domain.",
+        "The main library is licensed under GNU Lesser",
+        "based on Russian standard GOST 28147-89"
+      ],
+      "name": "libgnutls30:amd64",
+      "version": "3.7.9-2+deb12u7"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-8760fd36efa1",
+      "license_notice_file": "debian-notices/libgpg-error0__amd64.copyright",
+      "license_notice_sha256": "8760fd36efa1d7186f8769d4e76a3e678045b94d54465bf6f2db5eb871c7c27f",
+      "license_raw_headers": [
+        "BSD-3-clause",
+        "GPL-3+",
+        "LGPL-2.1+",
+        "LGPL-2.1+ or BSD-3-clause",
+        "g10-permissive"
+      ],
+      "name": "libgpg-error0:amd64",
+      "version": "1.46-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-a33017ba0308",
+      "license_notice_file": "debian-notices/libgraphite2-3__amd64.copyright",
+      "license_notice_sha256": "a33017ba0308c41bdbde4751bff349ab7b26af45fadbb1e3e7ac67c372985572",
+      "license_raw_headers": [
+        "Artistic",
+        "Artistic or GPL-1+",
+        "GPL-1+",
+        "GPL-2+",
+        "LGPL-2.1+",
+        "LGPL-2.1+ or GPL-2+ or MPL-1.1",
+        "LGPL-2.1+ or MPL-1.1 or GPL-2+",
+        "MPL-1.1",
+        "custom-sil-open-font-license",
+        "public-domain"
+      ],
+      "name": "libgraphite2-3:amd64",
+      "version": "1.3.14-1+deb12u1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-936728f41817",
+      "license_notice_file": "debian-notices/libgssapi-krb5-2__amd64.copyright",
+      "license_notice_sha256": "936728f4181718f42951b881c1e8f1386bf6b2723c4fbc533c374d6f42c71816",
+      "license_raw_headers": [],
+      "name": "libgssapi-krb5-2:amd64",
+      "version": "1.20.1-2+deb12u5"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-31cfabe2acdc",
+      "license_notice_file": "debian-notices/libharfbuzz0b__amd64.copyright",
+      "license_notice_sha256": "31cfabe2acdcc9cc9dcda6b93185cffc50424d817ae20dd8efd8bcdac5396148",
+      "license_raw_headers": [
+        "Apache-2.0",
+        "CC0-1.0",
+        "Expat",
+        "FSFAP",
+        "FSFUL",
+        "FSFULLR",
+        "GPL-2+ with AutoConf exception",
+        "GPL-2+ with Font exception",
+        "GPL-2+ with LibTool exception",
+        "GPL-3+",
+        "GPL-3+ with AutoConf exception",
+        "ISC",
+        "LGPL-2.1+",
+        "MIT",
+        "Monotype",
+        "OFL-1.1",
+        "UFL-1.0",
+        "Unicode"
+      ],
+      "name": "libharfbuzz0b:amd64",
+      "version": "6.0.0+dfsg-3"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-ca2ca5973202",
+      "license_notice_file": "debian-notices/libhogweed6__amd64.copyright",
+      "license_notice_sha256": "ca2ca597320220c00ef6dc0fe5d0d82025548d6d4ba80e85615eb691f9021f93",
+      "license_raw_headers": [
+        "Expat",
+        "GAP",
+        "GPL-2",
+        "GPL-2+",
+        "GPL-3+",
+        "GPL-3+ with Autoconf exception",
+        "LGPL-2+",
+        "LGPL-3+",
+        "LGPL-3+ or GPL-2+",
+        "public-domain"
+      ],
+      "name": "libhogweed6:amd64",
+      "version": "3.8.1-2"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-fc16500a74ac",
+      "license_notice_file": "debian-notices/libice6__amd64.copyright",
+      "license_notice_sha256": "fc16500a74acc2d0a7bb2fa1005956a52551abdce2afe0642a9a8dc2b6af53c6",
+      "license_raw_headers": [],
+      "name": "libice6:amd64",
+      "version": "2:1.0.10-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-5bbff5f646ce",
+      "license_notice_file": "debian-notices/libicu72__amd64.copyright",
+      "license_notice_sha256": "5bbff5f646ce750ac0a347e7f91793279b7422a1119820b5f75d98879c201c68",
+      "license_raw_headers": [
+        "GPL-3",
+        "MIT"
+      ],
+      "name": "libicu72:amd64",
+      "version": "72.1-3+deb12u1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-41702469f28e",
+      "license_notice_file": "debian-notices/libidn2-0__amd64.copyright",
+      "license_notice_sha256": "41702469f28e8ff406345e3d1dd0c741f11bdfca319264f67036efd6aaa79e4b",
+      "license_raw_headers": [
+        "GPL-2+",
+        "GPL-3+",
+        "LGPL-3+",
+        "LGPL-3+ or GPL-2+",
+        "Unicode"
+      ],
+      "name": "libidn2-0:amd64",
+      "version": "2.3.3-1+b1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-936728f41817",
+      "license_notice_file": "debian-notices/libk5crypto3__amd64.copyright",
+      "license_notice_sha256": "936728f4181718f42951b881c1e8f1386bf6b2723c4fbc533c374d6f42c71816",
+      "license_raw_headers": [],
+      "name": "libk5crypto3:amd64",
+      "version": "1.20.1-2+deb12u5"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-c62fe37d2220",
+      "license_notice_file": "debian-notices/libkeyutils1__amd64.copyright",
+      "license_notice_sha256": "c62fe37d22203046611112bc10a9e03a39a7f73bec1b061e7c615326166d9ff5",
+      "license_raw_headers": [
+        "GPL-2+",
+        "LGPL-2+"
+      ],
+      "name": "libkeyutils1:amd64",
+      "version": "1.6.3-2"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-936728f41817",
+      "license_notice_file": "debian-notices/libkrb5-3__amd64.copyright",
+      "license_notice_sha256": "936728f4181718f42951b881c1e8f1386bf6b2723c4fbc533c374d6f42c71816",
+      "license_raw_headers": [],
+      "name": "libkrb5-3:amd64",
+      "version": "1.20.1-2+deb12u5"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-936728f41817",
+      "license_notice_file": "debian-notices/libkrb5support0__amd64.copyright",
+      "license_notice_sha256": "936728f4181718f42951b881c1e8f1386bf6b2723c4fbc533c374d6f42c71816",
+      "license_raw_headers": [],
+      "name": "libkrb5support0:amd64",
+      "version": "1.20.1-2+deb12u5"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-dc2a171c75ca",
+      "license_notice_file": "debian-notices/libllvm15__amd64.copyright",
+      "license_notice_sha256": "dc2a171c75ca72818f7f4312602f27cb0e4bf6d010a86e7073a3797cb228ddff",
+      "license_raw_headers": [
+        "APACHE-2-LLVM-EXCEPTIONS",
+        "BSD-3-Clause",
+        "BSD-3-clause",
+        "MIT",
+        "Python",
+        "solar-public-domain"
+      ],
+      "name": "libllvm15:amd64",
+      "version": "1:15.0.6-4+b1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-d3be0f43fe14",
+      "license_notice_file": "debian-notices/liblz4-1__amd64.copyright",
+      "license_notice_sha256": "d3be0f43fe14da244f97c451bbae789c0acf868612598a69f5f22a289abeca40",
+      "license_raw_headers": [
+        "BSD-2-clause",
+        "GPL-2+",
+        "GPL-2+ or BSD-2-clause"
+      ],
+      "name": "liblz4-1:amd64",
+      "version": "1.9.4-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-a2dc8fac0f49",
+      "license_notice_file": "debian-notices/liblzma5__amd64.copyright",
+      "license_notice_sha256": "a2dc8fac0f496e1c58aff67018cf0c6b88336316afa5642f9335b71642e28aa8",
+      "license_raw_headers": [
+        "Autoconf",
+        "Different licenses apply to different files in this package. Here",
+        "GPL-2",
+        "GPL-2+",
+        "LGPL-2.1+",
+        "PD",
+        "PD-debian",
+        "config-h",
+        "noderivs",
+        "none",
+        "permissive-fsf",
+        "permissive-nowarranty",
+        "probably-PD"
+      ],
+      "name": "liblzma5:amd64",
+      "version": "5.4.1-1+deb12u1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-4365ef6255ad",
+      "license_notice_file": "debian-notices/libmd0__amd64.copyright",
+      "license_notice_sha256": "4365ef6255ad553fce69dd4bc0e093472c5d0e41b8ea493a545cc926ce171aa6",
+      "license_raw_headers": [
+        "BSD-2-clause",
+        "BSD-2-clause-NetBSD",
+        "BSD-3-clause",
+        "BSD-3-clause-Aaron-D-Gifford",
+        "Beerware",
+        "ISC",
+        "public-domain-md4",
+        "public-domain-md5",
+        "public-domain-sha1"
+      ],
+      "name": "libmd0:amd64",
+      "version": "1.0.4-2"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-30539a2df6a8",
+      "license_notice_file": "debian-notices/libmount1__amd64.copyright",
+      "license_notice_sha256": "30539a2df6a89d844f43c727505a3193a60515f8ec6cdede8cc515ed22941d1c",
+      "license_raw_headers": [
+        "BSD-3-clause",
+        "BSD-4-clause",
+        "BSLA",
+        "GPL-2",
+        "GPL-2+",
+        "GPL-3+",
+        "LGPL",
+        "LGPL-2+",
+        "LGPL-2.1+",
+        "LGPL-3+",
+        "MIT",
+        "public-domain"
+      ],
+      "name": "libmount1:amd64",
+      "version": "2.38.1-5+deb12u3"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-f0974fb41778",
+      "license_notice_file": "debian-notices/libncursesw6__amd64.copyright",
+      "license_notice_sha256": "f0974fb41778e23c94111ff90da0546de8971f8270c58877283d372e6bd7f17e",
+      "license_raw_headers": [
+        "BSD-3-clause",
+        "MIT/X11",
+        "X11"
+      ],
+      "name": "libncursesw6:amd64",
+      "version": "6.4-4"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-ca2ca5973202",
+      "license_notice_file": "debian-notices/libnettle8__amd64.copyright",
+      "license_notice_sha256": "ca2ca597320220c00ef6dc0fe5d0d82025548d6d4ba80e85615eb691f9021f93",
+      "license_raw_headers": [
+        "Expat",
+        "GAP",
+        "GPL-2",
+        "GPL-2+",
+        "GPL-3+",
+        "GPL-3+ with Autoconf exception",
+        "LGPL-2+",
+        "LGPL-3+",
+        "LGPL-3+ or GPL-2+",
+        "public-domain"
+      ],
+      "name": "libnettle8:amd64",
+      "version": "3.8.1-2"
+    },
+    {
+      "license_expression": "MPL-2.0",
+      "license_notice_file": "debian-notices/libnspr4__amd64.copyright",
+      "license_notice_sha256": "3c4fcc131809b2b6993513bfe4cf6f1ede391ec84f1d5ceca78fb75537b22452",
+      "license_raw_headers": [
+        "MPL-2.0"
+      ],
+      "name": "libnspr4:amd64",
+      "version": "2:4.35-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-3f450f945323",
+      "license_notice_file": "debian-notices/libnss3__amd64.copyright",
+      "license_notice_sha256": "3f450f9453233852b3a469a36a897cc68fb87be3e8b3a5ba64f63a7904528408",
+      "license_raw_headers": [
+        "BSD-3",
+        "MPL-2.0",
+        "Zlib",
+        "public-domain"
+      ],
+      "name": "libnss3:amd64",
+      "version": "2:3.87.1-1+deb12u4"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-ed139379f7c8",
+      "license_notice_file": "debian-notices/libp11-kit0__amd64.copyright",
+      "license_notice_sha256": "ed139379f7c874f0ee75f3ddcc2e01091dd828d84ee1a0bdff6a1c5673ee6e58",
+      "license_raw_headers": [
+        "Apache-2.0",
+        "BSD-3-Clause",
+        "ISC",
+        "ISC+IBM",
+        "LGPL-2.1+",
+        "permissive-like-automake-output",
+        "same-as-rest-of-p11kit"
+      ],
+      "name": "libp11-kit0:amd64",
+      "version": "0.24.1-2"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-9596b9028339",
+      "license_notice_file": "debian-notices/libpam-modules-bin.copyright",
+      "license_notice_sha256": "9596b9028339d66c285422237728d6170e1e29d0b0d9adf0e9f1bda82e2391ce",
+      "license_raw_headers": [
+        "BSD-3-clause or GPL",
+        "BSD-tcp_wrappers",
+        "Beerware",
+        "GPL-2",
+        "GPL-2+",
+        "GPL-3",
+        "GPL-3+ with Bison exception",
+        "LGPL-2+",
+        "public-domain"
+      ],
+      "name": "libpam-modules-bin",
+      "version": "1.5.2-6+deb12u2"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-9596b9028339",
+      "license_notice_file": "debian-notices/libpam-modules__amd64.copyright",
+      "license_notice_sha256": "9596b9028339d66c285422237728d6170e1e29d0b0d9adf0e9f1bda82e2391ce",
+      "license_raw_headers": [
+        "BSD-3-clause or GPL",
+        "BSD-tcp_wrappers",
+        "Beerware",
+        "GPL-2",
+        "GPL-2+",
+        "GPL-3",
+        "GPL-3+ with Bison exception",
+        "LGPL-2+",
+        "public-domain"
+      ],
+      "name": "libpam-modules:amd64",
+      "version": "1.5.2-6+deb12u2"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-9596b9028339",
+      "license_notice_file": "debian-notices/libpam-runtime.copyright",
+      "license_notice_sha256": "9596b9028339d66c285422237728d6170e1e29d0b0d9adf0e9f1bda82e2391ce",
+      "license_raw_headers": [
+        "BSD-3-clause or GPL",
+        "BSD-tcp_wrappers",
+        "Beerware",
+        "GPL-2",
+        "GPL-2+",
+        "GPL-3",
+        "GPL-3+ with Bison exception",
+        "LGPL-2+",
+        "public-domain"
+      ],
+      "name": "libpam-runtime",
+      "version": "1.5.2-6+deb12u2"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-9596b9028339",
+      "license_notice_file": "debian-notices/libpam0g__amd64.copyright",
+      "license_notice_sha256": "9596b9028339d66c285422237728d6170e1e29d0b0d9adf0e9f1bda82e2391ce",
+      "license_raw_headers": [
+        "BSD-3-clause or GPL",
+        "BSD-tcp_wrappers",
+        "Beerware",
+        "GPL-2",
+        "GPL-2+",
+        "GPL-3",
+        "GPL-3+ with Bison exception",
+        "LGPL-2+",
+        "public-domain"
+      ],
+      "name": "libpam0g:amd64",
+      "version": "1.5.2-6+deb12u2"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-3a29d0e487ea",
+      "license_notice_file": "debian-notices/libpango-1.0-0__amd64.copyright",
+      "license_notice_sha256": "3a29d0e487eae553ec47f260be1570a0d96e4f28c21f29ef58a14cd3d53147ff",
+      "license_raw_headers": [
+        "Apache-2",
+        "Apache-2 and Bitstream-Vera and OFL-1.1",
+        "Bitstream-Vera",
+        "CC0-1.0",
+        "Chromium-BSD-style",
+        "Example",
+        "GPL-2+",
+        "ICU",
+        "LGPL-2+",
+        "LGPL-2+ and ICU",
+        "LGPL-2+ and LGPL-2.1+",
+        "LGPL-2+ and TCL",
+        "LGPL-2.1+",
+        "OFL-1.1",
+        "TCL",
+        "Unicode"
+      ],
+      "name": "libpango-1.0-0:amd64",
+      "version": "1.50.12+ds-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-59f90c1ad1fa",
+      "license_notice_file": "debian-notices/libpciaccess0__amd64.copyright",
+      "license_notice_sha256": "59f90c1ad1face5bd0a516feb8a71e005075d532c522b64ff06b2bfeebde8fe8",
+      "license_raw_headers": [],
+      "name": "libpciaccess0:amd64",
+      "version": "0.17-2"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-030511beb4d9",
+      "license_notice_file": "debian-notices/libpcre2-8-0__amd64.copyright",
+      "license_notice_sha256": "030511beb4d9d620ad09914c369c36ec0528dcf301d1923cc643c948ee7c6a38",
+      "license_raw_headers": [
+        "BSD-2-clause",
+        "BSD-3-clause",
+        "BSD-3-clause-Cambridge with BINARY LIBRARY-LIKE PACKAGES exception",
+        "X11",
+        "public-domain"
+      ],
+      "name": "libpcre2-8-0:amd64",
+      "version": "10.42-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-1b3fb5690861",
+      "license_notice_file": "debian-notices/libpixman-1-0__amd64.copyright",
+      "license_notice_sha256": "1b3fb5690861e15ca4fd6640fd4def4b2576617942eec04b6fcb7d8bc6c4c9da",
+      "license_raw_headers": [],
+      "name": "libpixman-1-0:amd64",
+      "version": "0.42.2-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-68bd3997355b",
+      "license_notice_file": "debian-notices/libpng16-16__amd64.copyright",
+      "license_notice_sha256": "68bd3997355bc44ccb97ff5e2bb146360e762c7d9c721945a4fabf77d1349e4a",
+      "license_raw_headers": [
+        "Apache-2.0",
+        "BSD-3-clause",
+        "BSD-like-with-advertising-clause",
+        "GPL-2+",
+        "GPL-2+ or BSD-like-with-advertising-clause",
+        "expat",
+        "libpng",
+        "libpng OR Apache-2.0 OR BSD-3-clause"
+      ],
+      "name": "libpng16-16:amd64",
+      "version": "1.6.39-2+deb12u5"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-3591a8e4de84",
+      "license_notice_file": "debian-notices/libreadline8__amd64.copyright",
+      "license_notice_sha256": "3591a8e4de849d910c5ee9045388344ef151c23b10cf8c6b1950f89f1ba1569c",
+      "license_raw_headers": [
+        "GFDL-NIV-1.3+",
+        "GPL-2+",
+        "GPL-3",
+        "GPL-3+",
+        "ISC-no-attribution"
+      ],
+      "name": "libreadline8:amd64",
+      "version": "8.2-1.3"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-6da0653a365b",
+      "license_notice_file": "debian-notices/libseccomp2__amd64.copyright",
+      "license_notice_sha256": "6da0653a365b80ab31478dbfe9e7c358e80d58b6d2b52b4e16b4dbb42d7d9f5c",
+      "license_raw_headers": [
+        "LGPL-2.1"
+      ],
+      "name": "libseccomp2:amd64",
+      "version": "2.5.4-1+deb12u1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-641806738b0c",
+      "license_notice_file": "debian-notices/libselinux1__amd64.copyright",
+      "license_notice_sha256": "641806738b0c6a3d03168c2649e6b94205198bb66cd557e6bae3a20b71c9bb0b",
+      "license_raw_headers": [],
+      "name": "libselinux1:amd64",
+      "version": "3.4-1+b6"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-e00e6a86c598",
+      "license_notice_file": "debian-notices/libsemanage-common.copyright",
+      "license_notice_sha256": "e00e6a86c598f9e24ced0180a70a5f2f2e45e133d93adf2b17ce8a06ce4b1b51",
+      "license_raw_headers": [],
+      "name": "libsemanage-common",
+      "version": "3.4-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-e00e6a86c598",
+      "license_notice_file": "debian-notices/libsemanage2__amd64.copyright",
+      "license_notice_sha256": "e00e6a86c598f9e24ced0180a70a5f2f2e45e133d93adf2b17ce8a06ce4b1b51",
+      "license_raw_headers": [],
+      "name": "libsemanage2:amd64",
+      "version": "3.4-1+b5"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-36df1f6d732e",
+      "license_notice_file": "debian-notices/libsensors-config.copyright",
+      "license_notice_sha256": "36df1f6d732ef306eba85489352b2afe329f7b54c6850c3e2094f7c5df1bc46b",
+      "license_raw_headers": [],
+      "name": "libsensors-config",
+      "version": "1:3.6.0-7.1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-36df1f6d732e",
+      "license_notice_file": "debian-notices/libsensors5__amd64.copyright",
+      "license_notice_sha256": "36df1f6d732ef306eba85489352b2afe329f7b54c6850c3e2094f7c5df1bc46b",
+      "license_raw_headers": [],
+      "name": "libsensors5:amd64",
+      "version": "1:3.6.0-7.1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-78d2a34606a0",
+      "license_notice_file": "debian-notices/libsepol2__amd64.copyright",
+      "license_notice_sha256": "78d2a34606a0302057ec499a3b3c07bcbc43ca334064ce4c80891a0f69c8f6c6",
+      "license_raw_headers": [
+        "GPL-2",
+        "GPL-2+",
+        "LGPL-2.1+",
+        "Zlib"
+      ],
+      "name": "libsepol2:amd64",
+      "version": "3.4-2.1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-333d829128c8",
+      "license_notice_file": "debian-notices/libsm6__amd64.copyright",
+      "license_notice_sha256": "333d829128c80619625f7e43a0ff0e79f36812b2b7ba12696eec9b4b42ce729b",
+      "license_raw_headers": [],
+      "name": "libsm6:amd64",
+      "version": "2:1.2.3-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-30539a2df6a8",
+      "license_notice_file": "debian-notices/libsmartcols1__amd64.copyright",
+      "license_notice_sha256": "30539a2df6a89d844f43c727505a3193a60515f8ec6cdede8cc515ed22941d1c",
+      "license_raw_headers": [
+        "BSD-3-clause",
+        "BSD-4-clause",
+        "BSLA",
+        "GPL-2",
+        "GPL-2+",
+        "GPL-3+",
+        "LGPL",
+        "LGPL-2+",
+        "LGPL-2.1+",
+        "LGPL-3+",
+        "MIT",
+        "public-domain"
+      ],
+      "name": "libsmartcols1:amd64",
+      "version": "2.38.1-5+deb12u3"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-78e9df8f8153",
+      "license_notice_file": "debian-notices/libsqlite3-0__amd64.copyright",
+      "license_notice_sha256": "78e9df8f8153c91c762ec970b82d224ac4d30f05aa7773e7e17e268141e53873",
+      "license_raw_headers": [
+        "GPL-2+",
+        "public-domain"
+      ],
+      "name": "libsqlite3-0:amd64",
+      "version": "3.40.1-2+deb12u2"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-1ca415a294c0",
+      "license_notice_file": "debian-notices/libss2__amd64.copyright",
+      "license_notice_sha256": "1ca415a294c0e56958c4f795b3f1f69ea3479bca53d7811f5cdd020a258949db",
+      "license_raw_headers": [
+        "Apache-2",
+        "BSD-3-Clause",
+        "GPL or MIT-US-export",
+        "GPL-2",
+        "GPL-2+ with Texinfo exception",
+        "ISC",
+        "Kazlib",
+        "LGPL-2",
+        "Latex2e"
+      ],
+      "name": "libss2:amd64",
+      "version": "1.47.0-2+b2"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-6a7da622fe06",
+      "license_notice_file": "debian-notices/libssl3__amd64.copyright",
+      "license_notice_sha256": "6a7da622fe0637a334d2a8fc470852d2ffb77d9a2b2f930f854e32a41ad6ef35",
+      "license_raw_headers": [
+        "Apache-2.0",
+        "Artistic",
+        "Artistic or GPL-1+",
+        "GPL-1+"
+      ],
+      "name": "libssl3:amd64",
+      "version": "3.0.20-1~deb12u2"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-da8191658b34",
+      "license_notice_file": "debian-notices/libstdc++6__amd64.copyright",
+      "license_notice_sha256": "da8191658b3452ce9caf31638ba61dab31a38c619fa39df119812e050f592fd3",
+      "license_raw_headers": [],
+      "name": "libstdc++6:amd64",
+      "version": "12.2.0-14+deb12u1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-a7d06854714a",
+      "license_notice_file": "debian-notices/libsystemd0__amd64.copyright",
+      "license_notice_sha256": "a7d06854714a1ca99f6dbd1a1641dde5bcf28635be149f6554449618f8f427f3",
+      "license_raw_headers": [
+        "CC0-1.0",
+        "Expat",
+        "GPL-2 with Linux-syscall-note exception",
+        "GPL-2+",
+        "LGPL-2.1+",
+        "public-domain"
+      ],
+      "name": "libsystemd0:amd64",
+      "version": "252.39-1~deb12u2"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-572ad60ad184",
+      "license_notice_file": "debian-notices/libtasn1-6__amd64.copyright",
+      "license_notice_sha256": "572ad60ad184d8f52c6dc66d83a61a68f137db560b3452ce00588c9ecf128a65",
+      "license_raw_headers": [],
+      "name": "libtasn1-6:amd64",
+      "version": "4.19.0-2+deb12u1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-016c3098ec29",
+      "license_notice_file": "debian-notices/libthai-data.copyright",
+      "license_notice_sha256": "016c3098ec29a08639005f6b9cd7519764e7627392eac3d87f2ea7488ce290e5",
+      "license_raw_headers": [
+        "GPL-2+",
+        "LGPL-2.1+"
+      ],
+      "name": "libthai-data",
+      "version": "0.1.29-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-016c3098ec29",
+      "license_notice_file": "debian-notices/libthai0__amd64.copyright",
+      "license_notice_sha256": "016c3098ec29a08639005f6b9cd7519764e7627392eac3d87f2ea7488ce290e5",
+      "license_raw_headers": [
+        "GPL-2+",
+        "LGPL-2.1+"
+      ],
+      "name": "libthai0:amd64",
+      "version": "0.1.29-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-f0974fb41778",
+      "license_notice_file": "debian-notices/libtinfo6__amd64.copyright",
+      "license_notice_sha256": "f0974fb41778e23c94111ff90da0546de8971f8270c58877283d372e6bd7f17e",
+      "license_raw_headers": [
+        "BSD-3-clause",
+        "MIT/X11",
+        "X11"
+      ],
+      "name": "libtinfo6:amd64",
+      "version": "6.4-4"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-a7d06854714a",
+      "license_notice_file": "debian-notices/libudev1__amd64.copyright",
+      "license_notice_sha256": "a7d06854714a1ca99f6dbd1a1641dde5bcf28635be149f6554449618f8f427f3",
+      "license_raw_headers": [
+        "CC0-1.0",
+        "Expat",
+        "GPL-2 with Linux-syscall-note exception",
+        "GPL-2+",
+        "LGPL-2.1+",
+        "public-domain"
+      ],
+      "name": "libudev1:amd64",
+      "version": "252.39-1~deb12u2"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-0035f89e5317",
+      "license_notice_file": "debian-notices/libunistring2__amd64.copyright",
+      "license_notice_sha256": "0035f89e5317f3cec389383e8727788521b0fde3e75cea881fa0e92e1d48cb57",
+      "license_raw_headers": [
+        "FreeSoftware",
+        "GFDL-1.2+",
+        "GPL-2+",
+        "GPL-2+ with distribution exception",
+        "GPL-3+",
+        "GPL-3+ or GFDL-1.2+",
+        "LGPL-3+",
+        "LGPL-3+ or GPL-2+",
+        "MIT"
+      ],
+      "name": "libunistring2:amd64",
+      "version": "1.0-2"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-977d981f5677",
+      "license_notice_file": "debian-notices/libunwind8__amd64.copyright",
+      "license_notice_sha256": "977d981f5677652884b09cccef6b62f992aa9c74b7a748bfe9863a703f5aed58",
+      "license_raw_headers": [
+        "Expat",
+        "GPL-2+"
+      ],
+      "name": "libunwind8:amd64",
+      "version": "1.6.2-3"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-30539a2df6a8",
+      "license_notice_file": "debian-notices/libuuid1__amd64.copyright",
+      "license_notice_sha256": "30539a2df6a89d844f43c727505a3193a60515f8ec6cdede8cc515ed22941d1c",
+      "license_raw_headers": [
+        "BSD-3-clause",
+        "BSD-4-clause",
+        "BSLA",
+        "GPL-2",
+        "GPL-2+",
+        "GPL-3+",
+        "LGPL",
+        "LGPL-2+",
+        "LGPL-2.1+",
+        "LGPL-3+",
+        "MIT",
+        "public-domain"
+      ],
+      "name": "libuuid1:amd64",
+      "version": "2.38.1-5+deb12u3"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-736bf54141fa",
+      "license_notice_file": "debian-notices/libwayland-server0__amd64.copyright",
+      "license_notice_sha256": "736bf54141fa9808939ffff2691b817888ea53197484c2099e8d03b954b83e3b",
+      "license_raw_headers": [
+        "X11"
+      ],
+      "name": "libwayland-server0:amd64",
+      "version": "1.21.0-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-0b380a7fd5b2",
+      "license_notice_file": "debian-notices/libx11-6__amd64.copyright",
+      "license_notice_sha256": "0b380a7fd5b2228f26e9585e56f14812efd3350f3df307507d2bc055dfd8de3e",
+      "license_raw_headers": [],
+      "name": "libx11-6:amd64",
+      "version": "2:1.8.4-2+deb12u2"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-0b380a7fd5b2",
+      "license_notice_file": "debian-notices/libx11-data.copyright",
+      "license_notice_sha256": "0b380a7fd5b2228f26e9585e56f14812efd3350f3df307507d2bc055dfd8de3e",
+      "license_raw_headers": [],
+      "name": "libx11-data",
+      "version": "2:1.8.4-2+deb12u2"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-0b380a7fd5b2",
+      "license_notice_file": "debian-notices/libx11-xcb1__amd64.copyright",
+      "license_notice_sha256": "0b380a7fd5b2228f26e9585e56f14812efd3350f3df307507d2bc055dfd8de3e",
+      "license_raw_headers": [],
+      "name": "libx11-xcb1:amd64",
+      "version": "2:1.8.4-2+deb12u2"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-118dd263a7b9",
+      "license_notice_file": "debian-notices/libxau6__amd64.copyright",
+      "license_notice_sha256": "118dd263a7b91c8f21c489f949bf13281dff9e766deea92b829dac4dce66601a",
+      "license_raw_headers": [],
+      "name": "libxau6:amd64",
+      "version": "1:1.0.9-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-b04f7dd56d0e",
+      "license_notice_file": "debian-notices/libxaw7__amd64.copyright",
+      "license_notice_sha256": "b04f7dd56d0e88bf2dd5aafd138bb4b3631401898480c46c94ee7fbf865ffde5",
+      "license_raw_headers": [],
+      "name": "libxaw7:amd64",
+      "version": "2:1.0.14-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-4f7cb9db6bf6",
+      "license_notice_file": "debian-notices/libxcb-dri2-0__amd64.copyright",
+      "license_notice_sha256": "4f7cb9db6bf6542f5417e3d674c780d3a5fd12291a54d63054fb576ee0cfae80",
+      "license_raw_headers": [],
+      "name": "libxcb-dri2-0:amd64",
+      "version": "1.15-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-4f7cb9db6bf6",
+      "license_notice_file": "debian-notices/libxcb-dri3-0__amd64.copyright",
+      "license_notice_sha256": "4f7cb9db6bf6542f5417e3d674c780d3a5fd12291a54d63054fb576ee0cfae80",
+      "license_raw_headers": [],
+      "name": "libxcb-dri3-0:amd64",
+      "version": "1.15-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-4f7cb9db6bf6",
+      "license_notice_file": "debian-notices/libxcb-glx0__amd64.copyright",
+      "license_notice_sha256": "4f7cb9db6bf6542f5417e3d674c780d3a5fd12291a54d63054fb576ee0cfae80",
+      "license_raw_headers": [],
+      "name": "libxcb-glx0:amd64",
+      "version": "1.15-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-4f7cb9db6bf6",
+      "license_notice_file": "debian-notices/libxcb-present0__amd64.copyright",
+      "license_notice_sha256": "4f7cb9db6bf6542f5417e3d674c780d3a5fd12291a54d63054fb576ee0cfae80",
+      "license_raw_headers": [],
+      "name": "libxcb-present0:amd64",
+      "version": "1.15-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-4f7cb9db6bf6",
+      "license_notice_file": "debian-notices/libxcb-randr0__amd64.copyright",
+      "license_notice_sha256": "4f7cb9db6bf6542f5417e3d674c780d3a5fd12291a54d63054fb576ee0cfae80",
+      "license_raw_headers": [],
+      "name": "libxcb-randr0:amd64",
+      "version": "1.15-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-4f7cb9db6bf6",
+      "license_notice_file": "debian-notices/libxcb-render0__amd64.copyright",
+      "license_notice_sha256": "4f7cb9db6bf6542f5417e3d674c780d3a5fd12291a54d63054fb576ee0cfae80",
+      "license_raw_headers": [],
+      "name": "libxcb-render0:amd64",
+      "version": "1.15-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-4f7cb9db6bf6",
+      "license_notice_file": "debian-notices/libxcb-shm0__amd64.copyright",
+      "license_notice_sha256": "4f7cb9db6bf6542f5417e3d674c780d3a5fd12291a54d63054fb576ee0cfae80",
+      "license_raw_headers": [],
+      "name": "libxcb-shm0:amd64",
+      "version": "1.15-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-4f7cb9db6bf6",
+      "license_notice_file": "debian-notices/libxcb-sync1__amd64.copyright",
+      "license_notice_sha256": "4f7cb9db6bf6542f5417e3d674c780d3a5fd12291a54d63054fb576ee0cfae80",
+      "license_raw_headers": [],
+      "name": "libxcb-sync1:amd64",
+      "version": "1.15-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-4f7cb9db6bf6",
+      "license_notice_file": "debian-notices/libxcb-xfixes0__amd64.copyright",
+      "license_notice_sha256": "4f7cb9db6bf6542f5417e3d674c780d3a5fd12291a54d63054fb576ee0cfae80",
+      "license_raw_headers": [],
+      "name": "libxcb-xfixes0:amd64",
+      "version": "1.15-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-4f7cb9db6bf6",
+      "license_notice_file": "debian-notices/libxcb1__amd64.copyright",
+      "license_notice_sha256": "4f7cb9db6bf6542f5417e3d674c780d3a5fd12291a54d63054fb576ee0cfae80",
+      "license_raw_headers": [],
+      "name": "libxcb1:amd64",
+      "version": "1.15-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-e37c7a7e4026",
+      "license_notice_file": "debian-notices/libxcomposite1__amd64.copyright",
+      "license_notice_sha256": "e37c7a7e4026343c3e5c13990a6d9a8879194ae3ab26bfe420b34f6f206bf35f",
+      "license_raw_headers": [],
+      "name": "libxcomposite1:amd64",
+      "version": "1:0.4.5-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-09182bc7805f",
+      "license_notice_file": "debian-notices/libxdamage1__amd64.copyright",
+      "license_notice_sha256": "09182bc7805ff77a41251e450cebd0d33c48a74ba8ec4b734855a22c86f50417",
+      "license_raw_headers": [],
+      "name": "libxdamage1:amd64",
+      "version": "1:1.1.6-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-1bcbb50f8603",
+      "license_notice_file": "debian-notices/libxdmcp6__amd64.copyright",
+      "license_notice_sha256": "1bcbb50f8603fe8b86d330bfa460b772ea04fbd3c70e4499f0768b5340b9fd6e",
+      "license_raw_headers": [],
+      "name": "libxdmcp6:amd64",
+      "version": "1:1.1.2-3"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-bc57e445ca1d",
+      "license_notice_file": "debian-notices/libxext6__amd64.copyright",
+      "license_notice_sha256": "bc57e445ca1d9fe082c8d54189dd411ff26caa8552c9c63d44ea06a982f32124",
+      "license_raw_headers": [],
+      "name": "libxext6:amd64",
+      "version": "2:1.3.4-1+b1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-051ffe073ab3",
+      "license_notice_file": "debian-notices/libxfixes3__amd64.copyright",
+      "license_notice_sha256": "051ffe073ab38244c504bb379903b4ecda6081fb3d97d0d3dce44bc11712eef2",
+      "license_raw_headers": [],
+      "name": "libxfixes3:amd64",
+      "version": "1:6.0.0-2"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-c0ec1767e5a9",
+      "license_notice_file": "debian-notices/libxfont2__amd64.copyright",
+      "license_notice_sha256": "c0ec1767e5a927bdf17f8ca2af231263f973c06e5f30efa1b4867e93614dd061",
+      "license_raw_headers": [],
+      "name": "libxfont2:amd64",
+      "version": "1:2.0.6-1+deb12u1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-c812f9c54513",
+      "license_notice_file": "debian-notices/libxi6__amd64.copyright",
+      "license_notice_sha256": "c812f9c54513ae593aab9580b54a4b18219648df7068d49ca1daa47f522ba3fa",
+      "license_raw_headers": [],
+      "name": "libxi6:amd64",
+      "version": "2:1.8-1+b1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-5eeaeb1b6e02",
+      "license_notice_file": "debian-notices/libxkbcommon0__amd64.copyright",
+      "license_notice_sha256": "5eeaeb1b6e029a0274e1573765bb0bae2926ef96a3679203faa4fd00fdaeaa88",
+      "license_raw_headers": [],
+      "name": "libxkbcommon0:amd64",
+      "version": "1.5.0-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-41044d815bd9",
+      "license_notice_file": "debian-notices/libxkbfile1__amd64.copyright",
+      "license_notice_sha256": "41044d815bd99a5d1267fdabc79b5041fa83c7134639bb81e84f367cefe68316",
+      "license_raw_headers": [],
+      "name": "libxkbfile1:amd64",
+      "version": "1:1.1.0-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-ee746b96cfa5",
+      "license_notice_file": "debian-notices/libxml2__amd64.copyright",
+      "license_notice_sha256": "ee746b96cfa5be73c3ea3e4cfb1285e9b315d4c9267f99b2ee9c5d911d9fe3f4",
+      "license_raw_headers": [
+        "ISC",
+        "MIT-1"
+      ],
+      "name": "libxml2:amd64",
+      "version": "2.9.14+dfsg-1.3~deb12u6"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-15a3a4d6627a",
+      "license_notice_file": "debian-notices/libxmu6__amd64.copyright",
+      "license_notice_sha256": "15a3a4d6627af76c0649067260debca0eb66248b96e5fda4f564aac38593e06f",
+      "license_raw_headers": [],
+      "name": "libxmu6:amd64",
+      "version": "2:1.1.3-3"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-60ff44bf6ae8",
+      "license_notice_file": "debian-notices/libxpm4__amd64.copyright",
+      "license_notice_sha256": "60ff44bf6ae8fdc03aa67f4ebbc6e4bba30ac96938e55bc84b1777387a58992c",
+      "license_raw_headers": [],
+      "name": "libxpm4:amd64",
+      "version": "1:3.5.12-1.1+deb12u1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-6d8e6239cfe9",
+      "license_notice_file": "debian-notices/libxrandr2__amd64.copyright",
+      "license_notice_sha256": "6d8e6239cfe9dd25bbeef06dcf0610d802ebbdc8968db87cf5adf00ff98927d4",
+      "license_raw_headers": [],
+      "name": "libxrandr2:amd64",
+      "version": "2:1.5.2-2+b1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-ed2a78123a50",
+      "license_notice_file": "debian-notices/libxrender1__amd64.copyright",
+      "license_notice_sha256": "ed2a78123a5076b4f11da38cb1ffb85b5cb9fdc26b5746c517b1d7e7a9029704",
+      "license_raw_headers": [],
+      "name": "libxrender1:amd64",
+      "version": "1:0.9.10-1.1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-6a76b32c9174",
+      "license_notice_file": "debian-notices/libxshmfence1__amd64.copyright",
+      "license_notice_sha256": "6a76b32c9174c0cb9e3d94c323a14d33d6a42bd2a61579b189cbc5addeb94abe",
+      "license_raw_headers": [],
+      "name": "libxshmfence1:amd64",
+      "version": "1.3-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-294382fd73d0",
+      "license_notice_file": "debian-notices/libxt6__amd64.copyright",
+      "license_notice_sha256": "294382fd73d07b7b086c4829366bad834fc25cdf094400ec6ca4ff3b9ab73665",
+      "license_raw_headers": [],
+      "name": "libxt6:amd64",
+      "version": "1:1.2.1-1.1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-8a18884e1be0",
+      "license_notice_file": "debian-notices/libxxf86vm1__amd64.copyright",
+      "license_notice_sha256": "8a18884e1be08a37bf1b8fc9a14eba800e65a98d6ea19bb5d8b0ccf35f9bbcc4",
+      "license_raw_headers": [],
+      "name": "libxxf86vm1:amd64",
+      "version": "1:1.1.4-1+b2"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-a123c93b07e7",
+      "license_notice_file": "debian-notices/libxxhash0__amd64.copyright",
+      "license_notice_sha256": "a123c93b07e781919ae996276ac02bb1c8b19dfde88176cd1240ab277c14a4ce",
+      "license_raw_headers": [
+        "BSD-2-clause",
+        "GPL-2"
+      ],
+      "name": "libxxhash0:amd64",
+      "version": "0.8.1-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-807f874c81a0",
+      "license_notice_file": "debian-notices/libz3-4__amd64.copyright",
+      "license_notice_sha256": "807f874c81a0dbce7d4e32b1a4e1ef1e094b9a3fe8579f34e60fda4f2077289c",
+      "license_raw_headers": [
+        "Expat",
+        "GPL-2+"
+      ],
+      "name": "libz3-4:amd64",
+      "version": "4.8.12-3.1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-35e85e8e9bbb",
+      "license_notice_file": "debian-notices/libzstd1__amd64.copyright",
+      "license_notice_sha256": "35e85e8e9bbb71492c5f5dddf39ed65b68775a02ad8d710c25d097b497f06c49",
+      "license_raw_headers": [
+        "BSD-3-clause",
+        "BSD-3-clause or GPL-2",
+        "Expat",
+        "GPL-2",
+        "zlib"
+      ],
+      "name": "libzstd1:amd64",
+      "version": "1.5.4+dfsg2-5"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-a4c3e5b19700",
+      "license_notice_file": "debian-notices/login.copyright",
+      "license_notice_sha256": "a4c3e5b19700dd3cc5961663d204bd7150f65f913314682aede5931548c436d5",
+      "license_raw_headers": [
+        "BSD-3-clause",
+        "GPL-1",
+        "GPL-2+",
+        "public-domain"
+      ],
+      "name": "login",
+      "version": "1:4.13+dfsg1-1+deb12u2"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-1ca415a294c0",
+      "license_notice_file": "debian-notices/logsave.copyright",
+      "license_notice_sha256": "1ca415a294c0e56958c4f795b3f1f69ea3479bca53d7811f5cdd020a258949db",
+      "license_raw_headers": [
+        "Apache-2",
+        "BSD-3-Clause",
+        "GPL or MIT-US-export",
+        "GPL-2",
+        "GPL-2+ with Texinfo exception",
+        "ISC",
+        "Kazlib",
+        "LGPL-2",
+        "Latex2e"
+      ],
+      "name": "logsave",
+      "version": "1.47.0-2+b2"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-167d04422f2f",
+      "license_notice_file": "debian-notices/mawk.copyright",
+      "license_notice_sha256": "167d04422f2fdf76ab565878c23be8ba0c2ebb2c57a5dac0a5a59ccd27e747a5",
+      "license_raw_headers": [
+        "CC-BY-3.0",
+        "GPL-2",
+        "X11"
+      ],
+      "name": "mawk",
+      "version": "1.3.4.20200120-3.1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-30539a2df6a8",
+      "license_notice_file": "debian-notices/mount.copyright",
+      "license_notice_sha256": "30539a2df6a89d844f43c727505a3193a60515f8ec6cdede8cc515ed22941d1c",
+      "license_raw_headers": [
+        "BSD-3-clause",
+        "BSD-4-clause",
+        "BSLA",
+        "GPL-2",
+        "GPL-2+",
+        "GPL-3+",
+        "LGPL",
+        "LGPL-2+",
+        "LGPL-2.1+",
+        "LGPL-3+",
+        "MIT",
+        "public-domain"
+      ],
+      "name": "mount",
+      "version": "2.38.1-5+deb12u3"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-f0974fb41778",
+      "license_notice_file": "debian-notices/ncurses-base.copyright",
+      "license_notice_sha256": "f0974fb41778e23c94111ff90da0546de8971f8270c58877283d372e6bd7f17e",
+      "license_raw_headers": [
+        "BSD-3-clause",
+        "MIT/X11",
+        "X11"
+      ],
+      "name": "ncurses-base",
+      "version": "6.4-4"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-f0974fb41778",
+      "license_notice_file": "debian-notices/ncurses-bin.copyright",
+      "license_notice_sha256": "f0974fb41778e23c94111ff90da0546de8971f8270c58877283d372e6bd7f17e",
+      "license_raw_headers": [
+        "BSD-3-clause",
+        "MIT/X11",
+        "X11"
+      ],
+      "name": "ncurses-bin",
+      "version": "6.4-4"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-795b66147ea5",
+      "license_notice_file": "debian-notices/netbase.copyright",
+      "license_notice_sha256": "795b66147ea5ad692991caa7008ece551fb0fa88b9c53656223bd1518dc58ab2",
+      "license_raw_headers": [
+        "GPL-2"
+      ],
+      "name": "netbase",
+      "version": "6.4"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-6a7da622fe06",
+      "license_notice_file": "debian-notices/openssl.copyright",
+      "license_notice_sha256": "6a7da622fe0637a334d2a8fc470852d2ffb77d9a2b2f930f854e32a41ad6ef35",
+      "license_raw_headers": [
+        "Apache-2.0",
+        "Artistic",
+        "Artistic or GPL-1+",
+        "GPL-1+"
+      ],
+      "name": "openssl",
+      "version": "3.0.20-1~deb12u2"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-a4c3e5b19700",
+      "license_notice_file": "debian-notices/passwd.copyright",
+      "license_notice_sha256": "a4c3e5b19700dd3cc5961663d204bd7150f65f913314682aede5931548c436d5",
+      "license_raw_headers": [
+        "BSD-3-clause",
+        "GPL-1",
+        "GPL-2+",
+        "public-domain"
+      ],
+      "name": "passwd",
+      "version": "1:4.13+dfsg1-1+deb12u2"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-b52f3ca17b45",
+      "license_notice_file": "debian-notices/perl-base.copyright",
+      "license_notice_sha256": "b52f3ca17b45473cb0da6ec46748949101fcf0dda1fd5d8b306e6c97fd41af4d",
+      "license_raw_headers": [
+        "Artistic",
+        "Artistic or GPL-1+ or Artistic-dist",
+        "Artistic-2",
+        "Artistic-dist",
+        "BSD-3-clause",
+        "BSD-3-clause-GENERIC",
+        "BSD-3-clause-with-weird-numbering",
+        "BSD-4-clause-POWERDOG",
+        "BZIP",
+        "CC0-1.0",
+        "DONT-CHANGE-THE-GPL",
+        "Expat",
+        "Expat or GPL-1+ or Artistic",
+        "GPL-1+",
+        "GPL-1+ or Artistic",
+        "GPL-1+ or Artistic or Artistic-dist",
+        "GPL-1+ or Artistic, and BSD-3-clause-GENERIC",
+        "GPL-1+ or Artistic, and BSD-4-clause-POWERDOG",
+        "GPL-1+ or Artistic, and Expat",
+        "GPL-1+ or Artistic, and Unicode",
+        "GPL-2+",
+        "GPL-2+ or Artistic",
+        "GPL-3+-WITH-BISON-EXCEPTION",
+        "HSIEH-BSD",
+        "HSIEH-DERIVATIVE",
+        "LGPL-2.1",
+        "REGCOMP",
+        "REGCOMP, and GPL-1+ or Artistic",
+        "RRA-KEEP-THIS-NOTICE",
+        "SDBM-PUBLIC-DOMAIN",
+        "TEXT-TABS",
+        "Unicode",
+        "ZLIB"
+      ],
+      "name": "perl-base",
+      "version": "5.36.0-7+deb12u3"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-3591a8e4de84",
+      "license_notice_file": "debian-notices/readline-common.copyright",
+      "license_notice_sha256": "3591a8e4de849d910c5ee9045388344ef151c23b10cf8c6b1950f89f1ba1569c",
+      "license_raw_headers": [
+        "GFDL-NIV-1.3+",
+        "GPL-2+",
+        "GPL-3",
+        "GPL-3+",
+        "ISC-no-attribution"
+      ],
+      "name": "readline-common",
+      "version": "8.2-1.3"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-719320e425e8",
+      "license_notice_file": "debian-notices/sed.copyright",
+      "license_notice_sha256": "719320e425e8e6da53a55e0fcfa2f2ed9b1332cea16abd65321bd651b2a88568",
+      "license_raw_headers": [
+        "BSD-4-clause-UC",
+        "BSL-1",
+        "GFDL-NIV-1.3+",
+        "GPL-3+",
+        "GPL-3+ and ISC",
+        "ISC",
+        "X11",
+        "pcre"
+      ],
+      "name": "sed",
+      "version": "4.9-1+deb12u1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-ad7cb339e58a",
+      "license_notice_file": "debian-notices/sysvinit-utils.copyright",
+      "license_notice_sha256": "ad7cb339e58a88918a883d553ca236795191f027e158788a8b33f747ff502fb2",
+      "license_raw_headers": [
+        "GPL-2.0",
+        "GPL-2.0+",
+        "GPL-3.0"
+      ],
+      "name": "sysvinit-utils",
+      "version": "3.06-4"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-bea61e0c1728",
+      "license_notice_file": "debian-notices/tar.copyright",
+      "license_notice_sha256": "bea61e0c172868e07845cf50423f97f093a9a46de167dbbe333a38be610c8e00",
+      "license_raw_headers": [
+        "GPL-2+",
+        "GPL-3+",
+        "GPL-3+ with Bison exception",
+        "LGPL-3+"
+      ],
+      "name": "tar",
+      "version": "1.34+dfsg-1.2+deb12u1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-cb61132bc0fc",
+      "license_notice_file": "debian-notices/tzdata.copyright",
+      "license_notice_sha256": "cb61132bc0fc7b26ef5a82ee18b2fb644a1362f4f286ed980ff22e408471f59a",
+      "license_raw_headers": [
+        "public-domain"
+      ],
+      "name": "tzdata",
+      "version": "2026b-0+deb12u1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-9836bfe2ef94",
+      "license_notice_file": "debian-notices/usr-is-merged.copyright",
+      "license_notice_sha256": "9836bfe2ef94505bbf29701e8c90799ab1a5fd966d26d60d019a822cdbf3d61a",
+      "license_raw_headers": [
+        "GPL-2+"
+      ],
+      "name": "usr-is-merged",
+      "version": "37~deb12u1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-30539a2df6a8",
+      "license_notice_file": "debian-notices/util-linux.copyright",
+      "license_notice_sha256": "30539a2df6a89d844f43c727505a3193a60515f8ec6cdede8cc515ed22941d1c",
+      "license_raw_headers": [
+        "BSD-3-clause",
+        "BSD-4-clause",
+        "BSLA",
+        "GPL-2",
+        "GPL-2+",
+        "GPL-3+",
+        "LGPL",
+        "LGPL-2+",
+        "LGPL-2.1+",
+        "LGPL-3+",
+        "MIT",
+        "public-domain"
+      ],
+      "name": "util-linux",
+      "version": "2.38.1-5+deb12u3"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-30539a2df6a8",
+      "license_notice_file": "debian-notices/util-linux-extra.copyright",
+      "license_notice_sha256": "30539a2df6a89d844f43c727505a3193a60515f8ec6cdede8cc515ed22941d1c",
+      "license_raw_headers": [
+        "BSD-3-clause",
+        "BSD-4-clause",
+        "BSLA",
+        "GPL-2",
+        "GPL-2+",
+        "GPL-3+",
+        "LGPL",
+        "LGPL-2+",
+        "LGPL-2.1+",
+        "LGPL-3+",
+        "MIT",
+        "public-domain"
+      ],
+      "name": "util-linux-extra",
+      "version": "2.38.1-5+deb12u3"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-2badb73e6e70",
+      "license_notice_file": "debian-notices/x11-common.copyright",
+      "license_notice_sha256": "2badb73e6e70d0bd2e0b85d39ce18d3c66cfebc3e301720374fa20e6539c947d",
+      "license_raw_headers": [],
+      "name": "x11-common",
+      "version": "1:7.7+23"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-bf23f1dfd52e",
+      "license_notice_file": "debian-notices/x11-xkb-utils.copyright",
+      "license_notice_sha256": "bf23f1dfd52e0f7526b83496effacba1e3f29a38adaf119091efad060f8836b1",
+      "license_raw_headers": [],
+      "name": "x11-xkb-utils",
+      "version": "7.7+7"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-7eb990b2914b",
+      "license_notice_file": "debian-notices/xfonts-encodings.copyright",
+      "license_notice_sha256": "7eb990b2914b0e2c2c9493c2511bff3d0b20ced9fb7416d6e74bf79876484811",
+      "license_raw_headers": [],
+      "name": "xfonts-encodings",
+      "version": "1:1.0.4-2.2"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-eca307f5e148",
+      "license_notice_file": "debian-notices/xfonts-scalable.copyright",
+      "license_notice_sha256": "eca307f5e148200991e7cdacf6b11910e014073ed09c81cf853aa09d09ee2a60",
+      "license_raw_headers": [],
+      "name": "xfonts-scalable",
+      "version": "1:1.0.3-1.3"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-4d404116525a",
+      "license_notice_file": "debian-notices/xfonts-utils.copyright",
+      "license_notice_sha256": "4d404116525a133581918c1ad7d32456b49b599f501f1f4ff12d8202e6694a59",
+      "license_raw_headers": [],
+      "name": "xfonts-utils",
+      "version": "1:7.7+6"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-648621d1a218",
+      "license_notice_file": "debian-notices/xkb-data.copyright",
+      "license_notice_sha256": "648621d1a2180678818eb393565849bbc8b332cc521c21e009d948ea5541b3c3",
+      "license_raw_headers": [],
+      "name": "xkb-data",
+      "version": "2.35.1-1"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-4cc0447a2263",
+      "license_notice_file": "debian-notices/xserver-common.copyright",
+      "license_notice_sha256": "4cc0447a22635c7b2f1a93fec4aa94f1970fadeb72a063de006b51cf4963a06f",
+      "license_raw_headers": [],
+      "name": "xserver-common",
+      "version": "2:21.1.7-3+deb12u13"
+    },
+    {
+      "license_expression": "LicenseRef-Debian-Notice-4cc0447a2263",
+      "license_notice_file": "debian-notices/xvfb.copyright",
+      "license_notice_sha256": "4cc0447a22635c7b2f1a93fec4aa94f1970fadeb72a063de006b51cf4963a06f",
+      "license_raw_headers": [],
+      "name": "xvfb",
+      "version": "2:21.1.7-3+deb12u13"
+    },
+    {
+      "license_expression": "Zlib",
+      "license_notice_file": "debian-notices/zlib1g__amd64.copyright",
+      "license_notice_sha256": "9e5b96d63773a5d177ba264254390f792be07e41748ebd94730981c6cac31cc6",
+      "license_raw_headers": [
+        "Zlib"
+      ],
+      "name": "zlib1g:amd64",
+      "version": "1:1.2.13.dfsg-1"
+    }
+  ],
+  "schema_version": 1
+}

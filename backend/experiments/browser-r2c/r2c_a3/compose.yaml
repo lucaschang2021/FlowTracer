@@ -1,0 +1,180 @@
+name: ${R2C_PROJECT_NAME:?R2C_PROJECT_NAME is required}
+
+x-aux: &aux
+  image: ${R2C_BROWSER_IMAGE:?R2C_BROWSER_IMAGE is required}
+  pull_policy: never
+  read_only: true
+  user: "10001:10001"
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  tmpfs:
+    - /tmp:rw,nosuid,nodev,noexec,size=64m,mode=1777
+  pids_limit: 64
+  mem_limit: 256m
+  cpus: 0.5
+  dns: 127.0.0.1
+  restart: "no"
+
+services:
+  fixture:
+    <<: *aux
+    entrypoint: [python, /opt/r2c/fixture_server.py]
+    environment:
+      R2C_FIXTURE_EVENTS: /evidence/fixture-events.jsonl
+    volumes:
+      - ./fixture/fixture_server.py:/opt/r2c/fixture_server.py:ro
+      - ${R2C_EVIDENCE_DIR:?R2C_EVIDENCE_DIR is required}:/evidence
+    networks:
+      r2c_fixture:
+        ipv4_address: 192.0.2.10
+    healthcheck:
+      test: [CMD, python, -c, "import socket; socket.create_connection(('127.0.0.1',8443),1).close()"]
+      interval: 1s
+      timeout: 2s
+      retries: 20
+
+  decoy:
+    <<: *aux
+    entrypoint: [python, /opt/r2c/decoy_server.py]
+    volumes:
+      - ./fixture/decoy_server.py:/opt/r2c/decoy_server.py:ro
+    networks:
+      r2c_fixture:
+        ipv4_address: 192.0.2.30
+
+  proxy:
+    <<: *aux
+    entrypoint: [python, /opt/r2c/egress_proxy.py]
+    environment:
+      R2C_PROXY_EVENTS: /evidence/proxy-events.jsonl
+    volumes:
+      - ./proxy/egress_proxy.py:/opt/r2c/egress_proxy.py:ro
+      - ${R2C_EVIDENCE_DIR}:/evidence
+    networks:
+      r2c_browser:
+        ipv4_address: 198.51.100.20
+      r2c_fixture:
+        ipv4_address: 192.0.2.20
+    healthcheck:
+      test: [CMD, python, -c, "import os; os.kill(1,0)"]
+      interval: 1s
+      timeout: 2s
+      retries: 20
+
+  dns-canary:
+    <<: *aux
+    entrypoint: [python, /opt/r2c/dns_canary.py]
+    environment:
+      R2C_DNS_EVENTS: /evidence/dns-events.jsonl
+    volumes:
+      - ./fixture/dns_canary.py:/opt/r2c/dns_canary.py:ro
+      - ${R2C_EVIDENCE_DIR}:/evidence
+    sysctls:
+      net.ipv4.ip_unprivileged_port_start: 0
+    networks:
+      r2c_browser:
+        ipv4_address: 198.51.100.40
+    healthcheck:
+      test: [CMD, python, -c, "import os; os.kill(1,0)"]
+      interval: 1s
+      timeout: 2s
+      retries: 20
+
+  host-canary:
+    <<: *aux
+    entrypoint: [python, /opt/r2c/host_canary.py]
+    volumes:
+      - ./fixture/host_canary.py:/opt/r2c/host_canary.py:ro
+    ports:
+      - 127.0.0.1:49273:49273
+    networks:
+      r2c_host_canary:
+        ipv4_address: 203.0.113.10
+    healthcheck:
+      test: [CMD, python, -c, "import socket; s=socket.create_connection(('127.0.0.1',49273),1); assert s.recv(32).startswith(b'R2C_HOST_CANARY')"]
+      interval: 1s
+      timeout: 2s
+      retries: 20
+
+  control-client:
+    <<: *aux
+    entrypoint: [python, /opt/r2c/control_client.py]
+    volumes:
+      - ./control_client.py:/opt/r2c/control_client.py:ro
+    extra_hosts:
+      - host-canary-r2c.test:host-gateway
+    networks:
+      r2c_control:
+        ipv4_address: 198.18.0.10
+
+  redis:
+    image: redis:7.4.11-alpine3.21
+    pull_policy: never
+    command: [redis-server, --save, "", --appendonly, "no"]
+    read_only: true
+    user: "10001:10001"
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    tmpfs:
+      - /data:rw,nosuid,nodev,noexec,size=16m
+    pids_limit: 32
+    mem_limit: 64m
+    cpus: 0.25
+    dns: 127.0.0.1
+    restart: "no"
+    networks:
+      r2c_browser:
+        ipv4_address: 198.51.100.30
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 1s
+      timeout: 2s
+      retries: 20
+
+  browser:
+    image: ${R2C_BROWSER_IMAGE}
+    pull_policy: never
+    read_only: true
+    user: "10001:10001"
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    privileged: false
+    tmpfs:
+      - /tmp:rw,nosuid,noexec,size=256m
+    pids_limit: 128
+    mem_limit: 768m
+    cpus: 1.0
+    dns: 198.51.100.40
+    restart: "no"
+    entrypoint: [python, /opt/r2c/browser_probe.py]
+    environment:
+      HOME: /tmp/flowtracer-r2c-home
+      XDG_CONFIG_HOME: /tmp/flowtracer-r2c-config
+      XDG_CACHE_HOME: /tmp/flowtracer-r2c-cache
+    volumes:
+      - ./browser_probe.py:/opt/r2c/browser_probe.py:ro
+    extra_hosts:
+      - host-canary-r2c.test:host-gateway
+    networks:
+      r2c_browser:
+        ipv4_address: 198.51.100.10
+
+networks:
+  r2c_browser:
+    internal: true
+    ipam:
+      config:
+        - subnet: 198.51.100.0/24
+  r2c_fixture:
+    internal: true
+    ipam:
+      config:
+        - subnet: 192.0.2.0/24
+  r2c_host_canary:
+    ipam:
+      config:
+        - subnet: 203.0.113.0/24
+  r2c_control:
+    ipam:
+      config:
+        - subnet: 198.18.0.0/24

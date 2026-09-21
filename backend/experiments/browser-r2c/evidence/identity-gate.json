@@ -1,0 +1,87 @@
+{
+  "blocking_checks": [
+    "normalized_identity"
+  ],
+  "checks": {
+    "browser_path": {
+      "actual": "/opt/browser-r1c/chromium-1234/chrome-linux64/chrome",
+      "expected": "/opt/browser-r1c/chromium-1234/chrome-linux64/chrome",
+      "match": true
+    },
+    "browser_sha256": {
+      "actual": "0b20b130e7edd9dd51873be867761295fe0cfad490c2b9a64f95bd3cfc08fa71",
+      "expected": "0b20b130e7edd9dd51873be867761295fe0cfad490c2b9a64f95bd3cfc08fa71",
+      "match": true
+    },
+    "browser_tree_entries": {
+      "actual": 619,
+      "expected": 619,
+      "match": true
+    },
+    "browser_version": {
+      "actual": "Google Chrome for Testing 151.0.7922.34",
+      "expected": "Google Chrome for Testing 151.0.7922.34",
+      "match": true
+    },
+    "debian_inventory_components": {
+      "actual": 206,
+      "expected": 206,
+      "match": true
+    },
+    "debian_inventory_sha256": {
+      "actual": "bee9c30ae016be592521c383b9bb0be74f39892415ed28f9122d5b7ccced81da",
+      "expected": "bee9c30ae016be592521c383b9bb0be74f39892415ed28f9122d5b7ccced81da",
+      "match": true
+    },
+    "normalized_identity": {
+      "actual": "358f55286a6a48a65e1c7570b8932ad5f7dbca5611c46fac63df3ea3c0a98884",
+      "expected": "6ef0e9ecb34d0a72c2135282b06548f7bdac92be27f8df2444188216013bddea",
+      "match": false
+    },
+    "sbom_components": {
+      "actual": 231,
+      "expected": 231,
+      "match": true
+    },
+    "sbom_sha256": {
+      "actual": "a8d6ae5e450b10bd40d90f6d56a0e69742479cfaff79398c0d2fb0696cfcf774",
+      "expected": "a8d6ae5e450b10bd40d90f6d56a0e69742479cfaff79398c0d2fb0696cfcf774",
+      "match": true
+    }
+  },
+  "cleanup": {
+    "actions": [
+      {
+        "argv": [
+          "docker",
+          "image",
+          "rm",
+          "-f",
+          "flowtracer-browser-r2c:flowtracer-r2c-20260913-identity-a"
+        ],
+        "exit_code": 0,
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "docker",
+          "buildx",
+          "rm",
+          "-f",
+          "flowtracer-r2c-20260913-identity-a-builder"
+        ],
+        "exit_code": 0,
+        "stderr": "flowtracer-r2c-20260913-identity-a-builder removed\n"
+      }
+    ],
+    "builder_absent": true,
+    "image_absent": true
+  },
+  "ended_at": "2026-09-12T22:15:45.133492+00:00",
+  "image": "flowtracer-browser-r2c:flowtracer-r2c-20260913-identity-a",
+  "image_id": "sha256:3c0ca8932eb2e23a3fd4ac6aed0f8cd4a1a6b93ce6792ab74e2290264569c96f",
+  "protected_files_unchanged": true,
+  "run_id": "flowtracer-r2c-20260913-identity-a",
+  "started_at": "2026-09-12T22:12:10.841025+00:00",
+  "status": "BLOCKED"
+}

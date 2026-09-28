@@ -1,6 +1,6 @@
 # R3 DNR WebSocket Capability Experiment — 控制包
 
-状态：FROZEN DRAFT / NOT EFFECTIVE；仅在本控制包通过 Review、合并并获总控发送精确启动基准后生效。
+状态：CONTROL MERGED / OFFLINE ONLY。PR #70 已 Review/合并，控制提交 `a95282098ccac934cd17577fbd5de22b6eb8d0f8`，merge commit `e55dd6deb7fd956b4fba5824331ebda1f0e8d7bd`；收到总控精确启动基准后，仅可执行第 7 节离线产物/定向测试。真实 session 仍须总控确认执行输入 hash 后另行许可。
 当前 R3 仍 BLOCKED；不准入 R4，不宣称正式应用拦截实现。
 来源基准：`origin/main@9e5ec8ccbe9308477d3ef0cd78859d0afa81b5e7`。
 关联提案：[50](50-R3-WORKER-WS-NATIVE-GATE-PROPOSAL.md)；既有准入：[49](49-ACQ1-WP3-R3-REACTIVATION.md)。

@@ -1,0 +1,308 @@
+{
+  "schema_version": "r3-dnr-execution-inputs-v1",
+  "base_head": "fc58ea9eb9d7c723a4608c57be3495db8ea796b6",
+  "phase": "OFFLINE_ONLY",
+  "runtime_verified": false,
+  "actual_extension_id": null,
+  "actual_ruleset_readback": null,
+  "effective_browser_argv": null,
+  "new_inputs": [
+    {
+      "path": "backend/experiments/browser-r3/dnr_offline/contract.py",
+      "sha256": "09681fa6a203bc0d7be1480170a26ed5d265cdd0fe8504712a5647ae4800e6b4",
+      "role": "new_offline_input"
+    },
+    {
+      "path": "backend/experiments/browser-r3/dnr_offline/execution_plan.json",
+      "sha256": "7b0d76f6cda9fcc1b2ccbfba0745bbf265ea9cbdb18830e32ac2cf3c1ebb0076",
+      "role": "new_offline_input"
+    },
+    {
+      "path": "backend/experiments/browser-r3/dnr_offline/extension/audit.html",
+      "sha256": "9390beb65e4f0f9f075cf9f467883dc6994cd66326f65ea198b415395384c207",
+      "role": "new_offline_input"
+    },
+    {
+      "path": "backend/experiments/browser-r3/dnr_offline/extension/audit.js",
+      "sha256": "dc9325a72a59ed6914ef8cd8224baf242b5c6e7e10e41865a8c320e20e84c06e",
+      "role": "new_offline_input"
+    },
+    {
+      "path": "backend/experiments/browser-r3/dnr_offline/extension/manifest.json",
+      "sha256": "9e7fa366d2ac1c309c7e9cb78da3434c41dc50787b20e4f2967dd8c3329d5cac",
+      "role": "new_offline_input"
+    },
+    {
+      "path": "backend/experiments/browser-r3/dnr_offline/extension/observer.js",
+      "sha256": "2530635dea7be97fdb08a92627b91d456cfdfe1e67feae39899f0a9a5b6ff369",
+      "role": "new_offline_input"
+    },
+    {
+      "path": "backend/experiments/browser-r3/dnr_offline/extension/rules.json",
+      "sha256": "22ee2dc71e39bbc492c2f22ebe2df3e095180f98ec8ea46afc82685e5c6e74f5",
+      "role": "new_offline_input"
+    },
+    {
+      "path": "backend/experiments/browser-r3/dnr_offline/harness.py",
+      "sha256": "42d26a99b9e4c8db85d8c32be459358568720e167bdc4852e1a93672278ccbb8",
+      "role": "new_offline_input"
+    },
+    {
+      "path": "backend/experiments/browser-r3/dnr_offline/README.md",
+      "sha256": "2b02227b0ef1a366be917c2429447f259e528fb50da979f59640f355200210a4",
+      "role": "new_offline_input"
+    },
+    {
+      "path": "backend/experiments/browser-r3/dnr_offline/test_dnr_offline.py",
+      "sha256": "98b97480d9fbf7e6f37e01da4fb69a0b664c066193d8e2762fcc5e7d1f771f80",
+      "role": "new_offline_input"
+    },
+    {
+      "path": "backend/experiments/browser-r3/dnr_offline/test_observer.js",
+      "sha256": "89a06d40bca0729097c5f4915b16c71d01a2b6059974aa79510eeca304680d83",
+      "role": "new_offline_input"
+    },
+    {
+      "path": "backend/experiments/browser-r3/dnr_offline/validator.py",
+      "sha256": "2ceeca9f5b767d696c83ed9d3ba1e60d1bea07decd6d74269494ae1bb9c6a4de",
+      "role": "new_offline_input"
+    }
+  ],
+  "existing_dependencies": [
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/browser_harness.py",
+      "sha256": "bd3bb6f1b095f30be8eb3f3126c4a2e40d0e5903bca30159fbd4ca7e69294bd3",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/compose.yaml",
+      "sha256": "0cbab03ca225c616425b7f80b1ff45c7d59a4b8cd10a95c635acf500f7a5ce56",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/connection_pool_probe_validator.py",
+      "sha256": "c7be3b731535b4f27d97be811ab38f5d972d80df0821bc7215d0cf260b3cc229",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/connection_pool_probe.py",
+      "sha256": "67463da99d3cede20ef61c2f2b2aad27381a3d29b6ee37bc7a47dab9cd455a44",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/control_client.py",
+      "sha256": "be3e2e56371ded7852b7872ac9316f1689cab4f0bcdfdfdc25630680ac45ac92",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/event_stream.py",
+      "sha256": "c89a48ea401b85ee46aa02b8f449340a68c0f42be90a32087b5cac2a673e64a6",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/fixture/decoy_server.py",
+      "sha256": "78085a9352625ed6836524bae0dbcd5f81802e154383536ecf0526c20cba89ff",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/fixture/dns_canary.py",
+      "sha256": "8fd2bcbbc25263bf2d8aef2107016b902623935ef092abf17a141a7b692c9467",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/fixture/fixture_server.py",
+      "sha256": "af59942bd0bd56edd5d4a5e808169f0b95043385e6088bc5224c3a23c06ad404",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/fixture/host_canary.py",
+      "sha256": "dee54f8e33d2b8f22ffc8d90c808c1bb0277aca045af786d340e132615449f51",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/native_worker_ws_harness.py",
+      "sha256": "240e14c3a591f5447646b50c83dffd01f7fb9b42595df524d5cabcc27801f548",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/native_worker_ws_validator.py",
+      "sha256": "740062cf9f2d266a502738654f8d0e218dc421d5e12501b6b3466583e4d01543",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/native-worker-compose.yaml",
+      "sha256": "c5585778128bdb962fb5149a4557da35ce28149a31fc578fa558363d7dc75667",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/popup_deny_experiment.py",
+      "sha256": "1832ad9d51f9aeaad1f1b0d229a13222f670dc2845bc79106f3de88af6c3d7f2",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/popup_deny_validator.py",
+      "sha256": "a333b3208d9741a0d292422443dd05933b8edb43fff6ca3c83f80ac50cfb9593",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/popup_experiment.py",
+      "sha256": "26bc5142dee3478a6bbce3b047eeb0fa18ff9faa6556467945b1437c9f5c2d47",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/process_watchdog.py",
+      "sha256": "848f3beb10633e4b3eb50a490a7d0a66b22f4cbbbf6375541a0c60fd2956188a",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/proxy/egress_proxy.py",
+      "sha256": "fdd70c6dab8b9b82b42056bd24ee273e0c445c8a616261761835ac7868f36c02",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/run_connection_pool_probe.py",
+      "sha256": "7423e46241fbeaeaae90a6eeacbc1b971e2e4531b31f3ffd711dc6a70257f382",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/run_native_worker_ws.py",
+      "sha256": "b5964b8c0028f5ed64e041575a1cba93f8566cf3a6e386324e1c1dd280a5a1a4",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/run_r3_a2.py",
+      "sha256": "162d5cb3efddd52a1b640053eae54856f43c32fea9e6bf5bc8926521c3c8df41",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/run_sequence_xhr_probe.py",
+      "sha256": "68b677d7a08f4ee4b27c8d799521321dedca30706b44e3ea5f5127287ca32e1d",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/run_websocket_mock_deny_micro.py",
+      "sha256": "c7f847a57d4fa6388f73c8468e2ecf35a5f55f569fb7974ef158a43ff476d065",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/run_websocket_watchdog_micro.py",
+      "sha256": "5111960f57aa0a30c57128122ada947c148bfbc6d8a773566f9d7f0ebc34aa02",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/run_websocket_watchdog_micro2.py",
+      "sha256": "ae9119de253dfbe62c6b77eb293caa6c9f36bf620848b11159c43a2e4499672c",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/run_xhr_probe.py",
+      "sha256": "bd197e4278e7a84ac7ac1f668052cd3bbb389696c964215dc0350e578f1df62f",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/runtime_dependencies.py",
+      "sha256": "3f1e32a1d98aace9a013fa37f1f979a23fc75fcca86629d30df261a4e185548a",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/sequence_xhr_probe_validator.py",
+      "sha256": "1d6971b55c9be218ecce80bb6fe693d8b7274ea2e13752a4909461f0be690e95",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/sequence_xhr_probe.py",
+      "sha256": "a884728adc91166f19c0a6951aae4597acc652555f7c8fcbbfe2461ec467c693",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/test_native_worker_ws.py",
+      "sha256": "5c06c2aca3862f6de47517cb96289337e115f2a1779edcf40741708a31a02d46",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/test_preflight.py",
+      "sha256": "b414fd3ed9a2b4c9104b86f965ebdb7fd76ddb4b0942818e3097b404c1d07d0b",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/test_safety_boundaries.py",
+      "sha256": "61517febd800d046159dcc64a4577b8b45de47ba17bc07bcd26254f97bd79e83",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/test_websocket_mock_deny.py",
+      "sha256": "716b98ece91e9f91ead65dc657a91690f482e60621adcbd9bbe5e9b117e7097d",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/test_worker_deny_evidence.py",
+      "sha256": "4935c70db8ca84588455495f1d3063606f74d9450f76d10fc90be4f4b831aa16",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/url_policy.py",
+      "sha256": "fb1f73e17cda694c3e26016b7cffbe68492f661fadacdbf90e7c2b4b596b9fe7",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/validate_evidence.py",
+      "sha256": "72bd027fa208a10600e4acb03d001bda2233176591d68ce8186a7fcfaf40350d",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/websocket_mock_deny_validator.py",
+      "sha256": "7ac0b0581e58b74806ee8783d9e45e51184aaa51e52346149cab51bc4e901a88",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/websocket_mock_policy.py",
+      "sha256": "45d82778500b5c792f5f487efce608b02c1f10fbffbdb488885633618846584d",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/websocket_policy.py",
+      "sha256": "9b2c62bfe2dd100ea497e19d80c74113049e02a9dea6f86ace935549abf141d2",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/websocket_target_runtime.py",
+      "sha256": "eaa531d12cc3d29e671080b00867fe290690579d8c01702c6341a5ce1b29727e",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/websocket_watchdog_validator.py",
+      "sha256": "12d1a44ce84e081d7b56f7b7121d5e7527805138747e6275e576cdddb1808b5c",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/worker_deny_evidence.py",
+      "sha256": "c1809eca48eba626aacb3122775db0e4eee40a07c9aa25d2ec56b944da22e587",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/worker_lifecycle.py",
+      "sha256": "95e538286af89685ba0aa3f4c6dafccc46f8d1aa584aad75b9df2f20da8c5505",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/xhr_probe_validator.py",
+      "sha256": "4ddae6a0caf125f17dd6579a6cadc394e3651553fb21291f997953096d3d3693",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    },
+    {
+      "path": "backend/experiments/browser-r3/r3_a2/xhr_probe.py",
+      "sha256": "61df483beef2d6d682bf1f6f9514c6e74a52d9e5d5060024b9a9e1aaa3c537fa",
+      "role": "existing_candidate_dependency_superset_not_a_runtime_launch"
+    }
+  ],
+  "protected_assets": {
+    "count": 2222,
+    "sha256": "7b9dc57bfde1e2a77d1071d53fa4d16aae90419f7ef5f8a998c09fe52ff80630",
+    "algorithm": "SHA256 of PowerShell Sort-Object FullName ordered relative Windows paths + space + uppercase per-file SHA joined LF",
+    "expected_count": 2222,
+    "expected_sha256": "7b9dc57bfde1e2a77d1071d53fa4d16aae90419f7ef5f8a998c09fe52ff80630"
+  },
+  "self_hash": "excluded; separately reported",
+  "real_gate": "NO_GO_PENDING_HASH_REVIEW_AND_RUNTIME_ADAPTER_ADMISSION",
+  "r3_status": "BLOCKED"
+}

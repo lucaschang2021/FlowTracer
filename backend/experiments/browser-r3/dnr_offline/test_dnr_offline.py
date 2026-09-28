@@ -172,6 +172,72 @@ class OfflineTests(unittest.TestCase):
         self.assertFalse(result["runtime_verified"])
         self.assertFalse(result["formal_r3_gate"])
 
+    def test_all_time_fields_require_finite_strict_numbers(self):
+        invalid = (
+            float("nan"),
+            float("inf"),
+            -float("inf"),
+            True,
+            False,
+            "1000",
+            None,
+            [],
+            {},
+            10**400,
+        )
+        for field in ("start_ms", "end_ms", "terminal_ms", "timestamp"):
+            for value in invalid:
+                values = sample()
+                row = values[0]["receipts"][0] if field == "timestamp" else values[2][0]
+                row[field] = value
+                with (
+                    self.subTest(field=field, value_type=type(value).__name__),
+                    self.assertRaises(Rejected),
+                ):
+                    validate_model(*values)
+            values = sample()
+            row = values[0]["receipts"][0] if field == "timestamp" else values[2][0]
+            row.pop(field)
+            with self.subTest(field=field, missing=True), self.assertRaises(Rejected):
+                validate_model(*values)
+
+    def test_valid_time_boundaries_and_int_float_types(self):
+        for number in (int, float):
+            for duration in (0, 5000):
+                values = sample()
+                arm, receipt = values[2][0], values[0]["receipts"][0]
+                arm.update(
+                    start_ms=number(1000), end_ms=number(6000), terminal_ms=number(1000 + duration)
+                )
+                receipt["timestamp"] = number(1000)
+                with self.subTest(number=number.__name__, duration=duration):
+                    self.assertEqual(validate_model(*values)["offline_model"], "ACCEPTED")
+        for timestamp in (900, 1100):
+            values = sample()
+            values[0]["receipts"][0]["timestamp"] = timestamp
+            values[2][0]["terminal_ms"] = timestamp
+            self.assertEqual(validate_model(*values)["offline_model"], "ACCEPTED")
+
+    def test_invalid_time_order_and_over_five_seconds(self):
+        for change in (
+            {"terminal_ms": 899},
+            {"terminal_ms": 950},
+            {"terminal_ms": 1101},
+            {"terminal_ms": 5900.001, "end_ms": 6000},
+            {"end_ms": 899},
+        ):
+            values = sample()
+            values[2][0].update(change)
+            with self.subTest(change=change), self.assertRaises(Rejected):
+                validate_model(*values)
+
+    def test_terminal_can_equal_receipt_and_window_end(self):
+        values = sample()
+        values[2][0]["terminal_ms"] = 1000
+        self.assertEqual(validate_model(*values)["offline_model"], "ACCEPTED")
+        values[2][0]["end_ms"] = 1000
+        self.assertEqual(validate_model(*values)["offline_model"], "ACCEPTED")
+
     def test_readback_failure_matrix(self):
         for key, value in [
             ("enabled_rulesets", []),
@@ -331,6 +397,29 @@ class OfflineTests(unittest.TestCase):
         with self.assertRaisesRegex(Terminal, "probe_terminated"):
             guard.setup(lambda: ({}, {}), close)
         self.assertEqual(len(kills), 1)
+
+    def test_raising_terminate_cannot_be_swallowed_before_goto(self):
+        guard, _, _ = guard_model()
+        goto = []
+
+        def terminate():
+            raise RuntimeError("SYNTHETIC_SECRET_NOT_TO_EXPORT")
+
+        guard.terminate = terminate
+
+        def fetch(setup, before, retries):
+            try:
+                setup()
+            except Exception:
+                goto.append("swallowed")
+            goto.append("UNSAFE")
+
+        with self.assertRaises(Terminal) as captured:
+            model_fetch_once(guard, fetch, lambda: ({}, {}), lambda: True)
+        self.assertEqual(goto, [])
+        self.assertTrue(guard.denied)
+        self.assertEqual(str(captured.exception), "probe_terminated")
+        self.assertTrue(captured.exception.__suppress_context__)
 
     def test_hanging_close_preflight_total_deadline_are_terminal(self):
         for budget in (120, 15, 5):

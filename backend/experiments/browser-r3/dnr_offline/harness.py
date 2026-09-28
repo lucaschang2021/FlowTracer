@@ -32,9 +32,12 @@ class Guard:
 
     def terminal(self) -> NoReturn:
         self.denied = True
-        self.terminate()
-        # If termination adapter ever returns, NEVER return to swallowed callback.
-        raise Terminal("probe_terminated")
+        try:
+            self.terminate()
+        finally:
+            # Returned or raised Exception: NEVER enter Scrapling's swallow path.
+            # Hide the adapter exception context, including any supplied secrets.
+            raise Terminal("probe_terminated") from None
 
     def start(self) -> None:
         if self.started:

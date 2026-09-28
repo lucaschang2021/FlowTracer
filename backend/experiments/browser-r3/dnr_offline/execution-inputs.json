@@ -44,7 +44,7 @@
     },
     {
       "path": "backend/experiments/browser-r3/dnr_offline/harness.py",
-      "sha256": "42d26a99b9e4c8db85d8c32be459358568720e167bdc4852e1a93672278ccbb8",
+      "sha256": "7f21e2b377aa253ab51117641fa60f3b05e0a3389bd99402a21f76531d3ca1b9",
       "role": "new_offline_input"
     },
     {
@@ -54,7 +54,7 @@
     },
     {
       "path": "backend/experiments/browser-r3/dnr_offline/test_dnr_offline.py",
-      "sha256": "98b97480d9fbf7e6f37e01da4fb69a0b664c066193d8e2762fcc5e7d1f771f80",
+      "sha256": "5f99e2126bb8937d1c4747127aa13aa18add24e571c2928d477966a1dbc4c30e",
       "role": "new_offline_input"
     },
     {
@@ -64,7 +64,7 @@
     },
     {
       "path": "backend/experiments/browser-r3/dnr_offline/validator.py",
-      "sha256": "2ceeca9f5b767d696c83ed9d3ba1e60d1bea07decd6d74269494ae1bb9c6a4de",
+      "sha256": "5553f305d101272c1b428f29a9e90549c698662cffdabc27a38ed946504aaf81",
       "role": "new_offline_input"
     }
   ],

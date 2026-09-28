@@ -7,6 +7,16 @@ import math
 from contract import SESSION, Rejected, check_readback, fingerprint
 
 
+def finite_time(value: object) -> bool:
+    # bool subclasses int; reject it and other non-JSON numeric types explicitly.
+    if type(value) not in (int, float):
+        return False
+    try:
+        return math.isfinite(value)
+    except OverflowError:
+        return False
+
+
 def validate_model(snapshot: dict, identity: dict, arms: list[dict], baseline: dict) -> dict:
     check_readback(snapshot, identity)
     receipts = snapshot.get("receipts")
@@ -28,6 +38,13 @@ def validate_model(snapshot: dict, identity: dict, arms: list[dict], baseline: d
         (actor, scheme) for actor in ("page", "worker") for scheme in ("ws", "wss")
     }:
         raise Rejected("arms_invalid")
+    for arm in arms:
+        if (
+            not all(finite_time(arm.get(key)) for key in ("start_ms", "end_ms", "terminal_ms"))
+            or not arm["start_ms"] <= arm["terminal_ms"] <= arm["end_ms"]
+            or arm["terminal_ms"] - arm["start_ms"] > 5000
+        ):
+            raise Rejected("arm_evidence_invalid")
     sequences, request_ids, matches = set(), set(), set()
     for receipt in receipts:
         if (
@@ -62,8 +79,7 @@ def validate_model(snapshot: dict, identity: dict, arms: list[dict], baseline: d
             or not isinstance(receipt.get("request_id"), str)
             or not receipt["request_id"]
             or type(receipt.get("sequence")) is not int
-            or not isinstance(receipt.get("timestamp"), (int, float))
-            or not math.isfinite(receipt["timestamp"])
+            or not finite_time(receipt.get("timestamp"))
             or receipt.get("sequence") in sequences
             or receipt.get("request_id") in request_ids
             or receipt.get("initiator") is not None
@@ -90,8 +106,7 @@ def validate_model(snapshot: dict, identity: dict, arms: list[dict], baseline: d
             arm.get("source") != "native_constructor"
             or arm.get("receipt_source") != "trusted_extension_cdp"
             or arm.get("terminal") not in {"error", "close"}
-            or arm.get("terminal_ms", math.inf) - arm["start_ms"] > 5000
-            or arm.get("terminal_ms", -math.inf) < arm["start_ms"]
+            or receipt["timestamp"] > arm["terminal_ms"]
             or arm.get("proxy_attempts") != 0
             or arm.get("fixture_ws_received") != 0
             or arm.get("relay_bytes") != 0

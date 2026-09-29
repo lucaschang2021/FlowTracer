@@ -1,0 +1,162 @@
+{
+  "schema_version": "r3-dnr-runtime-inputs-v1",
+  "phase": "OFFLINE_ONLY",
+  "actual_base": "7d95a87cf6d1a5fd905cb30014be6a5d16723c2a",
+  "inputs": [
+    {
+      "path": "backend/experiments/browser-r3/dnr_runtime/collector.py",
+      "sha256": "22ba70781c1b64179aaaee8b8c252053b737a2e2d9df4efd5a1ca8247fb5b30e",
+      "module": "collector",
+      "origin": "new_candidate",
+      "role": "offline_runtime_source_or_config"
+    },
+    {
+      "path": "backend/experiments/browser-r3/dnr_runtime/compose.yaml",
+      "sha256": "f094f38314cac9b8aad4466f4530382a952904778af8b7e62b7b8c4bfa2e99a7",
+      "module": null,
+      "origin": "new_candidate",
+      "role": "offline_runtime_source_or_config"
+    },
+    {
+      "path": "backend/experiments/browser-r3/dnr_runtime/execution_plan.json",
+      "sha256": "fba57c1551b76c006d4ad29703015003f31beaa2f4501f2671d599e4360ed8f9",
+      "module": null,
+      "origin": "new_candidate",
+      "role": "offline_runtime_source_or_config"
+    },
+    {
+      "path": "backend/experiments/browser-r3/dnr_runtime/fixture.py",
+      "sha256": "123bb238250e6eb15e96399ce329624e87d51decb1a42b6c6d009b659f6394d3",
+      "module": "fixture",
+      "origin": "new_candidate",
+      "role": "offline_runtime_source_or_config"
+    },
+    {
+      "path": "backend/experiments/browser-r3/dnr_runtime/probe.py",
+      "sha256": "1e0d0155ae57dffa710a2886588dd7cdf2daba26078051cffcecf65b8407445e",
+      "module": "probe",
+      "origin": "new_candidate",
+      "role": "offline_runtime_source_or_config"
+    },
+    {
+      "path": "backend/experiments/browser-r3/dnr_runtime/proxy.py",
+      "sha256": "af6699725b1e270f1972f66075ff8d920800d1343481b5a0a11484c6f2de8dc0",
+      "module": "proxy",
+      "origin": "new_candidate",
+      "role": "offline_runtime_source_or_config"
+    },
+    {
+      "path": "backend/experiments/browser-r3/dnr_runtime/README.md",
+      "sha256": "3eaaf646b09c20ed762a407727a968a5b7b3ea1cfd33cbb6de0b0d7f73a80717",
+      "module": null,
+      "origin": "new_candidate",
+      "role": "offline_runtime_source_or_config"
+    },
+    {
+      "path": "backend/experiments/browser-r3/dnr_runtime/supervisor.py",
+      "sha256": "b9ba8889574499a867d5d1270e4677e02287482ffc66273ebca6cb2cebbbf3f7",
+      "module": "supervisor",
+      "origin": "new_candidate",
+      "role": "offline_runtime_source_or_config"
+    },
+    {
+      "path": "backend/experiments/browser-r3/dnr_runtime/test_runtime_adapters.py",
+      "sha256": "4de983ea51f0794cd6efa733ca187e8bafba62c9ad26cd37281d83cfae1420db",
+      "module": "test_runtime_adapters",
+      "origin": "new_candidate",
+      "role": "offline_runtime_source_or_config"
+    },
+    {
+      "path": "backend/experiments/browser-r3/dnr_offline/contract.py",
+      "sha256": "09681fa6a203bc0d7be1480170a26ed5d265cdd0fe8504712a5647ae4800e6b4",
+      "module": "contract",
+      "origin": "tracked_at_base",
+      "source_commit": "7d95a87cf6d1a5fd905cb30014be6a5d16723c2a",
+      "git_blob": "e2ef2282c6dc662a94a63dba28e7c16526ef319c",
+      "role": "accepted_offline_contract_or_extension"
+    },
+    {
+      "path": "backend/experiments/browser-r3/dnr_offline/harness.py",
+      "sha256": "7f21e2b377aa253ab51117641fa60f3b05e0a3389bd99402a21f76531d3ca1b9",
+      "module": "harness",
+      "origin": "tracked_at_base",
+      "source_commit": "7d95a87cf6d1a5fd905cb30014be6a5d16723c2a",
+      "git_blob": "c68f7e4a58d1c80de9553805687d32bb9e779bdb",
+      "role": "accepted_offline_contract_or_extension"
+    },
+    {
+      "path": "backend/experiments/browser-r3/dnr_offline/validator.py",
+      "sha256": "5553f305d101272c1b428f29a9e90549c698662cffdabc27a38ed946504aaf81",
+      "module": "validator",
+      "origin": "tracked_at_base",
+      "source_commit": "7d95a87cf6d1a5fd905cb30014be6a5d16723c2a",
+      "git_blob": "259ea6ab910030436ec9d42ccd866074cb8646db",
+      "role": "accepted_offline_contract_or_extension"
+    },
+    {
+      "path": "backend/experiments/browser-r3/dnr_offline/extension/manifest.json",
+      "sha256": "9e7fa366d2ac1c309c7e9cb78da3434c41dc50787b20e4f2967dd8c3329d5cac",
+      "module": null,
+      "origin": "tracked_at_base",
+      "source_commit": "7d95a87cf6d1a5fd905cb30014be6a5d16723c2a",
+      "git_blob": "aee5b9b5b6126ddb1169c0a027657f417ff75dd2",
+      "role": "accepted_offline_contract_or_extension"
+    },
+    {
+      "path": "backend/experiments/browser-r3/dnr_offline/extension/rules.json",
+      "sha256": "22ee2dc71e39bbc492c2f22ebe2df3e095180f98ec8ea46afc82685e5c6e74f5",
+      "module": null,
+      "origin": "tracked_at_base",
+      "source_commit": "7d95a87cf6d1a5fd905cb30014be6a5d16723c2a",
+      "git_blob": "98fefb4b621e5341a510ef19cf6dd39e1b45857f",
+      "role": "accepted_offline_contract_or_extension"
+    },
+    {
+      "path": "backend/experiments/browser-r3/dnr_offline/extension/observer.js",
+      "sha256": "2530635dea7be97fdb08a92627b91d456cfdfe1e67feae39899f0a9a5b6ff369",
+      "module": null,
+      "origin": "tracked_at_base",
+      "source_commit": "7d95a87cf6d1a5fd905cb30014be6a5d16723c2a",
+      "git_blob": "de924de384d8dd975633b473a0e4afd30d46ff32",
+      "role": "accepted_offline_contract_or_extension"
+    },
+    {
+      "path": "backend/experiments/browser-r3/dnr_offline/extension/audit.html",
+      "sha256": "9390beb65e4f0f9f075cf9f467883dc6994cd66326f65ea198b415395384c207",
+      "module": null,
+      "origin": "tracked_at_base",
+      "source_commit": "7d95a87cf6d1a5fd905cb30014be6a5d16723c2a",
+      "git_blob": "fb9c5ec29b12762cdf6832597eeed44d2e221993",
+      "role": "accepted_offline_contract_or_extension"
+    },
+    {
+      "path": "backend/experiments/browser-r3/dnr_offline/extension/audit.js",
+      "sha256": "dc9325a72a59ed6914ef8cd8224baf242b5c6e7e10e41865a8c320e20e84c06e",
+      "module": null,
+      "origin": "tracked_at_base",
+      "source_commit": "7d95a87cf6d1a5fd905cb30014be6a5d16723c2a",
+      "git_blob": "1330f07263a73582f825b2d8cbd66879727d6284",
+      "role": "accepted_offline_contract_or_extension"
+    },
+    {
+      "path": "backend/experiments/browser-r2c/r2c_a4/proxy/egress_proxy.py",
+      "sha256": "28a2428f96522d389e2c89136350343b69bf1e182164401344161da74d25d9f2",
+      "module": "accepted_proxy",
+      "origin": "tracked_at_base",
+      "source_commit": "7d95a87cf6d1a5fd905cb30014be6a5d16723c2a",
+      "git_blob": "0a24edfcde8ab066862fd5649cd35305a13b6c8d",
+      "role": "accepted_CONNECT_policy_source"
+    }
+  ],
+  "historical_untracked_inputs": [],
+  "code_closure": "static audited module/mount candidate; not complete admitted runtime closure",
+  "unfrozen_file_reads": [
+    "TLS certificate",
+    "TLS private key (never committed/logged)"
+  ],
+  "runtime_dependency_orchestration": null,
+  "real_launch_authorized": false,
+  "self_hash": "independently reported; excluded to avoid circular digest",
+  "real_gate": "NO_GO",
+  "r3_status": "BLOCKED"
+}

@@ -52,22 +52,107 @@ def phase_commands(image: str, session: str, phase: str, mounts: list[dict]):
         "--tmpfs",
         "/tmp:rw,nosuid,noexec,size=256m",  # noqa: S108 - dedicated container tmpfs
     ]
-    destinations = set()
-    for mount in mounts:
-        if (
-            set(mount) != {"source", "target", "sha256", "readonly"}
-            or mount["readonly"] is not True
-            or not Path(mount["source"]).is_absolute()
-            or not re.fullmatch(r"[0-9a-f]{64}", mount["sha256"])
-            or not mount["target"].startswith("/opt/flowtracer-r3")
-            or mount["target"] in destinations
-            or any(c in mount["source"] + mount["target"] for c in (",", "\n", "\r"))
-        ):
-            raise Unknown("mount_inputs_unfrozen")
-        destinations.add(mount["target"])
-        argv += ["--mount", f"type=bind,source={mount['source']},target={mount['target']},readonly"]
-    if not mounts or "/opt/flowtracer-r3-runtime/probe.py" not in destinations:
-        raise Unknown("mount_closure_missing")
+    try:
+        root = Path(__file__).resolve().parents[4]
+        here = Path(__file__).resolve().parent
+        manifest = json.loads((here / "execution-inputs.json").read_text(encoding="utf-8"))
+        rows = manifest["inputs"]
+        if type(rows) is not list or len({row["path"] for row in rows}) != len(rows):
+            raise Unknown("mount_manifest_invalid")
+        recorded = {row["path"]: row for row in rows}
+        targets = {
+            "/opt/flowtracer-r3-runtime/" + name: "backend/experiments/browser-r3/dnr_runtime/"
+            + name
+            for name in (
+                "collector.py",
+                "probe.py",
+                "contract_v2.py",
+                "validator_v2.py",
+                "harness_v2.py",
+            )
+        }
+        targets.update(
+            {
+                "/opt/flowtracer-r3-runtime/" + name: "backend/experiments/browser-r3/dnr_offline/"
+                + name
+                for name in ("contract.py", "harness.py")
+            }
+        )
+        if phase == "enabled":
+            targets.update(
+                {
+                    "/opt/flowtracer-r3-dnr/"
+                    + name: "backend/experiments/browser-r3/dnr_runtime/extension-v2/" + name
+                    for name in (
+                        "manifest.json",
+                        "rules.json",
+                        "observer.js",
+                        "audit.html",
+                        "audit.js",
+                    )
+                }
+            )
+        if type(mounts) is not list or len(mounts) != len(targets):
+            raise Unknown("mount_closure_missing")
+        destinations = set()
+        for mount in mounts:
+            if (
+                type(mount) is not dict
+                or set(mount) != {"source", "target", "sha256", "readonly"}
+                or any(type(mount[k]) is not str for k in ("source", "target", "sha256"))
+                or mount["readonly"] is not True
+            ):
+                raise Unknown("mount_inputs_unfrozen")
+            source, target = mount["source"], mount["target"]
+            if (
+                target not in targets
+                or target in destinations
+                or "\\" in target
+                or ".." in target.split("/")
+                or "//" in target
+                or any(ord(c) < 32 or c == "," for c in source + target)
+            ):
+                raise Unknown("mount_target_invalid")
+            relative = targets[target]
+            expected = root / relative
+            supplied = Path(source)
+            row = recorded.get(relative)
+            if (
+                not supplied.is_absolute()
+                or ".." in supplied.parts
+                or expected.is_symlink()
+                or not expected.is_file()
+                or supplied.resolve() != expected.resolve()
+                or type(row) is not dict
+                or not re.fullmatch(r"[0-9a-f]{64}", mount["sha256"])
+                or mount["sha256"] != row.get("sha256")
+                or hashlib.sha256(expected.read_bytes()).hexdigest() != row.get("sha256")
+            ):
+                raise Unknown("mount_source_or_hash_unbound")
+            destinations.add(target)
+            argv += ["--mount", f"type=bind,source={source},target={target},readonly"]
+        if destinations != set(targets):
+            raise Unknown("mount_closure_missing")
+        if phase == "enabled":
+            from contract_v2 import check_static
+
+            check_static(
+                here / "extension-v2",
+                {
+                    name: recorded[
+                        "backend/experiments/browser-r3/dnr_runtime/extension-v2/" + name
+                    ]["sha256"]
+                    for name in (
+                        "manifest.json",
+                        "rules.json",
+                        "observer.js",
+                        "audit.html",
+                        "audit.js",
+                    )
+                },
+            )
+    except Exception:
+        raise Unknown("phase_mount_contract_unknown") from None
     argv += [
         "--entrypoint",
         "python",

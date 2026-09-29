@@ -14,7 +14,8 @@ from unittest.mock import patch
 from collector import ClockEvidence, Collector, Unknown, evaluate
 from contract import FLAGS, MANIFEST, MOUNT, SESSION, fingerprint
 from fixture import PAGE, WORKER, response
-from harness import Guard, Terminal
+from harness import Terminal
+from harness_v2 import Guard
 from probe import close_confirmed, fetch_once, guarded_setup, invoke_dynamic_fetch
 from proxy import denied_request, handler_type, read_headers, valid_connect
 from supervisor import DockerCommands, ParentSupervisor, check_inputs

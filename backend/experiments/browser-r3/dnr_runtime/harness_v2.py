@@ -1,6 +1,6 @@
 """Only v2 readiness interpretation; retain proven non-returning v1 guard mechanics."""
 
-from contract_v2 import AUDIT_SCHEMA, Rejected
+from contract_v2 import Rejected, check_snapshot
 from harness import Guard as BaseGuard
 
 
@@ -12,20 +12,12 @@ class Guard(BaseGuard):
         started = self.clock()
         try:
             snapshot, identity = inspect()
-            if (
-                snapshot.get("schema_version") != AUDIT_SCHEMA
-                or snapshot.get("ok") is not True
-                or snapshot.get("flushed") is not True
-                or identity.get("trusted_cdp") is not True
-                or identity.get("inventory_proven") is not True
-                or identity.get("clock_equivalence_proven") is not True
-                or self.clock() - started >= 15
-            ):
-                raise Rejected("preflight_v2_unproven")
+            check_snapshot(snapshot, identity)
+            if self.clock() - started >= 15:
+                raise Rejected("preflight_timeout")
+            # No reviewed inventory/clock authority exists. NEVER consume caller
+            # "proven" booleans as evidence, even after a fully valid snapshot.
+            raise Rejected("inventory_and_clock_sources_unproven")
         except Exception:
             preflight.cancel()
             self.reject_and_close(close)
-        preflight.cancel()
-        if self.denied:
-            self.terminal()
-        self.ready = True

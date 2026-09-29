@@ -18,7 +18,7 @@
       "module": "probe"
     },
     {
-      "sha256": "24dbb0bd85cb21da070a632c37267b34eac8bbabc03938ae53ec996a87aa46b4",
+      "sha256": "af2d290d6989de68ffc6ed58a3df5c5400fd9ed1a552acb74009197bd99caa30",
       "path": "backend/experiments/browser-r3/dnr_runtime/supervisor.py",
       "origin": "new_candidate",
       "role": "offline_source_or_config",
@@ -46,7 +46,7 @@
       "module": null
     },
     {
-      "sha256": "39a47126234941c23e83fc8c3a59634a8bdd968047e9b55eac0093eb0ab5ad0c",
+      "sha256": "ed350b703840b6998f6b45ddf739c0b306a9ff32933d3e1fe22ed88efff652cf",
       "path": "backend/experiments/browser-r3/dnr_runtime/test_runtime_adapters.py",
       "origin": "new_candidate",
       "role": "offline_test_only",
@@ -60,14 +60,14 @@
       "module": null
     },
     {
-      "sha256": "47e28b210ca3ef5b704c484b41bd5dcab609ae4294b1e3c4fc3636d70416859f",
+      "sha256": "ab7d6b0d0514531bfca57c8de9fba1cef6d60ab0a6a4d4b51f711cf561019ce3",
       "path": "backend/experiments/browser-r3/dnr_runtime/execution_plan.json",
       "origin": "new_candidate",
       "role": "offline_source_or_config",
       "module": null
     },
     {
-      "sha256": "e8142f3ad8378606382494cbae9924631d42e7b5e3b621669f2d406c02366c6a",
+      "sha256": "0e993a6f783b6f4b625678ad1440333b0ba43480564073048395021feefe0c20",
       "path": "backend/experiments/browser-r3/dnr_runtime/contract_v2.py",
       "origin": "new_candidate",
       "role": "offline_source_or_config",
@@ -81,14 +81,14 @@
       "module": "validator_v2"
     },
     {
-      "sha256": "f42d3975d87129c634e8f86c01e135165e304f0222cc305181377a56044928e8",
+      "sha256": "81ae6616dc63d614748765ed1f631dadcdd247d4eae995d28f99cdd7d87b92ed",
       "path": "backend/experiments/browser-r3/dnr_runtime/harness_v2.py",
       "origin": "new_candidate",
       "role": "offline_source_or_config",
       "module": "harness_v2"
     },
     {
-      "sha256": "9b6cf1ae7c8eff4d5635123e0c9bb0d127b273f6dbade1bd1b1e33a14adc9ccd",
+      "sha256": "1acb237f202bd4ce6f79ee6408e115bfde54ba301cce6449ee048bfe7661698d",
       "path": "backend/experiments/browser-r3/dnr_runtime/test_receipt_v2.py",
       "origin": "new_candidate",
       "role": "offline_test_only",

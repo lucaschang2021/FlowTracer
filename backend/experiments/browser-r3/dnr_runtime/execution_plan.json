@@ -2,7 +2,7 @@
   "schema_version": "r3-dnr-runtime-plan-v2",
   "phase": "OFFLINE_ONLY",
   "actual_branch_base": "ff70c198acb74b764435485611ec67484bcc7262",
-  "branch_base_tree": "bcf58afbbe77ea8fe67a1ea3cc76ba16fcba3c4f",
+  "branch_base_tree": "af7705c215973032ce42280eabf27ec72352a0a3",
   "known_remote_merge": "ff70c198acb74b764435485611ec67484bcc7262",
   "local_origin_main_observed": "ff70c198acb74b764435485611ec67484bcc7262",
   "real_session_authorized": false,

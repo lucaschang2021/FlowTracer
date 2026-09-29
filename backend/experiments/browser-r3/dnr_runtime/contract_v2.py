@@ -1,5 +1,7 @@
 """Observation v2, never a rule-match timestamp or a real-session admission."""
 
+import re
+
 from contract import FLAGS, MANIFEST, MOUNT, RULES, SESSION, Rejected, check_static, fingerprint
 
 __all__ = [
@@ -90,3 +92,63 @@ def receipt_identity(row, extension_id, epoch, ordinal):
     ):
         raise Rejected("audit_receipt_invalid")
     return tuple((key, type(row[key]), row[key]) for key in sorted(row))
+
+
+def check_snapshot(snapshot, identity):
+    """Necessary typed v2 checks only; caller booleans do NOT prove readiness."""
+    required = {
+        "schema_version",
+        "extension_id",
+        "session",
+        "ok",
+        "configured",
+        "fatal",
+        "enabled_rulesets",
+        "dynamic_rules",
+        "session_rules",
+        "observer_registered",
+        "flushed",
+        "storage_access_level",
+        "observer_epoch",
+        "sequence",
+        "receipts",
+    }
+    if (
+        type(identity) is not dict
+        or type(identity.get("extension_id")) is not str
+        or not re.fullmatch(r"[a-p]{32}", identity["extension_id"])
+        or any(
+            identity.get(k) is not True
+            for k in ("trusted_cdp", "hashes_match", "readonly_mount", "unique_extension")
+        )
+        or type(snapshot) is not dict
+        or set(snapshot) not in (required, required | {"code"})
+        or snapshot.get("code") is not None
+        or snapshot["schema_version"] != AUDIT_SCHEMA
+        or snapshot["extension_id"] != identity["extension_id"]
+        or snapshot["session"] != SESSION
+        or any(
+            snapshot[k] is not True for k in ("ok", "configured", "observer_registered", "flushed")
+        )
+        or snapshot["fatal"] is not None
+        or type(snapshot["enabled_rulesets"]) is not list
+        or snapshot["enabled_rulesets"] != ["ws_default_deny_v1"]
+        or type(snapshot["dynamic_rules"]) is not list
+        or snapshot["dynamic_rules"]
+        or type(snapshot["session_rules"]) is not list
+        or snapshot["session_rules"]
+        or snapshot["storage_access_level"] != "TRUSTED_CONTEXTS"
+        or type(snapshot["observer_epoch"]) is not str
+        or not snapshot["observer_epoch"]
+        or type(snapshot["sequence"]) is not int
+        or not 0 <= snapshot["sequence"] <= 100
+        or type(snapshot["receipts"]) is not list
+        or len(snapshot["receipts"]) != snapshot["sequence"]
+    ):
+        raise Rejected("snapshot_or_identity_invalid")
+    seen = set()
+    for ordinal, row in enumerate(snapshot["receipts"], 1):
+        receipt_identity(row, identity["extension_id"], snapshot["observer_epoch"], ordinal)
+        if row["request_id"] in seen:
+            raise Rejected("duplicate_receipt")
+        seen.add(row["request_id"])

@@ -7,6 +7,8 @@
   "local_origin_main_observed": "ff70c198acb74b764435485611ec67484bcc7262",
   "real_session_authorized": false,
   "runtime_gate": "NO_GO",
+  "independent_controller_record": null,
+  "controller_record_path_bytes_controlcommit_session_binding": "UNISSUED; no env/CLI/fixture/self authority",
   "planned_session": "flowtracer-r3-dnr-capability-20260928-01",
   "actual_session": null,
   "context": "fresh exclusive persistent profile per baseline/enabled arm",

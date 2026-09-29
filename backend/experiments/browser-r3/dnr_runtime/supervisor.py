@@ -6,6 +6,7 @@ import ast
 import hashlib
 import json
 import re
+import stat
 import subprocess
 import sys
 import time
@@ -15,6 +16,51 @@ from threading import Event, Lock, Thread, Timer
 from collector import Unknown
 
 REAL_SESSION_AUTHORIZED = False
+
+
+def read_controller_manifest_digest(session: str) -> str:
+    """Unissued external approval boundary; never read env/CLI/fixture/self hash.
+
+    Future independent controlcommit/session-bound record path and bytes authority
+    must be separately frozen and mounted read-only. No record is issued now.
+    Offline tests replace THIS reader with explicitly SYNTHETIC authority doubles.
+    """
+    raise Unknown("controller_manifest_authority_not_issued")
+
+
+def checked_repo_file(root: Path, leaf: Path) -> Path:
+    """Reject links/reparse/unknown metadata throughout the lexical approved chain."""
+    try:
+        if (
+            not root.is_absolute()
+            or not leaf.is_absolute()
+            or ".." in root.parts
+            or ".." in leaf.parts
+            or not leaf.is_relative_to(root)
+        ):
+            raise Unknown("path_boundary_unknown")
+        nodes = [root]
+        for part in leaf.relative_to(root).parts:
+            nodes.append(nodes[-1] / part)
+        for index, node in enumerate(nodes):
+            metadata = node.lstat()
+            mode = metadata.st_mode
+            attrs = getattr(metadata, "st_file_attributes", None)
+            if (
+                type(mode) is not int
+                or stat.S_ISLNK(mode)
+                or (sys.platform == "win32" and type(attrs) is not int)
+                or (attrs is not None and (type(attrs) is not int or attrs & 0x400))
+                or (index < len(nodes) - 1 and not stat.S_ISDIR(mode))
+                or (index == len(nodes) - 1 and not stat.S_ISREG(mode))
+            ):
+                raise Unknown("path_chain_link_or_unknown")
+        resolved_root = root.resolve(strict=True)
+        if resolved_root != root or not leaf.resolve(strict=True).is_relative_to(resolved_root):
+            raise Unknown("path_boundary_escape")
+        return leaf
+    except Exception:
+        raise Unknown("path_chain_unproven") from None
 
 
 def phase_commands(image: str, session: str, phase: str, mounts: list[dict]):
@@ -53,9 +99,16 @@ def phase_commands(image: str, session: str, phase: str, mounts: list[dict]):
         "/tmp:rw,nosuid,noexec,size=256m",  # noqa: S108 - dedicated container tmpfs
     ]
     try:
-        root = Path(__file__).resolve().parents[4]
-        here = Path(__file__).resolve().parent
-        manifest = json.loads((here / "execution-inputs.json").read_text(encoding="utf-8"))
+        here = Path(__file__).absolute().parent
+        root = here.parents[3]
+        manifest_path = checked_repo_file(root, here / "execution-inputs.json")
+        approved_digest = read_controller_manifest_digest(session)
+        if type(approved_digest) is not str or not re.fullmatch(r"[0-9a-f]{64}", approved_digest):
+            raise Unknown("controller_digest_invalid")
+        manifest_bytes = manifest_path.read_bytes()
+        if hashlib.sha256(manifest_bytes).hexdigest() != approved_digest:
+            raise Unknown("manifest_not_independently_approved")
+        manifest = json.loads(manifest_bytes)
         rows = manifest["inputs"]
         if type(rows) is not list or len({row["path"] for row in rows}) != len(rows):
             raise Unknown("mount_manifest_invalid")
@@ -116,13 +169,13 @@ def phase_commands(image: str, session: str, phase: str, mounts: list[dict]):
             relative = targets[target]
             expected = root / relative
             supplied = Path(source)
+            checked_repo_file(root, expected)
+            checked_repo_file(root, supplied)
             row = recorded.get(relative)
             if (
                 not supplied.is_absolute()
                 or ".." in supplied.parts
-                or expected.is_symlink()
-                or not expected.is_file()
-                or supplied.resolve() != expected.resolve()
+                or supplied != expected
                 or type(row) is not dict
                 or not re.fullmatch(r"[0-9a-f]{64}", mount["sha256"])
                 or mount["sha256"] != row.get("sha256")

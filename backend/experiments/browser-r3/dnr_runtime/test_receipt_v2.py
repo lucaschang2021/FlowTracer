@@ -1,6 +1,9 @@
 """Offline source-aware models, never Browser clock/inventory proof."""
 
 import copy
+import hashlib
+import json
+import stat
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
@@ -10,7 +13,7 @@ from collector import ClockEvidence, Unknown
 from contract_v2 import Rejected, check_snapshot, fingerprint
 from harness import Terminal
 from harness_v2 import Guard
-from supervisor import actual_session_entry, phase_commands
+from supervisor import actual_session_entry, checked_repo_file, phase_commands
 from test_runtime_adapters import bound, fake_guard, receipt, snapshot
 from validator_v2 import validate_clock_samples, validate_observations
 
@@ -101,7 +104,110 @@ def phase_mounts(phase):
     return mounts
 
 
+def synthetic_render(image, session, phase, mounts):
+    """TEST ONLY: independent SYNTHETIC approval captured before execution."""
+    approved = hashlib.sha256(
+        (Path(__file__).parent / "execution-inputs.json").read_bytes()
+    ).hexdigest()
+
+    def trusted_double(requested_session):
+        if requested_session != session:
+            raise Unknown("synthetic_session_mismatch")
+        return approved
+
+    with patch("supervisor.read_controller_manifest_digest", trusted_double):
+        return phase_commands(image, session, phase, mounts)
+
+
 class ReceiptV2Tests(unittest.TestCase):
+    def test_missing_independent_authority_rejected(self):
+        with self.assertRaises(Unknown):
+            phase_commands(
+                "sha256:" + "b" * 64,
+                "flowtracer-r3-dnr-synthetic",
+                "baseline",
+                phase_mounts("baseline"),
+            )
+
+    def test_parent_and_manifest_link_rejected(self):
+        original = Path.lstat
+        here = Path(__file__).parent
+        mounts = phase_mounts("baseline")
+        root = here.parents[3]
+        self.assertEqual(checked_repo_file(root, here / "collector.py"), here / "collector.py")
+        for victim in (root, here, here / "execution-inputs.json"):
+
+            def linked(path, *args, victim=victim, **kwargs):
+                if path == victim:
+                    return SimpleNamespace(
+                        st_mode=stat.S_IFLNK | 0o777,
+                        st_file_attributes=stat.FILE_ATTRIBUTE_REPARSE_POINT,
+                    )
+                return original(path, *args, **kwargs)
+
+            with patch.object(Path, "lstat", linked), self.assertRaises(Unknown):
+                synthetic_render(
+                    "sha256:" + "b" * 64, "flowtracer-r3-dnr-synthetic", "baseline", mounts
+                )
+
+    def test_source_and_manifest_joint_reseal_cannot_update_independent_authority(self):
+        here = Path(__file__).parent
+        manifest_path = here / "execution-inputs.json"
+        original_bytes = manifest_path.read_bytes()
+        approved = hashlib.sha256(original_bytes).hexdigest()
+        mutated = json.loads(original_bytes)
+        mounts = phase_mounts("baseline")
+        victim = here / "collector.py"
+        forged = victim.read_bytes() + b"\n# SYNTHETIC_CHANGED\n"
+        digest = hashlib.sha256(forged).hexdigest()
+        for row in mutated["inputs"]:
+            if row["path"].endswith("dnr_runtime/collector.py"):
+                row["sha256"] = digest
+        mounts[0]["sha256"] = digest
+        original_read = Path.read_bytes
+
+        def read_double(path):
+            if path == manifest_path:
+                return json.dumps(mutated).encode()
+            return forged if path == victim else original_read(path)
+
+        with (
+            patch("supervisor.read_controller_manifest_digest", return_value=approved),
+            patch.object(Path, "read_bytes", read_double),
+            self.assertRaises(Unknown),
+        ):
+            phase_commands("sha256:" + "b" * 64, "flowtracer-r3-dnr-synthetic", "baseline", mounts)
+        with (
+            patch("supervisor.read_controller_manifest_digest", return_value="a" * 64),
+            self.assertRaises(Unknown),
+        ):
+            phase_commands(
+                "sha256:" + "b" * 64,
+                "flowtracer-r3-dnr-synthetic",
+                "baseline",
+                phase_mounts("baseline"),
+            )
+
+    def test_same_hash_external_source_and_unknown_reparse_metadata_rejected(self):
+        mounts = phase_mounts("baseline")
+        mounts[0]["source"] = str(Path(__file__).parent.parents[3].parent / "external-same-hash.py")
+        with self.assertRaises(Unknown):
+            synthetic_render(
+                "sha256:" + "b" * 64, "flowtracer-r3-dnr-synthetic", "baseline", mounts
+            )
+        here = Path(__file__).parent
+        root = here.parents[3]
+        original = Path.lstat
+        for attrs in (None, True, 0x400):
+
+            def unknown(path, *args, attrs=attrs, **kwargs):
+                if path == here:
+                    return SimpleNamespace(st_mode=stat.S_IFDIR | 0o755, st_file_attributes=attrs)
+                return original(path, *args, **kwargs)
+
+            with patch.object(Path, "lstat", unknown), self.assertRaises(Unknown):
+                checked_repo_file(root, here / "collector.py")
+
     def test_strict_four_observation_model_is_not_runtime_proof(self):
         rows, arms = matrix()
         result = validate_observations(rows, arms, "a" * 32, "SYNTHETIC-epoch")
@@ -194,7 +300,7 @@ class ReceiptV2Tests(unittest.TestCase):
     def test_exact_phase_argv_candidate_and_real_entry_remain_denied(self):
         for phase in ("baseline", "enabled"):
             mounts = phase_mounts(phase)
-            argv = phase_commands(
+            argv = synthetic_render(
                 "sha256:" + "b" * 64, "flowtracer-r3-dnr-synthetic", phase, mounts
             )
             self.assertEqual(argv[:2], ["container", "create"])
@@ -209,7 +315,7 @@ class ReceiptV2Tests(unittest.TestCase):
             {**mount, "sha256": "bad"},
         ):
             with self.assertRaises(Unknown):
-                phase_commands(
+                synthetic_render(
                     "sha256:" + "b" * 64, "flowtracer-r3-dnr-synthetic", "enabled", [invalid]
                 )
         with patch("subprocess.Popen", side_effect=AssertionError("no real CLI")):
@@ -300,7 +406,7 @@ class ReceiptV2Tests(unittest.TestCase):
             ("enabled", [*enabled, enabled[-1]]),
         ):
             with self.subTest(phase=phase, count=len(mounts)), self.assertRaises(Unknown):
-                phase_commands("sha256:" + "b" * 64, "flowtracer-r3-dnr-synthetic", phase, mounts)
+                synthetic_render("sha256:" + "b" * 64, "flowtracer-r3-dnr-synthetic", phase, mounts)
         for edit in (
             {"target": "/opt/flowtracer-r3-runtime/../escape"},
             {"target": "/opt/flowtracer-r3-evil/probe.py"},
@@ -313,7 +419,7 @@ class ReceiptV2Tests(unittest.TestCase):
             mounts = copy.deepcopy(enabled)
             mounts[0].update(edit)
             with self.subTest(edit=edit), self.assertRaises(Unknown):
-                phase_commands(
+                synthetic_render(
                     "sha256:" + "b" * 64, "flowtracer-r3-dnr-synthetic", "enabled", mounts
                 )
         mounts = copy.deepcopy(enabled)
@@ -321,7 +427,7 @@ class ReceiptV2Tests(unittest.TestCase):
             Path(__file__).resolve().parent.parent / "dnr_offline/extension/rules.json"
         )
         with self.assertRaises(Unknown):
-            phase_commands("sha256:" + "b" * 64, "flowtracer-r3-dnr-synthetic", "enabled", mounts)
+            synthetic_render("sha256:" + "b" * 64, "flowtracer-r3-dnr-synthetic", "enabled", mounts)
 
     def test_exact_base_tree_not_historical_same_tree(self):
         import json

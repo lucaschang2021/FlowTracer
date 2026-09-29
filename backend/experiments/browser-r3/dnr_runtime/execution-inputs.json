@@ -18,7 +18,7 @@
       "module": "probe"
     },
     {
-      "sha256": "af2d290d6989de68ffc6ed58a3df5c5400fd9ed1a552acb74009197bd99caa30",
+      "sha256": "8ef255f48d8f8d29d3facdacfa6e417feefd0db41c3a7729cf1d634ca34a051d",
       "path": "backend/experiments/browser-r3/dnr_runtime/supervisor.py",
       "origin": "new_candidate",
       "role": "offline_source_or_config",
@@ -53,14 +53,14 @@
       "module": "test_runtime_adapters"
     },
     {
-      "sha256": "4a490f568192114f60ab8d4b966ea971aedacd1b4854b9b8502239cff2476655",
+      "sha256": "e26ebb5099b2b9fec291b64d8efa1d3a53be42a503ca4bb9c170e1efee8e113f",
       "path": "backend/experiments/browser-r3/dnr_runtime/README.md",
       "origin": "new_candidate",
       "role": "offline_source_or_config",
       "module": null
     },
     {
-      "sha256": "ab7d6b0d0514531bfca57c8de9fba1cef6d60ab0a6a4d4b51f711cf561019ce3",
+      "sha256": "ee0a90c089cb5b935254ad6af33d0c4c9f899cb8d5ecc7735d122f1d279b7b72",
       "path": "backend/experiments/browser-r3/dnr_runtime/execution_plan.json",
       "origin": "new_candidate",
       "role": "offline_source_or_config",
@@ -88,7 +88,7 @@
       "module": "harness_v2"
     },
     {
-      "sha256": "1acb237f202bd4ce6f79ee6408e115bfde54ba301cce6449ee048bfe7661698d",
+      "sha256": "c307f72e732c3c3cf1ca09db5434e69d921d3aeb6f8649332b9e11d136eaede4",
       "path": "backend/experiments/browser-r3/dnr_runtime/test_receipt_v2.py",
       "origin": "new_candidate",
       "role": "offline_test_only",

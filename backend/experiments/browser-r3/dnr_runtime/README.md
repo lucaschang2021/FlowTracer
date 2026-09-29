@@ -71,6 +71,13 @@ mounts, dual-network attachment, actual phase/profile sequencing, full actual
 effective argv, kernel DNS bind, identity and real lifecycle proof are unfinished.
 These candidates are not executable launch manifests. Compose preserves hardening
 and uses only the new five-file extension path; all process entrypoints reject.
+
+Phase rendering additionally requires an independent controller-approved manifest
+raw digest BEFORE JSON parsing. The external approval reader currently hard-refuses;
+record path/bytes/controlcommit/session binding are not issued. Offline tests alone
+inject a SYNTHETIC authority; manifest self/caller hash/proven flags are not approval.
+Root, manifest and every source parent/leaf must be link/reparse-free and resolve
+strictly inside the approved root; same-byte external files are not authorized.
 The static path/hash manifest is not complete admitted executable closure. Known
 missing actual inputs remain null/UNKNOWN in execution_plan.json, not fake values.
 

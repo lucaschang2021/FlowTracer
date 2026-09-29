@@ -1,0 +1,88 @@
+{
+  "schema_version": "r3-dnr-execution-plan-v1",
+  "admission": "OFFLINE_ONLY",
+  "real_session_authorized": false,
+  "planned_session": "flowtracer-r3-dnr-capability-20260928-01",
+  "actual_session": null,
+  "extension_mount": {
+    "source": "backend/experiments/browser-r3/dnr_offline/extension",
+    "target": "/opt/flowtracer-r3-dnr",
+    "readonly": true
+  },
+  "added_flags": [
+    "--load-extension=/opt/flowtracer-r3-dnr",
+    "--disable-extensions-except=/opt/flowtracer-r3-dnr"
+  ],
+  "preserved_extra_flags": [
+    "--ignore-certificate-errors",
+    "--disable-background-networking",
+    "--disable-component-update",
+    "--disable-sync"
+  ],
+  "launch_contract": {
+    "fetcher": "Scrapling DynamicFetcher",
+    "actual_driver": "Playwright 1.62.0",
+    "executable": "/opt/browser-r1c/chromium-1234/chrome-linux64/chrome",
+    "chrome": "151.0.7922.34",
+    "headless": true,
+    "context_mode": "persistent",
+    "control_transport": "pipe",
+    "initial_url": "about:blank",
+    "proxy": "http://198.51.100.20:18080",
+    "retries": 1,
+    "caller_retry": false,
+    "effective_browser_argv": null,
+    "effective_browser_argv_verification": "unverified; frozen driver composes default arguments"
+  },
+  "resource_contract": {
+    "uid": 10001,
+    "gid": 10001,
+    "pids_limit": 128,
+    "memory": "768m",
+    "cpus": 1,
+    "readonly_root": true,
+    "cap_drop": ["ALL"],
+    "no_new_privileges": true,
+    "tmpfs": [
+      "/tmp:rw,nosuid,noexec,size=256m",
+      "/evidence:rw,nosuid,nodev,noexec,size=4m,mode=0700,uid=10001,gid=10001"
+    ],
+    "existing_compose": "backend/experiments/browser-r3/r3_a2/compose.yaml",
+    "topology_change": false
+  },
+  "supervision": {
+    "parent_before_dynamic_session": true,
+    "container_wall_limit_seconds": 120,
+    "precheck_seconds": 15,
+    "confirmed_close_seconds": 5,
+    "failed_close_action": "nonreturning child exit; parent stops exclusive container",
+    "parent_container_runner": null,
+    "trusted_cdp_collector": null,
+    "actual_close_confirmation": null,
+    "runtime_verification": "unverified"
+  },
+  "runtime_readbacks": {
+    "extension_id": null,
+    "enabled_static_rulesets": null,
+    "dynamic_rules": null,
+    "session_rules": null,
+    "observer_epoch": null,
+    "extension_inventory": null,
+    "verification": "unverified"
+  },
+  "r1e_authority": {
+    "manifest_sha256": "f8d8bd0b64dfac53e244b00f29fbc9f18ed44b94491323b3f49ba2af191912e8",
+    "payload_sha256": "5f4cf5acdf06a86f9b8907375f6f8f239ecf18152762b889f1e254b01e447e3b",
+    "covers_new_mount_or_flags": false
+  },
+  "driver_source_authority": {
+    "coreBundle.js": "3258d1cf334c6afc95f22aa9c292436cb976b391e0437f1359c83b84f0cb9d66",
+    "package.json": "4556ebbf21a31c5e8dabb49c991ec291c5f00ffcad8b18cda45e4070b8a473bd",
+    "protocol.d.ts": "b836eed98b79fabb54f1df73252a0ce178b8df4a89794251ade2fa0c5e52b678",
+    "verification": "previous actual-source hash inspection; not rerun"
+  },
+  "association_paths": ["/dnr-page-ws", "/dnr-page-wss", "/dnr-worker-ws", "/dnr-worker-wss"],
+  "real_gate": "NO_GO_PENDING_HASH_REVIEW_AND_RUNTIME_ADAPTER_ADMISSION",
+  "formal_r3_gate": false,
+  "r3_status": "BLOCKED"
+}

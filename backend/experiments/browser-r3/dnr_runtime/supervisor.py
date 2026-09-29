@@ -6,6 +6,7 @@ import ast
 import hashlib
 import json
 import re
+import stat
 import subprocess
 import sys
 import time
@@ -13,6 +14,263 @@ from pathlib import Path
 from threading import Event, Lock, Thread, Timer
 
 from collector import Unknown
+
+REAL_SESSION_AUTHORIZED = False
+
+
+def read_controller_manifest_digest(session: str) -> str:
+    """Unissued external approval boundary; never read env/CLI/fixture/self hash.
+
+    Future independent controlcommit/session-bound record path and bytes authority
+    must be separately frozen and mounted read-only. No record is issued now.
+    Offline tests replace THIS reader with explicitly SYNTHETIC authority doubles.
+    """
+    raise Unknown("controller_manifest_authority_not_issued")
+
+
+def checked_repo_file(root: Path, leaf: Path) -> Path:
+    """Reject links/reparse/unknown metadata throughout the lexical approved chain."""
+    try:
+        if (
+            not root.is_absolute()
+            or not leaf.is_absolute()
+            or ".." in root.parts
+            or ".." in leaf.parts
+            or not leaf.is_relative_to(root)
+        ):
+            raise Unknown("path_boundary_unknown")
+        nodes = [root]
+        for part in leaf.relative_to(root).parts:
+            nodes.append(nodes[-1] / part)
+        for index, node in enumerate(nodes):
+            metadata = node.lstat()
+            mode = metadata.st_mode
+            attrs = getattr(metadata, "st_file_attributes", None)
+            if (
+                type(mode) is not int
+                or stat.S_ISLNK(mode)
+                or (sys.platform == "win32" and type(attrs) is not int)
+                or (attrs is not None and (type(attrs) is not int or attrs & 0x400))
+                or (index < len(nodes) - 1 and not stat.S_ISDIR(mode))
+                or (index == len(nodes) - 1 and not stat.S_ISREG(mode))
+            ):
+                raise Unknown("path_chain_link_or_unknown")
+        resolved_root = root.resolve(strict=True)
+        if resolved_root != root or not leaf.resolve(strict=True).is_relative_to(resolved_root):
+            raise Unknown("path_boundary_escape")
+        return leaf
+    except Exception:
+        raise Unknown("path_chain_unproven") from None
+
+
+def phase_commands(image: str, session: str, phase: str, mounts: list[dict]):
+    """Exact browser create candidate, never executable without separate admission."""
+    if not re.fullmatch(r"sha256:[0-9a-f]{64}", image) or phase not in {"baseline", "enabled"}:
+        raise Unknown("image_or_phase_unfrozen")
+    if not re.fullmatch(r"flowtracer-r3-dnr-[a-z0-9-]{1,64}", session):
+        raise Unknown("session_invalid")
+    argv = [
+        "container",
+        "create",
+        "--pull=never",
+        "--name",
+        session,
+        "--label",
+        f"flowtracer.r3.session={session}",
+        "--user",
+        "10001:10001",
+        "--read-only",
+        "--cap-drop=ALL",
+        "--security-opt",
+        "no-new-privileges:true",
+        "--pids-limit",
+        "128",
+        "--memory",
+        "768m",
+        "--cpus",
+        "1.0",
+        "--network",
+        f"{session}_browser",
+        "--ip",
+        "198.51.100.10",
+        "--dns",
+        "198.51.100.40",
+        "--tmpfs",
+        "/tmp:rw,nosuid,noexec,size=256m",  # noqa: S108 - dedicated container tmpfs
+    ]
+    try:
+        here = Path(__file__).absolute().parent
+        root = here.parents[3]
+        manifest_path = checked_repo_file(root, here / "execution-inputs.json")
+        approved_digest = read_controller_manifest_digest(session)
+        if type(approved_digest) is not str or not re.fullmatch(r"[0-9a-f]{64}", approved_digest):
+            raise Unknown("controller_digest_invalid")
+        manifest_bytes = manifest_path.read_bytes()
+        if hashlib.sha256(manifest_bytes).hexdigest() != approved_digest:
+            raise Unknown("manifest_not_independently_approved")
+        manifest = json.loads(manifest_bytes)
+        rows = manifest["inputs"]
+        if type(rows) is not list or len({row["path"] for row in rows}) != len(rows):
+            raise Unknown("mount_manifest_invalid")
+        recorded = {row["path"]: row for row in rows}
+        targets = {
+            "/opt/flowtracer-r3-runtime/" + name: "backend/experiments/browser-r3/dnr_runtime/"
+            + name
+            for name in (
+                "collector.py",
+                "probe.py",
+                "contract_v2.py",
+                "validator_v2.py",
+                "harness_v2.py",
+            )
+        }
+        targets.update(
+            {
+                "/opt/flowtracer-r3-runtime/" + name: "backend/experiments/browser-r3/dnr_offline/"
+                + name
+                for name in ("contract.py", "harness.py")
+            }
+        )
+        if phase == "enabled":
+            targets.update(
+                {
+                    "/opt/flowtracer-r3-dnr/"
+                    + name: "backend/experiments/browser-r3/dnr_runtime/extension-v2/" + name
+                    for name in (
+                        "manifest.json",
+                        "rules.json",
+                        "observer.js",
+                        "audit.html",
+                        "audit.js",
+                    )
+                }
+            )
+        if type(mounts) is not list or len(mounts) != len(targets):
+            raise Unknown("mount_closure_missing")
+        destinations = set()
+        for mount in mounts:
+            if (
+                type(mount) is not dict
+                or set(mount) != {"source", "target", "sha256", "readonly"}
+                or any(type(mount[k]) is not str for k in ("source", "target", "sha256"))
+                or mount["readonly"] is not True
+            ):
+                raise Unknown("mount_inputs_unfrozen")
+            source, target = mount["source"], mount["target"]
+            if (
+                target not in targets
+                or target in destinations
+                or "\\" in target
+                or ".." in target.split("/")
+                or "//" in target
+                or any(ord(c) < 32 or c == "," for c in source + target)
+            ):
+                raise Unknown("mount_target_invalid")
+            relative = targets[target]
+            expected = root / relative
+            supplied = Path(source)
+            checked_repo_file(root, expected)
+            checked_repo_file(root, supplied)
+            row = recorded.get(relative)
+            if (
+                not supplied.is_absolute()
+                or ".." in supplied.parts
+                or supplied != expected
+                or type(row) is not dict
+                or not re.fullmatch(r"[0-9a-f]{64}", mount["sha256"])
+                or mount["sha256"] != row.get("sha256")
+                or hashlib.sha256(expected.read_bytes()).hexdigest() != row.get("sha256")
+            ):
+                raise Unknown("mount_source_or_hash_unbound")
+            destinations.add(target)
+            argv += ["--mount", f"type=bind,source={source},target={target},readonly"]
+        if destinations != set(targets):
+            raise Unknown("mount_closure_missing")
+        if phase == "enabled":
+            from contract_v2 import check_static
+
+            check_static(
+                here / "extension-v2",
+                {
+                    name: recorded[
+                        "backend/experiments/browser-r3/dnr_runtime/extension-v2/" + name
+                    ]["sha256"]
+                    for name in (
+                        "manifest.json",
+                        "rules.json",
+                        "observer.js",
+                        "audit.html",
+                        "audit.js",
+                    )
+                },
+            )
+    except Exception:
+        raise Unknown("phase_mount_contract_unknown") from None
+    argv += [
+        "--entrypoint",
+        "python",
+        image,
+        "/opt/flowtracer-r3-runtime/probe.py",
+        "--phase",
+        phase,
+    ]
+    return argv
+
+
+def actual_session_entry(*_args):
+    # Immutable source gate, never enabled by CLI/environment/caller boolean.
+    if not REAL_SESSION_AUTHORIZED:
+        raise Unknown("real_session_not_authorized")
+    raise Unknown("inventory_clock_dns_identity_not_proven")
+
+
+def dependency_commands(image: str, session: str, phase: str):
+    """Exact internal dependency candidate; no create/start calls or pulls here."""
+    if not re.fullmatch(r"sha256:[0-9a-f]{64}", image) or phase not in {"baseline", "enabled"}:
+        raise Unknown("image_or_phase_unfrozen")
+    if not re.fullmatch(r"flowtracer-r3-dnr-[a-z0-9-]{1,64}", session):
+        raise Unknown("session_invalid")
+    roles = {
+        "proxy": ("198.51.100.20", "proxy.py"),
+        "dns": ("198.51.100.40", "proxy.py"),
+        "fixture": ("192.0.2.10", "fixture.py"),
+    }
+    return {
+        role: [
+            "container",
+            "create",
+            "--pull=never",
+            "--name",
+            f"{session}-{role}",
+            "--label",
+            f"flowtracer.r3.session={session}",
+            "--user",
+            "10001:10001",
+            "--read-only",
+            "--cap-drop=ALL",
+            "--security-opt",
+            "no-new-privileges:true",
+            "--pids-limit",
+            "64",
+            "--memory",
+            "256m",
+            "--cpus",
+            "0.5",
+            "--network",
+            f"{session}_{'fixture' if role == 'fixture' else 'browser'}",
+            "--ip",
+            ip,
+            "--entrypoint",
+            "python",
+            image,
+            f"/opt/flowtracer-r3-runtime/{script}",
+            "--role",
+            role,
+            "--phase",
+            phase,
+        ]
+        for role, (ip, script) in roles.items()
+    }
 
 
 def check_inputs(root: Path, rows: list[dict]) -> None:

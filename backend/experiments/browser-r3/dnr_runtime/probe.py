@@ -8,8 +8,8 @@ from pathlib import Path
 from threading import Timer
 
 from collector import Unknown
-from contract import FLAGS, Rejected
-from harness import Guard
+from contract_v2 import FLAGS, Rejected
+from harness_v2 import Guard
 
 REAL_SESSION_AUTHORIZED = False
 EXECUTABLE = "/opt/browser-r1c/chromium-1234/chrome-linux64/chrome"
@@ -61,6 +61,9 @@ def guarded_setup(guard: Guard, collector, page, clock) -> None:
         audit.goto(f"chrome-extension://{collector.extension_id}/audit.html", timeout=15000)
         collector.bind_audit_page(audit)
         collector.readback(configure=True)
+        inventory = page.context.new_page()
+        inventory.goto("chrome://extensions/", timeout=15000)
+        collector.read_inventory_candidate(inventory)
         # These two unreviewed sources ALWAYS refuse in this offline candidate.
         collector.require_target_permission(clock)
         raise Unknown("real_allow_path_not_admitted")
@@ -96,6 +99,48 @@ def fetch_once(guard: Guard, fetch, setup, action):
     # Independent parent must already be armed before child starts this function.
     guard.start()
     return fetch(setup=setup, action=action, retries=1)
+
+
+def four_native_arms(page):
+    """Candidate action; never reached while preflight/entrypoints refuse."""
+    results = []
+    for scheme in ("ws", "wss"):
+        results.append(page.evaluate("scheme => r3Fixture.page(scheme)", scheme))
+    for scheme in ("ws", "wss"):
+        row = page.evaluate(
+            """scheme => new Promise((resolve, reject) => {
+          const worker = r3Fixture.worker(); let arm = null;
+          const timer = setTimeout(() => {
+            worker.terminate(); reject(Error('worker_timeout'));
+          }, 5000);
+          worker.onmessage = event => {
+            if (event.data.kind === 'ready') {worker.postMessage({kind:'start',scheme}); return;}
+            if (['error','close','timeout','open'].includes(event.data.kind)) {
+              arm = event.data; worker.postMessage({kind:'ping'}); return;
+            }
+            if (event.data.kind === 'pong' && arm) {
+              clearTimeout(timer); worker.terminate();
+              resolve({...arm,pong:true,terminated:true,http_script_alive:true});
+            }
+          };
+        })""",
+            scheme,
+        )
+        results.append(row)
+    return results
+
+
+def control_ping():
+    """Only existing isolated Redis; no general target/client configurability."""
+    import socket
+
+    try:
+        with socket.create_connection(("198.51.100.30", 6379), timeout=2) as connection:
+            connection.sendall(b"*1\r\n$4\r\nPING\r\n")
+            if connection.recv(64) != b"+PONG\r\n":
+                raise Unknown("control_ping_invalid")
+    except Exception:
+        raise Unknown("control_ping_unknown") from None
 
 
 if __name__ == "__main__":

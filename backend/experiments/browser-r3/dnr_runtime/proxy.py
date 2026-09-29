@@ -191,3 +191,41 @@ def serve(phase: str, audit):
 
 def safe_json(event: dict) -> str:
     return json.dumps(event, sort_keys=True, allow_nan=False)
+
+
+def serve_dns(audit):
+    """Reuse tracked R2C-A4 NXDOMAIN module, never change sysctl/cap/root."""
+    import threading
+
+    import accepted_dns
+
+    def record(_name, query_type):
+        audit(
+            {
+                "source": "browser-system-resolver",
+                "decision": "nxdomain",
+                "qtype": query_type if query_type in {"A", "AAAA"} else "other",
+                "upstream_queries": 0,
+            }
+        )
+
+    accepted_dns._record = record
+    # Bind is real and may fail: no assumed kernel-default compatibility.
+    udp = accepted_dns.ThreadedUDPServer(("0.0.0.0", 53), accepted_dns.UDPHandler)  # noqa: S104 - internal namespace
+    try:
+        tcp = accepted_dns.ThreadedTCPServer(("0.0.0.0", 53), accepted_dns.TCPHandler)  # noqa: S104
+    except Exception:
+        udp.server_close()
+        raise RuntimeError("nonroot_dns_bind_unknown") from None
+    try:
+        threading.Thread(target=tcp.serve_forever, daemon=True).start()
+        udp.serve_forever()
+    finally:
+        tcp.shutdown()
+        tcp.server_close()
+        udp.server_close()
+
+
+if __name__ == "__main__":
+    # Separate source gate, never toggled by phase/role CLI arguments.
+    raise SystemExit("NO_GO: real_session_not_authorized")

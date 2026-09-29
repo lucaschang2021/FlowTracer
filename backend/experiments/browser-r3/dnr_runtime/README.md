@@ -1,77 +1,94 @@
-# R3 DNR runtime adapters — OFFLINE ONLY / NO-GO
+# R3 observation v2 — OFFLINE ONLY / BLOCKED
 
-Actual branch base is `7d95a87cf6d1a5fd905cb30014be6a5d16723c2a`, tree
-`bcf58afbbe77ea8fe67a1ea3cc76ba16fcba3c4f`. Controller authorized same-tree startup
-against remote merge `5b0f3cab93845265cf10e495e2301f124a3151de`. During startup,
-shared local origin/main was observed at that exact merge and its tree/ancestry
-verified read-only; this task did not fetch again or alter refs. Future delivery
-must still recheck then-current main/merge compatibility.
+Base: ff70c198acb74b764435485611ec67484bcc7262. Branch:
+feat/acq1-wp3-r3-dnr-v2. docs52 is effective by controller's precise PR74 merge
+permission; its proposal text is historical, not a real-session license.
 
-Seven implementation files only: collector/probe/supervisor/fixture/proxy,
-compose and injected offline tests. No generic Browser framework or new product
-API. Original five extension files, prior candidate code and evidence unchanged.
+This is a PARTIAL offline candidate, not a runnable session or complete runtime
+closure. The immutable real entry gates remain disabled. Do not run Compose,
+Docker, Browser, dependency entrypoints or network probes using this delivery.
 
-Collector uses browser CDP pipe target discovery followed by an actual extension
-audit page CDP session, trusted origin/runtime.id/manifest, enabled ruleset,
-empty dynamic/session rules, observer/flush/epoch and bounded cumulative receipts.
-Target enumeration is NOT complete installed extension inventory. Independent
-exclusive-profile/RO-mount/flags evidence is a necessary interface precondition,
-not computed kernel evidence. Inventory's frozen system source is still absent;
-`require_inventory()` always UNKNOWN. DNR/system/controller clock mapping has no
-reviewed unit/synchronization/error proof; `ClockEvidence` validates finite typed
-anchors but always refuses conversion. Thus no actual target permission exists.
-No arbitrary clock tolerance, fake component list or caller-supplied True grants it.
+## Receipt and provenance
 
-The actual close adapter requires context.close completion, disconnected event,
-browser.is_connected false and page.is_closed true. It must be used under Guard's
-independent 5s timer, preceded by 15s preflight and child guard before DynamicSession.
-The host ParentSupervisor arms before create/start, bounds Docker CLI time/output,
-checks exact ID/name/session ownership, kills only owned running container and
-requires rm plus exact daemon-view absence. All current tests inject a fake daemon;
-no real cleanup or process-reap proof exists. Real Docker launch is refused because
-full approved create argv/image/mount inputs are not yet frozen. Natural exit/ACK
-never upgrades receipt/identity/R3 result. Child and proxy/fixture entrypoints are
-explicitly non-runnable NO-GO until orchestration is reviewed; no environment switch
-or CLI flag currently enables the real Browser path.
+Independent extension-v2 has exactly five source files. Manifest permissions and
+the sole static WS block rule are unchanged; only one approved extension path may
+be loaded. v1 dnr_offline files/hash/history are preserved, not reinterpreted.
+Snapshot schema is r3-dnr-audit-v2. Receipt has exactly eighteen fields, including
+timestamp_source=trusted_observer_callback_epoch_ms. Its timestamp is captured by
+a bound native Date.now at synchronous trusted onRuleMatchedDebug callback entry,
+before enqueue/hash/await. It denotes observation, NEVER request/match time.
+The real-shaped API double has no request.timeStamp.
 
-The proxy adaptation is experiment auditing only, not a formal product contract
-change. Non-CONNECT returns original 405+close. Valid plain WS absolute request
-requires exact host/8443, unique/unfolded ASCII headers, matching Host and upgrade,
-known safe path, no userinfo/query/fragment. Audit exports actual method, validated
-host/port and SHA256 of canonical safe path, never raw URL/headers. Invalid requests
-stay denied and uncorrelated. Controlled WS CONNECT remains 403 with no socket or
-relay. Other syntactically valid CONNECT delegates only to the explicitly mounted
-tracked R2C-A4 source (same fixed-fixture double-pass/peer policy), with the already
-frozen R3 navigation fixture hostname; no WS forwarding/allow/new port.
+Typed collector rejects v1, unknown/secret fields, invalid types/sources/fingerprints,
+and cumulative sequence/request receipt rewrites. Safe metadata remains nullable;
+no WorkerID is invented and CDP/DNR IDs are not assumed equal. Model validator
+requires strict start <= receipt_observed <= terminal <= end and <=5000ms.
+Late callbacks/time reversal/wrong units/float/bool/NaN or ambiguous associations
+are refused, never rescued by flush time or tolerance.
 
-Fixture serves only navigation and genuine HTTP(S) worker script. Page and Worker
-source uses native new WebSocket and bounded 5s terminal; no constructor wrapper,
-Blob worker or JS deny injection. It never accepts WS upgrade; any received upgrade
-is counted as an adverse fact. These are NOT DNR-authoritative receipts.
+Observer/fixture epoch milliseconds, CDP monotonic seconds and host monotonic
+nanoseconds remain distinct domains. Host-bracketed trusted audit clock samples
+prove only ordering; cross-realm epoch consistency remains UNKNOWN. Neither a
+finite anchor nor a caller Boolean grants a real clock mapping.
 
-New input closure excludes every old untracked r3/r3_a2 file, all 45 historical
-diagnostic dependencies, caches and evidence. Approved old contract/harness/validator
-and five extension sources are separately listed; the only additional executable
-base dependency is tracked R2C-A4 proxy. Runtime mounts are explicit flat module
-names, not hidden sys.path. Host fake tests use explicit PYTHONPATH for approved
-offline modules, because source directories are not installed packages.
+## Inventory source limit
 
-Remaining NO-GO items: reliable system component/non-component inventory; reviewed
-clock-unit/anchor/mapping proof; actual measured identity/close/reap/receipt evidence;
-complete real phase/create-argv/image checking and dependency/TLS/DNS/control-client
-orchestration. Compose is an offline, hardening-preserving mount proposal, not a
-usable startup recipe. TLS cert generation/input authority and actual phase env
-are null. No old image authority is claimed to cover new source/mount/argv. Hash
-review and independent real-session permission are still mandatory.
+Only the controller-approved chrome://extensions/ diagnostic path is implemented
+as a read-only CDP candidate with disabled/terminated options and fixed version
+check. Raw results are neither logged nor accepted as complete inventory.
+Pinned151 schema lookup failed once; HEAD IDL was also unavailable. No failed
+request was retried and no id/state/type/location schema was guessed. The
+HEAD implementation does not prove pinned151 coverage; UI filtering cannot
+prove all installed objects. The adapter therefore safely returns UNKNOWN.
+This is an explicit hard blocker, not a completed inventory implementation.
 
-Affected offline command (only existing tools, repository root):
+Official evidence consulted:
+- [DNR API](https://developer.chrome.com/docs/extensions/reference/api/declarativeNetRequest):
+  debug request and MatchedRuleInfo are different structures.
+- [developerPrivate HEAD](https://chromium.googlesource.com/chromium/src/+/HEAD/chrome/browser/extensions/api/developer_private/developer_private_functions.cc):
+  mechanism only, not pinned151 schema or filter coverage.
+- [CDP Network](https://chromedevtools.github.io/devtools-protocol/tot/Network/):
+  separate protocol time domains, not synchronized epoch proof.
 
-```powershell
-$env:PYTHONPATH=(Resolve-Path backend/experiments/browser-r3/dnr_offline).Path
-py -3.13 -m unittest discover -s backend/experiments/browser-r3/dnr_runtime -p test_runtime_adapters.py -q
-backend/.venv/Scripts/ruff.exe check --no-cache backend/experiments/browser-r3/dnr_runtime
-backend/.venv/Scripts/ruff.exe format --check --no-cache --quiet backend/experiments/browser-r3/dnr_runtime
-```
+## Runtime closure limits
 
-Do not run Compose/Docker/Browser on the basis of this file. No local commit yet
-authorized until controller approves the proposed exact whitelist.
+Native fixture Page/HTTP Worker arms now record controlled application epoch
+points; their timestamps are not DNR authority. Existing 5s terminal budgets and
+pong/terminate remain. TLS generation source uses the prior local fixture mode,
+fixed image-local openssl argv, isolated /tmp/r3-tls and 0600 key; key bytes are
+never committed/logged. Actual cert hash/key file identity and image identity
+remain null, not generated offline.
+
+Tracked R2C-A4 DNS pure interfaces are reused, with audit omitting raw query names.
+No new dns.py is needed. Prior R2C DNS used sysctl=0; this candidate does NOT copy
+it. Non-root port53 binding without root/cap/sysctl is UNKNOWN and must refuse if
+not established. Existing internal Redis PING is the only control connection.
+Proxy remains 405+close for plain WS, independent CONNECT403, zero WS upstream/
+relay; no new port/allow. Reader failure latch and bounded CLI output are retained.
+
+Supervisor can render limited exact phase/create candidates, but dependency
+mounts, dual-network attachment, actual phase/profile sequencing, full actual
+effective argv, kernel DNS bind, identity and real lifecycle proof are unfinished.
+These candidates are not executable launch manifests. Compose preserves hardening
+and uses only the new five-file extension path; all process entrypoints reject.
+
+Phase rendering additionally requires an independent controller-approved manifest
+raw digest BEFORE JSON parsing. The external approval reader currently hard-refuses;
+record path/bytes/controlcommit/session binding are not issued. Offline tests alone
+inject a SYNTHETIC authority; manifest self/caller hash/proven flags are not approval.
+Root, manifest and every source parent/leaf must be link/reparse-free and resolve
+strictly inside the approved root; same-byte external files are not authorized.
+The static path/hash manifest is not complete admitted executable closure. Known
+missing actual inputs remain null/UNKNOWN in execution_plan.json, not fake values.
+
+## Offline verification only
+
+Use explicit PYTHONPATH including this directory and the approved dnr_offline
+contract/guard modules. New tests cover realistic debug API, before-await frozen
+time, strict source/order rejection, inventory refusal, alias/reader failure,
+command candidates and hard-disabled entry. Old unchanged v1 suites are not rerun.
+Node VM/fake CDP/process/streams do not prove native DNR, clock/inventory or cleanup.
+
+R3 remains BLOCKED. No R4/formal WP3/downstream admission. Independent review,
+source/schema resolution, exact runtime closure and a new controller session
+license are all required before any real execution.

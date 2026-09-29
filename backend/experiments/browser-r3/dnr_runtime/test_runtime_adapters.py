@@ -14,20 +14,21 @@ from unittest.mock import patch
 from collector import ClockEvidence, Collector, Unknown, evaluate
 from contract import FLAGS, MANIFEST, MOUNT, SESSION, fingerprint
 from fixture import PAGE, WORKER, response
-from harness import Guard, Terminal
+from harness import Terminal
+from harness_v2 import Guard
 from probe import close_confirmed, fetch_once, guarded_setup, invoke_dynamic_fetch
 from proxy import denied_request, handler_type, read_headers, valid_connect
 from supervisor import DockerCommands, ParentSupervisor, check_inputs
 
 HERE = Path(__file__).parent
-EXTENSION = HERE.parent / "dnr_offline/extension"
+EXTENSION = HERE / "extension-v2"
 EXT_HASHES = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in EXTENSION.iterdir()}
 EXT_ID = "a" * 32
 
 
 def snapshot():
     return {
-        "schema_version": "r3-dnr-audit-v1",
+        "schema_version": "r3-dnr-audit-v2",
         "extension_id": EXT_ID,
         "session": SESSION,
         "ok": True,
@@ -47,13 +48,14 @@ def snapshot():
 
 def receipt():
     return {
-        "schema_version": "r3-dnr-receipt-v1",
+        "schema_version": "r3-dnr-receipt-v2",
         "extension_id": EXT_ID,
         "session": SESSION,
         "sequence": 1,
         "observer_epoch": "SYNTHETIC-epoch",
         "request_id": "SYNTHETIC-dnr-1",
-        "timestamp": 1000,
+        "timestamp": 1700000000000,
+        "timestamp_source": "trusted_observer_callback_epoch_ms",
         "ruleset_id": "ws_default_deny_v1",
         "rule_id": 1,
         "action": "block",
@@ -375,10 +377,10 @@ class RuntimeTests(unittest.TestCase):
 
     def test_cumulative_receipts_cannot_be_rewritten_or_alias_return(self):
         for key, changed in (
-            ("timestamp", 1001),
+            ("timestamp", 1700000000001),
             ("tab_id", 1),
             ("safe_request_fingerprint", fingerprint("worker", "ws")),
-            ("timestamp", 1000.0),
+            ("document_id", "changed"),
         ):
             value, cdp = bound()
             cdp.state.update(receipts=[receipt()], sequence=1)

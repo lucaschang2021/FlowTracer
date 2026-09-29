@@ -2,37 +2,21 @@
 
 from __future__ import annotations
 
-import math
 import re
+import time
 from pathlib import Path
 
-from contract import FLAGS, MANIFEST, MOUNT, SESSION, Rejected, check_static, fingerprint
-from validator import finite_time
-
-RECEIPT_FIELDS = frozenset(
-    {
-        "schema_version",
-        "session",
-        "extension_id",
-        "ruleset_id",
-        "rule_id",
-        "action",
-        "resource_type",
-        "request_id",
-        "timestamp",
-        "sequence",
-        "observer_epoch",
-        "safe_request_fingerprint",
-        "tab_id",
-        "frame_id",
-        "document_id",
-        "initiator",
-        "initiator_note",
-    }
+from contract_v2 import (
+    AUDIT_SCHEMA,
+    FLAGS,
+    MANIFEST,
+    MOUNT,
+    SESSION,
+    Rejected,
+    check_static,
+    receipt_identity,
 )
-ARM_FINGERPRINTS = frozenset(
-    fingerprint(actor, scheme) for actor in ("page", "worker") for scheme in ("ws", "wss")
-)
+from validator_v2 import validate_clock_samples
 
 
 class Unknown(Rejected):
@@ -76,22 +60,10 @@ class ClockEvidence:
         self.anchors = anchors
 
     def require_mapping(self) -> None:
-        if not self.anchors:
-            raise Unknown("clock_anchors_missing")
-        for anchor in self.anchors:
-            for key in ("before_monotonic_ms", "browser_epoch_ms", "after_monotonic_ms"):
-                value = anchor.get(key)
-                if type(value) not in (int, float):
-                    raise Unknown("clock_anchor_invalid")
-                try:
-                    if not math.isfinite(value):
-                        raise Unknown("clock_anchor_invalid")
-                except OverflowError:
-                    raise Unknown("clock_anchor_invalid") from None
-            if anchor["before_monotonic_ms"] > anchor["after_monotonic_ms"]:
-                raise Unknown("clock_anchor_order_invalid")
-        # No frozen version/source/unit/error authority exists in this candidate.
-        raise Unknown("clock_mapping_unreviewed")
+        try:
+            validate_clock_samples(self.anchors)
+        except Rejected:
+            raise Unknown("clock_mapping_unreviewed") from None
 
 
 class Collector:
@@ -158,7 +130,7 @@ class Collector:
         expression = f"r3Audit.configure('{SESSION}')" if configure else "r3Audit.snapshot()"
         snapshot = evaluate(self.cdp, expression)
         if (
-            snapshot.get("schema_version") != "r3-dnr-audit-v1"
+            snapshot.get("schema_version") != AUDIT_SCHEMA
             or snapshot.get("extension_id") != self.extension_id
             or snapshot.get("session") != SESSION
             or snapshot.get("ok") is not True
@@ -191,53 +163,16 @@ class Collector:
         seen = set()
         history = []
         for ordinal, row in enumerate(rows, 1):
-            if (
-                type(row) is not dict
-                or set(row) != RECEIPT_FIELDS
-                or any(
-                    type(row.get(key)) is not str
-                    for key in (
-                        "schema_version",
-                        "session",
-                        "extension_id",
-                        "ruleset_id",
-                        "action",
-                        "resource_type",
-                        "request_id",
-                        "observer_epoch",
-                        "safe_request_fingerprint",
-                        "initiator_note",
-                    )
-                )
-                or type(row.get("sequence")) is not int
-                or row.get("sequence") != ordinal
-                or not finite_time(row.get("timestamp"))
-                or row.get("observer_epoch") != epoch
-                or row.get("session") != SESSION
-                or row.get("extension_id") != self.extension_id
-                or row.get("schema_version") != "r3-dnr-receipt-v1"
-                or row.get("ruleset_id") != "ws_default_deny_v1"
-                or type(row.get("rule_id")) is not int
-                or row.get("rule_id") != 1
-                or row.get("action") != "block"
-                or row.get("resource_type") != "websocket"
-                or not isinstance(row.get("request_id"), str)
-                or not row["request_id"]
-                or row["request_id"] in seen
-                or row.get("safe_request_fingerprint") not in ARM_FINGERPRINTS
-                or any(
-                    row.get(key) is not None and type(row[key]) is not int
-                    for key in ("tab_id", "frame_id")
-                )
-                or (row.get("document_id") is not None and type(row["document_id"]) is not str)
-                or row.get("initiator") is not None
-                or row.get("initiator_note") != "omitted_to_prevent_origin_secret_exposure"
-            ):
+            try:
+                identity = receipt_identity(row, self.extension_id, epoch, ordinal)
+            except Rejected:
+                raise Unknown("audit_receipt_invalid") from None
+            if row["request_id"] in seen:
                 raise Unknown("audit_receipt_invalid")
             seen.add(row["request_id"])
             # All validated fields are immutable scalars. Preserve values AND types;
             # never alias the returned CDP snapshot or equate bool/int/float values.
-            history.append(tuple((key, type(row[key]), row[key]) for key in sorted(row)))
+            history.append(identity)
         if not self.seen.issubset(seen):
             raise Unknown("audit_receipts_lost")
         if tuple(history[: self.last_sequence]) != self.receipt_history:
@@ -251,7 +186,49 @@ class Collector:
         # No reviewed component/non-component inventory source is frozen yet.
         raise Unknown("extension_inventory_source_unreviewed")
 
+    def read_inventory_candidate(self, page):
+        """Only the approved diagnostic page; no schema guessed after source failure."""
+        if page.url != "chrome://extensions/":
+            raise Unknown("inventory_origin_invalid")
+        try:
+            version = self.root.send("Browser.getVersion")
+            if version.get("product") not in {
+                "Chrome/151.0.7922.34",
+                "HeadlessChrome/151.0.7922.34",
+            }:
+                raise Unknown("inventory_version_invalid")
+            cdp = self.context.new_cdp_session(page)
+            value = evaluate(
+                cdp,
+                """new Promise(resolve => {
+              if (location.href !== 'chrome://extensions/' || !chrome.developerPrivate) {
+                resolve({ok:false}); return;
+              }
+              chrome.developerPrivate.getExtensionsInfo(
+                {includeDisabled:true,includeTerminated:true}, entries => {
+                  resolve(chrome.runtime.lastError ? {ok:false} : {ok:true,entries});
+                });
+            })""",
+            )
+            if value.get("ok") is not True or type(value.get("entries")) is not list:
+                raise Unknown("inventory_read_invalid")
+        except Exception:
+            raise Unknown("inventory_read_unknown") from None
+        # HEAD/tag145 UI-filtered data cannot certify pinned151 registry coverage.
+        # No projection/state/type/location interpretation without exact schema.
+        raise Unknown("inventory_151_schema_and_filter_coverage_unknown")
+
     def require_target_permission(self, clock: ClockEvidence) -> None:
         self.readback()
         self.require_inventory()
         clock.require_mapping()
+
+    def sample_clock(self):
+        if self.cdp is None:
+            raise Unknown("audit_context_missing")
+        before = time.monotonic_ns()
+        value = evaluate(self.cdp, "r3Audit.clock()")
+        after = time.monotonic_ns()
+        if set(value) != {"source", "epoch_ms"}:
+            raise Unknown("clock_source_invalid")
+        return {**value, "host_before_ns": before, "host_after_ns": after}

@@ -1,12 +1,14 @@
 {
-  "schema_version": "r3-dnr-runtime-plan-v1",
+  "schema_version": "r3-dnr-runtime-plan-v2",
   "phase": "OFFLINE_ONLY",
-  "actual_branch_base": "7d95a87cf6d1a5fd905cb30014be6a5d16723c2a",
-  "branch_base_tree": "bcf58afbbe77ea8fe67a1ea3cc76ba16fcba3c4f",
-  "known_remote_merge": "5b0f3cab93845265cf10e495e2301f124a3151de",
-  "local_origin_main_observed": "5b0f3cab93845265cf10e495e2301f124a3151de",
+  "actual_branch_base": "ff70c198acb74b764435485611ec67484bcc7262",
+  "branch_base_tree": "af7705c215973032ce42280eabf27ec72352a0a3",
+  "known_remote_merge": "ff70c198acb74b764435485611ec67484bcc7262",
+  "local_origin_main_observed": "ff70c198acb74b764435485611ec67484bcc7262",
   "real_session_authorized": false,
   "runtime_gate": "NO_GO",
+  "independent_controller_record": null,
+  "controller_record_path_bytes_controlcommit_session_binding": "UNISSUED; no env/CLI/fixture/self authority",
   "planned_session": "flowtracer-r3-dnr-capability-20260928-01",
   "actual_session": null,
   "context": "fresh exclusive persistent profile per baseline/enabled arm",
@@ -18,16 +20,24 @@
   "caller_retry": false,
   "extension_mount": "/opt/flowtracer-r3-dnr",
   "extension_readonly": true,
-  "added_flags": ["--load-extension=/opt/flowtracer-r3-dnr", "--disable-extensions-except=/opt/flowtracer-r3-dnr"],
+  "added_flags": [
+    "--load-extension=/opt/flowtracer-r3-dnr",
+    "--disable-extensions-except=/opt/flowtracer-r3-dnr"
+  ],
   "approved_effective_browser_argv": null,
   "actual_extension_id": null,
   "actual_rule_readback": null,
-  "inventory_source": null,
-  "inventory_status": "UNKNOWN",
-  "clock_source_units": null,
+  "inventory_source": "chrome://extensions/ developerPrivate.getExtensionsInfo(includeDisabled/includeTerminated) candidate; pinned schema/filter coverage unavailable",
+  "inventory_status": "UNKNOWN_PINNED_151_SCHEMA_AND_FILTERS",
+  "clock_source_units": {
+    "observer": "native Date.now epoch integer milliseconds",
+    "fixture": "controlled native Date.now epoch integer milliseconds",
+    "cdp": "monotonic seconds (separate domain)",
+    "host": "time.monotonic_ns integer nanoseconds (separate domain)"
+  },
   "clock_mapping": null,
   "clock_sync_error_proof": null,
-  "clock_status": "UNKNOWN",
+  "clock_status": "UNKNOWN_CROSS_REALM_EQUIVALENCE",
   "actual_readonly_mount_evidence": null,
   "actual_exclusive_profile_evidence": null,
   "actual_close_confirmation": null,
@@ -37,8 +47,13 @@
   "close_seconds": 5,
   "ws_terminal_seconds": 5,
   "real_create_argv": null,
-  "dependency_orchestration": null,
-  "tls_artifact_authority": null,
+  "dependency_orchestration": "PARTIAL: phase/create argv candidates, existing DNS NXDOMAIN interface, Redis ping, TLS generation; real CLI/mount/network/profile/phase orchestration and identity proof incomplete",
+  "tls_artifact_authority": {
+    "generator": "/usr/bin/openssl req -x509 -newkey rsa:2048 -nodes -days 1 -subj /CN=navigation-r3.test -keyout /tmp/r3-tls/fixture.key -out /tmp/r3-tls/fixture.crt",
+    "key_identity": null,
+    "public_certificate_sha256": null,
+    "mode": "prior ignore_https_errors/ignore-certificate-errors; no new browser flag"
+  },
   "plain_ws_audit": "405+close; validated method/host/port/fingerprint; no upstream",
   "connect_ws_control": "403; no upstream or relay",
   "historical_untracked_runtime_dependencies": [],
@@ -46,5 +61,33 @@
   "r1e_payload_sha256": "5f4cf5acdf06a86f9b8907375f6f8f239ecf18152762b889f1e254b01e447e3b",
   "r1e_covers_new_mount_or_argv": false,
   "formal_r3_gate": false,
-  "r3_status": "BLOCKED"
+  "r3_status": "BLOCKED",
+  "actual_branch": "feat/acq1-wp3-r3-dnr-v2",
+  "receipt_schema": "r3-dnr-receipt-v2",
+  "timestamp_source": "trusted_observer_callback_epoch_ms",
+  "timestamp_semantics": "native Date.now synchronously at trusted callback entry before enqueue/await; observation, never request/match time",
+  "static_extension_source": "extension-v2 only; never simultaneously load v1",
+  "dns_source": "backend/experiments/browser-r2c/r2c_a4/fixture/dns_canary.py",
+  "dns_nonroot_bind53": "UNKNOWN; previous R2C Compose explicitly uses sysctl=0, not copied or authorized here",
+  "control_endpoint": {
+    "host": "198.51.100.30",
+    "port": 6379,
+    "command": "PING",
+    "transport": "internal only"
+  },
+  "image_identity": null,
+  "redis_image": "redis:7.4.11-alpine3.21",
+  "phases": [
+    "baseline",
+    "enabled"
+  ],
+  "actual_profiles": null,
+  "source_lookup": {
+    "pinned_151_idl": "single request failed; no retry; schema not inferred",
+    "head_idl": "unavailable; no retry",
+    "dnr_api": "https://developer.chrome.com/docs/extensions/reference/api/declarativeNetRequest",
+    "developer_private_head": "https://chromium.googlesource.com/chromium/src/+/HEAD/chrome/browser/extensions/api/developer_private/developer_private_functions.cc",
+    "cdp_units": "https://chromedevtools.github.io/devtools-protocol/tot/Network/"
+  },
+  "real_gate": "NO_GO"
 }

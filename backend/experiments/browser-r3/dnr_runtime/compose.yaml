@@ -1,0 +1,80 @@
+name: ${R3_DNR_PROJECT:?unique project required}
+x-runtime: &runtime
+  image: ${R3_DNR_IMAGE:?R1E authority checked image required}
+  pull_policy: never
+  user: "10001:10001"
+  read_only: true
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  restart: "no"
+  dns: 127.0.0.1
+services:
+  browser:
+    <<: *runtime
+    entrypoint: [python, /opt/flowtracer-r3-runtime/probe.py]
+    privileged: false
+    pids_limit: 128
+    mem_limit: 768m
+    cpus: 1.0
+    dns: 198.51.100.40
+    tmpfs:
+      - /tmp:rw,nosuid,noexec,size=256m
+      - /evidence:rw,nosuid,nodev,noexec,size=4m,mode=0700,uid=10001,gid=10001
+    volumes:
+      - ./probe.py:/opt/flowtracer-r3-runtime/probe.py:ro
+      - ./collector.py:/opt/flowtracer-r3-runtime/collector.py:ro
+      - ../dnr_offline/contract.py:/opt/flowtracer-r3-runtime/contract.py:ro
+      - ../dnr_offline/harness.py:/opt/flowtracer-r3-runtime/harness.py:ro
+      - ../dnr_offline/validator.py:/opt/flowtracer-r3-runtime/validator.py:ro
+      - ../dnr_offline/extension:/opt/flowtracer-r3-dnr:ro
+    networks:
+      browser: {ipv4_address: 198.51.100.10}
+  proxy:
+    <<: *runtime
+    # Frozen phase/TLS/log orchestration is missing: fail closed, do not serve.
+    entrypoint: [python, -c, "raise SystemExit('NO_GO: runtime_orchestration_unreviewed')"]
+    pids_limit: 64
+    mem_limit: 256m
+    cpus: 0.5
+    tmpfs: ["/tmp:rw,nosuid,nodev,noexec,size=64m,mode=1777"]
+    volumes:
+      - ./proxy.py:/opt/flowtracer-r3-runtime/proxy.py:ro
+      - ../../browser-r2c/r2c_a4/proxy/egress_proxy.py:/opt/flowtracer-r3-runtime/accepted_proxy.py:ro
+    networks:
+      browser: {ipv4_address: 198.51.100.20}
+      fixture: {ipv4_address: 192.0.2.20}
+  fixture:
+    <<: *runtime
+    entrypoint: [python, -c, "raise SystemExit('NO_GO: fixture_TLS_inputs_unreviewed')"]
+    pids_limit: 64
+    mem_limit: 256m
+    cpus: 0.5
+    tmpfs: ["/tmp:rw,nosuid,nodev,noexec,size=64m,mode=1777"]
+    volumes: [./fixture.py:/opt/flowtracer-r3-runtime/fixture.py:ro]
+    networks:
+      fixture: {ipv4_address: 192.0.2.10}
+  redis:
+    image: redis:7.4.11-alpine3.21
+    pull_policy: never
+    command: [redis-server, --save, "", --appendonly, "no"]
+    user: "10001:10001"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    tmpfs: ["/data:rw,nosuid,nodev,noexec,size=16m"]
+    pids_limit: 32
+    mem_limit: 64m
+    cpus: 0.25
+    dns: 127.0.0.1
+    restart: "no"
+    networks:
+      browser: {ipv4_address: 198.51.100.30}
+networks:
+  browser:
+    internal: true
+    ipam: {config: [{subnet: 198.51.100.0/24}]}
+  fixture:
+    internal: true
+    ipam: {config: [{subnet: 192.0.2.0/24}]}
+# No host ports/persistent volumes/new privilege. Full DNS/control dependencies
+# remain unassembled: this is an offline review candidate, NOT runnable Compose.

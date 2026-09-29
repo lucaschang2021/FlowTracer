@@ -1,6 +1,6 @@
 # FlowTracer 当前阶段闸门
 
-更新时间：2026-09-21。
+更新时间：2026-09-29。
 
 - 本控制提交的来源基准：`main@c584fd06ff136025dc6a0aba9815291b16682aa2`；该基准包含 R2C-A4 受控出口证据 PR #68。控制 PR 合并后的 `main` 应为此提交的后代，不要求与父基准 SHA 相等。
 - 已完成：ACQ-1 Preflight、Contract Freeze、WP-1（ACQ-1A + H0）与 WP-2（ACQ-1B + D-static）均已通过总控验收并合并。
@@ -22,7 +22,9 @@
 - 当前停点：仅 R3 Application interception matrix 待本控制 PR 合并后重新准入；R4-R5 与 WP-3 正式实现继续暂停。见 `docs/49-ACQ1-WP3-R3-REACTIVATION.md`。
 - R3 最新增量控制事项（2026-09-28）：Backend 报告 Worker WebSocket 的原生 CDP 候选阴性；R3 仍 **BLOCKED**。最小 DNR 能力控制包 PR #70 已 Review/合并，control `a95282098ccac934cd17577fbd5de22b6eb8d0f8`、merge `e55dd6deb7fd956b4fba5824331ebda1f0e8d7bd`；见 `docs/50-R3-WORKER-WS-NATIVE-GATE-PROPOSAL.md` 与 `docs/51-R3-DNR-CAPABILITY-EXPERIMENT.md`。收到总控精确启动基准后，仅可执行隔离离线产物/定向测试，真实 session 仍须总控确认执行输入 hash 后另行许可。不得把该实验或其阳性结果视为正式 R3 PASS；R4 及全部下游准入不变。
 - 未准入：WP-3 正式实现及 WP-4..WP-8；生产 Browser、Router、Discovery、Change、Opportunity；PLUGIN-1；Frontend、Integration 与 Release。
-- 2026-09-29 来源裁定提案：`docs/52-R3-RUNTIME-SOURCE-ADDENDUM.md` 待 Review/合并。修正 DNR debug request 时间假设，明确 v2 回执观察时间、有限只读 inventory 候选与编排闭包；当前不生效、不允许新增 Browser/session，R3 BLOCKED 不变。
+- 2026-09-29 离线来源裁定：PR #74 已合并，merge commit `ff70c198acb74b764435485611ec67484bcc7262`；`docs/52-R3-RUNTIME-SOURCE-ADDENDUM.md` 的离线来源裁定已生效。修正 DNR debug request 时间假设，明确 v2 回执观察时间、有限只读 inventory 候选与编排闭包；不签发真实 Browser/Docker/session 许可，R3 仍 **BLOCKED**、runtime **NO-GO**，R4/R5 未准入。
+- 2026-09-29 离线候选交付：PR #75 已通过独立离线 Review（P0/P1/P2=`0/0/0`）与 Backend CI 并合并；最终 head `59d3d2ffb9704fa3f548c69622abb3c2f6dd67f2`，merge commit `a0d917f088c5010a307533818beb0af54ffe76e8`。23 项静态输入哈希匹配 Git blob，原始输入清单 SHA256=`3bd0bea662db53716d5cc355ac96a56b8ae50270ab2e9cd58e0f67478e6917e7`。这仅是离线候选交付，不是原生 DNR/R3 PASS；独立 controller authority 尚未签发，实际入口仍禁用，R3 **BLOCKED**、runtime **NO-GO**、R4/R5 未准入状态不变。
+- 内部来源预检：本控制 PR 合并后，`docs/53-R3-INTERNAL-SOURCE-PROBE.md` 只准离线接线；实际 session 须由总控另签精确许可。不得启动 Browser/Docker、访问采集目标或四臂验证；R3 仍 **BLOCKED**、runtime **NO-GO**，R4/R5 未准入。
 
 WP-3 的阶段名称、顺序、允许范围和安全原则已由 `docs/22-ACQ1-MASTER-BASELINE.md`、`docs/23-ACQ1-ACQUISITION-CONTRACT.md`、ADR-023/026 与 `docs/29-ACQ1-WORK-PACKAGES.md` 冻结。R1C/R1D/R1E/R2C 已提供 Browser runtime、供应链身份和受控出口实证；应用拦截、强制回收/资源样本及双 worker 隔离仍分别等待 R3-R5，不得以已有证据推定通过。
 

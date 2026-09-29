@@ -34,7 +34,9 @@
 
 ## 4. 仅必要的编排闭包
 
-后端限定在既有 dnr_runtime 文件及一份必要的固定答案 DNS adapter 内实现。先优先复用已 tracked R2C-A4 DNS/control 的纯接口与批准参数，不导入整包旧 runner，不依赖 45 个未跟踪历史输入。若非 root DNS bind 53 不成立，STOP；不得改 root、增加 cap、privileged 或擅增 sysctl。
+实施白名单均位于 `backend/experiments/browser-r3/dnr_runtime/`：可修改现有 `collector.py`、`probe.py`、`supervisor.py`、`fixture.py`、`proxy.py`、`compose.yaml`、`test_runtime_adapters.py`、`README.md`、`execution_plan.json`、`execution-inputs.json`；可新增独立 `extension-v2/manifest.json`、`extension-v2/rules.json`、`extension-v2/observer.js`、`extension-v2/audit.html`、`extension-v2/audit.js`、`contract_v2.py`、`validator_v2.py`、必要的 `harness_v2.py`、`test_receipt_v2.py`、`test_observer_v2.js`，以及仅在无可复用 tracked 实现时的一份 `dns.py`。不得修改 `dnr_offline/` 的 v1 文件；新 v2 snapshot/字段校验、生命周期适配和定向 doubles 使用上述独立路径，不伪装为旧 v1 数据，不做无关搬迁/全包复制。其他新增/修改路径必须先报告总控。
+
+`extension-v2/` 是独立源码版本，不是第二个实际加载扩展：enabled 只将这五文件只读挂到原批准 `/opt/flowtracer-r3-dnr`，不同时挂载/加载旧 v1；baseline 不加载二者。manifest 权限与原生唯一 WS block 规则保持原批准语义；新五文件及适配器独立 hash 冻结。先优先复用已 tracked R2C-A4 DNS/control 的纯接口与批准参数，不导入整包旧 runner，不依赖 45 个未跟踪历史输入。若非 root DNS bind 53 不成立，STOP；不得改 root、增加 cap、privileged 或擅增 sysctl。
 
 TLS 仅用于既有本地 fixture，沿用已准入实验信任模式，不增 Chrome unsafe flags。列明生成程序/参数、public certificate hash 和临时 key 文件身份；key 不进 Git/日志。固定 image digest 与 R1E authority 分开核验，新源码/mount/argv/phase 不被旧镜像 authority 自动覆盖。
 

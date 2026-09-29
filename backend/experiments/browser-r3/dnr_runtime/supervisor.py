@@ -14,6 +14,126 @@ from threading import Event, Lock, Thread, Timer
 
 from collector import Unknown
 
+REAL_SESSION_AUTHORIZED = False
+
+
+def phase_commands(image: str, session: str, phase: str, mounts: list[dict]):
+    """Exact browser create candidate, never executable without separate admission."""
+    if not re.fullmatch(r"sha256:[0-9a-f]{64}", image) or phase not in {"baseline", "enabled"}:
+        raise Unknown("image_or_phase_unfrozen")
+    if not re.fullmatch(r"flowtracer-r3-dnr-[a-z0-9-]{1,64}", session):
+        raise Unknown("session_invalid")
+    argv = [
+        "container",
+        "create",
+        "--pull=never",
+        "--name",
+        session,
+        "--label",
+        f"flowtracer.r3.session={session}",
+        "--user",
+        "10001:10001",
+        "--read-only",
+        "--cap-drop=ALL",
+        "--security-opt",
+        "no-new-privileges:true",
+        "--pids-limit",
+        "128",
+        "--memory",
+        "768m",
+        "--cpus",
+        "1.0",
+        "--network",
+        f"{session}_browser",
+        "--ip",
+        "198.51.100.10",
+        "--dns",
+        "198.51.100.40",
+        "--tmpfs",
+        "/tmp:rw,nosuid,noexec,size=256m",  # noqa: S108 - dedicated container tmpfs
+    ]
+    destinations = set()
+    for mount in mounts:
+        if (
+            set(mount) != {"source", "target", "sha256", "readonly"}
+            or mount["readonly"] is not True
+            or not Path(mount["source"]).is_absolute()
+            or not re.fullmatch(r"[0-9a-f]{64}", mount["sha256"])
+            or not mount["target"].startswith("/opt/flowtracer-r3")
+            or mount["target"] in destinations
+            or any(c in mount["source"] + mount["target"] for c in (",", "\n", "\r"))
+        ):
+            raise Unknown("mount_inputs_unfrozen")
+        destinations.add(mount["target"])
+        argv += ["--mount", f"type=bind,source={mount['source']},target={mount['target']},readonly"]
+    if not mounts or "/opt/flowtracer-r3-runtime/probe.py" not in destinations:
+        raise Unknown("mount_closure_missing")
+    argv += [
+        "--entrypoint",
+        "python",
+        image,
+        "/opt/flowtracer-r3-runtime/probe.py",
+        "--phase",
+        phase,
+    ]
+    return argv
+
+
+def actual_session_entry(*_args):
+    # Immutable source gate, never enabled by CLI/environment/caller boolean.
+    if not REAL_SESSION_AUTHORIZED:
+        raise Unknown("real_session_not_authorized")
+    raise Unknown("inventory_clock_dns_identity_not_proven")
+
+
+def dependency_commands(image: str, session: str, phase: str):
+    """Exact internal dependency candidate; no create/start calls or pulls here."""
+    if not re.fullmatch(r"sha256:[0-9a-f]{64}", image) or phase not in {"baseline", "enabled"}:
+        raise Unknown("image_or_phase_unfrozen")
+    if not re.fullmatch(r"flowtracer-r3-dnr-[a-z0-9-]{1,64}", session):
+        raise Unknown("session_invalid")
+    roles = {
+        "proxy": ("198.51.100.20", "proxy.py"),
+        "dns": ("198.51.100.40", "proxy.py"),
+        "fixture": ("192.0.2.10", "fixture.py"),
+    }
+    return {
+        role: [
+            "container",
+            "create",
+            "--pull=never",
+            "--name",
+            f"{session}-{role}",
+            "--label",
+            f"flowtracer.r3.session={session}",
+            "--user",
+            "10001:10001",
+            "--read-only",
+            "--cap-drop=ALL",
+            "--security-opt",
+            "no-new-privileges:true",
+            "--pids-limit",
+            "64",
+            "--memory",
+            "256m",
+            "--cpus",
+            "0.5",
+            "--network",
+            f"{session}_{'fixture' if role == 'fixture' else 'browser'}",
+            "--ip",
+            ip,
+            "--entrypoint",
+            "python",
+            image,
+            f"/opt/flowtracer-r3-runtime/{script}",
+            "--role",
+            role,
+            "--phase",
+            phase,
+        ]
+        for role, (ip, script) in roles.items()
+    }
+
 
 def check_inputs(root: Path, rows: list[dict]) -> None:
     """Raw-byte, import and mount closure; third party bytes use R1E authority."""

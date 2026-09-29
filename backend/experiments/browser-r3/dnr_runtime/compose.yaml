@@ -25,14 +25,20 @@ services:
       - ./collector.py:/opt/flowtracer-r3-runtime/collector.py:ro
       - ../dnr_offline/contract.py:/opt/flowtracer-r3-runtime/contract.py:ro
       - ../dnr_offline/harness.py:/opt/flowtracer-r3-runtime/harness.py:ro
-      - ../dnr_offline/validator.py:/opt/flowtracer-r3-runtime/validator.py:ro
-      - ../dnr_offline/extension:/opt/flowtracer-r3-dnr:ro
+      - ./contract_v2.py:/opt/flowtracer-r3-runtime/contract_v2.py:ro
+      - ./validator_v2.py:/opt/flowtracer-r3-runtime/validator_v2.py:ro
+      - ./harness_v2.py:/opt/flowtracer-r3-runtime/harness_v2.py:ro
+      - ./extension-v2/manifest.json:/opt/flowtracer-r3-dnr/manifest.json:ro
+      - ./extension-v2/rules.json:/opt/flowtracer-r3-dnr/rules.json:ro
+      - ./extension-v2/observer.js:/opt/flowtracer-r3-dnr/observer.js:ro
+      - ./extension-v2/audit.html:/opt/flowtracer-r3-dnr/audit.html:ro
+      - ./extension-v2/audit.js:/opt/flowtracer-r3-dnr/audit.js:ro
     networks:
       browser: {ipv4_address: 198.51.100.10}
   proxy:
     <<: *runtime
     # Frozen phase/TLS/log orchestration is missing: fail closed, do not serve.
-    entrypoint: [python, -c, "raise SystemExit('NO_GO: runtime_orchestration_unreviewed')"]
+    entrypoint: [python, /opt/flowtracer-r3-runtime/proxy.py]
     pids_limit: 64
     mem_limit: 256m
     cpus: 0.5
@@ -45,7 +51,7 @@ services:
       fixture: {ipv4_address: 192.0.2.20}
   fixture:
     <<: *runtime
-    entrypoint: [python, -c, "raise SystemExit('NO_GO: fixture_TLS_inputs_unreviewed')"]
+    entrypoint: [python, /opt/flowtracer-r3-runtime/fixture.py]
     pids_limit: 64
     mem_limit: 256m
     cpus: 0.5
@@ -69,6 +75,19 @@ services:
     restart: "no"
     networks:
       browser: {ipv4_address: 198.51.100.30}
+  dns:
+    <<: *runtime
+    # No inherited R2C sysctl: non-root port53 compatibility is UNKNOWN.
+    entrypoint: [python, /opt/flowtracer-r3-runtime/proxy.py, --role, dns]
+    pids_limit: 64
+    mem_limit: 256m
+    cpus: 0.5
+    tmpfs: ["/tmp:rw,nosuid,nodev,noexec,size=64m,mode=1777"]
+    volumes:
+      - ./proxy.py:/opt/flowtracer-r3-runtime/proxy.py:ro
+      - ../../browser-r2c/r2c_a4/fixture/dns_canary.py:/opt/flowtracer-r3-runtime/accepted_dns.py:ro
+    networks:
+      browser: {ipv4_address: 198.51.100.40}
 networks:
   browser:
     internal: true

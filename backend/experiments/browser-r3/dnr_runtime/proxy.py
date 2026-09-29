@@ -50,13 +50,19 @@ def denied_request(raw: bytes, phase: str) -> dict:
         if parts[0] != "GET":
             result["reason"] = "connect_required"
             return result
-        url = urlsplit(parts[1])
+        target = parts[1]
+        # urlsplit discards controls and empty delimiters; reject raw syntax first.
+        if any(ord(char) <= 32 or ord(char) == 127 for char in target) or not re.fullmatch(
+            r"(?:http|ws)://websocket-r3\.test:8443/dnr-(?:page|worker)-ws", target
+        ):
+            return result
+        url = urlsplit(target)
         if (
             url.scheme not in {"http", "ws"}
-            or url.username
-            or url.password
-            or url.query
-            or url.fragment
+            or url.username is not None
+            or url.password is not None
+            or "?" in target
+            or "#" in target
             or url.hostname != "websocket-r3.test"
             or url.port != 8443
             or not re.fullmatch(r"/dnr-(page|worker)-ws", url.path)

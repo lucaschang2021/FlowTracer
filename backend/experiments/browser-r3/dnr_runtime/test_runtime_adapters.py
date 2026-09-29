@@ -12,7 +12,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 from collector import ClockEvidence, Collector, Unknown, evaluate
-from contract import FLAGS, MANIFEST, MOUNT, SESSION
+from contract import FLAGS, MANIFEST, MOUNT, SESSION, fingerprint
 from fixture import PAGE, WORKER, response
 from harness import Guard, Terminal
 from probe import close_confirmed, fetch_once, guarded_setup, invoke_dynamic_fetch
@@ -42,6 +42,28 @@ def snapshot():
         "observer_epoch": "SYNTHETIC-epoch",
         "sequence": 0,
         "receipts": [],
+    }
+
+
+def receipt():
+    return {
+        "schema_version": "r3-dnr-receipt-v1",
+        "extension_id": EXT_ID,
+        "session": SESSION,
+        "sequence": 1,
+        "observer_epoch": "SYNTHETIC-epoch",
+        "request_id": "SYNTHETIC-dnr-1",
+        "timestamp": 1000,
+        "ruleset_id": "ws_default_deny_v1",
+        "rule_id": 1,
+        "action": "block",
+        "resource_type": "websocket",
+        "safe_request_fingerprint": fingerprint("page", "ws"),
+        "tab_id": None,
+        "frame_id": None,
+        "document_id": None,
+        "initiator": None,
+        "initiator_note": "omitted_to_prevent_origin_secret_exposure",
     }
 
 
@@ -292,19 +314,7 @@ class RuntimeTests(unittest.TestCase):
                 evaluate(SimpleNamespace(send=lambda *args, raw=raw: raw), "ignored")
 
     def test_receipt_loss_duplicate_and_strict_time_are_refused(self):
-        row = {
-            "schema_version": "r3-dnr-receipt-v1",
-            "extension_id": EXT_ID,
-            "session": SESSION,
-            "sequence": 1,
-            "observer_epoch": "SYNTHETIC-epoch",
-            "request_id": "SYNTHETIC-dnr-1",
-            "timestamp": 1000,
-            "ruleset_id": "ws_default_deny_v1",
-            "rule_id": 1,
-            "action": "block",
-            "resource_type": "websocket",
-        }
+        row = receipt()
         for edit in (
             lambda r: r.update(timestamp=float("nan")),
             lambda r: r.update(sequence=True),
@@ -322,6 +332,111 @@ class RuntimeTests(unittest.TestCase):
         cdp.state.update(receipts=[], sequence=0)
         with self.assertRaises(Unknown):
             value.readback()
+
+    def test_receipt_exact_schema_and_metadata(self):
+        for actor in ("page", "worker"):
+            for scheme in ("ws", "wss"):
+                value, cdp = bound()
+                row = receipt()
+                row.update(
+                    safe_request_fingerprint=fingerprint(actor, scheme),
+                    tab_id=-1,
+                    frame_id=0,
+                    document_id="SYNTHETIC-document",
+                )
+                cdp.state.update(receipts=[row], sequence=1)
+                self.assertEqual(value.readback()["receipts"], [row])
+        bad_rows = []
+        for key in receipt():
+            row = receipt()
+            del row[key]
+            bad_rows.append(row)
+        for key, bad in (
+            ("url", "SYNTHETIC_SECRET"),
+            ("token", "SYNTHETIC_SECRET"),
+            ("rule_id", True),
+            ("rule_id", 1.0),
+            ("safe_request_fingerprint", "0" * 64),
+            ("safe_request_fingerprint", fingerprint("page", "ws").upper()),
+            ("tab_id", True),
+            ("tab_id", 1.0),
+            ("frame_id", "1"),
+            ("document_id", 1),
+            ("initiator", "SYNTHETIC_SECRET"),
+            ("initiator_note", "SYNTHETIC_SECRET"),
+        ):
+            bad_rows.append({**receipt(), key: bad})
+        for row in bad_rows:
+            with self.subTest(row=row):
+                value, cdp = bound()
+                cdp.state.update(receipts=[row], sequence=1)
+                with self.assertRaisesRegex(Unknown, "audit_receipt_invalid"):
+                    value.readback()
+
+    def test_cumulative_receipts_cannot_be_rewritten_or_alias_return(self):
+        for key, changed in (
+            ("timestamp", 1001),
+            ("tab_id", 1),
+            ("safe_request_fingerprint", fingerprint("worker", "ws")),
+            ("timestamp", 1000.0),
+        ):
+            value, cdp = bound()
+            cdp.state.update(receipts=[receipt()], sequence=1)
+            returned = value.readback()
+            returned["receipts"][0][key] = changed
+            cdp.state["receipts"][0][key] = changed
+            with self.assertRaisesRegex(Unknown, "audit_receipt_rewritten"):
+                value.readback()
+        value, cdp = bound()
+        cdp.state.update(receipts=[receipt()], sequence=1)
+        value.readback()
+        cdp.state["receipts"].append({**receipt(), "sequence": 2, "request_id": "dnr-2"})
+        cdp.state["sequence"] = 2
+        self.assertEqual(value.readback()["sequence"], 2)
+
+    def test_pipe_partial_then_reader_error_is_latched_safe_failure(self):
+        class BrokenPipe:
+            def __init__(self):
+                self.first = True
+                self.closed = False
+
+            def read1(self, size):
+                self.assert_size = size
+                if self.first:
+                    self.first = False
+                    return b"SYNTHETIC_PARTIAL_SECRET"
+                raise OSError("SYNTHETIC_EXCEPTION_SECRET")
+
+            def close(self):
+                self.closed = True
+
+        class Process:
+            def __init__(self):
+                self.stdout, self.returncode = BrokenPipe(), 0
+                self.killed, self.waits = False, []
+
+            def wait(self, timeout):
+                self.waits.append(timeout)
+                return 0
+
+            def kill(self):
+                self.killed = True
+
+        process = Process()
+        api = DockerCommands(r"C:\Program Files\Docker\Docker\resources\bin\docker.exe")
+        with (
+            patch("subprocess.Popen", return_value=process),
+            patch("threading.excepthook") as thread_errors,
+        ):
+            with self.assertRaisesRegex(Unknown, "^docker_command_failed_or_unbounded$") as caught:
+                api.call(["container", "wait", "a" * 64], 1)
+        thread_errors.assert_not_called()
+        self.assertNotIn("SECRET", str(caught.exception))
+        self.assertIsNone(caught.exception.__context__)
+        self.assertTrue(process.killed)
+        self.assertTrue(process.stdout.closed)
+        self.assertEqual(process.stdout.assert_size, 4096)
+        self.assertTrue(all(0 < wait <= 2 for wait in process.waits))
 
     def test_bounded_docker_pipe_with_fake_process_only(self):
         class Process:
@@ -389,6 +504,17 @@ class RuntimeTests(unittest.TestCase):
 
     def test_plain_ws_malformed_authority_headers_path_phase_are_not_correlated(self):
         cases = [
+            ws_request("/dnr-page-ws?"),
+            ws_request("/dnr-page-ws#"),
+            ws_request().replace(b"http://", b"http://@"),
+            ws_request().replace(b"http://", b"http://:@"),
+            ws_request().replace(b"websocket-r3.test:8443/dnr", b"WEBSOCKET-R3.test:8443/dnr"),
+            ws_request().replace(b":8443/dnr", b":08443/dnr"),
+            ws_request().replace(b"/dnr-page", b"/dnr-\tpage"),
+            ws_request().replace(b"http://", b"http://\x00"),
+            ws_request().replace(b"http://", b"http://\r"),
+            ws_request().replace(b"http://", b"http://\n"),
+            ws_request().replace(b"/dnr-page", b"/dnr-\x7fpage"),
             ws_request("/dnr-page-ws?SYNTHETIC_SECRET=1"),
             ws_request("/wrong"),
             ws_request(headers=b"Host: evil.test\r\n"),
@@ -417,6 +543,10 @@ class RuntimeTests(unittest.TestCase):
         handler = handler_type(accepted, audit.append, "baseline")
         for raw, status in (
             (ws_request(), b"405"),
+            (ws_request("/dnr-page-ws?"), b"405"),
+            (ws_request("/dnr-page-ws#"), b"405"),
+            (ws_request().replace(b"http://", b"http://@"), b"405"),
+            (ws_request().replace(b"/dnr-page", b"/dnr-\tpage"), b"405"),
             (b"CONNECT websocket-r3.test:8443 HTTP/1.1\r\n\r\n", b"403"),
         ):
             instance = object.__new__(handler)
@@ -425,6 +555,9 @@ class RuntimeTests(unittest.TestCase):
             with patch("socket.create_connection", side_effect=AssertionError("no socket allowed")):
                 instance.handle()
             self.assertIn(status, instance.wfile.getvalue())
+            self.assertIn(b"Connection: close", instance.wfile.getvalue())
+            self.assertEqual(audit[-1]["upstream_bytes"], 0)
+            self.assertEqual(audit[-1]["relay_bytes"], 0)
 
     def test_bounded_headers_and_connect_ambiguity(self):
         self.assertEqual(read_headers(io.BytesIO(b"x" * 4097)), b"")

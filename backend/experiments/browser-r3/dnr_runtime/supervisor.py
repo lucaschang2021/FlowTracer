@@ -90,7 +90,7 @@ class DockerCommands:
             or not 0 < timeout <= 120
         ):
             raise Unknown("docker_command_unapproved")
-        output, overflow = bytearray(), Event()
+        output, overflow, reader_failed = bytearray(), Event(), Event()
         process = subprocess.Popen(  # noqa: S603 - audited Docker executable/argv, no shell
             [self.executable, *args],
             stdout=subprocess.PIPE,
@@ -98,26 +98,48 @@ class DockerCommands:
         )
 
         def collect():
-            while block := process.stdout.read1(4096):
-                if len(output) + len(block) > 1024 * 1024:
-                    overflow.set()
+            try:
+                while block := process.stdout.read1(4096):
+                    if len(output) + len(block) > 1024 * 1024:
+                        overflow.set()
+                        process.kill()
+                        return
+                    output.extend(block)
+            except Exception:
+                # Independent latch: an exit-0 CLI with partial output is NOT success.
+                # Never let the thread export exception text, traceback or data.
+                reader_failed.set()
+                try:
                     process.kill()
-                    return
-                output.extend(block)
+                except Exception:
+                    reader_failed.set()
 
         reader = Thread(target=collect, daemon=True)
         reader.start()
         try:
             process.wait(timeout=timeout)
         except subprocess.TimeoutExpired:
-            process.kill()
-            process.wait(timeout=2)
+            try:
+                process.kill()
+                process.wait(timeout=2)
+            except Exception:
+                reader_failed.set()
             raise Unknown("docker_command_timeout") from None
         finally:
             reader.join(timeout=2)
             if not reader.is_alive():
-                process.stdout.close()
-        if reader.is_alive() or overflow.is_set() or process.returncode != 0:
+                try:
+                    process.stdout.close()
+                except Exception:
+                    reader_failed.set()
+        if reader.is_alive() or overflow.is_set() or reader_failed.is_set():
+            try:
+                process.kill()
+                process.wait(timeout=2)
+            except Exception:
+                reader_failed.set()
+            raise Unknown("docker_command_failed_or_unbounded") from None
+        if process.returncode != 0:
             raise Unknown("docker_command_failed_or_unbounded")
         return bytes(output)
 

@@ -6,8 +6,33 @@ import math
 import re
 from pathlib import Path
 
-from contract import FLAGS, MANIFEST, MOUNT, SESSION, Rejected, check_static
+from contract import FLAGS, MANIFEST, MOUNT, SESSION, Rejected, check_static, fingerprint
 from validator import finite_time
+
+RECEIPT_FIELDS = frozenset(
+    {
+        "schema_version",
+        "session",
+        "extension_id",
+        "ruleset_id",
+        "rule_id",
+        "action",
+        "resource_type",
+        "request_id",
+        "timestamp",
+        "sequence",
+        "observer_epoch",
+        "safe_request_fingerprint",
+        "tab_id",
+        "frame_id",
+        "document_id",
+        "initiator",
+        "initiator_note",
+    }
+)
+ARM_FINGERPRINTS = frozenset(
+    fingerprint(actor, scheme) for actor in ("page", "worker") for scheme in ("ws", "wss")
+)
 
 
 class Unknown(Rejected):
@@ -81,6 +106,7 @@ class Collector:
         self.epoch = None
         self.last_sequence = 0
         self.seen = set()
+        self.receipt_history = ()
 
     def discover(self) -> str:
         check_static(self.extension, self.hashes)
@@ -163,9 +189,26 @@ class Collector:
         if sequence < self.last_sequence:
             raise Unknown("audit_sequence_lost")
         seen = set()
+        history = []
         for ordinal, row in enumerate(rows, 1):
             if (
-                not isinstance(row, dict)
+                type(row) is not dict
+                or set(row) != RECEIPT_FIELDS
+                or any(
+                    type(row.get(key)) is not str
+                    for key in (
+                        "schema_version",
+                        "session",
+                        "extension_id",
+                        "ruleset_id",
+                        "action",
+                        "resource_type",
+                        "request_id",
+                        "observer_epoch",
+                        "safe_request_fingerprint",
+                        "initiator_note",
+                    )
+                )
                 or type(row.get("sequence")) is not int
                 or row.get("sequence") != ordinal
                 or not finite_time(row.get("timestamp"))
@@ -174,18 +217,33 @@ class Collector:
                 or row.get("extension_id") != self.extension_id
                 or row.get("schema_version") != "r3-dnr-receipt-v1"
                 or row.get("ruleset_id") != "ws_default_deny_v1"
+                or type(row.get("rule_id")) is not int
                 or row.get("rule_id") != 1
                 or row.get("action") != "block"
                 or row.get("resource_type") != "websocket"
                 or not isinstance(row.get("request_id"), str)
                 or not row["request_id"]
                 or row["request_id"] in seen
+                or row.get("safe_request_fingerprint") not in ARM_FINGERPRINTS
+                or any(
+                    row.get(key) is not None and type(row[key]) is not int
+                    for key in ("tab_id", "frame_id")
+                )
+                or (row.get("document_id") is not None and type(row["document_id"]) is not str)
+                or row.get("initiator") is not None
+                or row.get("initiator_note") != "omitted_to_prevent_origin_secret_exposure"
             ):
                 raise Unknown("audit_receipt_invalid")
             seen.add(row["request_id"])
+            # All validated fields are immutable scalars. Preserve values AND types;
+            # never alias the returned CDP snapshot or equate bool/int/float values.
+            history.append(tuple((key, type(row[key]), row[key]) for key in sorted(row)))
         if not self.seen.issubset(seen):
             raise Unknown("audit_receipts_lost")
+        if tuple(history[: self.last_sequence]) != self.receipt_history:
+            raise Unknown("audit_receipt_rewritten")
         self.epoch, self.last_sequence, self.seen = epoch, sequence, seen
+        self.receipt_history = tuple(history)
         return snapshot
 
     def require_inventory(self) -> None:

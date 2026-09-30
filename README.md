@@ -68,7 +68,7 @@ Radar 是 FlowTracer 的核心领域对象，不是项目名称。项目正式�
 
 WP-2 已实现统一 RSS/Native 静态 Adapter 边界、只消费本地响应的 Scrapling parser、`extraction-quality-v1`、通用 family extractor 与内部解析证据。它没有启用 Browser/fetcher，也没有引入 Router、Discovery、Change、Opportunity、Schema/migration 或公开 API 变化。
 
-WP-3 / ACQ-1B 已取得 R1C/R1D/R1E/R2C 的运行时、供应链身份和受控出口证据，但 R3 应用拦截仍 **BLOCKED**。PR #77 的离线接线/测试修复及 PR #78 的安全阶段诊断已合并；唯一的 2026-09-30 source session02 在 `source_observation` 被拒绝，enabled 阶段未运行，不能据此宣称原生 WebSocket 拒绝能力或 R3 PASS。下一步仅限按[内部来源预检](docs/53-R3-INTERNAL-SOURCE-PROBE.md)边界离线定位该拒绝并独立复核；任何新运行须另获精确授权。
+WP-3 / ACQ-1B 已取得 R1C/R1D/R1E/R2C 的运行时、供应链身份和受控出口证据，但 R3 应用拦截仍 **BLOCKED**。PR #77 的离线接线/测试修复及 PR #78 的安全阶段诊断已合并；2026-09-30 source session02 的单次执行在 `source_observation` 被拒绝，enabled 阶段未运行，不能据此宣称原生 WebSocket 拒绝能力或 R3 PASS。下一步仅限按[内部来源预检](docs/53-R3-INTERNAL-SOURCE-PROBE.md)边界离线定位该拒绝并独立复核；任何新运行须另获精确授权。
 
 WP-3 计划中的隔离 Dynamic/Advanced Browser adapter、专用 worker/queue、强制受控 egress 和资源隔离仍不是已交付的完整能力。R4/R5、正式 WP-3 实现与下游阶段保持未准入；详见[当前门禁](docs/CURRENT-GATE.md)。
 
@@ -237,7 +237,7 @@ This update is based on `main@31fa751a3c074111f14b640a727a972eb996ef05`. WP-2 im
 
 WP-2 implements the unified RSS/Native static-adapter boundary, a Scrapling parser that consumes only local responses, `extraction-quality-v1`, common family extractors, and internal parsing evidence. It does not enable a Browser/fetcher or introduce Router, Discovery, Change, Opportunity, schema/migration, or public API changes.
 
-WP-3 / ACQ-1B has runtime, supply-chain identity, and controlled-egress evidence from R1C/R1D/R1E/R2C, but R3 application interception remains **BLOCKED**. PR #77's offline wiring/test fix and PR #78's safe-stage diagnostic are merged; the sole 2026-09-30 source session02 was refused at `source_observation`, and its enabled stage did not run. This does not prove native WebSocket denial or R3 PASS. The next action is limited to offline diagnosis and independent review of that refusal within the [internal-source preflight](docs/53-R3-INTERNAL-SOURCE-PROBE.md) boundary; any new runtime session requires separate exact authorization.
+WP-3 / ACQ-1B has runtime, supply-chain identity, and controlled-egress evidence from R1C/R1D/R1E/R2C, but R3 application interception remains **BLOCKED**. PR #77's offline wiring/test fix and PR #78's safe-stage diagnostic are merged; the single execution of source session02 on 2026-09-30 was refused at `source_observation`, and its enabled stage did not run. This does not prove native WebSocket denial or R3 PASS. The next action is limited to offline diagnosis and independent review of that refusal within the [internal-source preflight](docs/53-R3-INTERNAL-SOURCE-PROBE.md) boundary; any new runtime session requires separate exact authorization.
 
 The planned isolated Dynamic/Advanced Browser adapters, dedicated worker/queue, mandatory controlled egress, and resource isolation are not yet delivered as a complete capability. R4/R5, formal WP-3 implementation, and downstream stages remain unadmitted; see the [current gate](docs/CURRENT-GATE.md).
 

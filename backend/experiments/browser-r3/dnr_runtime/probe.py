@@ -6,11 +6,12 @@ import hashlib
 import json
 import logging
 import os
+import re
 import sys
 import time
 from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
-from threading import Timer
+from threading import Lock, Timer
 
 from collector import Unknown, observe_sources
 from contract_v2 import FLAGS, Rejected
@@ -25,16 +26,50 @@ PRESERVED_FLAGS = [
     "--disable-component-update",
     "--disable-sync",
 ]
+SOURCE_STAGES = (
+    "identity",
+    "profile",
+    "driver_versions",
+    "driver_import",
+    "dynamic_fetch",
+    "setup_origin",
+    "source_observation",
+    "browser_close",
+    "completion",
+    "result_serialization",
+)
 
 
-def child_guard() -> Guard:
+def source_failure_report(session, phase, stage):
+    """Small fixed allowlist only: never exception text or arbitrary evidence."""
+    if (
+        type(session) is not str
+        or not re.fullmatch(r"flowtracer-r3-dnr-[a-z0-9-]{1,64}", session)
+        or type(phase) is not str
+        or phase not in {"baseline", "enabled"}
+        or type(stage) is not str
+        or stage not in SOURCE_STAGES
+    ):
+        raise Unknown("source_diagnostic_invalid")
+    return {
+        "schema_version": "r3-source-failure-v1",
+        "status": "BLOCKED",
+        "session": session,
+        "phase": phase,
+        "target_permission": "DENIED",
+        "stage": stage,
+        "failure_code": "source_preflight_failed",
+    }
+
+
+def child_guard(terminate=None) -> Guard:
     def arm(seconds, callback):
         timer = Timer(seconds, callback)
         timer.daemon = True
         timer.start()
         return timer
 
-    return Guard(arm, lambda: os._exit(78), time.monotonic)
+    return Guard(arm, terminate or (lambda: os._exit(78)), time.monotonic)
 
 
 def close_confirmed(page) -> bool:
@@ -174,11 +209,12 @@ def source_fetch_options(profile, phase, setup):
     }
 
 
-def source_fetch_once(fetch, phase, profile, session, guard, extension):
+def source_fetch_once(fetch, phase, profile, session, guard, extension, diagnostic=None):
     """Setup performs diagnosis, closes, then interrupts before driver goto."""
     guard.start()
     entered = False
     issued = None
+    diagnostic = diagnostic if diagnostic is not None else {"stage": "dynamic_fetch"}
 
     def setup(page):
         nonlocal entered, issued
@@ -188,6 +224,7 @@ def source_fetch_once(fetch, phase, profile, session, guard, extension):
         timer = guard.arm(15, guard.terminal)
         started = guard.clock()
         try:
+            diagnostic["stage"] = "setup_origin"
             if page.url != "about:blank":
                 raise Unknown("source_initial_origin_invalid")
             hashes = (
@@ -195,13 +232,24 @@ def source_fetch_once(fetch, phase, profile, session, guard, extension):
                 if phase == "enabled"
                 else {}
             )
+            diagnostic["stage"] = "source_observation"
             facts = observe_sources(page, phase == "enabled", extension, hashes, profile)
             if guard.denied or guard.clock() - started >= 15:
                 guard.terminal()
         except Exception:
             timer.cancel()
-            guard.reject_and_close(lambda: close_confirmed(page))
+            failed_stage = diagnostic["stage"]
+
+            def refusal_close():
+                diagnostic["stage"] = "browser_close"
+                confirmed = close_confirmed(page)
+                if confirmed is True:
+                    diagnostic["stage"] = failed_stage
+                return confirmed
+
+            guard.reject_and_close(refusal_close)
         timer.cancel()
+        diagnostic["stage"] = "browser_close"
         close_timer = guard.arm(5, guard.terminal)
         closing = guard.clock()
         try:
@@ -214,6 +262,7 @@ def source_fetch_once(fetch, phase, profile, session, guard, extension):
         close_timer.cancel()
         if guard.denied:
             guard.terminal()
+        diagnostic["stage"] = "completion"
         issued = SourcePreflightCompleted(
             {
                 "schema_version": "r3-source-observation-v1",
@@ -229,6 +278,7 @@ def source_fetch_once(fetch, phase, profile, session, guard, extension):
         raise issued
 
     try:
+        diagnostic["stage"] = "dynamic_fetch"
         fetch("about:blank", **source_fetch_options(profile, phase, setup))
     except SourcePreflightCompleted as completed:
         if (
@@ -256,27 +306,70 @@ def source_fetch_once(fetch, phase, profile, session, guard, extension):
     guard.terminal()
 
 
-def source_child(phase, profile, session):
+def source_child(phase, profile, session, diagnostic=None, terminate=None):
+    diagnostic = diagnostic if diagnostic is not None else {"stage": "identity"}
+    diagnostic["stage"] = "identity"
     if sys.platform != "linux" or os.getuid() != 10001:
         raise Unknown("source_child_identity_invalid")
+    diagnostic["stage"] = "profile"
     source_fetch_options(profile, phase, None)
     profile.mkdir(parents=True, exist_ok=False)
     if list(profile.iterdir()):
         raise Unknown("source_profile_not_new")
     from importlib.metadata import version
 
+    diagnostic["stage"] = "driver_versions"
     scrapling_version, playwright_version = version("scrapling"), version("playwright")
     if scrapling_version != "0.4.15" or playwright_version != "1.62.0":
         raise Unknown("source_driver_version_invalid")
+    diagnostic["stage"] = "driver_import"
     from scrapling.fetchers import DynamicFetcher
 
     result = source_fetch_once(
-        DynamicFetcher.fetch, phase, profile, session, child_guard(), Path("/opt/flowtracer-r3-dnr")
+        DynamicFetcher.fetch,
+        phase,
+        profile,
+        session,
+        child_guard(terminate),
+        Path("/opt/flowtracer-r3-dnr"),
+        diagnostic,
     )
     result["facts"].update(
         scrapling_version=scrapling_version, playwright_version=playwright_version
     )
     return result
+
+
+def source_child_main(phase, profile, session):
+    """Per-call diagnostic latch survives Guard's non-returning os._exit(78)."""
+    diagnostic = {"stage": "identity"}
+    output, lock, emitted = sys.stdout, Lock(), False
+
+    def emit_failure():
+        nonlocal emitted
+        with lock:
+            if not emitted:
+                value = source_failure_report(session, phase, diagnostic["stage"])
+                print(json.dumps(value, sort_keys=True, allow_nan=False), file=output, flush=True)
+                emitted = True
+
+    def terminate():
+        try:
+            emit_failure()
+        finally:
+            os._exit(78)
+
+    logging.disable(logging.CRITICAL)
+    try:
+        with open(os.devnull, "w") as sink, redirect_stdout(sink), redirect_stderr(sink):
+            result = source_child(phase, profile, session, diagnostic, terminate)
+        diagnostic["stage"] = "result_serialization"
+        serialized = json.dumps(result, sort_keys=True, allow_nan=False)
+        print(serialized, file=output, flush=True)
+        return 0
+    except BaseException:
+        emit_failure()
+        return 78
 
 
 if __name__ == "__main__":
@@ -288,12 +381,4 @@ if __name__ == "__main__":
         or sys.argv[2::2] != ["--phase", "--profile", "--session"]
     ):
         raise SystemExit("NO_GO: real_session_not_authorized")
-    logging.disable(logging.CRITICAL)
-    try:
-        with open(os.devnull, "w") as sink, redirect_stdout(sink), redirect_stderr(sink):
-            result = source_child(sys.argv[3], Path(sys.argv[5]), sys.argv[7])
-        print(json.dumps(result, sort_keys=True, allow_nan=False))
-    except BaseException:
-        # Includes signals: fixed safe failure only, NEVER success.
-        print('{"status":"BLOCKED","target_permission":"DENIED"}')
-        raise SystemExit(78) from None
+    raise SystemExit(source_child_main(sys.argv[3], Path(sys.argv[5]), sys.argv[7]))

@@ -8,6 +8,7 @@ import io
 import json
 import subprocess
 import unittest
+from contextlib import redirect_stdout
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
@@ -23,6 +24,9 @@ from probe import (
     fetch_once,
     guarded_setup,
     invoke_dynamic_fetch,
+    source_child,
+    source_child_main,
+    source_failure_report,
     source_fetch_once,
     source_fetch_options,
 )
@@ -283,6 +287,7 @@ class SyntheticSourceDocker:
         self.objects, self.calls = {}, []
         self.failure = failure
         self.start_phases = []
+        self.child_exit, self.child_payload = 0, None
 
     def call(self, args, timeout):
         self.calls.append(args)
@@ -367,8 +372,11 @@ class SyntheticSourceDocker:
         if operation in {"wait", "kill"}:
             value["State"]["Running"] = False
             if operation == "wait":
-                return b"0"
+                value["State"]["ExitCode"] = self.child_exit
+                return str(self.child_exit).encode()
         if operation == "logs":
+            if self.child_payload is not None:
+                return self.child_payload
             return json.dumps(
                 {
                     "schema_version": "r3-source-observation-v1",
@@ -428,6 +436,98 @@ class SourcePreflightTests(unittest.TestCase):
         self.assertIs(result["close_confirmed"], True)
         self.assertIs(result["fetch_returned"], False)
         self.assertEqual(result["target_permission"], "DENIED")
+
+    def test_child_failure_output_is_per_call_safe_and_terminal_emits_once(self):
+        for stage in ("identity", "driver_import", "source_observation", "browser_close"):
+            for terminal in (False, True):
+                output = io.StringIO()
+
+                def refuse(
+                    phase, profile, session, diagnostic, terminate, stage=stage, terminal=terminal
+                ):
+                    diagnostic["stage"] = stage
+                    print("SYNTHETIC_SECRET noisy driver output")
+                    if terminal:
+                        terminate()
+                    raise RuntimeError("SYNTHETIC_SECRET exception")
+
+                with (
+                    redirect_stdout(output),
+                    patch("probe.source_child", side_effect=refuse),
+                    patch("probe.os._exit", side_effect=SystemExit(78)) as exit_child,
+                    patch("probe.logging.disable"),
+                ):
+                    self.assertEqual(source_child_main("baseline", SOURCE_PROFILE, SESSION), 78)
+                self.assertEqual(
+                    json.loads(output.getvalue()), source_failure_report(SESSION, "baseline", stage)
+                )
+                self.assertNotIn("SECRET", output.getvalue())
+                self.assertLess(len(output.getvalue()), 1024)
+                self.assertEqual(exit_child.call_count, int(terminal))
+        output = io.StringIO()
+        with (
+            redirect_stdout(output),
+            patch("probe.source_child", return_value={"bad": float("nan")}),
+            patch("probe.logging.disable"),
+        ):
+            self.assertEqual(source_child_main("baseline", SOURCE_PROFILE, SESSION), 78)
+        self.assertEqual(json.loads(output.getvalue())["stage"], "result_serialization")
+
+    def test_setup_refusal_preserves_failure_stage_without_weakening_close(self):
+        for origin, observation_failure, close, expected in (
+            ("https://target.invalid", False, True, "setup_origin"),
+            ("about:blank", True, True, "source_observation"),
+            ("about:blank", False, False, "browser_close"),
+        ):
+            diagnostic = {"stage": "identity"}
+            guard, _, _ = fake_guard()
+            with (
+                patch(
+                    "probe.observe_sources",
+                    side_effect=RuntimeError("SECRET") if observation_failure else None,
+                    return_value={"target_permission": "DENIED"},
+                ),
+                patch("probe.close_confirmed", return_value=close) as close_browser,
+                self.assertRaises(Terminal),
+            ):
+                source_fetch_once(
+                    lambda url, origin=origin, **opts: opts["page_setup"](
+                        SimpleNamespace(url=origin)
+                    ),
+                    "baseline",
+                    SOURCE_PROFILE,
+                    SESSION,
+                    guard,
+                    EXTENSION,
+                    diagnostic,
+                )
+            self.assertEqual(diagnostic["stage"], expected)
+            self.assertTrue(guard.denied)
+            self.assertEqual(guard.closed, close)
+            close_browser.assert_called_once()
+
+    def test_child_actual_early_stages_are_not_inferred_from_exception_text(self):
+        for platform, mkdir_error, version_error, expected in (
+            ("win32", False, False, "identity"),
+            ("linux", True, False, "profile"),
+            ("linux", False, True, "driver_versions"),
+        ):
+            diagnostic = {"stage": "completion"}
+            with (
+                patch("probe.sys.platform", platform),
+                patch("probe.os.getuid", return_value=10001, create=True),
+                patch.object(Path, "mkdir", side_effect=OSError("SECRET") if mkdir_error else None),
+                patch.object(Path, "iterdir", return_value=iter([])),
+                patch(
+                    "importlib.metadata.version",
+                    side_effect=RuntimeError("SECRET") if version_error else None,
+                ),
+                self.assertRaises(
+                    Unknown if platform == "win32" else OSError if mkdir_error else RuntimeError
+                ),
+            ):
+                source_child("baseline", SOURCE_PROFILE, SESSION, diagnostic)
+            self.assertEqual(diagnostic["stage"], expected)
 
     def test_close_failure_wrong_origin_and_normal_return_refuse(self):
         def driver(url, **options):
@@ -774,8 +874,43 @@ class SourcePreflightTests(unittest.TestCase):
             "close",
             "cleanup",
             "foreign",
+            "child_identity",
+            "child_driver_import",
+            "child_extra",
+            "child_unknown_stage",
+            "child_raw_noise",
+            "child_duplicate",
+            "child_wrong_session",
+            "child_wrong_phase",
+            "child_wrong_code",
+            "child_nonfinite",
+            "child_oversize",
+            "child_false_success",
+            "child_zero_failure",
         ):
             daemon = SyntheticSourceDocker(failure)
+            if failure and failure.startswith("child_"):
+                stage = "driver_import" if failure == "child_driver_import" else "identity"
+                payload = source_failure_report(SESSION, "baseline", stage)
+                edits = {
+                    "child_extra": {"secret": "SYNTHETIC_SECRET"},
+                    "child_unknown_stage": {"stage": "SYNTHETIC_SECRET"},
+                    "child_wrong_session": {"session": "foreign"},
+                    "child_wrong_phase": {"phase": "enabled"},
+                    "child_wrong_code": {"failure_code": "SYNTHETIC_SECRET"},
+                    "child_nonfinite": {"stage": float("nan")},
+                    "child_false_success": {"status": "SOURCE_OBSERVED"},
+                }
+                payload.update(edits.get(failure, {}))
+                daemon.child_exit, daemon.child_payload = 78, json.dumps(payload).encode()
+                if failure == "child_zero_failure":
+                    daemon.child_exit = 0
+                if failure == "child_raw_noise":
+                    daemon.child_payload = b"SYNTHETIC_SECRET traceback\n"
+                if failure == "child_duplicate":
+                    daemon.child_payload = b'{"stage":"identity","stage":"profile"}'
+                if failure == "child_oversize":
+                    daemon.child_payload = b" " * 65537
             timers = []
             markers = set()
 
@@ -808,13 +943,29 @@ class SourcePreflightTests(unittest.TestCase):
                     result["status"], "SOURCE_OBSERVED" if failure is None else "BLOCKED"
                 )
                 self.assertEqual(result["target_permission"], "DENIED")
+                if failure and failure.startswith("child_"):
+                    outcome = result["phases"][0]
+                    self.assertEqual(len(result["phases"]), 1)
+                    self.assertEqual(daemon.start_phases, ["baseline"])
+                    operations = [call[1] for call in daemon.calls]
+                    self.assertLess(operations.index("logs"), operations.index("rm"))
+                    self.assertNotIn("SECRET", json.dumps(result))
+                    if failure in {"child_identity", "child_driver_import"}:
+                        self.assertEqual(outcome["diagnostic"]["stage"], stage)
+                        self.assertEqual(outcome["failure"], "source_child_refused")
+                    else:
+                        self.assertNotIn("diagnostic", outcome)
                 fsync.assert_called_once()
                 self.assertTrue(all(t.seconds == 120 for t in timers))
                 self.assertEqual(
                     daemon.start_phases,
                     ["baseline", "enabled"]
                     if failure is None
-                    else (["baseline"] if failure in {"close", "cleanup"} else []),
+                    else (
+                        ["baseline"]
+                        if failure in {"close", "cleanup"} or failure.startswith("child_")
+                        else []
+                    ),
                 )
                 if failure not in {"cleanup", "foreign"}:
                     self.assertEqual(daemon.objects, {})
@@ -1119,6 +1270,13 @@ class RuntimeTests(unittest.TestCase):
             self.assertRaises(Unknown),
         ):
             api.call(["container", "wait", "a" * 64], 1)
+        with patch("subprocess.Popen", return_value=Process(b"x" * 65536)):
+            self.assertEqual(len(api.call(["container", "logs", "a" * 64], 1)), 65536)
+        with (
+            patch("subprocess.Popen", return_value=Process(b"x" * 65537)),
+            self.assertRaises(Unknown),
+        ):
+            api.call(["container", "logs", "a" * 64], 1)
 
     def test_actual_close_adapter_requires_all_confirmation_signals(self):
         self.assertTrue(close_confirmed(page_double()))

@@ -17,6 +17,7 @@ from threading import Event, Lock, Thread, Timer
 from types import MappingProxyType
 
 from collector import Unknown
+from probe import source_failure_report
 
 REAL_SESSION_AUTHORIZED = False
 
@@ -708,6 +709,7 @@ class DockerCommands:
         ):
             raise Unknown("docker_command_unapproved")
         output, overflow, reader_failed = bytearray(), Event(), Event()
+        budget = 65536 if args[1] == "logs" else 1024 * 1024
         process = subprocess.Popen(  # noqa: S603 - audited Docker executable/argv, no shell
             [self.executable, *args],
             stdout=subprocess.PIPE,
@@ -717,7 +719,7 @@ class DockerCommands:
         def collect():
             try:
                 while block := process.stdout.read1(4096):
-                    if len(output) + len(block) > 1024 * 1024:
+                    if len(output) + len(block) > budget:
                         overflow.set()
                         process.kill()
                         return
@@ -938,13 +940,18 @@ class ParentSupervisor:
                 raise Unknown("parent_deadline")
             exited = self.commands.call(["container", "wait", container], self.remaining()).strip()
             state = self.inspect_owned(min(5, self.remaining()))
-            if exited != b"0" or state.get("State", {}).get("Running") is not False or self.failure:
+            expected_exit = (b"0", b"78") if source_contract is not None else (b"0",)
+            if (
+                exited not in expected_exit
+                or state.get("State", {}).get("Running") is not False
+                or self.failure
+            ):
                 raise Unknown("probe_exit_unknown")
             if source_contract is not None and (
                 type(state.get("State", {}).get("Pid")) is not int
                 or type(state.get("State", {}).get("ExitCode")) is not int
                 or state.get("State", {}).get("Pid") != 0
-                or state.get("State", {}).get("ExitCode") != 0
+                or state.get("State", {}).get("ExitCode") != int(exited)
             ):
                 raise Unknown("source_process_exit_unknown")
             # Natural exit is necessary, not receipt/identity/R3 success.
@@ -957,6 +964,18 @@ class ParentSupervisor:
                 if len(raw) > 65536:
                     raise Unknown("source_log_budget")
                 observation = strict_json(raw)
+                if exited == b"78":
+                    if len(raw) > 1024 or type(observation) is not dict:
+                        raise Unknown("source_diagnostic_invalid")
+                    expected = source_failure_report(
+                        source_contract["parent_session"],
+                        source_contract["phase"],
+                        observation.get("stage"),
+                    )
+                    if observation != expected:
+                        raise Unknown("source_diagnostic_invalid")
+                    outcome["diagnostic"] = expected
+                    raise Unknown("source_child_refused")
                 if (
                     type(observation) is not dict
                     or set(observation)
@@ -984,7 +1003,11 @@ class ParentSupervisor:
                     raise Unknown("source_observation_invalid")
                 outcome["observation"] = observation
         except Exception:
-            outcome["failure"] = "probe_or_supervision_unknown"
+            outcome["failure"] = (
+                "source_child_refused"
+                if "diagnostic" in outcome
+                else "probe_or_supervision_unknown"
+            )
         finally:
             try:
                 if source_contract is not None and self.container is None:

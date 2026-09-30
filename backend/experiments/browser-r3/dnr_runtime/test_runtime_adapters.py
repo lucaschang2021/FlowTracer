@@ -39,7 +39,6 @@ from supervisor import (
 
 HERE = Path(__file__).parent
 EXTENSION = HERE / "extension-v2"
-EXT_HASHES = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in EXTENSION.iterdir()}
 EXT_ID = "a" * 32
 SOURCE_PROFILE = Path("/tmp/r3-source/baseline/profile")  # noqa: S108 - fake-only path
 
@@ -67,6 +66,14 @@ def candidate_raw_fixture():
         return files[path.absolute()] if path.absolute() in files else original(path)
 
     return files, read
+
+
+TEST_RAW_FILES, TEST_RAW_READ = candidate_raw_fixture()
+EXT_HASHES = {
+    p.name: hashlib.sha256(raw).hexdigest()
+    for p, raw in TEST_RAW_FILES.items()
+    if p.parent == EXTENSION.absolute()
+}
 
 
 def snapshot():
@@ -380,6 +387,9 @@ class SyntheticSourceDocker:
 
 
 class SourcePreflightTests(unittest.TestCase):
+    def setUp(self):
+        self.enterContext(patch.object(Path, "read_bytes", TEST_RAW_READ))
+
     """SYNTHETIC only: no controller record, subprocess, Docker or Browser."""
 
     def run_fetch(self, fetch, *, close=True, facts=None):
@@ -874,6 +884,9 @@ class SourcePreflightTests(unittest.TestCase):
 
 
 class RuntimeTests(unittest.TestCase):
+    def setUp(self):
+        self.enterContext(patch.object(Path, "read_bytes", TEST_RAW_READ))
+
     def test_actual_invocation_never_imports_driver_without_admission(self):
         with self.assertRaisesRegex(Unknown.__bases__[0], "not_authorized"):
             invoke_dynamic_fetch(Path("unused"), None, None, enabled=True)

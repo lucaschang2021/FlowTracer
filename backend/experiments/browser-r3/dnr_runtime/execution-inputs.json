@@ -46,7 +46,7 @@
       "module": null
     },
     {
-      "sha256": "ef22446ab9fc1f8f5d1c5c1f2bcfee851b32099ebb0bcaad9653c6e0721ebe2e",
+      "sha256": "fa984004101ddfe8c59eb27b47bcb00dbfde4e6ee541ff65b2db0eab4e9a0d35",
       "path": "backend/experiments/browser-r3/dnr_runtime/test_runtime_adapters.py",
       "origin": "new_candidate",
       "role": "offline_test_only",
@@ -88,7 +88,7 @@
       "module": "harness_v2"
     },
     {
-      "sha256": "2613f09a61989144499ce97733f823a33b7aaffc7e48abe88913933196ea0c88",
+      "sha256": "fd7a7ce77d3b45504d28b001d566d0280c71cfacaa9d0bbaa6f681046d7cf1c7",
       "path": "backend/experiments/browser-r3/dnr_runtime/test_receipt_v2.py",
       "origin": "new_candidate",
       "role": "offline_test_only",

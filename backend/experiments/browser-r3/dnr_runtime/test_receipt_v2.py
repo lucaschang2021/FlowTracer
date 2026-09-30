@@ -14,7 +14,7 @@ from contract_v2 import Rejected, check_snapshot, fingerprint
 from harness import Terminal
 from harness_v2 import Guard
 from supervisor import actual_session_entry, checked_repo_file, phase_commands
-from test_runtime_adapters import bound, candidate_raw_fixture, fake_guard, receipt, snapshot
+from test_runtime_adapters import TEST_RAW_READ, bound, fake_guard, receipt, snapshot
 from validator_v2 import validate_clock_samples, validate_observations
 
 
@@ -121,8 +121,7 @@ def synthetic_render(image, session, phase, mounts):
 
 class ReceiptV2Tests(unittest.TestCase):
     def setUp(self):
-        _, read = candidate_raw_fixture()
-        self.enterContext(patch.object(Path, "read_bytes", read))
+        self.enterContext(patch.object(Path, "read_bytes", TEST_RAW_READ))
 
     def test_missing_independent_authority_rejected(self):
         with self.assertRaises(Unknown):

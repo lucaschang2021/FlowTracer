@@ -5,6 +5,7 @@ from __future__ import annotations
 import ast
 import hashlib
 import json
+import os
 import re
 import stat
 import subprocess
@@ -324,6 +325,15 @@ def source_preflight(approval):
         if session in SOURCE_SESSIONS:
             raise Unknown("source_session_already_consumed")
         SOURCE_SESSIONS.add(session)
+        # Independent host marker and this entry marker are separate layers.
+        # Never remove even a partial marker: uncertainty forbids relaunch.
+        try:
+            with (HOST_RECORD.parent / f"{session}.launch-consumed").open("xb") as marker:
+                marker.write(b"consumed\n")
+                marker.flush()
+                os.fsync(marker.fileno())
+        except OSError:
+            raise Unknown("source_session_persistent_consumption_failed") from None
     commands = DockerCommands(DOCKER_EXE)
     outcomes = []
     for item in plan["phases"]:

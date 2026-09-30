@@ -6,10 +6,11 @@ import copy
 import hashlib
 import io
 import json
+import subprocess
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from collector import ClockEvidence, Collector, Unknown, evaluate, observe_sources, observed_clock
 from contract import FLAGS, MANIFEST, MOUNT, SESSION, fingerprint
@@ -41,6 +42,31 @@ EXTENSION = HERE / "extension-v2"
 EXT_HASHES = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in EXTENSION.iterdir()}
 EXT_ID = "a" * 32
 SOURCE_PROFILE = Path("/tmp/r3-source/baseline/profile")  # noqa: S108 - fake-only path
+
+
+def candidate_raw_fixture():
+    """TEST ONLY: Git raw blobs, independent of checkout root and autocrlf."""
+    root = HERE.absolute().parents[3]
+    manifest_path = HERE.absolute() / "execution-inputs.json"
+
+    def blob(relative):
+        return subprocess.run(  # noqa: S603 - read-only local fixture Git objects
+            ["git", "show", f"HEAD:{relative}"],  # noqa: S607 - synthetic Git fixture
+            cwd=root,
+            check=True,
+            capture_output=True,
+            timeout=5,
+        ).stdout
+
+    raw = blob(manifest_path.relative_to(root).as_posix())
+    files = {root / row["path"]: blob(row["path"]) for row in json.loads(raw)["inputs"]}
+    files[manifest_path] = raw
+    original = Path.read_bytes
+
+    def read(path):
+        return files[path.absolute()] if path.absolute() in files else original(path)
+
+    return files, read
 
 
 def snapshot():
@@ -508,6 +534,7 @@ class SourcePreflightTests(unittest.TestCase):
     def test_fixed_plan_network_profiles_phase_and_v2_only(self):
         rows = json.loads((HERE / "execution-inputs.json").read_bytes())["inputs"]
         plan = source_plan(rows)
+        self.assertEqual(plan["repository_root"], "D:/FlowTracer-wt/backend")
         self.assertEqual(plan["dependency_services"], [])
         self.assertEqual(plan["target_permission"], "DENIED")
         self.assertEqual(plan["url"], "about:blank")
@@ -694,6 +721,23 @@ class SourcePreflightTests(unittest.TestCase):
 
     def test_end_to_end_host_binding_and_real_parent_flow_with_synthetic_daemon(self):
         root = HERE.absolute().parents[3]
+        files, read = candidate_raw_fixture()
+        self.enterContext(patch.object(Path, "read_bytes", read))
+
+        # Only this synthetic expected root changes; production plan stays fixed.
+        def synthetic_plan(rows):
+            return {**source_plan(rows), "repository_root": root.as_posix()}
+
+        manifest_path = HERE.absolute() / "execution-inputs.json"
+        plan_path = HERE.absolute() / "execution_plan.json"
+        files[plan_path] = json.dumps(
+            synthetic_plan(json.loads(files[manifest_path])["inputs"])
+        ).encode()
+        synthetic_manifest = json.loads(files[manifest_path])
+        for row in synthetic_manifest["inputs"]:
+            row["sha256"] = hashlib.sha256(files[root / row["path"]]).hexdigest()
+        files[manifest_path] = json.dumps(synthetic_manifest).encode()
+        self.enterContext(patch("supervisor.source_plan", side_effect=synthetic_plan))
         manifest = (HERE / "execution-inputs.json").read_bytes()
         plan = (HERE / "execution_plan.json").read_bytes()
         record = {
@@ -704,6 +748,7 @@ class SourcePreflightTests(unittest.TestCase):
             "plan_raw_sha256": hashlib.sha256(plan).hexdigest(),
         }
         approval = HostApproval(HOST_RECORD, "a" * 64, "b" * 40, record)
+        original_open = Path.open
 
         def git_objects(args, **kwargs):
             if args[1] == "rev-parse":
@@ -722,6 +767,17 @@ class SourcePreflightTests(unittest.TestCase):
         ):
             daemon = SyntheticSourceDocker(failure)
             timers = []
+            markers = set()
+
+            def create_marker(path, mode, *args, markers=markers, **kwargs):
+                if path != HOST_RECORD.parent / f"{SESSION}.launch-consumed":
+                    return original_open(path, mode, *args, **kwargs)
+                self.assertEqual(path, HOST_RECORD.parent / f"{SESSION}.launch-consumed")
+                self.assertEqual(mode, "xb")
+                if path in markers:
+                    raise FileExistsError
+                markers.add(path)
+                return MagicMock()
 
             def arm(seconds, callback, timers=timers):
                 timer = Timer(seconds, callback)
@@ -733,6 +789,8 @@ class SourcePreflightTests(unittest.TestCase):
                 patch("supervisor.subprocess.run", side_effect=git_objects),
                 patch("supervisor.DockerCommands", return_value=daemon),
                 patch("supervisor.SOURCE_SESSIONS", set()),
+                patch.object(Path, "open", create_marker),
+                patch("supervisor.os.fsync") as fsync,
                 patch.object(ParentSupervisor, "timer", staticmethod(arm)),
             ):
                 result = source_preflight(approval)
@@ -740,6 +798,7 @@ class SourcePreflightTests(unittest.TestCase):
                     result["status"], "SOURCE_OBSERVED" if failure is None else "BLOCKED"
                 )
                 self.assertEqual(result["target_permission"], "DENIED")
+                fsync.assert_called_once()
                 self.assertTrue(all(t.seconds == 120 for t in timers))
                 self.assertEqual(
                     daemon.start_phases,
@@ -753,6 +812,14 @@ class SourcePreflightTests(unittest.TestCase):
                     self.assertFalse(any(c[1] in {"kill", "rm"} for c in daemon.calls))
                 with self.assertRaisesRegex(Unknown, "already_consumed"):
                     source_preflight(approval)
+                # Fresh-process model loses memory, but never the atomic marker.
+                with (
+                    patch("supervisor.SOURCE_SESSIONS", set()),
+                    patch("supervisor.DockerCommands") as commands,
+                ):
+                    with self.assertRaisesRegex(Unknown, "persistent_consumption_failed"):
+                        source_preflight(approval)
+                    commands.assert_not_called()
         # Both digests are checked before parsing/calling ANY Docker API.
         for key in ("manifest_raw_sha256", "plan_raw_sha256"):
             with (
@@ -761,6 +828,46 @@ class SourcePreflightTests(unittest.TestCase):
                 ),
                 patch("supervisor.DockerCommands") as commands,
                 self.assertRaises(Unknown),
+            ):
+                source_preflight(approval)
+            commands.assert_not_called()
+        for failure in (PermissionError, OSError):
+
+            def failed_marker(path, mode, *args, failure=failure, **kwargs):
+                if path == HOST_RECORD.parent / f"{SESSION}.launch-consumed":
+                    raise failure
+                return original_open(path, mode, *args, **kwargs)
+
+            with (
+                patch.object(HostApproval, "read_approved_record", return_value=record),
+                patch("supervisor.subprocess.run", side_effect=git_objects),
+                patch("supervisor.SOURCE_SESSIONS", set()),
+                patch.object(Path, "open", failed_marker),
+                patch("supervisor.DockerCommands") as commands,
+                self.assertRaisesRegex(Unknown, "persistent_consumption_failed"),
+            ):
+                source_preflight(approval)
+            commands.assert_not_called()
+        # A marker that was created but could not be durably flushed also denies.
+        for stage in ("write", "flush", "fsync"):
+            marker = MagicMock()
+            if stage != "fsync":
+                getattr(marker.__enter__.return_value, stage).side_effect = OSError
+
+            def partial_marker(path, mode, *args, marker=marker, **kwargs):
+                if path == HOST_RECORD.parent / f"{SESSION}.launch-consumed":
+                    self.assertEqual(mode, "xb")
+                    return marker
+                return original_open(path, mode, *args, **kwargs)
+
+            with (
+                patch.object(HostApproval, "read_approved_record", return_value=record),
+                patch("supervisor.subprocess.run", side_effect=git_objects),
+                patch("supervisor.SOURCE_SESSIONS", set()),
+                patch.object(Path, "open", partial_marker),
+                patch("supervisor.os.fsync", side_effect=OSError if stage == "fsync" else None),
+                patch("supervisor.DockerCommands") as commands,
+                self.assertRaisesRegex(Unknown, "persistent_consumption_failed"),
             ):
                 source_preflight(approval)
             commands.assert_not_called()

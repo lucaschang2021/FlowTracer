@@ -2,12 +2,17 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
+import logging
 import os
+import sys
 import time
+from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 from threading import Timer
 
-from collector import Unknown
+from collector import Unknown, observe_sources
 from contract_v2 import FLAGS, Rejected
 from harness_v2 import Guard
 
@@ -143,5 +148,152 @@ def control_ping():
         raise Unknown("control_ping_unknown") from None
 
 
+class SourcePreflightCompleted(BaseException):
+    """The sole setup-completion signal, NEVER a successful fetch Response."""
+
+    def __init__(self, facts):
+        self.facts = facts
+
+
+def source_fetch_options(profile, phase, setup):
+    if phase not in {"baseline", "enabled"} or profile.as_posix() != (
+        f"/tmp/r3-source/{phase}/profile"  # noqa: S108 - isolated new container tmpfs
+    ):
+        raise Unknown("source_phase_profile_invalid")
+    return {
+        "headless": True,
+        "retries": 1,
+        "timeout": 8000,
+        "page_setup": setup,
+        "google_search": False,
+        "disable_resources": False,
+        "network_idle": False,
+        "executable_path": EXECUTABLE,
+        "user_data_dir": profile.as_posix(),
+        "extra_flags": PRESERVED_FLAGS + (FLAGS if phase == "enabled" else []),
+    }
+
+
+def source_fetch_once(fetch, phase, profile, session, guard, extension):
+    """Setup performs diagnosis, closes, then interrupts before driver goto."""
+    guard.start()
+    entered = False
+    issued = None
+
+    def setup(page):
+        nonlocal entered, issued
+        if entered or guard.denied:
+            guard.terminal()
+        entered = True
+        timer = guard.arm(15, guard.terminal)
+        started = guard.clock()
+        try:
+            if page.url != "about:blank":
+                raise Unknown("source_initial_origin_invalid")
+            hashes = (
+                {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in extension.iterdir()}
+                if phase == "enabled"
+                else {}
+            )
+            facts = observe_sources(page, phase == "enabled", extension, hashes, profile)
+            if guard.denied or guard.clock() - started >= 15:
+                guard.terminal()
+        except Exception:
+            timer.cancel()
+            guard.reject_and_close(lambda: close_confirmed(page))
+        timer.cancel()
+        close_timer = guard.arm(5, guard.terminal)
+        closing = guard.clock()
+        try:
+            confirmed = close_confirmed(page)
+        except Exception:
+            guard.terminal()
+        if confirmed is not True or guard.denied or guard.clock() - closing >= 5:
+            guard.terminal()
+        guard.closed = True
+        close_timer.cancel()
+        if guard.denied:
+            guard.terminal()
+        issued = SourcePreflightCompleted(
+            {
+                "schema_version": "r3-source-observation-v1",
+                "status": "SOURCE_OBSERVED",
+                "session": session,
+                "phase": phase,
+                "target_permission": "DENIED",
+                "close_confirmed": True,
+                "fetch_returned": False,
+                "facts": facts,
+            }
+        )
+        raise issued
+
+    try:
+        fetch("about:blank", **source_fetch_options(profile, phase, setup))
+    except SourcePreflightCompleted as completed:
+        if (
+            type(completed) is not SourcePreflightCompleted
+            or completed is not issued
+            or not entered
+            or guard.denied
+            or not guard.closed
+        ):
+            guard.terminal()
+        facts = completed.facts
+        if (
+            type(facts) is not dict
+            or facts.get("status") != "SOURCE_OBSERVED"
+            or facts.get("target_permission") != "DENIED"
+            or facts.get("close_confirmed") is not True
+            or facts.get("fetch_returned") is not False
+            or type(facts.get("facts")) is not dict
+            or facts["facts"].get("target_permission") != "DENIED"
+        ):
+            guard.terminal()
+        guard.total_timer.cancel()
+        return facts
+    # Swallowed signal, normal fetch return, or skipped hook is NEVER success.
+    guard.terminal()
+
+
+def source_child(phase, profile, session):
+    if sys.platform != "linux" or os.getuid() != 10001:
+        raise Unknown("source_child_identity_invalid")
+    source_fetch_options(profile, phase, None)
+    profile.mkdir(parents=True, exist_ok=False)
+    if list(profile.iterdir()):
+        raise Unknown("source_profile_not_new")
+    from importlib.metadata import version
+
+    scrapling_version, playwright_version = version("scrapling"), version("playwright")
+    if scrapling_version != "0.4.15" or playwright_version != "1.62.0":
+        raise Unknown("source_driver_version_invalid")
+    from scrapling.fetchers import DynamicFetcher
+
+    result = source_fetch_once(
+        DynamicFetcher.fetch, phase, profile, session, child_guard(), Path("/opt/flowtracer-r3-dnr")
+    )
+    result["facts"].update(
+        scrapling_version=scrapling_version, playwright_version=playwright_version
+    )
+    return result
+
+
 if __name__ == "__main__":
-    raise SystemExit("NO_GO: real_session_not_authorized")
+    # Operation arguments are NOT authorization. Only the separately reviewed
+    # host source_preflight entry may create this exact network-none child.
+    if (
+        len(sys.argv) != 8
+        or sys.argv[1:2] != ["--source-preflight"]
+        or sys.argv[2::2] != ["--phase", "--profile", "--session"]
+    ):
+        raise SystemExit("NO_GO: real_session_not_authorized")
+    logging.disable(logging.CRITICAL)
+    try:
+        with open(os.devnull, "w") as sink, redirect_stdout(sink), redirect_stderr(sink):
+            result = source_child(sys.argv[3], Path(sys.argv[5]), sys.argv[7])
+        print(json.dumps(result, sort_keys=True, allow_nan=False))
+    except BaseException:
+        # Includes signals: fixed safe failure only, NEVER success.
+        print('{"status":"BLOCKED","target_permission":"DENIED"}')
+        raise SystemExit(78) from None

@@ -429,11 +429,14 @@ class ReceiptV2Tests(unittest.TestCase):
         with self.assertRaises(Unknown):
             synthetic_render("sha256:" + "b" * 64, "flowtracer-r3-dnr-synthetic", "enabled", mounts)
 
-    def test_exact_base_tree_not_historical_same_tree(self):
+    def test_internal_source_base_not_historical_v2_base(self):
         import json
 
         plan = json.loads((Path(__file__).parent / "execution_plan.json").read_text())
-        self.assertEqual(plan["branch_base_tree"], "af7705c215973032ce42280eabf27ec72352a0a3")
+        self.assertEqual(plan["base_commit"], "8f5fcc6d70c152616440eb340c7186bd64b690ba")
+        self.assertNotEqual(plan["base_commit"], "ff70c198acb74b764435485611ec67484bcc7262")
+        manifest = json.loads((Path(__file__).parent / "execution-inputs.json").read_text())
+        self.assertEqual(manifest["actual_base"], plan["base_commit"])
 
 
 if __name__ == "__main__":

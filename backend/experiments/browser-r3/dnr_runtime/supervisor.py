@@ -10,12 +10,361 @@ import stat
 import subprocess
 import sys
 import time
+from dataclasses import dataclass
 from pathlib import Path
 from threading import Event, Lock, Thread, Timer
+from types import MappingProxyType
 
 from collector import Unknown
 
 REAL_SESSION_AUTHORIZED = False
+
+HOST_CONTROLLER = Path("D:/FlowTracer/.r3-control/source_preflight_controller.py")
+HOST_RECORD = Path("D:/FlowTracer/.r3-control/source_preflight_approval.json")
+R1E_MANIFEST = "f8d8bd0b64dfac53e244b00f29fbc9f18ed44b94491323b3f49ba2af191912e8"
+R1E_PAYLOAD = "5f4cf5acdf06a86f9b8907375f6f8f239ecf18152762b889f1e254b01e447e3b"
+DOCKER_EXE = "C:/Users/liuj/AppData/Local/Programs/DockerDesktop/resources/bin/docker.exe"
+GIT_EXE = "C:/Program Files/Git/cmd/git.exe"
+SOURCE_SESSIONS = set()
+SOURCE_SESSION_LOCK = Lock()
+SCRATCH_TARGET = "/tmp"  # noqa: S108 - approved isolated container tmpfs
+
+
+def strict_json(raw):
+    def pairs(items):
+        value = {}
+        for key, item in items:
+            if key in value:
+                raise Unknown("duplicate_json_key")
+            value[key] = item
+        return value
+
+    def constant(_):
+        raise Unknown("nonfinite_json")
+
+    return json.loads(raw, object_pairs_hook=pairs, parse_constant=constant)
+
+
+@dataclass(frozen=True)
+class HostApproval:
+    """Consumption boundary, NOT authentication of an arbitrary Python caller.
+
+    Only the separately reviewed fixed host program may instantiate and launch.
+    Its independently frozen source constants are the trust root. No prod CLI,
+    environment, reflection loader, test-double switch or self approval exists.
+    """
+
+    record_path: Path
+    record_raw_sha256: str
+    control_commit: str
+    record_data: dict
+
+    def __post_init__(self):
+        value = dict(self.record_data)
+        if isinstance(value.get("phases"), list):
+            value["phases"] = tuple(value["phases"])
+        object.__setattr__(self, "record_data", MappingProxyType(value))
+
+    def read_approved_record(self, session, phase):
+        try:
+            if (
+                self.record_path != HOST_RECORD
+                or not re.fullmatch(r"[0-9a-f]{64}", self.record_raw_sha256)
+                or not re.fullmatch(r"[0-9a-f]{40}", self.control_commit)
+            ):
+                raise Unknown("host_binding_invalid")
+            # Record/host are not Backend inputs and are never created here.
+            checked_repo_file(HOST_RECORD.parent, HOST_CONTROLLER)
+            checked_repo_file(HOST_RECORD.parent, HOST_RECORD)
+            with HOST_RECORD.open("rb") as stream:
+                raw = stream.read(65537)
+            if len(raw) > 65536 or hashlib.sha256(raw).hexdigest() != self.record_raw_sha256:
+                raise Unknown("host_record_digest_invalid")
+            value = strict_json(raw)
+            keys = {
+                "schema_version",
+                "mode",
+                "candidate_commit",
+                "manifest_raw_sha256",
+                "plan_raw_sha256",
+                "image_id",
+                "r1e_manifest_sha256",
+                "r1e_payload_sha256",
+                "control_commit",
+                "session",
+                "phases",
+                "launches_per_phase",
+                "target_permission",
+            }
+            if (
+                type(value) is not dict
+                or set(value) != keys
+                or any(type(value[k]) is not str for k in keys - {"phases", "launches_per_phase"})
+            ):
+                raise Unknown("host_record_schema_invalid")
+            if (
+                value["schema_version"] != "r3-source-preflight-approval-v1"
+                or value["mode"] != "source-preflight"
+                or value["target_permission"] != "DENIED"
+                or value["phases"] != ["baseline", "enabled"]
+                or type(value["launches_per_phase"]) is not int
+                or value["launches_per_phase"] != 1
+            ):
+                raise Unknown("host_record_contract_invalid")
+            if (
+                value["control_commit"] != self.control_commit
+                or value["session"] != session
+                or not re.fullmatch(r"flowtracer-r3-dnr-[a-z0-9-]{1,64}", session)
+                or phase not in value["phases"]
+            ):
+                raise Unknown("host_record_session_invalid")
+            for key, pattern in (
+                ("candidate_commit", r"[0-9a-f]{40}"),
+                ("manifest_raw_sha256", r"[0-9a-f]{64}"),
+                ("plan_raw_sha256", r"[0-9a-f]{64}"),
+                ("image_id", r"sha256:[0-9a-f]{64}"),
+            ):
+                if not re.fullmatch(pattern, value[key]):
+                    raise Unknown("host_record_value_invalid")
+            if (
+                value["r1e_manifest_sha256"] != R1E_MANIFEST
+                or value["r1e_payload_sha256"] != R1E_PAYLOAD
+            ):
+                raise Unknown("host_record_image_authority_invalid")
+            approved = dict(self.record_data)
+            if type(approved.get("phases")) is tuple:
+                approved["phases"] = list(approved["phases"])
+            # Exact semantic/type equality too (bool is not integer authority).
+            if json.dumps(value, sort_keys=True, allow_nan=False) != json.dumps(
+                approved, sort_keys=True, allow_nan=False
+            ):
+                raise Unknown("host_parsed_record_changed")
+            return value
+        except Exception:
+            raise Unknown("source_approval_unissued_or_invalid") from None
+
+
+def source_plan(rows):
+    """One fixed plan; tokens are only approved ROOT/session/image substitutions."""
+    base = "backend/experiments/browser-r3/"
+    mounts = []
+    for name in ("probe.py", "collector.py", "contract_v2.py", "validator_v2.py", "harness_v2.py"):
+        mounts.append((base + "dnr_runtime/" + name, "/opt/flowtracer-r3-runtime/" + name))
+    for name in ("contract.py", "harness.py"):
+        mounts.append((base + "dnr_offline/" + name, "/opt/flowtracer-r3-runtime/" + name))
+    hashes = {row["path"]: row["sha256"] for row in rows}
+    phases = []
+    from probe import source_fetch_options
+
+    for phase in ("baseline", "enabled"):
+        selected = list(mounts)
+        if phase == "enabled":
+            selected += [
+                (base + "dnr_runtime/extension-v2/" + name, "/opt/flowtracer-r3-dnr/" + name)
+                for name in ("manifest.json", "rules.json", "observer.js", "audit.html", "audit.js")
+            ]
+        specs = [
+            {
+                "source": "$ROOT/" + p,
+                "inspect_sources": [
+                    "$ROOT/" + p,
+                    "/run/desktop/mnt/host/d/FlowTracer-wt/backend/" + p,
+                ],
+                "target": t,
+                "sha256": hashes[p],
+                "readonly": True,
+            }
+            for p, t in selected
+        ]
+        profile = f"/tmp/r3-source/{phase}/profile"  # noqa: S108 - per-phase isolated tmpfs
+        argv = [
+            "container",
+            "create",
+            "--pull=never",
+            "--name",
+            f"$SESSION-{phase}",
+            "--label",
+            f"flowtracer.r3.session=$SESSION-{phase}",
+            "--label",
+            "flowtracer.r3.parent=$SESSION",
+            "--user",
+            "10001:10001",
+            "--read-only",
+            "--cap-drop=ALL",
+            "--security-opt",
+            "no-new-privileges:true",
+            "--pids-limit",
+            "128",
+            "--memory",
+            "768m",
+            "--cpus",
+            "1.0",
+            "--network",
+            "none",
+            "--restart",
+            "no",
+            "--tmpfs",
+            "/tmp:rw,nosuid,noexec,size=256m",  # noqa: S108 - approved ephemeral container mount
+            "--env",
+            "HOME=/tmp/r3-home",
+            "--env",
+            "XDG_CONFIG_HOME=/tmp/r3-config",
+            "--env",
+            "XDG_CACHE_HOME=/tmp/r3-cache",
+        ]
+        for spec in specs:
+            argv += [
+                "--mount",
+                f"type=bind,source={spec['source']},target={spec['target']},readonly",
+            ]
+        command = [
+            "/opt/flowtracer-r3-runtime/probe.py",
+            "--source-preflight",
+            "--phase",
+            phase,
+            "--profile",
+            profile,
+            "--session",
+            "$SESSION",
+        ]
+        argv += ["--entrypoint", "python", "$IMAGE", *command]
+        options = source_fetch_options(Path(profile), phase, None)
+        options.pop("page_setup")
+        phases.append(
+            {
+                "phase": phase,
+                "profile": profile,
+                "create_argv": argv,
+                "child_command": command,
+                "mounts": specs,
+                "browser_options": options,
+            }
+        )
+    return {
+        "schema_version": "r3-source-preflight-plan-v1",
+        "mode": "source-preflight",
+        "base_commit": "8f5fcc6d70c152616440eb340c7186bd64b690ba",
+        "docker_executable": DOCKER_EXE,
+        "git_executable": GIT_EXE,
+        "repository_root": "D:/FlowTracer-wt/backend",
+        "image_authority": "image_id from independent controller record; no build/pull",
+        "r1e_manifest_sha256": R1E_MANIFEST,
+        "r1e_payload_sha256": R1E_PAYLOAD,
+        "driver": "Scrapling DynamicFetcher 0.4.15 / Playwright 1.62.0 / full CfT 151.0.7922.34",
+        "phases": phases,
+        "url": "about:blank",
+        "completion": "page_setup_closes_then_SourcePreflightCompleted_not_fetch_return",
+        "parent_seconds": 120,
+        "preflight_seconds": 15,
+        "close_seconds": 5,
+        "target_permission": "DENIED",
+        "dependency_services": [],
+        "actual_approval": None,
+        "expected_output": {
+            "status": "SOURCE_OBSERVED_or_BLOCKED",
+            "inventory_complete": False,
+            "cross_realm_equivalence": "UNKNOWN",
+            "dns_status": "NOT_TESTED_NETWORK_NONE",
+            "r3": "BLOCKED",
+            "r4_r5": "NOT_ADMITTED",
+        },
+    }
+
+
+def source_preflight(approval):
+    """Only callable by the separately frozen host program; never CLI enabled."""
+    if type(approval) is not HostApproval:
+        raise Unknown("source_host_approval_required")
+    session = approval.record_data.get("session")
+    record = approval.read_approved_record(session, "baseline")
+    here = Path(__file__).absolute().parent
+    root = here.parents[3]
+    raw_files = {}
+    for name, key in (
+        ("execution-inputs.json", "manifest_raw_sha256"),
+        ("execution_plan.json", "plan_raw_sha256"),
+    ):
+        path = checked_repo_file(root, here / name)
+        raw = path.read_bytes()
+        if hashlib.sha256(raw).hexdigest() != record[key]:
+            raise Unknown("source_control_input_digest_invalid")
+        raw_files[name] = raw
+    manifest = strict_json(raw_files["execution-inputs.json"])
+    plan = strict_json(raw_files["execution_plan.json"])
+    rows = manifest["inputs"]
+    if plan != source_plan(rows):
+        raise Unknown("source_plan_not_fixed")
+    if root.as_posix() != plan["repository_root"]:
+        raise Unknown("source_repository_root_invalid")
+    check_inputs(root, rows)
+    # Host checks exact candidate Git objects, not a mutable checkout assertion.
+    head = (
+        subprocess.run(  # noqa: S603 - fixed local Git executable and read-only arguments
+            [GIT_EXE, "rev-parse", "HEAD"], cwd=root, check=True, capture_output=True, timeout=5
+        )
+        .stdout.decode()
+        .strip()
+    )
+    if head != record["candidate_commit"]:
+        raise Unknown("source_candidate_mismatch")
+    for relative in [row["path"] for row in rows] + [
+        "backend/experiments/browser-r3/dnr_runtime/execution-inputs.json"
+    ]:
+        file = checked_repo_file(root, root / relative)
+        blob = subprocess.run(  # noqa: S603 - approved commit/path, fixed Git, no shell/network
+            [GIT_EXE, "show", f"{head}:{relative}"],
+            cwd=root,
+            check=True,
+            capture_output=True,
+            timeout=5,
+        ).stdout
+        if blob != file.read_bytes():
+            raise Unknown("source_candidate_bytes_changed")
+    with SOURCE_SESSION_LOCK:
+        if session in SOURCE_SESSIONS:
+            raise Unknown("source_session_already_consumed")
+        SOURCE_SESSIONS.add(session)
+    commands = DockerCommands(DOCKER_EXE)
+    outcomes = []
+    for item in plan["phases"]:
+        approval.read_approved_record(session, item["phase"])
+
+        def render(value):
+            return (
+                value.replace("$ROOT", root.as_posix())
+                .replace("$SESSION", session)
+                .replace("$IMAGE", record["image_id"])
+            )
+
+        create = [render(v) for v in item["create_argv"]]
+        contract = {
+            "create": create,
+            "image": record["image_id"],
+            "command": [render(v) for v in item["child_command"]],
+            "mounts": [
+                {
+                    **s,
+                    "source": render(s["source"]),
+                    "inspect_sources": [render(v) for v in s["inspect_sources"]],
+                }
+                for s in item["mounts"]
+            ],
+            "phase": item["phase"],
+            "parent_session": session,
+        }
+        parent = ParentSupervisor(commands, f"{session}-{item['phase']}")
+        outcome = parent.run(create, source_contract=contract)
+        outcomes.append(outcome)
+        if outcome["status"] != "SOURCE_OBSERVED":
+            break
+    return {
+        "status": "SOURCE_OBSERVED"
+        if len(outcomes) == 2 and all(o["status"] == "SOURCE_OBSERVED" for o in outcomes)
+        else "BLOCKED",
+        "target_permission": "DENIED",
+        "phases": outcomes,
+        "r3": "BLOCKED",
+    }
 
 
 def read_controller_manifest_digest(session: str) -> str:
@@ -469,13 +818,70 @@ class ParentSupervisor:
             if state.get("State", {}).get("Running") is not False:
                 raise Unknown("cleanup_unknown")
 
-    def run(self, create_args: list[str]) -> dict:
-        if isinstance(self.commands, DockerCommands):
+    def verify_source_container(self, state, contract):
+        host = state.get("HostConfig", {})
+        config = state.get("Config", {})
+        if (
+            state.get("Image") != contract["image"]
+            or config.get("User") != "10001:10001"
+            or config.get("Entrypoint") != ["python"]
+            or config.get("Cmd") != contract["command"]
+            or config.get("Labels", {}).get("flowtracer.r3.parent") != contract["parent_session"]
+            or host.get("NetworkMode") != "none"
+            or host.get("ReadonlyRootfs") is not True
+            or host.get("Privileged") is not False
+            or host.get("CapAdd") not in (None, [])
+            or host.get("CapDrop") != ["ALL"]
+            or host.get("SecurityOpt") != ["no-new-privileges:true"]
+            or host.get("PidsLimit") != 128
+            or host.get("Memory") != 768 * 1024 * 1024
+            or host.get("NanoCpus") != 1000000000
+            or host.get("PidMode") not in (None, "")
+            or host.get("IpcMode") not in ("private", None, "")
+            or host.get("PortBindings") not in (None, {})
+            or host.get("Sysctls") not in (None, {})
+            or host.get("RestartPolicy", {}).get("Name") != "no"
+            or host.get("Tmpfs")
+            != {
+                "/tmp": "rw,nosuid,noexec,size=256m"  # noqa: S108 - approved ephemeral tmpfs
+            }
+        ):
+            raise Unknown("source_container_boundary_invalid")
+        mounts = state.get("Mounts")
+        if type(mounts) is not list or any(type(m) is not dict for m in mounts):
+            raise Unknown("source_mount_closure_invalid")
+        scratch = [m for m in mounts if m.get("Type") == "tmpfs"]
+        if len(scratch) > 1 or any(
+            m.get("Destination") != SCRATCH_TARGET or m.get("RW") is not True for m in scratch
+        ):
+            raise Unknown("source_tmpfs_mount_invalid")
+        mounts = [m for m in mounts if m.get("Type") != "tmpfs"]
+        if len(mounts) != len(contract["mounts"]):
+            raise Unknown("source_mount_closure_invalid")
+        for expected in contract["mounts"]:
+            matches = [m for m in mounts if m.get("Destination") == expected["target"]]
+            if (
+                len(matches) != 1
+                or matches[0].get("Type") != "bind"
+                or matches[0].get("RW") is not False
+            ):
+                raise Unknown("source_mount_invalid")
+            # Only the two exact sources in the independently approved plan.
+            if matches[0].get("Source") not in expected["inspect_sources"]:
+                raise Unknown("source_mount_source_unknown")
+            path = checked_repo_file(Path(__file__).absolute().parents[4], Path(expected["source"]))
+            if hashlib.sha256(path.read_bytes()).hexdigest() != expected["sha256"]:
+                raise Unknown("source_mounted_bytes_changed")
+
+    def run(self, create_args: list[str], *, source_contract=None) -> dict:
+        if source_contract is None and isinstance(self.commands, DockerCommands):
             # Full approved create argv/mount/image authority is not frozen yet.
             # Fake tests exercise lifecycle only; never authorize a real launch.
             raise Unknown("actual_launch_manifest_unreviewed")
         if self.started is not None:
             raise Unknown("caller_retry_forbidden")
+        if source_contract is not None and create_args != source_contract["create"]:
+            raise Unknown("source_create_not_fixed")
         # Caller must freeze every create argument/mount/image before real entry.
         if (
             create_args[:2] != ["container", "create"]
@@ -489,12 +895,32 @@ class ParentSupervisor:
         self.started = self.clock()
         watchdog = self.arm(120, self.timeout)  # BEFORE any container creation/launch
         outcome = {"status": "NO_GO", "runtime_verified": False, "cleanup": "UNKNOWN"}
+        creation_attempted = False
         try:
+            if source_contract is not None:
+                existing = self.commands.call(
+                    [
+                        "container",
+                        "ls",
+                        "-a",
+                        "--no-trunc",
+                        "--filter",
+                        f"name=^/{self.session}$",
+                        "--format",
+                        "{{json .ID}}",
+                    ],
+                    min(5, self.remaining()),
+                )
+                if existing.strip():
+                    raise Unknown("source_container_name_in_use")
+            creation_attempted = True
             container = self.commands.call(create_args, self.remaining()).decode("ascii").strip()
             if not re.fullmatch(r"[0-9a-f]{64}", container):
                 raise Unknown("container_identity_unknown")
             self.container = container
-            self.inspect_owned(min(5, self.remaining()))
+            state = self.inspect_owned(min(5, self.remaining()))
+            if source_contract is not None:
+                self.verify_source_container(state, source_contract)
             if self.failure:
                 raise Unknown("parent_deadline")
             self.commands.call(["container", "start", container], self.remaining())
@@ -504,12 +930,74 @@ class ParentSupervisor:
             state = self.inspect_owned(min(5, self.remaining()))
             if exited != b"0" or state.get("State", {}).get("Running") is not False or self.failure:
                 raise Unknown("probe_exit_unknown")
+            if source_contract is not None and (
+                type(state.get("State", {}).get("Pid")) is not int
+                or type(state.get("State", {}).get("ExitCode")) is not int
+                or state.get("State", {}).get("Pid") != 0
+                or state.get("State", {}).get("ExitCode") != 0
+            ):
+                raise Unknown("source_process_exit_unknown")
             # Natural exit is necessary, not receipt/identity/R3 success.
             outcome["natural_exit"] = True
+            if source_contract is not None:
+                self.verify_source_container(state, source_contract)
+                raw = self.commands.call(
+                    ["container", "logs", self.container], min(5, self.remaining())
+                )
+                if len(raw) > 65536:
+                    raise Unknown("source_log_budget")
+                observation = strict_json(raw)
+                if (
+                    type(observation) is not dict
+                    or set(observation)
+                    != {
+                        "schema_version",
+                        "status",
+                        "session",
+                        "phase",
+                        "target_permission",
+                        "close_confirmed",
+                        "fetch_returned",
+                        "facts",
+                    }
+                    or observation["schema_version"] != "r3-source-observation-v1"
+                    or observation["status"] != "SOURCE_OBSERVED"
+                    or observation["session"] != source_contract["parent_session"]
+                    or observation["phase"] != source_contract["phase"]
+                    or observation["target_permission"] != "DENIED"
+                    or observation["close_confirmed"] is not True
+                    or observation["fetch_returned"] is not False
+                    or type(observation["facts"]) is not dict
+                    or observation["facts"].get("target_permission") != "DENIED"
+                    or self.failure
+                ):
+                    raise Unknown("source_observation_invalid")
+                outcome["observation"] = observation
         except Exception:
             outcome["failure"] = "probe_or_supervision_unknown"
         finally:
             try:
+                if source_contract is not None and self.container is None:
+                    if not creation_attempted:
+                        raise Unknown("source_no_owned_container")
+                    values = strict_json(
+                        self.commands.call(["container", "inspect", self.session], 5)
+                    )
+                    if type(values) is not list or len(values) != 1:
+                        raise Unknown("source_create_identity_unknown")
+                    value = values[0]
+                    candidate = value.get("Id")
+                    if (
+                        not isinstance(candidate, str)
+                        or not re.fullmatch(r"[0-9a-f]{64}", candidate)
+                        or value.get("Name") != "/" + self.session
+                        or value.get("Config", {}).get("Labels", {}).get("flowtracer.r3.session")
+                        != self.session
+                        or value.get("Config", {}).get("Labels", {}).get("flowtracer.r3.parent")
+                        != source_contract["parent_session"]
+                    ):
+                        raise Unknown("source_create_ownership_unknown")
+                    self.container = candidate
                 self.stop_owned()
                 self.commands.call(["container", "rm", self.container], 5)
                 remaining = self.commands.call(
@@ -527,10 +1015,25 @@ class ParentSupervisor:
                 )
                 if remaining.strip():
                     raise Unknown("cleanup_absence_unknown")
-                outcome["cleanup"] = "ABSENT_IN_INJECTED_DAEMON_VIEW"
+                outcome["cleanup"] = (
+                    "ABSENT_IN_INJECTED_DAEMON_VIEW"
+                    if source_contract is None
+                    else "OWNED_CONTAINER_REMOVED"
+                )
             except Exception:
                 outcome["cleanup"] = "UNKNOWN"
             watchdog.cancel()
-        # Fake daemon view is not real cleanup proof. Dependency orchestration and
-        # frozen create inputs are still missing; status always remains NO_GO.
+        if source_contract is not None:
+            outcome["status"] = (
+                "SOURCE_OBSERVED"
+                if outcome.get("observation")
+                and outcome.get("natural_exit") is True
+                and outcome["cleanup"] == "OWNED_CONTAINER_REMOVED"
+                and not self.failure
+                and "failure" not in outcome
+                else "BLOCKED"
+            )
+            outcome["target_permission"] = "DENIED"
+        # Legacy target mode remains NO_GO. Source observations never admit a
+        # target; fake daemon tests alone are not real cleanup/runtime proof.
         return outcome

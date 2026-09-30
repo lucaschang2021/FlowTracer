@@ -11,19 +11,36 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from collector import ClockEvidence, Collector, Unknown, evaluate
+from collector import ClockEvidence, Collector, Unknown, evaluate, observe_sources, observed_clock
 from contract import FLAGS, MANIFEST, MOUNT, SESSION, fingerprint
 from fixture import PAGE, WORKER, response
 from harness import Terminal
 from harness_v2 import Guard
-from probe import close_confirmed, fetch_once, guarded_setup, invoke_dynamic_fetch
+from probe import (
+    SourcePreflightCompleted,
+    close_confirmed,
+    fetch_once,
+    guarded_setup,
+    invoke_dynamic_fetch,
+    source_fetch_once,
+    source_fetch_options,
+)
 from proxy import denied_request, handler_type, read_headers, valid_connect
-from supervisor import DockerCommands, ParentSupervisor, check_inputs
+from supervisor import (
+    HOST_RECORD,
+    DockerCommands,
+    HostApproval,
+    ParentSupervisor,
+    check_inputs,
+    source_plan,
+    source_preflight,
+)
 
 HERE = Path(__file__).parent
 EXTENSION = HERE / "extension-v2"
 EXT_HASHES = {p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in EXTENSION.iterdir()}
 EXT_ID = "a" * 32
+SOURCE_PROFILE = Path("/tmp/r3-source/baseline/profile")  # noqa: S108 - fake-only path
 
 
 def snapshot():
@@ -183,7 +200,7 @@ class FakeDocker:
                                 "flowtracer.r3.session": "FOREIGN" if self.foreign else SESSION
                             }
                         },
-                        "State": {"Running": self.running},
+                        "State": {"Running": self.running, "Pid": 0, "ExitCode": 0},
                     }
                 ]
             ).encode()
@@ -224,6 +241,529 @@ def supervisor_model():
         f"flowtracer.r3.session={SESSION}",
     ]
     return parent, api, timers, create
+
+
+class SyntheticSourceDocker:
+    """In-memory daemon; used only by tests, never selectable by prod inputs."""
+
+    def __init__(self, failure=None):
+        self.objects, self.calls = {}, []
+        self.failure = failure
+        self.start_phases = []
+
+    def call(self, args, timeout):
+        self.calls.append(args)
+        operation = args[1]
+        if operation == "ls":
+            criterion = args[args.index("--filter") + 1]
+            if criterion.startswith("name="):
+                name = criterion.removeprefix("name=^/").removesuffix("$")
+                return b"\n".join(
+                    i.encode() for i, o in self.objects.items() if o["Name"] == "/" + name
+                )
+            identifier = criterion.removeprefix("id=")
+            return identifier.encode() if identifier in self.objects else b""
+        if operation == "create":
+            name = args[args.index("--name") + 1]
+            phase = "enabled" if name.endswith("-enabled") else "baseline"
+            identifier = ("b" if phase == "enabled" else "a") * 64
+            labels = dict(args[n + 1].split("=", 1) for n, a in enumerate(args) if a == "--label")
+            mounts = []
+            for n, a in enumerate(args):
+                if a == "--mount":
+                    parts = dict(v.split("=", 1) for v in args[n + 1].split(",") if "=" in v)
+                    mounts.append(
+                        {
+                            "Type": "bind",
+                            "Source": parts["source"],
+                            "Destination": parts["target"],
+                            "RW": False,
+                        }
+                    )
+            entrypoint = args.index("--entrypoint")
+            self.objects[identifier] = {
+                "Id": identifier,
+                "Name": "/" + name,
+                "Image": args[entrypoint + 2],
+                "Config": {
+                    "User": "10001:10001",
+                    "Entrypoint": ["python"],
+                    "Cmd": args[entrypoint + 3 :],
+                    "Labels": labels,
+                },
+                "HostConfig": {
+                    "NetworkMode": "none",
+                    "ReadonlyRootfs": True,
+                    "Privileged": False,
+                    "CapAdd": None,
+                    "CapDrop": ["ALL"],
+                    "SecurityOpt": ["no-new-privileges:true"],
+                    "PidsLimit": 128,
+                    "Memory": 768 * 1024 * 1024,
+                    "NanoCpus": 1000000000,
+                    "PidMode": "",
+                    "IpcMode": "private",
+                    "PortBindings": None,
+                    "Sysctls": None,
+                    "RestartPolicy": {"Name": "no"},
+                    "Tmpfs": {"/tmp": "rw,nosuid,noexec,size=256m"},  # noqa: S108 - fake inspect only
+                },
+                "Mounts": mounts,
+                "State": {"Running": False, "Pid": 0, "ExitCode": 0},
+            }
+            if self.failure == "create_interrupted":
+                raise RuntimeError("SYNTHETIC create output interrupted")
+            return identifier.encode()
+        key = args[2]
+        if key not in self.objects:
+            key = next((i for i, o in self.objects.items() if o["Name"] == "/" + key), key)
+        value = self.objects[key]
+        phase = "enabled" if value["Name"].endswith("-enabled") else "baseline"
+        if operation == "inspect":
+            result = copy.deepcopy(value)
+            if self.failure == "network":
+                result["HostConfig"]["NetworkMode"] = "bridge"
+            if self.failure == "writable_mount":
+                result["Mounts"][0]["RW"] = True
+            if self.failure == "foreign":
+                result["Config"]["Labels"]["flowtracer.r3.session"] = "FOREIGN"
+            return json.dumps([result]).encode()
+        if operation == "start":
+            self.start_phases.append(phase)
+            value["State"]["Running"] = True
+        if operation in {"wait", "kill"}:
+            value["State"]["Running"] = False
+            if operation == "wait":
+                return b"0"
+        if operation == "logs":
+            return json.dumps(
+                {
+                    "schema_version": "r3-source-observation-v1",
+                    "status": "SOURCE_OBSERVED",
+                    "session": value["Config"]["Labels"]["flowtracer.r3.parent"],
+                    "phase": phase,
+                    "target_permission": "DENIED",
+                    "close_confirmed": self.failure != "close",
+                    "fetch_returned": False,
+                    "facts": {"target_permission": "DENIED", "inventory_complete": False},
+                }
+            ).encode()
+        if operation == "rm" and self.failure != "cleanup":
+            self.objects.pop(key)
+        return b""
+
+
+class SourcePreflightTests(unittest.TestCase):
+    """SYNTHETIC only: no controller record, subprocess, Docker or Browser."""
+
+    def run_fetch(self, fetch, *, close=True, facts=None):
+        guard, _, _ = fake_guard()
+        with (
+            patch(
+                "probe.observe_sources",
+                return_value=facts or {"target_permission": "DENIED", "inventory_complete": False},
+            ),
+            patch("probe.close_confirmed", return_value=close),
+        ):
+            return source_fetch_once(
+                fetch,
+                "baseline",
+                SOURCE_PROFILE,
+                SESSION,
+                guard,
+                EXTENSION,
+            )
+
+    def test_setup_signal_prevents_goto_action_and_response_path(self):
+        calls = []
+
+        def fetch(url, **options):
+            self.assertEqual(url, "about:blank")
+            self.assertEqual(options["retries"], 1)
+            self.assertIs(options["google_search"], False)
+            self.assertNotIn("proxy", options)
+            self.assertNotIn("page_action", options)
+            calls.append("setup")
+            options["page_setup"](SimpleNamespace(url="about:blank"))
+            calls.extend(["goto", "page_action", "response"])
+
+        result = self.run_fetch(fetch)
+        self.assertEqual(calls, ["setup"])
+        self.assertIs(result["close_confirmed"], True)
+        self.assertIs(result["fetch_returned"], False)
+        self.assertEqual(result["target_permission"], "DENIED")
+
+    def test_close_failure_wrong_origin_and_normal_return_refuse(self):
+        def driver(url, **options):
+            options["page_setup"](SimpleNamespace(url="about:blank"))
+
+        with self.assertRaises(Terminal):
+            self.run_fetch(driver, close=False)
+        with self.assertRaises(Terminal):
+            self.run_fetch(lambda url, **opts: None)
+        with self.assertRaises(Terminal):
+            self.run_fetch(
+                lambda url, **opts: opts["page_setup"](
+                    SimpleNamespace(url="https://target.invalid")
+                )
+            )
+
+    def test_only_exact_signal_is_caught_other_exceptions_never_succeed(self):
+        for exception in (
+            ValueError("SYNTHETIC"),
+            KeyboardInterrupt(),
+            SystemExit(),
+            BaseException(),
+        ):
+
+            def driver(url, exception=exception, **options):
+                raise exception
+
+            with self.assertRaises(type(exception)):
+                self.run_fetch(driver)
+
+        class WrongSignal(SourcePreflightCompleted):
+            pass
+
+        with self.assertRaises(Terminal):
+            self.run_fetch(lambda url, **options: (_ for _ in ()).throw(WrongSignal({})))
+        with self.assertRaises(Terminal):
+            self.run_fetch(
+                lambda url, **options: (_ for _ in ()).throw(SourcePreflightCompleted({}))
+            )
+
+        def swallowing_driver(url, **options):
+            try:
+                options["page_setup"](SimpleNamespace(url="about:blank"))
+            except SourcePreflightCompleted:
+                return None
+
+        with self.assertRaises(Terminal):
+            self.run_fetch(swallowing_driver)
+
+        def forged_after_close(url, **options):
+            try:
+                options["page_setup"](SimpleNamespace(url="about:blank"))
+            except SourcePreflightCompleted as completed:
+                raise SourcePreflightCompleted(completed.facts) from None
+
+        with self.assertRaises(Terminal):
+            self.run_fetch(forged_after_close)
+
+    def test_failure_latch_close_timeout_and_repeated_setup(self):
+        guard, _, _ = fake_guard()
+
+        def close(page):
+            guard.denied = True
+            return True
+
+        with (
+            patch("probe.observe_sources", return_value={"target_permission": "DENIED"}),
+            patch("probe.close_confirmed", side_effect=close),
+            self.assertRaises(Terminal),
+        ):
+            source_fetch_once(
+                lambda url, **opts: opts["page_setup"](SimpleNamespace(url="about:blank")),
+                "baseline",
+                SOURCE_PROFILE,
+                SESSION,
+                guard,
+                EXTENSION,
+            )
+        guard, timers, _ = fake_guard()
+        ticks = iter([0, 15])
+        guard.clock = lambda: next(ticks)
+        with (
+            patch("probe.observe_sources", return_value={"target_permission": "DENIED"}),
+            patch("probe.close_confirmed") as close,
+            self.assertRaises(Terminal),
+        ):
+            source_fetch_once(
+                lambda url, **opts: opts["page_setup"](SimpleNamespace(url="about:blank")),
+                "baseline",
+                SOURCE_PROFILE,
+                SESSION,
+                guard,
+                EXTENSION,
+            )
+        close.assert_not_called()
+        self.assertEqual([t.seconds for t in timers], [120, 15])
+        guard, _, _ = fake_guard()
+        ticks = iter([0, 0, 0, 5])
+        guard.clock = lambda: next(ticks)
+        with (
+            patch("probe.observe_sources", return_value={"target_permission": "DENIED"}),
+            patch("probe.close_confirmed", return_value=True),
+            self.assertRaises(Terminal),
+        ):
+            source_fetch_once(
+                lambda url, **opts: opts["page_setup"](SimpleNamespace(url="about:blank")),
+                "baseline",
+                SOURCE_PROFILE,
+                SESSION,
+                guard,
+                EXTENSION,
+            )
+
+    def test_fixed_plan_network_profiles_phase_and_v2_only(self):
+        rows = json.loads((HERE / "execution-inputs.json").read_bytes())["inputs"]
+        plan = source_plan(rows)
+        self.assertEqual(plan["dependency_services"], [])
+        self.assertEqual(plan["target_permission"], "DENIED")
+        self.assertEqual(plan["url"], "about:blank")
+        for item in plan["phases"]:
+            argv = item["create_argv"]
+            self.assertEqual(argv[argv.index("--network") + 1], "none")
+            self.assertEqual(argv[argv.index("--user") + 1], "10001:10001")
+            self.assertNotIn("--sysctl", argv)
+            extensions = [s for s in item["mounts"] if "/extension-v2/" in s["source"]]
+            self.assertEqual(len(extensions), 0 if item["phase"] == "baseline" else 5)
+            self.assertEqual(
+                item["profile"], SOURCE_PROFILE.as_posix().replace("baseline", item["phase"])
+            )
+        for phase, profile in (("retry", "invalid"), ("baseline", "invalid")):
+            with self.assertRaises(Unknown):
+                source_fetch_options(Path(profile), phase, None)
+
+    def test_missing_record_wrong_object_and_bool_authority_reject(self):
+        with self.assertRaises(Unknown):
+            source_preflight({"approved": True})
+        approval = HostApproval(HOST_RECORD, "a" * 64, "b" * 40, {"session": SESSION})
+        with self.assertRaises(Unknown):
+            approval.read_approved_record(SESSION, "baseline")
+        record = {
+            "schema_version": "r3-source-preflight-approval-v1",
+            "mode": "source-preflight",
+            "candidate_commit": "c" * 40,
+            "manifest_raw_sha256": "d" * 64,
+            "plan_raw_sha256": "e" * 64,
+            "image_id": "sha256:" + "f" * 64,
+            "r1e_manifest_sha256": (
+                "f8d8bd0b64dfac53e244b00f29fbc9f18ed44b94491323b3f49ba2af191912e8"
+            ),
+            "r1e_payload_sha256": (
+                "5f4cf5acdf06a86f9b8907375f6f8f239ecf18152762b889f1e254b01e447e3b"
+            ),
+            "control_commit": "b" * 40,
+            "session": SESSION,
+            "phases": ["baseline", "enabled"],
+            "launches_per_phase": 1,
+            "target_permission": "DENIED",
+        }
+
+        def read(value, requested=SESSION):
+            raw = json.dumps(value).encode()
+            candidate = HostApproval(HOST_RECORD, hashlib.sha256(raw).hexdigest(), "b" * 40, value)
+            with (
+                patch("supervisor.checked_repo_file"),
+                patch.object(Path, "open", return_value=io.BytesIO(raw)),
+            ):
+                return candidate.read_approved_record(requested, "baseline")
+
+        self.assertEqual(read(record)["mode"], "source-preflight")
+        for edit in (
+            {"launches_per_phase": True},
+            {"target_permission": "ALLOW"},
+            {"phases": ["enabled", "baseline"]},
+            {"extra": "x"},
+            {"image_id": "sha256:" + "x" * 64},
+        ):
+            with self.assertRaises(Unknown):
+                read({**record, **edit})
+        with self.assertRaises(Unknown):
+            read(record, SESSION + "-different")
+        raw = json.dumps(record).encode()
+        with (
+            patch("supervisor.checked_repo_file"),
+            patch.object(Path, "open", return_value=io.BytesIO(raw)),
+            self.assertRaises(Unknown),
+        ):
+            HostApproval(HOST_RECORD, "0" * 64, "b" * 40, record).read_approved_record(
+                SESSION, "baseline"
+            )
+
+    def test_internal_observations_unknown_never_target_or_ws(self):
+        for enabled in (False, True):
+            cdp = FakeCDP()
+            if not enabled:
+                cdp.targets = []
+            old_send = cdp.send
+
+            def send(method, args=None, old_send=old_send):
+                if method == "Browser.getVersion":
+                    return {"product": "Chrome/151.0.7922.34"}
+                if method == "Browser.getBrowserCommandLine":
+                    raise RuntimeError("SYNTHETIC")
+                if method == "Runtime.evaluate" and args["expression"].startswith("new Promise"):
+                    return {"result": {"type": "object", "value": {"ok": False}}}
+                return old_send(method, args)
+
+            cdp.send = send
+            visited = []
+
+            class Page:
+                url = "about:blank"
+
+                def goto(self, url, visited=visited, **kwargs):
+                    visited.append(url)
+                    self.url = url
+
+            context = SimpleNamespace(
+                browser=SimpleNamespace(new_browser_cdp_session=lambda cdp=cdp: cdp),
+                service_workers=[],
+                new_cdp_session=lambda p, cdp=cdp: cdp,
+                new_page=lambda: Page(),
+            )
+            page = SimpleNamespace(url="about:blank", context=context)
+            result = observe_sources(
+                page,
+                enabled,
+                EXTENSION,
+                EXT_HASHES,
+                Path(
+                    SOURCE_PROFILE.as_posix().replace(
+                        "baseline", "enabled" if enabled else "baseline"
+                    )
+                ),
+            )
+            self.assertEqual(result["target_permission"], "DENIED")
+            self.assertIs(result["inventory_complete"], False)
+            self.assertEqual(result["argv_status"], "UNKNOWN")
+            self.assertTrue(
+                all(
+                    u == "chrome://extensions/" or u == f"chrome-extension://{EXT_ID}/audit.html"
+                    for u in visited
+                )
+            )
+
+    def test_native_clock_observation_is_not_mapping(self):
+        sample = {
+            "epoch_ms": 1700000000000,
+            "performance_ms": 1.5,
+            "time_origin_ms": 1699999999998.5,
+        }
+        value = observed_clock(lambda: sample, "SYNTHETIC")
+        self.assertEqual(value["mapping"], "UNKNOWN")
+        self.assertEqual(len(value["samples"]), 2)
+        for edit in (
+            {"epoch_ms": True},
+            {"performance_ms": float("nan")},
+            {"time_origin_ms": float("inf")},
+        ):
+            with self.assertRaises(Unknown):
+                observed_clock(lambda edit=edit: {**sample, **edit}, "SYNTHETIC")
+
+    def test_source_parent_requires_natural_exit_logs_cleanup_and_no_retry(self):
+        parent, api, _, create = supervisor_model()
+        contract = {"create": create, "phase": "baseline", "parent_session": SESSION}
+        observation = {
+            "schema_version": "r3-source-observation-v1",
+            "status": "SOURCE_OBSERVED",
+            "session": SESSION,
+            "phase": "baseline",
+            "target_permission": "DENIED",
+            "close_confirmed": True,
+            "fetch_returned": False,
+            "facts": {"target_permission": "DENIED"},
+        }
+        original = api.call
+        api.call = lambda args, timeout: (
+            json.dumps(observation).encode() if args[1] == "logs" else original(args, timeout)
+        )
+        with patch.object(parent, "verify_source_container"):
+            result = parent.run(create, source_contract=contract)
+        self.assertEqual(result["status"], "SOURCE_OBSERVED")
+        self.assertEqual(result["cleanup"], "OWNED_CONTAINER_REMOVED")
+        with self.assertRaises(Unknown):
+            parent.run(create, source_contract=contract)
+        for failure in ("close", "cleanup", "wait", "deadline"):
+            parent, api, _, create = supervisor_model()
+            value = {**observation, "close_confirmed": failure != "close"}
+            api.residual = failure == "cleanup"
+            api.wait_fail = failure == "wait"
+            api.on_start = parent.timeout if failure == "deadline" else None
+            original = api.call
+            api.call = lambda args, timeout, value=value, original=original: (
+                json.dumps(value).encode() if args[1] == "logs" else original(args, timeout)
+            )
+            with patch.object(parent, "verify_source_container"):
+                self.assertEqual(
+                    parent.run(create, source_contract={**contract, "create": create})["status"],
+                    "BLOCKED",
+                )
+
+    def test_end_to_end_host_binding_and_real_parent_flow_with_synthetic_daemon(self):
+        root = HERE.absolute().parents[3]
+        manifest = (HERE / "execution-inputs.json").read_bytes()
+        plan = (HERE / "execution_plan.json").read_bytes()
+        record = {
+            "session": SESSION,
+            "candidate_commit": "c" * 40,
+            "image_id": "sha256:" + "f" * 64,
+            "manifest_raw_sha256": hashlib.sha256(manifest).hexdigest(),
+            "plan_raw_sha256": hashlib.sha256(plan).hexdigest(),
+        }
+        approval = HostApproval(HOST_RECORD, "a" * 64, "b" * 40, record)
+
+        def git_objects(args, **kwargs):
+            if args[1] == "rev-parse":
+                return SimpleNamespace(stdout=record["candidate_commit"].encode())
+            relative = args[2].split(":", 1)[1]
+            return SimpleNamespace(stdout=(root / relative).read_bytes())
+
+        for failure in (
+            None,
+            "network",
+            "writable_mount",
+            "create_interrupted",
+            "close",
+            "cleanup",
+            "foreign",
+        ):
+            daemon = SyntheticSourceDocker(failure)
+            timers = []
+
+            def arm(seconds, callback, timers=timers):
+                timer = Timer(seconds, callback)
+                timers.append(timer)
+                return timer
+
+            with (
+                patch.object(HostApproval, "read_approved_record", return_value=record),
+                patch("supervisor.subprocess.run", side_effect=git_objects),
+                patch("supervisor.DockerCommands", return_value=daemon),
+                patch("supervisor.SOURCE_SESSIONS", set()),
+                patch.object(ParentSupervisor, "timer", staticmethod(arm)),
+            ):
+                result = source_preflight(approval)
+                self.assertEqual(
+                    result["status"], "SOURCE_OBSERVED" if failure is None else "BLOCKED"
+                )
+                self.assertEqual(result["target_permission"], "DENIED")
+                self.assertTrue(all(t.seconds == 120 for t in timers))
+                self.assertEqual(
+                    daemon.start_phases,
+                    ["baseline", "enabled"]
+                    if failure is None
+                    else (["baseline"] if failure in {"close", "cleanup"} else []),
+                )
+                if failure not in {"cleanup", "foreign"}:
+                    self.assertEqual(daemon.objects, {})
+                if failure == "foreign":
+                    self.assertFalse(any(c[1] in {"kill", "rm"} for c in daemon.calls))
+                with self.assertRaisesRegex(Unknown, "already_consumed"):
+                    source_preflight(approval)
+        # Both digests are checked before parsing/calling ANY Docker API.
+        for key in ("manifest_raw_sha256", "plan_raw_sha256"):
+            with (
+                patch.object(
+                    HostApproval, "read_approved_record", return_value={**record, key: "0" * 64}
+                ),
+                patch("supervisor.DockerCommands") as commands,
+                self.assertRaises(Unknown),
+            ):
+                source_preflight(approval)
+            commands.assert_not_called()
 
 
 class RuntimeTests(unittest.TestCase):

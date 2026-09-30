@@ -1,24 +1,24 @@
 {
   "schema_version": "r3-dnr-runtime-inputs-v2",
   "phase": "OFFLINE_ONLY",
-  "actual_base": "ff70c198acb74b764435485611ec67484bcc7262",
+  "actual_base": "8f5fcc6d70c152616440eb340c7186bd64b690ba",
   "inputs": [
     {
-      "sha256": "a21e36872f23831d98c5dbea692e9cdee552f4751e9c4399db5145c57b9e0b2b",
+      "sha256": "ed1c5dd8f3956f13b7245c70f4a5f9c67f83452d6ca009bf23423d37d7714fa5",
       "path": "backend/experiments/browser-r3/dnr_runtime/collector.py",
       "origin": "new_candidate",
       "role": "offline_source_or_config",
       "module": "collector"
     },
     {
-      "sha256": "090b62e74f7a505dc175f3c690f1003aad181204e183773a740e4ec78ff5b163",
+      "sha256": "f567b5c957d2741f35fbc372aede26c41938fc946920c70368893d9afcf7b9db",
       "path": "backend/experiments/browser-r3/dnr_runtime/probe.py",
       "origin": "new_candidate",
       "role": "offline_source_or_config",
       "module": "probe"
     },
     {
-      "sha256": "8ef255f48d8f8d29d3facdacfa6e417feefd0db41c3a7729cf1d634ca34a051d",
+      "sha256": "2e6fb621e6c65857d559750b04842d3c2d3969f59d7ae13cdcb16b7709f1cbd3",
       "path": "backend/experiments/browser-r3/dnr_runtime/supervisor.py",
       "origin": "new_candidate",
       "role": "offline_source_or_config",
@@ -46,21 +46,21 @@
       "module": null
     },
     {
-      "sha256": "ed350b703840b6998f6b45ddf739c0b306a9ff32933d3e1fe22ed88efff652cf",
+      "sha256": "fa984004101ddfe8c59eb27b47bcb00dbfde4e6ee541ff65b2db0eab4e9a0d35",
       "path": "backend/experiments/browser-r3/dnr_runtime/test_runtime_adapters.py",
       "origin": "new_candidate",
       "role": "offline_test_only",
       "module": "test_runtime_adapters"
     },
     {
-      "sha256": "e26ebb5099b2b9fec291b64d8efa1d3a53be42a503ca4bb9c170e1efee8e113f",
+      "sha256": "6845c92054211dc6b0ab052cc496a316470a8a65427f223988c8cfc032e7f17b",
       "path": "backend/experiments/browser-r3/dnr_runtime/README.md",
       "origin": "new_candidate",
       "role": "offline_source_or_config",
       "module": null
     },
     {
-      "sha256": "ee0a90c089cb5b935254ad6af33d0c4c9f899cb8d5ecc7735d122f1d279b7b72",
+      "sha256": "91067d805d2be1fbc66bb9c7b073328da35a3098c8f3869dd90f694f244b6f85",
       "path": "backend/experiments/browser-r3/dnr_runtime/execution_plan.json",
       "origin": "new_candidate",
       "role": "offline_source_or_config",
@@ -88,7 +88,7 @@
       "module": "harness_v2"
     },
     {
-      "sha256": "c307f72e732c3c3cf1ca09db5434e69d921d3aeb6f8649332b9e11d136eaede4",
+      "sha256": "fd7a7ce77d3b45504d28b001d566d0280c71cfacaa9d0bbaa6f681046d7cf1c7",
       "path": "backend/experiments/browser-r3/dnr_runtime/test_receipt_v2.py",
       "origin": "new_candidate",
       "role": "offline_test_only",
@@ -174,7 +174,7 @@
     }
   ],
   "historical_untracked_inputs": [],
-  "code_closure": "23 static source/config/test inputs; NOT complete admitted executable runtime closure",
+  "code_closure": "23 reviewed static inputs plus fixed source-preflight plan; actual independent host approval/image/session not issued",
   "image_identity": null,
   "effective_browser_argv": null,
   "actual_mount_inspect": null,
@@ -182,7 +182,7 @@
   "tls_public_certificate_sha256": null,
   "tls_key_file_identity": null,
   "real_launch_authorized": false,
-  "runtime_dependency_orchestration": "PARTIAL_UNREVIEWED",
+  "runtime_dependency_orchestration": "FIXED_NETWORK_NONE_SOURCE_PREFLIGHT_REQUIRES_HOST_APPROVAL; legacy target mode remains partial",
   "inventory_source_authority": "UNKNOWN_PINNED_151_SCHEMA_AND_UI_FILTER_COVERAGE",
   "clock_equivalence": "UNKNOWN_CROSS_REALM",
   "dns_nonroot_bind53": "UNKNOWN_WITHOUT_PREVIOUS_SYSCTL",

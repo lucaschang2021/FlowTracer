@@ -14,7 +14,7 @@ from contract_v2 import Rejected, check_snapshot, fingerprint
 from harness import Terminal
 from harness_v2 import Guard
 from supervisor import actual_session_entry, checked_repo_file, phase_commands
-from test_runtime_adapters import bound, fake_guard, receipt, snapshot
+from test_runtime_adapters import TEST_RAW_READ, bound, fake_guard, receipt, snapshot
 from validator_v2 import validate_clock_samples, validate_observations
 
 
@@ -120,6 +120,9 @@ def synthetic_render(image, session, phase, mounts):
 
 
 class ReceiptV2Tests(unittest.TestCase):
+    def setUp(self):
+        self.enterContext(patch.object(Path, "read_bytes", TEST_RAW_READ))
+
     def test_missing_independent_authority_rejected(self):
         with self.assertRaises(Unknown):
             phase_commands(
@@ -429,11 +432,14 @@ class ReceiptV2Tests(unittest.TestCase):
         with self.assertRaises(Unknown):
             synthetic_render("sha256:" + "b" * 64, "flowtracer-r3-dnr-synthetic", "enabled", mounts)
 
-    def test_exact_base_tree_not_historical_same_tree(self):
+    def test_internal_source_base_not_historical_v2_base(self):
         import json
 
         plan = json.loads((Path(__file__).parent / "execution_plan.json").read_text())
-        self.assertEqual(plan["branch_base_tree"], "af7705c215973032ce42280eabf27ec72352a0a3")
+        self.assertEqual(plan["base_commit"], "8f5fcc6d70c152616440eb340c7186bd64b690ba")
+        self.assertNotEqual(plan["base_commit"], "ff70c198acb74b764435485611ec67484bcc7262")
+        manifest = json.loads((Path(__file__).parent / "execution-inputs.json").read_text())
+        self.assertEqual(manifest["actual_base"], plan["base_commit"])
 
 
 if __name__ == "__main__":

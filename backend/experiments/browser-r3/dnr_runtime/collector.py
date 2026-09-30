@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
+import math
 import re
 import time
 from pathlib import Path
@@ -232,3 +235,216 @@ class Collector:
         if set(value) != {"source", "epoch_ms"}:
             raise Unknown("clock_source_invalid")
         return {**value, "host_before_ns": before, "host_after_ns": after}
+
+
+CLOCK_JS = """(() => ({epoch_ms:Date.now(),performance_ms:performance.now(),
+  time_origin_ms:performance.timeOrigin}))()"""
+
+
+def observed_clock(read, realm):
+    """Actual bounded observations, never a clock mapping or target permission."""
+    samples = []
+    for _ in range(2):
+        before = time.monotonic_ns()
+        value = read()
+        after = time.monotonic_ns()
+        if (
+            type(value) is not dict
+            or set(value) != {"epoch_ms", "performance_ms", "time_origin_ms"}
+            or type(value["epoch_ms"]) is not int
+            or any(type(v) not in {int, float} or not math.isfinite(v) for v in value.values())
+            or any(v < 0 for v in value.values())
+            or after < before
+        ):
+            raise Unknown("clock_observation_invalid")
+        samples.append({**value, "host_before_ns": before, "host_after_ns": after})
+    if (
+        samples[1]["epoch_ms"] < samples[0]["epoch_ms"]
+        or samples[1]["performance_ms"] < samples[0]["performance_ms"]
+    ):
+        raise Unknown("clock_observation_reversed")
+    return {"realm": realm, "samples": samples, "mapping": "UNKNOWN"}
+
+
+def observe_sources(page, enabled, extension, hashes, profile):
+    """Only internal pages; UNKNOWN sources are facts, identity violations refuse."""
+    if page.url != "about:blank":
+        raise Unknown("source_initial_origin_invalid")
+    context = page.context
+    browser = context.browser
+    if browser is None:
+        raise Unknown("source_browser_identity_missing")
+    root = browser.new_browser_cdp_session()
+    version = root.send("Browser.getVersion")
+    if type(version) is not dict or version.get("product") not in {
+        "Chrome/151.0.7922.34",
+        "HeadlessChrome/151.0.7922.34",
+    }:
+        raise Unknown("source_browser_version_invalid")
+    result = {
+        "browser_product": version["product"],
+        "target_permission": "DENIED",
+        "inventory_complete": False,
+        "schema_status": "UNKNOWN",
+        "dns_status": "NOT_TESTED_NETWORK_NONE",
+        "cross_realm_equivalence": "UNKNOWN",
+        "extension_status": "NOT_LOADED" if not enabled else "UNKNOWN",
+        "argv_status": "UNKNOWN",
+        "clocks": [],
+        "inventory_status": "UNKNOWN",
+    }
+    try:
+        argv = root.send("Browser.getBrowserCommandLine")["arguments"]
+    except Exception:
+        argv = None
+    if argv is not None:
+        if (
+            type(argv) is not list
+            or not argv
+            or len(argv) > 200
+            or any(type(a) is not str or len(a) > 4096 for a in argv)
+        ):
+            raise Unknown("source_argv_invalid")
+        expected = FLAGS if enabled else []
+        extension_flags = [
+            a for a in argv if a.startswith(("--load-extension", "--disable-extensions-except"))
+        ]
+        if (
+            sorted(extension_flags) != sorted(expected)
+            or len(extension_flags) != len(expected)
+            or argv[0] != "/opt/browser-r1c/chromium-1234/chrome-linux64/chrome"
+            or "--remote-debugging-pipe" not in argv
+            or f"--user-data-dir={profile.as_posix()}" not in argv
+            or any(a.startswith(("--proxy", "--remote-debugging-port")) for a in argv)
+        ):
+            raise Unknown("source_argv_boundary_invalid")
+        result.update(
+            argv_status="OBSERVED",
+            argv_sha256=hashlib.sha256(
+                json.dumps(argv, separators=(",", ":")).encode()
+            ).hexdigest(),
+            approved_extension_flags=extension_flags,
+            profile=profile.as_posix(),
+        )
+    try:
+        result["clocks"].append(
+            observed_clock(lambda: evaluate(context.new_cdp_session(page), CLOCK_JS), "about_blank")
+        )
+    except Unknown:
+        result["about_blank_clock_status"] = "UNKNOWN"
+    targets = root.send("Target.getTargets")["targetInfos"]
+    if type(targets) is not list or len(targets) > 100:
+        raise Unknown("source_targets_invalid")
+    if any(type(t) is not dict for t in targets):
+        raise Unknown("source_targets_invalid")
+    if any(t.get("type") == "page" and t.get("url") != "about:blank" for t in targets):
+        raise Unknown("source_unapproved_page_present")
+    candidates = [
+        t
+        for t in targets
+        if t.get("type") == "service_worker"
+        and re.fullmatch(r"chrome-extension://[a-p]{32}/observer\.js", t.get("url", ""))
+    ]
+    if not enabled and candidates:
+        raise Unknown("source_baseline_extension_present")
+    if enabled and len(candidates) == 1:
+        extension_id = candidates[0]["url"].split("/")[2]
+        reader = Collector(
+            root,
+            context,
+            extension,
+            hashes,
+            {
+                "exclusive_new_profile": True,
+                "initial_entries": [],
+                "readonly_mount": True,
+                "approved_extension_flags": FLAGS,
+                "mount_target": MOUNT,
+            },
+        )
+        reader.discover()
+        audit = context.new_page()
+        audit.goto(f"chrome-extension://{extension_id}/audit.html", timeout=15000)
+        reader.bind_audit_page(audit)
+        try:
+            snapshot = reader.readback(configure=True)
+        except Unknown:
+            snapshot = None
+        # Read static rules as bytes AND runtime ruleset enablement. No receipt/arm.
+        rules = json.loads((extension / "rules.json").read_bytes())
+        result.update(
+            extension_status="OBSERVED" if snapshot else "UNKNOWN_DNR_READBACK",
+            extension_id=extension_id,
+            enabled_rulesets=snapshot["enabled_rulesets"] if snapshot else [],
+            static_rules=rules,
+        )
+        audit_clock = """(() => ({epoch_ms:r3Audit.clock().epoch_ms,
+          performance_ms:performance.now(),time_origin_ms:performance.timeOrigin}))()"""
+        try:
+            result["clocks"].append(
+                observed_clock(lambda: evaluate(reader.cdp, audit_clock), "trusted_audit")
+            )
+        except Unknown:
+            result["audit_clock_status"] = "UNKNOWN"
+        workers = [w for w in context.service_workers if w.url == candidates[0]["url"]]
+        if len(workers) == 1:
+            try:
+                result["clocks"].append(
+                    observed_clock(lambda: workers[0].evaluate(CLOCK_JS), "extension_worker")
+                )
+            except Exception:
+                result["worker_clock_status"] = "UNKNOWN"
+        else:
+            result["worker_clock_status"] = "UNKNOWN"
+    elif enabled:
+        result["extension_status"] = "UNKNOWN_TARGET_NOT_UNIQUE"
+    inventory = context.new_page()
+    inventory.goto("chrome://extensions/", timeout=15000)
+    if inventory.url != "chrome://extensions/":
+        raise Unknown("source_inventory_origin_invalid")
+    try:
+        value = evaluate(
+            context.new_cdp_session(inventory),
+            """new Promise(resolve => {
+          if(!chrome.developerPrivate) {resolve({ok:false});return;}
+          chrome.developerPrivate.getExtensionsInfo(
+            {includeDisabled:true,includeTerminated:true}, entries => {
+            if(chrome.runtime.lastError || !Array.isArray(entries) || entries.length>100) {
+              resolve({ok:false});return;
+            }
+            resolve({ok:true,entries:entries.map(e=>({id:e.id,state:e.state,type:e.type,location:e.location}))});
+          });
+        })""",
+        )
+        if value.get("ok") is True and type(value.get("entries")) is list:
+            projected = []
+            for item in value["entries"]:
+                if type(item) is not dict or not re.fullmatch(r"[a-p]{32}", item.get("id", "")):
+                    raise Unknown("inventory_fields_unknown")
+                # Enum labels only, not inferred component/filter semantics.
+                safe = {"id": item["id"]}
+                for key in ("state", "type", "location"):
+                    labels = {
+                        "ENABLED",
+                        "DISABLED",
+                        "TERMINATED",
+                        "BLOCKLISTED",
+                        "EXTENSION",
+                        "THEME",
+                        "HOSTED_APP",
+                        "PLATFORM_APP",
+                        "COMPONENT",
+                        "INTERNAL",
+                        "UNPACKED",
+                        "EXTERNAL_PREF",
+                        "EXTERNAL_REGISTRY",
+                        "EXTERNAL_POLICY",
+                        "EXTERNAL_POLICY_DOWNLOAD",
+                    }
+                    safe[key] = item.get(key) if item.get(key) in labels else "UNRECOGNIZED"
+                projected.append(safe)
+            result.update(inventory_status="UI_FILTERED_OBSERVED", inventory=projected)
+    except Exception:
+        result["inventory_status"] = "UNKNOWN"
+    result["conclusion"] = "STILL_HAS_SOURCE_GAPS"
+    return result

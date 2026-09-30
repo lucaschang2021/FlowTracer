@@ -1,93 +1,416 @@
 {
-  "schema_version": "r3-dnr-runtime-plan-v2",
-  "phase": "OFFLINE_ONLY",
-  "actual_branch_base": "ff70c198acb74b764435485611ec67484bcc7262",
-  "branch_base_tree": "af7705c215973032ce42280eabf27ec72352a0a3",
-  "known_remote_merge": "ff70c198acb74b764435485611ec67484bcc7262",
-  "local_origin_main_observed": "ff70c198acb74b764435485611ec67484bcc7262",
-  "real_session_authorized": false,
-  "runtime_gate": "NO_GO",
-  "independent_controller_record": null,
-  "controller_record_path_bytes_controlcommit_session_binding": "UNISSUED; no env/CLI/fixture/self authority",
-  "planned_session": "flowtracer-r3-dnr-capability-20260928-01",
-  "actual_session": null,
-  "context": "fresh exclusive persistent profile per baseline/enabled arm",
-  "driver": "Scrapling DynamicFetcher / Playwright 1.62.0",
-  "browser": "full CfT 151.0.7922.34",
-  "headless": true,
-  "control_transport": "pipe",
-  "fetch_retries": 1,
-  "caller_retry": false,
-  "extension_mount": "/opt/flowtracer-r3-dnr",
-  "extension_readonly": true,
-  "added_flags": [
-    "--load-extension=/opt/flowtracer-r3-dnr",
-    "--disable-extensions-except=/opt/flowtracer-r3-dnr"
-  ],
-  "approved_effective_browser_argv": null,
-  "actual_extension_id": null,
-  "actual_rule_readback": null,
-  "inventory_source": "chrome://extensions/ developerPrivate.getExtensionsInfo(includeDisabled/includeTerminated) candidate; pinned schema/filter coverage unavailable",
-  "inventory_status": "UNKNOWN_PINNED_151_SCHEMA_AND_FILTERS",
-  "clock_source_units": {
-    "observer": "native Date.now epoch integer milliseconds",
-    "fixture": "controlled native Date.now epoch integer milliseconds",
-    "cdp": "monotonic seconds (separate domain)",
-    "host": "time.monotonic_ns integer nanoseconds (separate domain)"
-  },
-  "clock_mapping": null,
-  "clock_sync_error_proof": null,
-  "clock_status": "UNKNOWN_CROSS_REALM_EQUIVALENCE",
-  "actual_readonly_mount_evidence": null,
-  "actual_exclusive_profile_evidence": null,
-  "actual_close_confirmation": null,
-  "actual_parent_reap_evidence": null,
-  "parent_candidate": "ParentSupervisor: arm 120s before create/launch, verified ownership cleanup",
-  "preflight_seconds": 15,
-  "close_seconds": 5,
-  "ws_terminal_seconds": 5,
-  "real_create_argv": null,
-  "dependency_orchestration": "PARTIAL: phase/create argv candidates, existing DNS NXDOMAIN interface, Redis ping, TLS generation; real CLI/mount/network/profile/phase orchestration and identity proof incomplete",
-  "tls_artifact_authority": {
-    "generator": "/usr/bin/openssl req -x509 -newkey rsa:2048 -nodes -days 1 -subj /CN=navigation-r3.test -keyout /tmp/r3-tls/fixture.key -out /tmp/r3-tls/fixture.crt",
-    "key_identity": null,
-    "public_certificate_sha256": null,
-    "mode": "prior ignore_https_errors/ignore-certificate-errors; no new browser flag"
-  },
-  "plain_ws_audit": "405+close; validated method/host/port/fingerprint; no upstream",
-  "connect_ws_control": "403; no upstream or relay",
-  "historical_untracked_runtime_dependencies": [],
+  "schema_version": "r3-source-preflight-plan-v1",
+  "mode": "source-preflight",
+  "base_commit": "8f5fcc6d70c152616440eb340c7186bd64b690ba",
+  "docker_executable": "C:/Users/liuj/AppData/Local/Programs/DockerDesktop/resources/bin/docker.exe",
+  "git_executable": "C:/Program Files/Git/cmd/git.exe",
+  "repository_root": "D:/FlowTracer-wt/backend",
+  "image_authority": "image_id from independent controller record; no build/pull",
   "r1e_manifest_sha256": "f8d8bd0b64dfac53e244b00f29fbc9f18ed44b94491323b3f49ba2af191912e8",
   "r1e_payload_sha256": "5f4cf5acdf06a86f9b8907375f6f8f239ecf18152762b889f1e254b01e447e3b",
-  "r1e_covers_new_mount_or_argv": false,
-  "formal_r3_gate": false,
-  "r3_status": "BLOCKED",
-  "actual_branch": "feat/acq1-wp3-r3-dnr-v2",
-  "receipt_schema": "r3-dnr-receipt-v2",
-  "timestamp_source": "trusted_observer_callback_epoch_ms",
-  "timestamp_semantics": "native Date.now synchronously at trusted callback entry before enqueue/await; observation, never request/match time",
-  "static_extension_source": "extension-v2 only; never simultaneously load v1",
-  "dns_source": "backend/experiments/browser-r2c/r2c_a4/fixture/dns_canary.py",
-  "dns_nonroot_bind53": "UNKNOWN; previous R2C Compose explicitly uses sysctl=0, not copied or authorized here",
-  "control_endpoint": {
-    "host": "198.51.100.30",
-    "port": 6379,
-    "command": "PING",
-    "transport": "internal only"
-  },
-  "image_identity": null,
-  "redis_image": "redis:7.4.11-alpine3.21",
+  "driver": "Scrapling DynamicFetcher 0.4.15 / Playwright 1.62.0 / full CfT 151.0.7922.34",
   "phases": [
-    "baseline",
-    "enabled"
+    {
+      "phase": "baseline",
+      "profile": "/tmp/r3-source/baseline/profile",
+      "create_argv": [
+        "container",
+        "create",
+        "--pull=never",
+        "--name",
+        "$SESSION-baseline",
+        "--label",
+        "flowtracer.r3.session=$SESSION-baseline",
+        "--label",
+        "flowtracer.r3.parent=$SESSION",
+        "--user",
+        "10001:10001",
+        "--read-only",
+        "--cap-drop=ALL",
+        "--security-opt",
+        "no-new-privileges:true",
+        "--pids-limit",
+        "128",
+        "--memory",
+        "768m",
+        "--cpus",
+        "1.0",
+        "--network",
+        "none",
+        "--restart",
+        "no",
+        "--tmpfs",
+        "/tmp:rw,nosuid,noexec,size=256m",
+        "--env",
+        "HOME=/tmp/r3-home",
+        "--env",
+        "XDG_CONFIG_HOME=/tmp/r3-config",
+        "--env",
+        "XDG_CACHE_HOME=/tmp/r3-cache",
+        "--mount",
+        "type=bind,source=$ROOT/backend/experiments/browser-r3/dnr_runtime/probe.py,target=/opt/flowtracer-r3-runtime/probe.py,readonly",
+        "--mount",
+        "type=bind,source=$ROOT/backend/experiments/browser-r3/dnr_runtime/collector.py,target=/opt/flowtracer-r3-runtime/collector.py,readonly",
+        "--mount",
+        "type=bind,source=$ROOT/backend/experiments/browser-r3/dnr_runtime/contract_v2.py,target=/opt/flowtracer-r3-runtime/contract_v2.py,readonly",
+        "--mount",
+        "type=bind,source=$ROOT/backend/experiments/browser-r3/dnr_runtime/validator_v2.py,target=/opt/flowtracer-r3-runtime/validator_v2.py,readonly",
+        "--mount",
+        "type=bind,source=$ROOT/backend/experiments/browser-r3/dnr_runtime/harness_v2.py,target=/opt/flowtracer-r3-runtime/harness_v2.py,readonly",
+        "--mount",
+        "type=bind,source=$ROOT/backend/experiments/browser-r3/dnr_offline/contract.py,target=/opt/flowtracer-r3-runtime/contract.py,readonly",
+        "--mount",
+        "type=bind,source=$ROOT/backend/experiments/browser-r3/dnr_offline/harness.py,target=/opt/flowtracer-r3-runtime/harness.py,readonly",
+        "--entrypoint",
+        "python",
+        "$IMAGE",
+        "/opt/flowtracer-r3-runtime/probe.py",
+        "--source-preflight",
+        "--phase",
+        "baseline",
+        "--profile",
+        "/tmp/r3-source/baseline/profile",
+        "--session",
+        "$SESSION"
+      ],
+      "child_command": [
+        "/opt/flowtracer-r3-runtime/probe.py",
+        "--source-preflight",
+        "--phase",
+        "baseline",
+        "--profile",
+        "/tmp/r3-source/baseline/profile",
+        "--session",
+        "$SESSION"
+      ],
+      "mounts": [
+        {
+          "source": "$ROOT/backend/experiments/browser-r3/dnr_runtime/probe.py",
+          "inspect_sources": [
+            "$ROOT/backend/experiments/browser-r3/dnr_runtime/probe.py",
+            "/run/desktop/mnt/host/d/FlowTracer-wt/backend/backend/experiments/browser-r3/dnr_runtime/probe.py"
+          ],
+          "target": "/opt/flowtracer-r3-runtime/probe.py",
+          "sha256": "f567b5c957d2741f35fbc372aede26c41938fc946920c70368893d9afcf7b9db",
+          "readonly": true
+        },
+        {
+          "source": "$ROOT/backend/experiments/browser-r3/dnr_runtime/collector.py",
+          "inspect_sources": [
+            "$ROOT/backend/experiments/browser-r3/dnr_runtime/collector.py",
+            "/run/desktop/mnt/host/d/FlowTracer-wt/backend/backend/experiments/browser-r3/dnr_runtime/collector.py"
+          ],
+          "target": "/opt/flowtracer-r3-runtime/collector.py",
+          "sha256": "ed1c5dd8f3956f13b7245c70f4a5f9c67f83452d6ca009bf23423d37d7714fa5",
+          "readonly": true
+        },
+        {
+          "source": "$ROOT/backend/experiments/browser-r3/dnr_runtime/contract_v2.py",
+          "inspect_sources": [
+            "$ROOT/backend/experiments/browser-r3/dnr_runtime/contract_v2.py",
+            "/run/desktop/mnt/host/d/FlowTracer-wt/backend/backend/experiments/browser-r3/dnr_runtime/contract_v2.py"
+          ],
+          "target": "/opt/flowtracer-r3-runtime/contract_v2.py",
+          "sha256": "0e993a6f783b6f4b625678ad1440333b0ba43480564073048395021feefe0c20",
+          "readonly": true
+        },
+        {
+          "source": "$ROOT/backend/experiments/browser-r3/dnr_runtime/validator_v2.py",
+          "inspect_sources": [
+            "$ROOT/backend/experiments/browser-r3/dnr_runtime/validator_v2.py",
+            "/run/desktop/mnt/host/d/FlowTracer-wt/backend/backend/experiments/browser-r3/dnr_runtime/validator_v2.py"
+          ],
+          "target": "/opt/flowtracer-r3-runtime/validator_v2.py",
+          "sha256": "6e586f536f4412ec34cf0178f66c24bb601600b585bbcb37717962ad1efc0e0c",
+          "readonly": true
+        },
+        {
+          "source": "$ROOT/backend/experiments/browser-r3/dnr_runtime/harness_v2.py",
+          "inspect_sources": [
+            "$ROOT/backend/experiments/browser-r3/dnr_runtime/harness_v2.py",
+            "/run/desktop/mnt/host/d/FlowTracer-wt/backend/backend/experiments/browser-r3/dnr_runtime/harness_v2.py"
+          ],
+          "target": "/opt/flowtracer-r3-runtime/harness_v2.py",
+          "sha256": "81ae6616dc63d614748765ed1f631dadcdd247d4eae995d28f99cdd7d87b92ed",
+          "readonly": true
+        },
+        {
+          "source": "$ROOT/backend/experiments/browser-r3/dnr_offline/contract.py",
+          "inspect_sources": [
+            "$ROOT/backend/experiments/browser-r3/dnr_offline/contract.py",
+            "/run/desktop/mnt/host/d/FlowTracer-wt/backend/backend/experiments/browser-r3/dnr_offline/contract.py"
+          ],
+          "target": "/opt/flowtracer-r3-runtime/contract.py",
+          "sha256": "09681fa6a203bc0d7be1480170a26ed5d265cdd0fe8504712a5647ae4800e6b4",
+          "readonly": true
+        },
+        {
+          "source": "$ROOT/backend/experiments/browser-r3/dnr_offline/harness.py",
+          "inspect_sources": [
+            "$ROOT/backend/experiments/browser-r3/dnr_offline/harness.py",
+            "/run/desktop/mnt/host/d/FlowTracer-wt/backend/backend/experiments/browser-r3/dnr_offline/harness.py"
+          ],
+          "target": "/opt/flowtracer-r3-runtime/harness.py",
+          "sha256": "7f21e2b377aa253ab51117641fa60f3b05e0a3389bd99402a21f76531d3ca1b9",
+          "readonly": true
+        }
+      ],
+      "browser_options": {
+        "headless": true,
+        "retries": 1,
+        "timeout": 8000,
+        "google_search": false,
+        "disable_resources": false,
+        "network_idle": false,
+        "executable_path": "/opt/browser-r1c/chromium-1234/chrome-linux64/chrome",
+        "user_data_dir": "/tmp/r3-source/baseline/profile",
+        "extra_flags": [
+          "--ignore-certificate-errors",
+          "--disable-background-networking",
+          "--disable-component-update",
+          "--disable-sync"
+        ]
+      }
+    },
+    {
+      "phase": "enabled",
+      "profile": "/tmp/r3-source/enabled/profile",
+      "create_argv": [
+        "container",
+        "create",
+        "--pull=never",
+        "--name",
+        "$SESSION-enabled",
+        "--label",
+        "flowtracer.r3.session=$SESSION-enabled",
+        "--label",
+        "flowtracer.r3.parent=$SESSION",
+        "--user",
+        "10001:10001",
+        "--read-only",
+        "--cap-drop=ALL",
+        "--security-opt",
+        "no-new-privileges:true",
+        "--pids-limit",
+        "128",
+        "--memory",
+        "768m",
+        "--cpus",
+        "1.0",
+        "--network",
+        "none",
+        "--restart",
+        "no",
+        "--tmpfs",
+        "/tmp:rw,nosuid,noexec,size=256m",
+        "--env",
+        "HOME=/tmp/r3-home",
+        "--env",
+        "XDG_CONFIG_HOME=/tmp/r3-config",
+        "--env",
+        "XDG_CACHE_HOME=/tmp/r3-cache",
+        "--mount",
+        "type=bind,source=$ROOT/backend/experiments/browser-r3/dnr_runtime/probe.py,target=/opt/flowtracer-r3-runtime/probe.py,readonly",
+        "--mount",
+        "type=bind,source=$ROOT/backend/experiments/browser-r3/dnr_runtime/collector.py,target=/opt/flowtracer-r3-runtime/collector.py,readonly",
+        "--mount",
+        "type=bind,source=$ROOT/backend/experiments/browser-r3/dnr_runtime/contract_v2.py,target=/opt/flowtracer-r3-runtime/contract_v2.py,readonly",
+        "--mount",
+        "type=bind,source=$ROOT/backend/experiments/browser-r3/dnr_runtime/validator_v2.py,target=/opt/flowtracer-r3-runtime/validator_v2.py,readonly",
+        "--mount",
+        "type=bind,source=$ROOT/backend/experiments/browser-r3/dnr_runtime/harness_v2.py,target=/opt/flowtracer-r3-runtime/harness_v2.py,readonly",
+        "--mount",
+        "type=bind,source=$ROOT/backend/experiments/browser-r3/dnr_offline/contract.py,target=/opt/flowtracer-r3-runtime/contract.py,readonly",
+        "--mount",
+        "type=bind,source=$ROOT/backend/experiments/browser-r3/dnr_offline/harness.py,target=/opt/flowtracer-r3-runtime/harness.py,readonly",
+        "--mount",
+        "type=bind,source=$ROOT/backend/experiments/browser-r3/dnr_runtime/extension-v2/manifest.json,target=/opt/flowtracer-r3-dnr/manifest.json,readonly",
+        "--mount",
+        "type=bind,source=$ROOT/backend/experiments/browser-r3/dnr_runtime/extension-v2/rules.json,target=/opt/flowtracer-r3-dnr/rules.json,readonly",
+        "--mount",
+        "type=bind,source=$ROOT/backend/experiments/browser-r3/dnr_runtime/extension-v2/observer.js,target=/opt/flowtracer-r3-dnr/observer.js,readonly",
+        "--mount",
+        "type=bind,source=$ROOT/backend/experiments/browser-r3/dnr_runtime/extension-v2/audit.html,target=/opt/flowtracer-r3-dnr/audit.html,readonly",
+        "--mount",
+        "type=bind,source=$ROOT/backend/experiments/browser-r3/dnr_runtime/extension-v2/audit.js,target=/opt/flowtracer-r3-dnr/audit.js,readonly",
+        "--entrypoint",
+        "python",
+        "$IMAGE",
+        "/opt/flowtracer-r3-runtime/probe.py",
+        "--source-preflight",
+        "--phase",
+        "enabled",
+        "--profile",
+        "/tmp/r3-source/enabled/profile",
+        "--session",
+        "$SESSION"
+      ],
+      "child_command": [
+        "/opt/flowtracer-r3-runtime/probe.py",
+        "--source-preflight",
+        "--phase",
+        "enabled",
+        "--profile",
+        "/tmp/r3-source/enabled/profile",
+        "--session",
+        "$SESSION"
+      ],
+      "mounts": [
+        {
+          "source": "$ROOT/backend/experiments/browser-r3/dnr_runtime/probe.py",
+          "inspect_sources": [
+            "$ROOT/backend/experiments/browser-r3/dnr_runtime/probe.py",
+            "/run/desktop/mnt/host/d/FlowTracer-wt/backend/backend/experiments/browser-r3/dnr_runtime/probe.py"
+          ],
+          "target": "/opt/flowtracer-r3-runtime/probe.py",
+          "sha256": "f567b5c957d2741f35fbc372aede26c41938fc946920c70368893d9afcf7b9db",
+          "readonly": true
+        },
+        {
+          "source": "$ROOT/backend/experiments/browser-r3/dnr_runtime/collector.py",
+          "inspect_sources": [
+            "$ROOT/backend/experiments/browser-r3/dnr_runtime/collector.py",
+            "/run/desktop/mnt/host/d/FlowTracer-wt/backend/backend/experiments/browser-r3/dnr_runtime/collector.py"
+          ],
+          "target": "/opt/flowtracer-r3-runtime/collector.py",
+          "sha256": "ed1c5dd8f3956f13b7245c70f4a5f9c67f83452d6ca009bf23423d37d7714fa5",
+          "readonly": true
+        },
+        {
+          "source": "$ROOT/backend/experiments/browser-r3/dnr_runtime/contract_v2.py",
+          "inspect_sources": [
+            "$ROOT/backend/experiments/browser-r3/dnr_runtime/contract_v2.py",
+            "/run/desktop/mnt/host/d/FlowTracer-wt/backend/backend/experiments/browser-r3/dnr_runtime/contract_v2.py"
+          ],
+          "target": "/opt/flowtracer-r3-runtime/contract_v2.py",
+          "sha256": "0e993a6f783b6f4b625678ad1440333b0ba43480564073048395021feefe0c20",
+          "readonly": true
+        },
+        {
+          "source": "$ROOT/backend/experiments/browser-r3/dnr_runtime/validator_v2.py",
+          "inspect_sources": [
+            "$ROOT/backend/experiments/browser-r3/dnr_runtime/validator_v2.py",
+            "/run/desktop/mnt/host/d/FlowTracer-wt/backend/backend/experiments/browser-r3/dnr_runtime/validator_v2.py"
+          ],
+          "target": "/opt/flowtracer-r3-runtime/validator_v2.py",
+          "sha256": "6e586f536f4412ec34cf0178f66c24bb601600b585bbcb37717962ad1efc0e0c",
+          "readonly": true
+        },
+        {
+          "source": "$ROOT/backend/experiments/browser-r3/dnr_runtime/harness_v2.py",
+          "inspect_sources": [
+            "$ROOT/backend/experiments/browser-r3/dnr_runtime/harness_v2.py",
+            "/run/desktop/mnt/host/d/FlowTracer-wt/backend/backend/experiments/browser-r3/dnr_runtime/harness_v2.py"
+          ],
+          "target": "/opt/flowtracer-r3-runtime/harness_v2.py",
+          "sha256": "81ae6616dc63d614748765ed1f631dadcdd247d4eae995d28f99cdd7d87b92ed",
+          "readonly": true
+        },
+        {
+          "source": "$ROOT/backend/experiments/browser-r3/dnr_offline/contract.py",
+          "inspect_sources": [
+            "$ROOT/backend/experiments/browser-r3/dnr_offline/contract.py",
+            "/run/desktop/mnt/host/d/FlowTracer-wt/backend/backend/experiments/browser-r3/dnr_offline/contract.py"
+          ],
+          "target": "/opt/flowtracer-r3-runtime/contract.py",
+          "sha256": "09681fa6a203bc0d7be1480170a26ed5d265cdd0fe8504712a5647ae4800e6b4",
+          "readonly": true
+        },
+        {
+          "source": "$ROOT/backend/experiments/browser-r3/dnr_offline/harness.py",
+          "inspect_sources": [
+            "$ROOT/backend/experiments/browser-r3/dnr_offline/harness.py",
+            "/run/desktop/mnt/host/d/FlowTracer-wt/backend/backend/experiments/browser-r3/dnr_offline/harness.py"
+          ],
+          "target": "/opt/flowtracer-r3-runtime/harness.py",
+          "sha256": "7f21e2b377aa253ab51117641fa60f3b05e0a3389bd99402a21f76531d3ca1b9",
+          "readonly": true
+        },
+        {
+          "source": "$ROOT/backend/experiments/browser-r3/dnr_runtime/extension-v2/manifest.json",
+          "inspect_sources": [
+            "$ROOT/backend/experiments/browser-r3/dnr_runtime/extension-v2/manifest.json",
+            "/run/desktop/mnt/host/d/FlowTracer-wt/backend/backend/experiments/browser-r3/dnr_runtime/extension-v2/manifest.json"
+          ],
+          "target": "/opt/flowtracer-r3-dnr/manifest.json",
+          "sha256": "9e7fa366d2ac1c309c7e9cb78da3434c41dc50787b20e4f2967dd8c3329d5cac",
+          "readonly": true
+        },
+        {
+          "source": "$ROOT/backend/experiments/browser-r3/dnr_runtime/extension-v2/rules.json",
+          "inspect_sources": [
+            "$ROOT/backend/experiments/browser-r3/dnr_runtime/extension-v2/rules.json",
+            "/run/desktop/mnt/host/d/FlowTracer-wt/backend/backend/experiments/browser-r3/dnr_runtime/extension-v2/rules.json"
+          ],
+          "target": "/opt/flowtracer-r3-dnr/rules.json",
+          "sha256": "22ee2dc71e39bbc492c2f22ebe2df3e095180f98ec8ea46afc82685e5c6e74f5",
+          "readonly": true
+        },
+        {
+          "source": "$ROOT/backend/experiments/browser-r3/dnr_runtime/extension-v2/observer.js",
+          "inspect_sources": [
+            "$ROOT/backend/experiments/browser-r3/dnr_runtime/extension-v2/observer.js",
+            "/run/desktop/mnt/host/d/FlowTracer-wt/backend/backend/experiments/browser-r3/dnr_runtime/extension-v2/observer.js"
+          ],
+          "target": "/opt/flowtracer-r3-dnr/observer.js",
+          "sha256": "bdc14baccfacb00511821c3602287d3f515a87551662e8576e889bb30e9032ee",
+          "readonly": true
+        },
+        {
+          "source": "$ROOT/backend/experiments/browser-r3/dnr_runtime/extension-v2/audit.html",
+          "inspect_sources": [
+            "$ROOT/backend/experiments/browser-r3/dnr_runtime/extension-v2/audit.html",
+            "/run/desktop/mnt/host/d/FlowTracer-wt/backend/backend/experiments/browser-r3/dnr_runtime/extension-v2/audit.html"
+          ],
+          "target": "/opt/flowtracer-r3-dnr/audit.html",
+          "sha256": "9390beb65e4f0f9f075cf9f467883dc6994cd66326f65ea198b415395384c207",
+          "readonly": true
+        },
+        {
+          "source": "$ROOT/backend/experiments/browser-r3/dnr_runtime/extension-v2/audit.js",
+          "inspect_sources": [
+            "$ROOT/backend/experiments/browser-r3/dnr_runtime/extension-v2/audit.js",
+            "/run/desktop/mnt/host/d/FlowTracer-wt/backend/backend/experiments/browser-r3/dnr_runtime/extension-v2/audit.js"
+          ],
+          "target": "/opt/flowtracer-r3-dnr/audit.js",
+          "sha256": "45d9026b654eb1a365af561a70496e2e5d5b1d52bb2dc742fe617180369d7cea",
+          "readonly": true
+        }
+      ],
+      "browser_options": {
+        "headless": true,
+        "retries": 1,
+        "timeout": 8000,
+        "google_search": false,
+        "disable_resources": false,
+        "network_idle": false,
+        "executable_path": "/opt/browser-r1c/chromium-1234/chrome-linux64/chrome",
+        "user_data_dir": "/tmp/r3-source/enabled/profile",
+        "extra_flags": [
+          "--ignore-certificate-errors",
+          "--disable-background-networking",
+          "--disable-component-update",
+          "--disable-sync",
+          "--load-extension=/opt/flowtracer-r3-dnr",
+          "--disable-extensions-except=/opt/flowtracer-r3-dnr"
+        ]
+      }
+    }
   ],
-  "actual_profiles": null,
-  "source_lookup": {
-    "pinned_151_idl": "single request failed; no retry; schema not inferred",
-    "head_idl": "unavailable; no retry",
-    "dnr_api": "https://developer.chrome.com/docs/extensions/reference/api/declarativeNetRequest",
-    "developer_private_head": "https://chromium.googlesource.com/chromium/src/+/HEAD/chrome/browser/extensions/api/developer_private/developer_private_functions.cc",
-    "cdp_units": "https://chromedevtools.github.io/devtools-protocol/tot/Network/"
-  },
-  "real_gate": "NO_GO"
+  "url": "about:blank",
+  "completion": "page_setup_closes_then_SourcePreflightCompleted_not_fetch_return",
+  "parent_seconds": 120,
+  "preflight_seconds": 15,
+  "close_seconds": 5,
+  "target_permission": "DENIED",
+  "dependency_services": [],
+  "actual_approval": null,
+  "expected_output": {
+    "status": "SOURCE_OBSERVED_or_BLOCKED",
+    "inventory_complete": false,
+    "cross_realm_equivalence": "UNKNOWN",
+    "dns_status": "NOT_TESTED_NETWORK_NONE",
+    "r3": "BLOCKED",
+    "r4_r5": "NOT_ADMITTED"
+  }
 }

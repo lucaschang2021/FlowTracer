@@ -1,0 +1,49 @@
+{
+  "artifact_parent": "0de2d5658832b667aa00a5a8e73350a06b285bbb",
+  "authority_refs": [
+    "R1E-PR66",
+    "R2C-A4-PR68"
+  ],
+  "control_commit": "6128d4c3bbdbcdfa036be745d35dc37117004495",
+  "external_code_dependencies": [],
+  "files": {
+    "README.md": {
+      "git_blob": "c60e41e5e9194ca9003e3f3762c953ebeba61bea",
+      "sha256": "b273579c6cc3cd509b5f6314058e32f893ecb2f0e9ee0547a7c1199555d469e0"
+    },
+    "collector.py": {
+      "git_blob": "6f6ab53da77f9a00deec6dbf9d9584f364bb0388",
+      "sha256": "ea996a63e1fb2d16cbaf9c1c2c7cc9e833431beb654a470ef85ebef6d45ee1c0"
+    },
+    "contract.py": {
+      "git_blob": "dc2b595da3d38ba7e7dd50ad5da9b94a0ef9f625",
+      "sha256": "8d8fd78940d22cd3a83072e1b68e7688cad3181032ab7831563bdb8421a4fe7f"
+    },
+    "fixture.py": {
+      "git_blob": "b416f6caf78a875ac2cdcb0d55e4e6c968a3e969",
+      "sha256": "aea498fabd7558697649b13b5016f06c1a880c52f54adb346d2ae581fdd70f9b"
+    },
+    "harness.py": {
+      "git_blob": "6180b971d51453f045a7484b77c0cfff1dd635d4",
+      "sha256": "5fb28ff435532d10904283a207728d3247a362cfa6bf10d701cb334c6f5c0293"
+    },
+    "supervisor.py": {
+      "git_blob": "2db51f05e399450a06f271a0617bc3aa8d9c4c71",
+      "sha256": "bf4a03b283511a690441240e2e3bebc02c653063c3094f971946dbbfe824d3b7"
+    },
+    "test_composite.py": {
+      "git_blob": "c91bdfcdc22fcfaf1a07bf0afd845699b1c88d1c",
+      "sha256": "d81b2747522eeee21954774a10fcaf482ec873611055bfcaf5f5bcd518ab7a01"
+    },
+    "validator.py": {
+      "git_blob": "1a31b36001576d7cac11e3652891ad5c231ffff8",
+      "sha256": "91556addccb2a86a9b495d3c7dd2f2156e22cd5498730815b01909adf3d30898"
+    }
+  },
+  "hash_exclusions": [
+    "execution-inputs.json",
+    "execution-plan.json"
+  ],
+  "schema": "r3-composite-inputs-v1",
+  "scope": "OFFLINE_ONLY"
+}

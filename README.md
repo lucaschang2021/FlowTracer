@@ -4,7 +4,7 @@
 
 [当前闸门](docs/CURRENT-GATE.md) · [交付看板](docs/02-DELIVERY-BOARD.md) · [Backend 开发](backend/DEVELOPMENT.md) · [English](#english)
 
-> **Alpha 状态：** FlowTracer v0.1 正在开发，尚未发布。BE-1 至 BE-8、ACQ-1 Preflight、Contract Freeze、WP-1 与 WP-2 均已验收并合并。WP-3 的 R3 应用拦截证据仍为 **BLOCKED**，正式实现未准入；R4/R5、WP-4 至 WP-8、PLUGIN-1、Frontend、Integration 和 Release 也未准入。
+> **Alpha 状态：** FlowTracer v0.1 正在开发，尚未发布。Backend Core（BE-1 至 BE-8）、Architecture Governance（AG-0 至 AG-6）、ACQ-1 Preflight、Contract Freeze、WP-1 与 WP-2 已完成并合并。[Governance v2](docs/GOVERNANCE-V2.md) 已生效；R3 仍 **BLOCKED**，Browser dynamic 禁用，R4/R5、正式 WP-3、WP-4 至 WP-8、PLUGIN-1、Frontend、Integration 和 Release 均未准入。
 
 ## 中文
 
@@ -30,7 +30,7 @@ Radar 是 FlowTracer 的核心领域对象，不是项目名称。项目正式�
 | ACQ-1 WP-1 Admission / Addendum | 已完成 | PR #31 / #32 已合并，Source Profile 与 Policy 精确契约已冻结 |
 | ACQ-1 WP-1 | 已完成 | PR #33 已验收合并：Source Profile、采集状态/Attempt、lease/heartbeat/stale recovery 与安全策略内核 |
 | ACQ-1 WP-2 | 已完成 | PR #39 已验收合并：统一静态 Adapter、无网络 Scrapling parser、quality v1、通用 family extractor 与解析证据 |
-| ACQ-1 WP-3..WP-8 | WP-3/R3 受阻；正式实现及下游未准入 | R1C/R1D/R1E/R2C 已有运行时、供应链身份与受控出口证据；R3 应用拦截仍 BLOCKED，R4/R5 及 Router、Discovery、Change Intelligence、Opportunity 与最终收尾未准入 |
+| ACQ-1 WP-3..WP-8 | R3 受阻；正式 WP-3 及下游未准入 | R1C/R1D/R1E/R2C 证据保留；Browser 不再天然阻断静态路径，但 Router 等仍需依赖重评及独立准入，尚未实现 |
 | PLUGIN-1 | 待办、未准入 | 用户指定在 ACQ-1 完成验收后、Frontend 前处理；尚未实现，未形成正式准入或架构基线 |
 | Frontend / Integration / Release | 未准入 | 桌面客户端、集成验收与 Alpha 发布尚未开始 |
 
@@ -64,13 +64,13 @@ Radar 是 FlowTracer 的核心领域对象，不是项目名称。项目正式�
 
 ### 当前开发状态与验收证据
 
-本次同步基于 `main@31fa751a3c074111f14b640a727a972eb996ef05`。WP-2 实现 PR #39 已通过 Stage Gate 并合并；[WP-2 验收记录](docs/36-ACQ1-WP2-ACCEPTANCE.md)对应实现提交 `90c4645c95a96608a35565ca90b022dfb2f1f1a7`：286 tests、87.61% coverage，P0/P1/P2 = 0/0/0。
+本次同步基于 `main@35ae356d292c5300f39f99f0726c829ad270b744`。Governance v2 控制 PR #80 已合并，仅调整治理和依赖语义，不实现新业务能力。WP-2 实现 PR #39 已通过 Stage Gate 并合并；[WP-2 验收记录](docs/36-ACQ1-WP2-ACCEPTANCE.md)对应实现提交 `90c4645c95a96608a35565ca90b022dfb2f1f1a7`：286 tests、87.61% coverage，P0/P1/P2 = 0/0/0。
 
 WP-2 已实现统一 RSS/Native 静态 Adapter 边界、只消费本地响应的 Scrapling parser、`extraction-quality-v1`、通用 family extractor 与内部解析证据。它没有启用 Browser/fetcher，也没有引入 Router、Discovery、Change、Opportunity、Schema/migration 或公开 API 变化。
 
-WP-3 / ACQ-1B 已取得 R1C/R1D/R1E/R2C 的运行时、供应链身份和受控出口证据，但 R3 应用拦截仍 **BLOCKED**。PR #77 的离线接线/测试修复及 PR #78 的安全阶段诊断已合并；2026-09-30 source session02 的单次执行在 `source_observation` 被拒绝，enabled 阶段未运行，不能据此宣称原生 WebSocket 拒绝能力或 R3 PASS。下一步仅限按[内部来源预检](docs/53-R3-INTERNAL-SOURCE-PROBE.md)边界离线定位该拒绝并独立复核；任何新运行须另获精确授权。
+WP-3 / ACQ-1B 已取得 R1C/R1D/R1E/R2C 的运行时、供应链身份和受控出口证据，但 R3 应用拦截仍 **BLOCKED**。已执行的 source session02/03 未建立 R3 所需的可信应用—策略—网络关联；session03 在 `source_observation/inventory_navigation` 失败，不能据此宣称原生 WebSocket 拒绝能力、真实网络旁路或 R3 PASS。当前仅按 Governance v2 重定验收边界，不授权新的 Browser/Docker session。
 
-WP-3 计划中的隔离 Dynamic/Advanced Browser adapter、专用 worker/queue、强制受控 egress 和资源隔离仍不是已交付的完整能力。R4/R5、正式 WP-3 实现与下游阶段保持未准入；详见[当前门禁](docs/CURRENT-GATE.md)。
+Browser 仍是计划中的产品增强能力，验收前 `browser_dynamic=disabled`。它不再天然 veto 已具备输入的 Static/Native 路径；但 Router、Discovery 等尚未实现，WP-4 及后续工作包必须先做 Dependency Re-evaluation，再获独立书面准入。R4/R5 与正式 WP-3 也未准入；详见[当前门禁](docs/CURRENT-GATE.md)。
 
 ### 技术栈
 
@@ -130,6 +130,7 @@ docker compose -f infra/compose.yaml down
 ### 关键文档
 
 - [当前阶段闸门](docs/CURRENT-GATE.md)
+- [Governance v2 现行治理](docs/GOVERNANCE-V2.md)
 - [Alpha v0.1 交付看板](docs/02-DELIVERY-BOARD.md)
 - [项目总控基线](docs/00-PROJECT-CONTROL.md)
 - [架构决策记录](docs/01-ARCHITECTURE-DECISIONS.md)
@@ -146,18 +147,19 @@ docker compose -f infra/compose.yaml down
 - [WP-2 静态解析阶段准入](docs/34-ACQ1-WP2-ADMISSION.md)
 - [WP-2 提取质量契约 Addendum](docs/35-ACQ1-WP2-CONTRACT-ADDENDUM.md)
 - [WP-2 Stage Gate 验收](docs/36-ACQ1-WP2-ACCEPTANCE.md)
-- [WP-3 准入阻塞与证据要求](docs/37-ACQ1-WP3-READINESS-BLOCKER.md)
+- [WP-3 历史准入阻塞记录](docs/37-ACQ1-WP3-READINESS-BLOCKER.md)
 
 ### 路线图与门禁
 
 FlowTracer 当前交付顺序（含未准入的待办阶段）：
 
 ```text
-架构冻结 → BE-1..BE-8 → ACQ-1 WP-1..WP-8
+架构冻结 → BE-1..BE-8 → WP-1 → WP-2 Static/Native ──→ WP-4 Router → WP-5..WP-8
+                                      WP-3 Browser ──┘（独立门禁；验收后接入）
   → PLUGIN-1（待办、未准入）→ Frontend → Integration → Alpha Release
 ```
 
-BE-1..BE-8、WP-1 与 WP-2 已完成并合并。WP-3 的 R3 仍 BLOCKED，R4/R5 与正式 WP-3 实现未准入；WP-4..WP-8、Router、Discovery、Change Intelligence、Opportunity、PLUGIN-1、Frontend、Integration 与 Release 也继续未准入。
+BE-1..BE-8、AG-0..AG-6、WP-1 与 WP-2 已完成并合并。R3 仍 BLOCKED；R4/R5 与正式 WP-3 未准入。Browser 不再是静态路径的绝对前置条件，但 WP-4..WP-8、Router、Discovery、Change Intelligence、Opportunity、PLUGIN-1、Frontend、Integration 与 Release 均需各自依赖重评和准入，当前仍未准入。
 
 PLUGIN-1 仅为用户指定的后续待办：排在 ACQ-1 全部完成验收之后、Frontend 之前，尚未准入或实现。本文不为其补写架构、接口或仓库文档链接。
 
@@ -175,7 +177,7 @@ PLUGIN-1 仅为用户指定的后续待办：排在 ACQ-1 全部完成验收之�
 
 **A personal desktop AI intelligence system for continuous acquisition, traceable analysis, and long-term Memory—designed to surface and preserve high-value information.**
 
-> **Alpha status:** FlowTracer v0.1 is in development and has not been released. BE-1 through BE-8, ACQ-1 Preflight, Contract Freeze, WP-1, and WP-2 have been accepted and merged. WP-3's R3 application-interception evidence remains **BLOCKED**, and formal implementation is not admitted; R4/R5, WP-4 through WP-8, PLUGIN-1, Frontend, Integration, and Release are also not admitted.
+> **Alpha status:** FlowTracer v0.1 is in development and has not been released. Backend Core (BE-1 through BE-8), Architecture Governance (AG-0 through AG-6), ACQ-1 Preflight, Contract Freeze, WP-1, and WP-2 are complete and merged. [Governance v2](docs/GOVERNANCE-V2.md) is in effect; R3 remains **BLOCKED**, Browser dynamic is disabled, and R4/R5, formal WP-3, WP-4 through WP-8, PLUGIN-1, Frontend, Integration, and Release are not admitted.
 
 ### Product Positioning
 
@@ -199,7 +201,7 @@ Radar is FlowTracer's core domain object, not the project name. The official pro
 | ACQ-1 WP-1 Admission / Addendum | Completed | PRs #31 / #32 merged; exact Source Profile and Policy contracts frozen |
 | ACQ-1 WP-1 | Completed | PR #33 accepted and merged: Source Profile, acquisition state/Attempt, lease/heartbeat/stale recovery, and safety-policy core |
 | ACQ-1 WP-2 | Completed | PR #39 accepted and merged: unified static adapters, a network-free Scrapling parser, quality v1, common family extractors, and parsing evidence |
-| ACQ-1 WP-3..WP-8 | WP-3/R3 blocked; formal implementation and downstream not admitted | R1C/R1D/R1E/R2C provide runtime, supply-chain identity, and controlled-egress evidence; R3 application interception remains BLOCKED, while R4/R5 and Router, Discovery, Change Intelligence, Opportunity, and final stabilization are not admitted |
+| ACQ-1 WP-3..WP-8 | R3 blocked; formal WP-3 and downstream not admitted | R1C/R1D/R1E/R2C evidence is preserved; Browser no longer inherently blocks the static path, but Router and later stages still need dependency re-evaluation and separate admission and are not implemented |
 | PLUGIN-1 | Backlog, not admitted | User-requested stage after full ACQ-1 acceptance and before Frontend; not implemented, with no formal admission or architecture baseline |
 | Frontend / Integration / Release | Not admitted | Desktop development, integration acceptance, and the Alpha release have not started |
 
@@ -233,13 +235,13 @@ User registration/sign-in                    ✅ BE-2 completed
 
 ### Current Development and Acceptance Evidence
 
-This update is based on `main@31fa751a3c074111f14b640a727a972eb996ef05`. WP-2 implementation PR #39 passed its Stage Gate and was merged. The [WP-2 acceptance record](docs/36-ACQ1-WP2-ACCEPTANCE.md) covers implementation commit `90c4645c95a96608a35565ca90b022dfb2f1f1a7`: 286 tests, 87.61% coverage, and P0/P1/P2 = 0/0/0.
+This update is based on `main@35ae356d292c5300f39f99f0726c829ad270b744`. Governance v2 control PR #80 is merged; it changes governance and dependency semantics only, not business capabilities. WP-2 implementation PR #39 passed its Stage Gate and was merged. The [WP-2 acceptance record](docs/36-ACQ1-WP2-ACCEPTANCE.md) covers implementation commit `90c4645c95a96608a35565ca90b022dfb2f1f1a7`: 286 tests, 87.61% coverage, and P0/P1/P2 = 0/0/0.
 
 WP-2 implements the unified RSS/Native static-adapter boundary, a Scrapling parser that consumes only local responses, `extraction-quality-v1`, common family extractors, and internal parsing evidence. It does not enable a Browser/fetcher or introduce Router, Discovery, Change, Opportunity, schema/migration, or public API changes.
 
-WP-3 / ACQ-1B has runtime, supply-chain identity, and controlled-egress evidence from R1C/R1D/R1E/R2C, but R3 application interception remains **BLOCKED**. PR #77's offline wiring/test fix and PR #78's safe-stage diagnostic are merged; the single execution of source session02 on 2026-09-30 was refused at `source_observation`, and its enabled stage did not run. This does not prove native WebSocket denial or R3 PASS. The next action is limited to offline diagnosis and independent review of that refusal within the [internal-source preflight](docs/53-R3-INTERNAL-SOURCE-PROBE.md) boundary; any new runtime session requires separate exact authorization.
+WP-3 / ACQ-1B has runtime, supply-chain identity, and controlled-egress evidence from R1C/R1D/R1E/R2C, but R3 application interception remains **BLOCKED**. Executed source sessions 02/03 did not establish the credible application–policy–network correlation needed for R3; session03 failed at `source_observation/inventory_navigation`. This proves neither native WebSocket denial, a real network bypass, nor R3 PASS. Governance v2 currently rebaselines the acceptance boundary only; it does not authorize another Browser/Docker session.
 
-The planned isolated Dynamic/Advanced Browser adapters, dedicated worker/queue, mandatory controlled egress, and resource isolation are not yet delivered as a complete capability. R4/R5, formal WP-3 implementation, and downstream stages remain unadmitted; see the [current gate](docs/CURRENT-GATE.md).
+Browser remains a planned product enhancement and `browser_dynamic=disabled` until accepted. It no longer inherently vetoes Static/Native paths with accepted inputs, but Router and Discovery are not implemented. WP-4 and later work packages require Dependency Re-evaluation and separate written admission first. R4/R5 and formal WP-3 are also not admitted; see the [current gate](docs/CURRENT-GATE.md).
 
 ### Technology Stack
 
@@ -299,6 +301,7 @@ For host development with `uv`, migrations, and quality checks, follow the [Back
 ### Authoritative Documents
 
 - [Current phase gate](docs/CURRENT-GATE.md)
+- [Governance v2 current rules](docs/GOVERNANCE-V2.md)
 - [Alpha v0.1 delivery board](docs/02-DELIVERY-BOARD.md)
 - [Project control baseline](docs/00-PROJECT-CONTROL.md)
 - [Architecture decision records](docs/01-ARCHITECTURE-DECISIONS.md)
@@ -315,18 +318,19 @@ For host development with `uv`, migrations, and quality checks, follow the [Back
 - [WP-2 static parsing admission](docs/34-ACQ1-WP2-ADMISSION.md)
 - [WP-2 extraction-quality contract Addendum](docs/35-ACQ1-WP2-CONTRACT-ADDENDUM.md)
 - [WP-2 Stage Gate acceptance](docs/36-ACQ1-WP2-ACCEPTANCE.md)
-- [WP-3 admission blocker and evidence requirements](docs/37-ACQ1-WP3-READINESS-BLOCKER.md)
+- [WP-3 historical admission blocker record](docs/37-ACQ1-WP3-READINESS-BLOCKER.md)
 
 ### Roadmap and Gates
 
 FlowTracer's current delivery order (including unadmitted backlog stages):
 
 ```text
-Architecture freeze → BE-1..BE-8 → ACQ-1 WP-1..WP-8
+Architecture freeze → BE-1..BE-8 → WP-1 → WP-2 Static/Native ──→ WP-4 Router → WP-5..WP-8
+                                      WP-3 Browser ──┘ (separate gate; joins once accepted)
   → PLUGIN-1 (backlog, not admitted) → Frontend → Integration → Alpha Release
 ```
 
-BE-1..BE-8, WP-1, and WP-2 are complete and merged. WP-3's R3 remains BLOCKED; R4/R5 and formal WP-3 implementation are not admitted. WP-4..WP-8, Router, Discovery, Change Intelligence, Opportunity, PLUGIN-1, Frontend, Integration, and Release also remain not admitted.
+BE-1..BE-8, AG-0..AG-6, WP-1, and WP-2 are complete and merged. R3 remains BLOCKED; R4/R5 and formal WP-3 are not admitted. Browser is no longer an absolute prerequisite for static paths, but WP-4..WP-8, Router, Discovery, Change Intelligence, Opportunity, PLUGIN-1, Frontend, Integration, and Release each require dependency re-evaluation and admission and remain unadmitted.
 
 PLUGIN-1 is only a user-requested backlog stage after full ACQ-1 acceptance and before Frontend. It is neither admitted nor implemented. This README does not define its architecture, interfaces, or repository document links.
 

@@ -4,11 +4,11 @@
 
 **M0：架构初步冻结 — 已完成**
 
-**当前阶段：R2C 已验收合并；R3 应用拦截矩阵待本控制 PR 合并后重新准入**
+**当前阶段：Governance v2 已生效；R3 composite 离线 harness 合同待本控制 PR 合并**
 
-Architecture Governance Pass 已完成。R2C-A4 已通过独立复审、Backend CI 与 PR #68 合并，Runtime Identity v2、controlled egress 和真实 DynamicFetcher 均已验证。仅 R3 待本控制 PR 合并后重新准入；R4-R5、正式 WP-3、Frontend、Integration 与 Release 继续未准入。
+Backend Alpha Core、Architecture Governance Pass、WP1/WP2 已完成。R1/R1C/R1D/R1E/R2C 已验收证据保留；Governance v2 PR #80 已合并，R3 仍 BLOCKED。Browser dynamic disabled，不再天然 veto 静态路径；WP4+ 必须按真实依赖重评及单独准入。R4/R5、正式 Browser、PLUGIN、Frontend、Integration、Release 未准入。
 
-本次同步的来源基准：`main@c584fd06ff136025dc6a0aba9815291b16682aa2`（R2C PR #68 merge commit）；控制 PR 合并后的 `main` 应为该提交的后代。
+本次来源基准：`main@35ae356d292c5300f39f99f0726c829ad270b744`（Governance v2 PR #80）；新控制 PR 合并后 main 是其后代。现行合同 [GOVERNANCE-V2](GOVERNANCE-V2.md) 与 [CURRENT-GATE](CURRENT-GATE.md) 优先，历史行不提供新许可。
 
 ## 工作项
 
@@ -60,20 +60,20 @@ Architecture Governance Pass 已完成。R2C-A4 已通过独立复审、Backend 
 | PM-016 | ACQ-1 WP-2 quality v1 / writer / family-evidence 契约 Addendum | 总控 | 完成（已合并） | PM-015 | PR #37、ADR-028、`35-ACQ1-WP2-CONTRACT-ADDENDUM.md` |
 | ACQ-1-WP2 | Static Adapter、Scrapling parser、quality v1 | Backend | 完成（已验收、已合并） | PM-015、PM-016 | PR #39、`36-ACQ1-WP2-ACCEPTANCE.md`、286 passed、87.61%、P0/P1/P2=0/0/0 |
 | PM-017 | ACQ-1 WP-2 Stage Gate 验收归档 | 总控 | 完成（PR #40 已合并） | ACQ-1-WP2 | `36-ACQ1-WP2-ACCEPTANCE.md`、merge commit `70a3b0462e9a9303ddb3f5be56c84ed5d2fead40`、PR #40 merge commit `f4b58c1ec0d20d075b98d5a9ca3d146d0b4deb56` |
-| PM-018 | ACQ-1 WP-3 架构/契约冻结与正式准入 | 总控 | 阻塞；未准入 | PM-017、WP-3 兼容性/隔离硬门禁 | `37-ACQ1-WP3-READINESS-BLOCKER.md`；等待 Spike 实证、独立审查及后续 Contract Addendum + Admission PR |
+| PM-018 | ACQ-1 WP-3 架构/契约冻结与正式准入 | 总控 | 正式 Browser 未准入 | 实际 R3/R4/R5 安全依赖 | `GOVERNANCE-V2.md`；37 为历史记录，不作现行许可 |
 | PM-019 | ACQ-1 WP-3 Compatibility/Isolation Preflight 准入 | 总控 | 完成（PR #41 已合并） | PM-017、ADR-029/030 | `38-ACQ1-WP3-PREFLIGHT-ADMISSION.md`；只准入证据实验，不准入正式 WP-3 |
 | ACQ-1-WP3-PF | Browser 兼容性、不可变构建、egress、queue/worker 与资源隔离 Spike | Backend | 已执行；BLOCKED | PM-019 | `40-ACQ1-WP3-PREFLIGHT-BLOCKED-REPORT.md`；P0×1/P1×5/P2×2，无代码/commit/push/PR，临时资源已清理 |
 | PM-020 | ACQ-1 WP-3 Remediation Evidence 顺序闸门准入 | 总控 | 完成（PR #53 已合并） | ACQ-1-WP3-PF、ADR-031 | `41-ACQ1-WP3-REMEDIATION-EVIDENCE-ADMISSION.md`；仅 R1→R5 证据/原型，不准入正式 WP-3 |
 | ACQ-1-WP3-R1 | Locked image、SBOM/license 与双 no-cache 构建证据 | Backend / Architecture | 完成（PR #54 已验收合并） | PM-020 | `42-ACQ1-WP3-REMEDIATION-EVIDENCE-PACKAGE.md`；commit `89ed802f4f2ac608a260f68637f1aaf541cd3143`；merge `34364d0082e4ecdbe4331d77a21ef6d25c2fca8a`；P0/P1/P2=0/0/0 |
 | ACQ-1-WP3-R2 | Production-shaped controlled egress proxy/namespace 证据 | Backend / Architecture | 完成（PR #56 已验收合并） | ACQ-1-WP3-R1 | `43-ACQ1-WP3-R2-ACTIVATION.md`、`42-ACQ1-WP3-REMEDIATION-EVIDENCE-PACKAGE.md`；commit `7c6e778e05c34bb8341d6898eea729de5dc311b2`；merge `c5799082ba8e0ae5edf8ddfb861e24de784cdf93`；P0/P1/P2=0/0/0 |
-| ACQ-1-WP3-R3 | Application interception matrix 证据 | Backend / Architecture | 历史首次 BLOCKED（P1×1）；本控制 PR 合并后重新准入 | ACQ-1-WP3-R2C Accepted | 旧 `44-ACQ1-WP3-R3-ACTIVATION.md` 保留历史；新 `49-ACQ1-WP3-R3-REACTIVATION.md` 仅准入离线双层证据 |
+| ACQ-1-WP3-R3 | Application policy / no-bypass / credible correlation | Backend / 总控 | BLOCKED；composite 离线包待本控制 PR 合并 | R1E/R2C authority 复用 | `GOVERNANCE-V2.md` §5/§11；44/49 保留历史；离线通过不等于 R3 PASS |
 | ACQ-1-WP3-R1C | Full Chromium runtime compatibility remediation | Backend / Architecture | 完成（PR #60 已验收合并） | ACQ-1-WP3-R3 BLOCKED | `45-ACQ1-WP3-R3-RUNTIME-REMEDIATION.md`、`42-ACQ1-WP3-REMEDIATION-EVIDENCE-PACKAGE.md`；candidate `787a0df0548e05431fa60426f48f239ba7195465`；merge `df0c3512080f384dbd6c820d7627cbe721e37422`；P0/P1/P2=0/0/0 |
 | ACQ-1-WP3-R1D | Runtime Identity v2 与 runtime/audit 边界修复 | Backend / Architecture | 完成（PR #63 已验收合并） | ACQ-1-WP3-R2C BLOCKED | ADR-032、`47-ACQ1-WP3-R1D-RUNTIME-IDENTITY.md`；candidate `a804a371ec99615278c2cd60f442dc58299ff7c5`；merge `db9c4fad0ca826b472d18d85c69db53848cfcd94`；P0/P1/P2=0/0/0 |
 | ACQ-1-WP3-R1E | Deterministic account metadata 与跨日 Runtime Identity v2 修复 | Backend / Architecture | 完成（PR #66 已验收合并） | ACQ-1-WP3-R2C-A2 BLOCKED | ADR-033、`48-ACQ1-WP3-R1E-DETERMINISTIC-ACCOUNT.md`；head `3636dd261ece31c046406aa7b2279f6f7bd7dad8`；merge `cac5b4e1908801ff4ed1a96c2388a0a71653d6ee`；P0/P1/P2=0/0/0 |
 | ACQ-1-WP3-R2C | R1C/R1D/R1E 完整 Chromium 上的 controlled egress 完整回归 | Backend / Architecture | 完成（PR #68 已验收合并） | ACQ-1-WP3-R1E Accepted | A4 head `e4f636bd88ba8c298ca7b1ec1e074b5bcd1351e1`；merge `c584fd06ff136025dc6a0aba9815291b16682aa2`；P0/P1/P2=0/0/0；`42-ACQ1-WP3-REMEDIATION-EVIDENCE-PACKAGE.md` |
-| ACQ-1-WP3-R4..R5 | 回收/资源与双 worker 隔离证据 | Backend | 未准入 | 前序 remediation gate 逐项 PASS | `41-ACQ1-WP3-REMEDIATION-EVIDENCE-ADMISSION.md`；不得并行或跳过 |
+| ACQ-1-WP3-R4..R5 | 回收/资源与双 worker 隔离证据 | Backend | 未准入 | 各自主 invariant 与实际安全输入 | `GOVERNANCE-V2.md` §6；41 为历史，不重复扩张 R3 |
 | ACQ-1-WP3 | Dynamic/Advanced Browser、隔离 worker/queue 与受控 egress | Backend | 正式实现未准入 | PM-018 后续正式 Admission PR 合并 | `29-ACQ1-WORK-PACKAGES.md`；不得由 Preflight 直接续做 |
-| ACQ-1-WP4..8 | ACQ-1 后续工作包 | Backend | 未准入 | WP-3 起逐阶段验收 | `29-ACQ1-WORK-PACKAGES.md` |
+| ACQ-1-WP4..8 | ACQ-1 后续工作包 | Backend | 未准入 | Static WP4 依赖 WP1/WP2；WP5..8 按实际输入递进，Browser optional | `29-ACQ1-WORK-PACKAGES.md`、`GOVERNANCE-V2.md`；逐项重评并独立准入 |
 | PLUGIN-1 | 用户指定的后续插件工作包 | 待定 | 待办、未准入 | ACQ-1 全部完成验收后、Frontend 前 | 尚无正式准入或架构基线；不得视为已实现 |
 | FE-001 | 前端实现 | Frontend | 未准入 | ACQ-1 经总控验收并冻结 Acquisition Contract | 桌面端与前端测试 |
 | INT-001 | 集成与缺陷修复 | Integration | 未准入 | ACQ-1、FE-001 | E2E 报告与缺陷闭环 |
@@ -94,4 +94,5 @@ Architecture Governance Pass 已完成。R2C-A4 已通过独立复审、Backend 
 - 影响数据库、API 或 Pipeline 的变更必须记录 ADR 或修订现有 ADR。
 - 已通过阶段闸门后发生破坏性契约变更，必须同时给出迁移和回归测试计划。
 - P0：核心闭环不可用或数据/凭据安全问题；P1：核心功能严重受损；P2：有替代路径；P3：体验优化。
+- 现行处置：P0/P1 阻断受影响真实依赖路径；P2 记录继续，只有证据证明安全 invariant 失效才重分类；不把 Browser 局部 BLOCK 扩大为静态 DAG 全局 veto。
 

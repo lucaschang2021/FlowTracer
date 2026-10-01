@@ -4,16 +4,25 @@
 
 ## 现行治理切换（本控制 PR 合并后生效）
 
+### R3 composite 离线实施包（本次控制 PR 合并后才准入）
+
+- 来源：`main@35ae356d292c5300f39f99f0726c829ad270b744`，Governance v2 PR #80 已合并；原来源 SHA 保留作历史，不要求 HEAD 与来源相等。
+- 唯一新范围：[GOVERNANCE-V2 §11](GOVERNANCE-V2.md#11-r3-composite-最小合同与离线实施包2026-10-01) 的 `composite_v1/` 十文件离线 harness/validator/fixture；不继续库存页 patch loop，不准入真实 Browser/Docker/session。
+- Backend 已只读确认 WP4 静态路径依赖 WP1/WP2；仍缺降级/预算/Circuit/Throttle 等精确规则，本包不准入 Router 或削减其产品目标。
+- 原 Backend 在唯一 worktree 保留 Plan A 四份 dirty 与历史资产，只提交新白名单。离线通过只能为 `OFFLINE HARNESS READY`，不能称 R3 PASS。
+- 本阶段验收：三现有 docs 白名单、diff/link/契约一致性、独立 Review P0/P1=0；不跑业务测试/Browser/Docker。合并后总控另发精确 Backend 离线任务，后续真实执行须审核实际 candidate/hash/plan 后另签唯一许可。
+- PR #79 已按 Governance v2 重评为 README-only@`0217c8ea06ea0888e0c699816b6d8e3c368af7a1`，总控静态复核通过，仍 OPEN，等待人类直接合并确认；不追认合并。
+
 - 阶段：Governance v2 CONTROL REBASELINE — GOVERNANCE ONLY；唯一核心治理文档 [GOVERNANCE-V2](GOVERNANCE-V2.md)。来源 `main@31fa751a3c074111f14b640a727a972eb996ef05`（PR #78）；合并后的 main 应为来源后代，不要求相等。
 - BE-1..BE-8、AG-0..AG-6、ACQ WP-1/WP-2 完成；R1/R1C/R1D/R1E/R2C 已验收证据原样保留。PR #77/#78 是离线候选交付，不是 R3 PASS。
 - R3：**BLOCKED / GOVERNANCE_REBASELINE_REQUIRED**；新的合同只验真实 DynamicFetcher application policy、无网络旁路与可信关联。现有 source_observation/inventory 失败不证明旁路，也不证明成功：inventory 完美性债务 P2；安全归因尚未建立为 P1 未决。
 - Browser dynamic **disabled**；R4/R5、正式 WP-3 未准入。已有执行硬化/资源上限/监督、NetworkPolicy 和受控出口不降低。
 - WP-4..WP-8、PLUGIN-1、Frontend、Integration、Release **仍未准入**。Browser 不再自动 veto 静态能力；合并后仅可申请 Static/Native Capability DAG 的 Dependency Re-evaluation，须另签实际工作包。
-- 当前 Backend R3 offline patch 停点并保留未提交资产；本治理阶段不执行任何 Browser/Docker/session，不继续 patch loop。任务前已消费的 session01/02/03 历史事实与标记保留，不追认成功或重试。
-- PR #79 暂不合并；治理合并后重评 README，过时则 supersede。交付看板旧串行行作为历史记录，本节及 GOVERNANCE-V2 是现行准入语义，不得从旧行反推许可。
+- 当前 Backend Plan A 停点并保留未提交资产；上节 composite 离线包合并前不实施。本阶段不执行任何 Browser/Docker/session，不继续库存页 patch loop。已消费的 session01/02/03 历史事实与标记保留，不追认成功或重试。
+- PR #79 重评情况以上节为准；本控制包同步看板 Governance v2 DAG，不让旧串行行反向覆盖现行准入。
 - 必读：本文件、GOVERNANCE-V2、00 总控基线、22 Master、29 Work Packages；历史 37/41/49 只在审计时引用，不回读全套。
 - 本阶段验收：8 个指定 Markdown 文件白名单；历史 37/41/49 去除新增标记后与来源 Git blob 原文一致；R1..R2C 资产无 diff；相对链接/安全约束/准入/架构一致性、git diff --check；独立治理 Review P0/P1=0。不重复业务全量测试，不运行 Docker。
-- 合并后 **STOP**；不得自动执行 R3 或 WP-4。下一步：总控另行依赖重评与精确 Admission。
+- 原 Governance v2 包合并后的 STOP 已执行；本次合并后仅可由总控签发上节离线实施包。不得自动执行 R3 session 或 WP-4。
 
 ## 历史阶段与证据（以下旧许可/串行语义已由上节 supersede）
 

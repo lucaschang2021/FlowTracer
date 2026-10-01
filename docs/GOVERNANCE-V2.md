@@ -166,3 +166,63 @@ PR #79 暂不合并；本包合并后重新评估 README 内容，过时则 supe
 本包流程：审计 → 单一核心文档与现有文档同步 → 文档/架构一致性检查 → 独立治理 Review（P0/P1=0）→ 控制 PR → exact-head merge → STOP。纯文档不重复业务全量测试、不运行 Browser/Docker。合并后只可另申请 Dependency Re-evaluation，不自动运行 session 或 WP4。
 
 SSRF/SitePolicy/预算、无公网测试、无凭据/登录态、无 CAPTCHA/访问控制绕过、namespace、非 root、只读、禁止 host network/privileged/Docker socket、NetworkPolicy 与精确清理全部保持；本次只有 Governance Simplification，没有 Safety Deregulation。
+
+## 11. R3 composite 最小合同与离线实施包（2026-10-01）
+
+来源：Governance v2 merge `35ae356d292c5300f39f99f0726c829ad270b744`；本节经独立 Review/控制 PR 合并后，仅准入离线 harness 实施，不准入真实执行。无新增治理文档、API、Schema、依赖、镜像、业务 capability 或 WP4 Admission。
+
+### 11.1 依赖重评与本次唯一目标
+
+Backend 只读重评确认：WP1/WP2 已有 AcquisitionBackend/ContentFetcher/Repository ports、Network/SitePolicy、ResourceBudget、lease fencing、Attempt/State 与 quality 观测；Native backend 仅接受 auto/native。WP4 静态输入不依赖 Browser，但 Router v1、family/profile 决策、Browser-disabled 降级、累计 budget、Circuit half-open、域级 AutoThrottle 尚未冻结或交付。本包不将“依赖可满足”混同“WP4 已准入”，不偷偷实现永远 Native 的替代产品。
+
+本次只解决 R3-A–D 的可执行最小证据链设计/离线实现；不继续修补库存页作为许可入口。R3 主 invariant 与 §5 相同：真实 DynamicFetcher application policy 控制、无 bypass、可信 application-policy-network 关联。R4/R5 完整故障/queue 验收不塞入本包。
+
+### 11.2 冻结输入与证据关联合同
+
+独立实验使用 `r3-composite-v1`，每次真实执行必须由后续总控许可固定 candidate SHA、input manifest SHA、fixture/validator SHA、唯一 execution ID、具体镜像 ID、适用 R1E/R2C authority 与拓扑/限值。当前均未签发真实 session；不得生成虚构执行结果。
+
+最小 evidence graph 由以下四类记录组成（实验内部，不是公开 DTO）：
+
+- Binding：execution ID、candidate/input identity、实际 runtime identity、policy/version、适用 authority 引用。仅代码中的常量或调用方 Boolean 不是实际 identity 证明。
+- Trigger：surface、actor（page/worker 等实际类型）、唯一 trigger ID、受控 fixture route ID、parent/hop 关联及实际触发结果；只声明已触发不算事实。
+- Decision：对应 trigger/request 映射、allow/deny、封闭 reason code、NetworkPolicy/SitePolicy/scope/budget 检查结论及预算消耗。传输实现自己的 request ID 不得被假设等于 DNR/CDP ID。
+- Observation：与上两类可核对的 runtime event、专属 proxy/fixture 观测、允许转发/拒绝事实及执行结束/清理结论；证据源及映射由可信 host/harness 取得，页面或测试 double 不能给自己签发真实观察 authority。
+
+必须形成明确、一一可解释的关联，允许 vendor ID 通过显式映射关联，不要求跨进程时钟完美同构。时间仅用于各自时钟域的有界执行/顺序校验；不能只凭“时间相近”归因。未知关键映射、错误源、重复冲突 ID、跨执行/跨请求 receipt、缺失 trigger/decision、timeout 冒充成功均拒绝。历史 receipt v1/v2 不改写，新 validator 不静默接受其未经证明的假设。
+
+日志/结果只含受控 route ID、封闭字段与安全摘要；不含正文、原始 URL query、凭据、完整 argv/原始 inventory、DNS 全集。JSON 严格拒绝未知字段、重复键、非有限数与非法类型；具体内部封闭 schema 与 reason 列表在离线候选代码中一次实现并接受独立 Review，不追加公开产品字段。
+
+### 11.3 固定最小 fixture / validator 矩阵
+
+| 子门禁 | 必须验证 | 不足以宣称通过的证据 |
+| --- | --- | --- |
+| A Harness | 完整阳性样例可接受；缺失/错误源/跨执行/重复/伪造标记/timeout 样例拒绝；入口无许可不执行 | fake 样例通过不能证明 Browser 运行通过 |
+| B Allowed | 同一 composite 内实际 navigation、逐跳 redirect、iframe、script、XHR、fetch；每项有 Trigger→Decision→Network 关联；相同 policy/scope/累计 budget | fixture HTML 包含代码、配置审阅、只有最终正文 |
+| C Denied | WebSocket（page 与 dedicated worker）、download、popup、service worker register/update/fetch 对应默认拒绝/阻断前置能力；证明触发→拒绝且无允许 forwarding | 空 proxy 日志、timeout、JS error 单独出现、未执行触发 |
+| D Correlation | 本次真实 DynamicFetcher 与 authority 绑定；子资源/worker 拒绝可归因；结果明确区分 application denial 与 proxy 独立兜底 | 直接 Playwright 代替驱动、旧 R2C 结果、库存页格式完整性 |
+
+对默认拒绝 service-worker/popup 等前置能力，若其创建/注册已可靠拒绝，衍生能力记 `PREVENTED_BY_DENIED_PARENT` 并绑定实际 parent denial；不得伪造 update/fetch 请求，不能仅记 NOT_TESTED 就覆盖该 surface。必要小型 fixture 只填本矩阵实际覆盖缺口。
+
+真实 `DynamicFetcher.fetch` 安装 page_setup 策略后正常驱动 navigation/page_action；当前 about:blank setup 中关闭并抛 completion 的 source preflight 只能保留历史诊断，不能作为 B/C。`chrome://extensions` 不是强制前置。若实现依赖 DNR，必须以实际绑定的可信 extension/runtime 观察支持其决策，不能因为移除库存页就假定扩展有效；允许满足同一 invariant 的更小可信观察机制。
+
+R1E/R2C 只作无影响性变化的 authority 复用与当前绑定验证；不重建镜像、不复跑 SBOM/license/DNS/整个 egress 矩阵。保留 R2C 的 namespace/受控 proxy/local-fixture 限制；fixture 例外不能扩展为真实 URL、外网、任意私网或危险端口许可。
+
+### 11.4 受控实施范围、权限与停点
+
+执行角色：原 Backend；唯一 worktree `D:\FlowTracer-wt\backend`。新离线阶段不得丢弃 Plan A：`collector.py/probe.py/supervisor.py/test_runtime_adapters.py` 四份 dirty 改动及历史 untracked 全保留。不得自动 stash/reset/rebase/switch 到覆盖脏文件的 checkout。
+
+允许只在全新 `backend/experiments/browser-r3/composite_v1/` 实施：`contract.py`、`fixture.py`、`collector.py`、`harness.py`、`validator.py`、`supervisor.py`、`test_composite.py`、`execution-inputs.json`、`execution-plan.json`、`README.md`。若路径已存在且不是本任务资产，STOP 报告，不覆盖。先从当前分支确认基准可读与差异范围，提交仅精确白名单；若旧脏文件使候选闭包不能隔离，报告具体冲突，不自动清理。
+
+可以复用 Git 中 R1E/R2C 和既有 fixture/ports 的权威字节/接口；不能导入依赖未提交 Plan A 的 runtime 模块而漏记 identity。新 candidate 与旧 source diagnostic 保持隔离，无影响性的旧试验测试不重复。
+
+工作树保全例外：若切到最新 main 会覆盖旧 dirty 文件，本阶段允许在原 `feat/acq1-wp3-r3-internal-source@0de2d5658832b667aa00a5a8e73350a06b285bbb` 上创建隔离 `feat/acq1-r3-composite-offline` 分支，只提交十个新文件；这是离线 artifact 暂存，不是旧 branch 获得业务准入。独立审查以父提交→新提交的精确增量为范围。发布前由 GitHub 角色在自己干净工作树从最新 main 建发布分支，仅 cherry-pick 该单一 artifact commit 并验证十文件 diff/原文身份，不能把旧未合并 source commits 或 dirty 资产带入 PR。移植后精确 head 再复核，输入 hash 若受影响则如实重验，不重写 Backend 历史或重复无变化测试。
+
+允许确定性代码和 mock/fixture byte 的定向离线测试；模块 import 与默认 CLI 不启动外部 I/O，真实启动函数无精确 host 许可保持 NO-GO。禁止依赖安装、Docker/build/Browser/CDP/真实 session、网络、共享 infra、业务测试全量、旧 runtime/authority 修改、App/REST/Schema/Pipeline/评分变更。测试假数据必须标 SYNTHETIC，不能产出 R3 PASS。
+
+离线 PASS 条件：A–D 完整 schema/矩阵与可信来源接线计划；负例覆盖上节拒绝条件；全部输入 hash 闭包；无 import I/O/默认启动；安全/允许范围/现有资产无回归；独立 Review P0/P1=0。结果只可称 `OFFLINE HARNESS READY`，真实 R3 仍 BLOCKED。P2 文档债务记录继续，不增加库存页/来源完美性新硬门槛。
+
+Backend 完成一次定向测试后提交精确离线 candidate 并报告，未经后续总控许可不 push/PR/执行。总控独立复核代码/hash/negative matrix → 冻结 runtime Inputs/Objective/Threat/Invariant/PASS/BLOCK → 另签唯一 session 执行许可。连续两次不收敛触发 §8，不能自动第三轮补丁。
+
+### 11.5 当前遥测与下一动作
+
+本最小阶段计时从新任务开始记录，未知为 UNKNOWN；review/wait/implementation/governance 分列，避免重复累计。Docs-only PR Count 待该控制 PR 创建后为 1；已验收 authority 复证执行数=0；Gate Iteration Count 当前 runtime=0。合并后原 Backend 执行本节离线包；R3 runtime、R4/R5、正式 WP3/WP4+ 均未准入。

@@ -1,5 +1,7 @@
 # FlowTracer ACQ-1 WP-3 R3 Reactivation
 
+> Historical Governance Record — Superseded by [GOVERNANCE-V2](GOVERNANCE-V2.md) 自其控制 PR 合并生效。以下原文保留审计，不作为当前治理/准入许可；历史安全事实与证据不得删除或降格。
+
 状态：待本控制 PR 合并后生效；仅 R3 Application interception matrix 证据
 
 来源基准：`main@c584fd06ff136025dc6a0aba9815291b16682aa2`（R2C PR #68 merge commit）；本控制 PR 合并后的 `main` 必须是其后代

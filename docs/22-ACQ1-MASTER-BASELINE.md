@@ -1,8 +1,8 @@
 # FlowTracer ACQ-1 Master Baseline
 
-状态：Frozen Candidate（待总控 Review 与控制 PR 合并）
+状态：产品/数据契约保持冻结；治理更新以 [GOVERNANCE-V2](GOVERNANCE-V2.md) 控制 PR 合并生效。
 
-基准：`main@76e86c375cb769bc3716614d8d3f1cb470e4955f`
+原合同来源：`main@76e86c375cb769bc3716614d8d3f1cb470e4955f`；本次治理来源：`main@31fa751a3c074111f14b640a727a972eb996ef05`。
 
 ## 1. 目标
 
@@ -18,7 +18,7 @@ Source Discovery
 → 既有 Document / Analysis / Embedding / Notification Pipeline
 ```
 
-ACQ-1 是 Frontend 的硬依赖。ACQ-1 完成并冻结前，Frontend、Integration 与 Release 不准入。
+ACQ-1 交付能力与冻结契约是 Frontend 的实际依赖。当前 Frontend、Integration 与 Release 仍未准入；Browser 是可禁用增强能力，不天然 veto 无 Browser 依赖的路径。最终交付/禁用范围须由总控独立裁定，不在本治理包擅自削减产品 scope。
 
 ## 2. 正式范围
 
@@ -71,9 +71,7 @@ ACQ-1A + H0（Source / State / NetworkPolicy / Budget）
   ↓
 ACQ-1B + D-static（RSS / Native / Scrapling parser / Quality）
   ↓
-ACQ-1B-dynamic + H-browser（隔离 Browser）
-  ↓
-ACQ-1C（Router）
+ACQ-1C（Static/Native Router）← ACQ-1B-dynamic + H-browser（可选；验收后接入）
   ↓
 ACQ-1E（Controlled Discovery）
   ↓
@@ -85,6 +83,8 @@ ACQ-1H Final（恢复 / 安全 / 性能 / 全回归）
 ```
 
 不得跳过 H0 直接引入 Browser，不得跳过版本证据直接实现 Change Intelligence。
+
+Browser 未正式验收时 `browser_dynamic=disabled`；WP-4 Static/Native 只依赖已验收 WP-1/WP-2。WP-5..WP-8 按实际输入、契约、安全与恢复依赖逐项重评。DAG 不等于本次准入；本控制 PR 合并后也不得自动开工。
 
 ## 6. Acquisition 状态
 
@@ -145,4 +145,4 @@ expand → backfill → dual-read/write → switch → contract
 
 ## 10. 阶段停点
 
-每个实施阶段必须：开发 → 单次最终全量门禁 → commit/push/PR → Backend 向总控报告 → STOP。总控独立 Review 后才签发下一阶段。任何 P0/P1、契约漂移或不可重复启动均阻断下游。
+每个实施阶段必须：开发 → 适用门禁 → commit/push/PR → Backend 向总控报告 → STOP。业务候选最终全量测试纪律不变，纯治理文档不重复业务测试。总控独立 Review 后按真实依赖签发准入。P0/P1 阻断受影响路径；P2 记录处置，不 blanket BLOCK。契约漂移、启动失败按实际风险分级。R3/R4/R5、证据复用、A1 和治理 telemetry 统一以 GOVERNANCE-V2 为准。

@@ -3,8 +3,8 @@
 ## 1. 文档地位
 
 - 输入基线：用户提供的《FlowTracer 技术设计文档 Alpha v0.1》。
-- 当前阶段：Backend Phase BE-1 基础骨架与本地基础设施，已准入。
-- 当前结论：Alpha 架构、BE-1 工程基线和本地运行环境已通过门禁；Backend 只可执行 BE-1。
+- 当前阶段：Governance v2 治理 rebaseline（纯控制文档；合并后生效），见 [当前闸门](CURRENT-GATE.md)。
+- 当前结论：Backend Alpha BE-1..BE-8、AG-0..AG-6、ACQ WP-1/WP-2 已完成；Browser R3 未通过。现行治理以 [GOVERNANCE-V2](GOVERNANCE-V2.md) 为准，不把本控制包解释为下游准入。
 - 项目正式名称：FlowTracer。
 - Radar 是 FlowTracer 的核心领域对象，不再作为项目名称使用。
 
@@ -56,6 +56,8 @@
 ## 4. 工程原则
 
 - 流程固定为：架构冻结 -> 后端 -> 前端 -> 集成测试 -> GitHub 发布。
+- ACQ 内部按 Governance v2 Capability DAG 和真实依赖推进，不再把未验收 Browser 作为所有静态路径的硬依赖；各能力仍须独立书面准入。
+- P0/P1 阻断受影响路径；P2 记录并继续，只有证明安全 invariant 失效时才重分类。已验收证据无影响性变化不重复证明。
 - 前端正式开发以前，必须冻结 OpenAPI 契约和事件格式。
 - 采集和 AI 推理必须在后台任务中执行，不阻塞 API 请求。
 - 所有后台处理必须幂等、可重试、可追踪。
@@ -83,7 +85,7 @@
 - 维护范围、架构决策、依赖关系和验收标准。
 - 为每个工程阶段签发任务包。
 - 审查阶段产出，不在总控阶段编写业务代码。
-- 阻止未通过阶段闸门的下游工作正式开工。
+- 只阻止真实危险或缺少实际依赖的路径；对独立安全能力进行依赖重评后签发准入，记录治理成本。
 
 ### Backend
 
@@ -105,10 +107,10 @@
 
 ## 7. 当前状态
 
-- 已完成：产品愿景、Alpha 范围、核心架构与后端契约初步冻结、Backend 任务包、BE-0 验收、BE-1 工程基线、本地环境复核和 BE-1 准入。
-- 进行中：Backend Phase BE-1 基础骨架与本地基础设施。
-- 尚未准入：BE-2 及后续 Backend Phase、Frontend、Integration、Release。
-- 当前代码状态：`main` 跟踪 `origin/main`；尚无后端业务实现。
+- 已完成：Backend Alpha Core、Architecture Governance Pass、ACQ Contract Freeze、WP-1 Source/Safety 与 WP-2 Static；R1/R1C/R1D/R1E/R2C 证据保留。
+- 进行中：Governance v2 CONTROL REBASELINE；R3 保持 BLOCKED，Browser dynamic disabled。
+- 尚未准入：R4/R5、正式 WP-3、WP-4..WP-8、PLUGIN-1、Frontend、Integration、Release。
+- 当前来源：`main@31fa751a3c074111f14b640a727a972eb996ef05`；PR #78 已合并，PR #79 暂不合并。合并治理后先做 Dependency Re-evaluation，不自动开工。
 
 ## 8. Memory 演进边界（接任总控必须遵守）
 

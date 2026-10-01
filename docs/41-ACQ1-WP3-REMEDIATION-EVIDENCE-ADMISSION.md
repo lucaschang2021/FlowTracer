@@ -1,5 +1,7 @@
 # FlowTracer ACQ-1 WP-3 Remediation Evidence Admission
 
+> Historical Governance Record — Superseded by [GOVERNANCE-V2](GOVERNANCE-V2.md) 自其控制 PR 合并生效。以下原文保留审计，不作为当前治理/准入许可；历史安全事实与证据不得删除或降格。
+
 状态：Accepted（仅顺序化证据/原型；本控制 PR 合并后生效）
 
 前置基准：`main@b7cd7b1ce6e1d36bd7607c75f9883367cce6e623`

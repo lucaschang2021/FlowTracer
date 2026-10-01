@@ -1,6 +1,21 @@
 # FlowTracer 当前阶段闸门
 
-更新时间：2026-09-29。
+更新时间：2026-10-01。
+
+## 现行治理切换（本控制 PR 合并后生效）
+
+- 阶段：Governance v2 CONTROL REBASELINE — GOVERNANCE ONLY；唯一核心治理文档 [GOVERNANCE-V2](GOVERNANCE-V2.md)。来源 `main@31fa751a3c074111f14b640a727a972eb996ef05`（PR #78）；合并后的 main 应为来源后代，不要求相等。
+- BE-1..BE-8、AG-0..AG-6、ACQ WP-1/WP-2 完成；R1/R1C/R1D/R1E/R2C 已验收证据原样保留。PR #77/#78 是离线候选交付，不是 R3 PASS。
+- R3：**BLOCKED / GOVERNANCE_REBASELINE_REQUIRED**；新的合同只验真实 DynamicFetcher application policy、无网络旁路与可信关联。现有 source_observation/inventory 失败不证明旁路，也不证明成功：inventory 完美性债务 P2；安全归因尚未建立为 P1 未决。
+- Browser dynamic **disabled**；R4/R5、正式 WP-3 未准入。已有执行硬化/资源上限/监督、NetworkPolicy 和受控出口不降低。
+- WP-4..WP-8、PLUGIN-1、Frontend、Integration、Release **仍未准入**。Browser 不再自动 veto 静态能力；合并后仅可申请 Static/Native Capability DAG 的 Dependency Re-evaluation，须另签实际工作包。
+- 当前 Backend R3 offline patch 停点并保留未提交资产；本治理阶段不执行任何 Browser/Docker/session，不继续 patch loop。任务前已消费的 session01/02/03 历史事实与标记保留，不追认成功或重试。
+- PR #79 暂不合并；治理合并后重评 README，过时则 supersede。交付看板旧串行行作为历史记录，本节及 GOVERNANCE-V2 是现行准入语义，不得从旧行反推许可。
+- 必读：本文件、GOVERNANCE-V2、00 总控基线、22 Master、29 Work Packages；历史 37/41/49 只在审计时引用，不回读全套。
+- 本阶段验收：8 个指定 Markdown 文件白名单；历史 37/41/49 去除新增标记后与来源 Git blob 原文一致；R1..R2C 资产无 diff；相对链接/安全约束/准入/架构一致性、git diff --check；独立治理 Review P0/P1=0。不重复业务全量测试，不运行 Docker。
+- 合并后 **STOP**；不得自动执行 R3 或 WP-4。下一步：总控另行依赖重评与精确 Admission。
+
+## 历史阶段与证据（以下旧许可/串行语义已由上节 supersede）
 
 - 本控制提交的来源基准：`main@c584fd06ff136025dc6a0aba9815291b16682aa2`；该基准包含 R2C-A4 受控出口证据 PR #68。控制 PR 合并后的 `main` 应为此提交的后代，不要求与父基准 SHA 相等。
 - 已完成：ACQ-1 Preflight、Contract Freeze、WP-1（ACQ-1A + H0）与 WP-2（ACQ-1B + D-static）均已通过总控验收并合并。
@@ -28,4 +43,4 @@
 
 WP-3 的阶段名称、顺序、允许范围和安全原则已由 `docs/22-ACQ1-MASTER-BASELINE.md`、`docs/23-ACQ1-ACQUISITION-CONTRACT.md`、ADR-023/026 与 `docs/29-ACQ1-WORK-PACKAGES.md` 冻结。R1C/R1D/R1E/R2C 已提供 Browser runtime、供应链身份和受控出口实证；应用拦截、强制回收/资源样本及双 worker 隔离仍分别等待 R3-R5，不得以已有证据推定通过。
 
-下一步：本控制 PR 合并后，在新的 Backend 任务中仅执行 R3 应用拦截双层证据；通过后停点并经独立复审/PR 合并，才能另行申请 R4。R1→R5 全部通过也仍须另提 WP-3 Contract Addendum + 正式 Admission 控制 PR。
+历史下一步（不再是当前许可）：旧控制包曾要求 R3→R4→R5 串行证据，之后独立 WP-3 Admission。现行下一步仅依本文件顶部与 GOVERNANCE-V2，当前不运行任何 session 或下游工作包。

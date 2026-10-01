@@ -2,6 +2,8 @@
 
 状态：Frozen
 
+治理版本：[GOVERNANCE-V2](GOVERNANCE-V2.md) 合并后生效；产品工作包允许范围不扩大。本包仅更新依赖与验收语义，不准入任何新业务工作包。
+
 执行角色：现有“协作后端开发”Backend 角色；任务由总控直接下达并接收报告。
 
 ## 通用规则
@@ -12,6 +14,8 @@
 - push、PR 与 merge 仍需明确授权；Backend 不自行 merge 或准入下一阶段。
 - 任一 Schema、API、Pipeline、评分或 NetworkPolicy 偏离冻结文档，立即提交 ADR 请求，不得自行决定。
 - 所有网络核心测试离线；不得访问真实目标平台。
+- Capability DAG 替代 ACQ 绝对串行；Browser 未验收必须 disabled，WP-4 静态路径可在依赖重评后单独准入。
+- P0/P1 只阻断受影响真实依赖路径；P2 记录并继续。证据无影响性变化只引用，不重跑；每 Gate 冻结一个主 invariant，连续两次未收敛触发治理 rebaseline。
 
 ## WP-1：ACQ-1A + H0
 
@@ -51,7 +55,7 @@
 
 ## WP-3：ACQ-1B Dynamic + H-browser
 
-准入状态：未准入。实现前先满足 `docs/37-ACQ1-WP3-READINESS-BLOCKER.md`；精确兼容性、镜像和隔离证据必须由后续控制 PR 冻结，本文不得被单独解释为开工许可。
+准入状态：正式 Browser 未准入。R1/R1C/R1D/R1E/R2C 已验收证据保留；R3 按 GOVERNANCE-V2 rebaseline，当前仍 BLOCKED。R4 deadline/reap/resource 与 R5 worker/queue 单独验收；历史 docs/37、41、49 不再是当前许可入口。本文不得被单独解释为开工许可。
 
 目标分支：`feat/acq-1b-browser`
 
@@ -61,13 +65,15 @@
 
 前置硬门禁：NetworkPolicy threat model 与 egress 方案已在 WP-1 落地；package/browser revision/system dependency/image digest 锁定兼容实验通过。
 
-验收：所有 Browser 子资源 SSRF、无直连、非 root/只读 rootfs/资源限制、crash/OOM 隔离、本地 JS fixture、访问控制停止、同镜像可重复构建。
+验收：核心安全要求不变；R3 真实应用拦截/无旁路、R4 失败围堵、R5 worker/queue 分离。适用已验收 runtime/egress 证据复用，只验证绑定；不重复整个供应链/出口矩阵。正式能力另签准入。
 
 回滚：关闭 Browser queue 和 Profile 能力；Native/RSS 保持可用。安全策略不可回滚。
 
 ## WP-4：ACQ-1C Router
 
 目标分支：`feat/acq-1c-router`
+
+真实依赖：WP-1 + WP-2。本次未准入；合并治理后先 Dependency Re-evaluation，可单独签发 Static/Native 范围；Browser 分支 disabled，不能 fallback 到未验收能力。
 
 允许：Router v1、fallback、Circuit、AutoThrottle、decision trace、安全错误与指标。
 
@@ -81,6 +87,8 @@
 
 目标分支：`feat/acq-1e-discovery`
 
+真实依赖：已验收 Static/Native Router 与 SitePolicy/预算；可按静态范围重评，Browser-dependent discovery 暂停。本次未准入。
+
 允许：Frontier/checkpoint、四种 scope、link scoring、robots/domain policy、硬预算、取消与恢复。
 
 允许文件：Discovery models/migration、services/tasks/schemas/API、Network/SitePolicy 集成、对应 tests 与文档；不得修改下游 Intelligence/Memory。
@@ -92,6 +100,8 @@
 ## WP-6：ACQ-1F Change Intelligence
 
 目标分支：`feat/acq-1f-change`
+
+真实依赖：适用静态 acquisition/discovery 输入与版本证据合同；Browser 非天然硬依赖。本次未准入。
 
 允许：Artifact/Snapshot/ChangeEvent、RawItem snapshot identity、三类指纹、materiality、bounded diff、removed 判定、expand/backfill/switch migration。
 
@@ -105,6 +115,8 @@
 
 目标分支：`feat/acq-1g-opportunity`
 
+真实依赖：已验收静态 Discovery/Change 与 Opportunity 评分/人工 Action 合同；Browser 非天然硬依赖。本次未准入。
+
 允许：RadarType opportunity、OpportunityItem/Score/Action Payload、Freelance v1 Hard Filter、score v1、REST 与 Notification 兼容关联。
 
 允许文件：Opportunity models/migrations/provider/schema/service/task/API、Notification XOR 兼容改动、严格 tests、OpenAPI/Backend 文档；不得实现外部执行或 Frontend。
@@ -116,6 +128,8 @@
 ## WP-8：ACQ-1H Final
 
 目标分支：`feat/acq-1h-final`
+
+最终范围：完整列出已验收与禁用能力，验证用户价值闭环；未验收 Browser 不能虚报通过。任何交付范围调整须明确批准。本次未准入。
 
 允许：缺陷修复、恢复/指标/性能收尾、完整离线 E2E、OpenAPI/Frontend handoff、运行文档和已知限制；不得新增能力。
 

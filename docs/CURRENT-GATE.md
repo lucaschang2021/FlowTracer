@@ -2,7 +2,32 @@
 
 更新时间：2026-10-02。
 
-## 当前 live control：GOV-2.1 / R3 host-binding 合同候选
+## 当前 live control：GOV-2.1 / callback fail-closed 合同候选
+
+- 当前事实基准：`main@1c7b15a7a285cd183a94ddca460f023163700a4c`；PR #83（GOV-2.1）、#84（H1 合同）、#85（H1 offline artifact）已合并。#85 候选 `7f4a108`：独立离线 24/24、Backend CI PASS；不等于 R3 PASS。
+- 原 Backend `FT-GOV21-R3-H2-INTERFACE-01` 已只读报告并 STOP：Scrapling 0.4.15 吞 setup/action Exception 后继续执行；H1 抛 Rejected 未证明拒绝后无导航。源码层 P1 未决，真实入口一直 NO_GO，未声称实际泄漏。Playwright 1.62 SDK、popup 前置拒绝、worker 原生 actor、逐请求 tunnel join 仍缺证据。
+- 当前唯一操作：总控修订 [GOVERNANCE-V2 §11.7](GOVERNANCE-V2.md#117-h2-接口审计与-callback-fail-closed-补充2026-10-02)、本 gate、看板；不是 H2 实施或 runtime。旧任务无续权，已保存资产不重跑。
+- Capability：R3 BLOCKED / Browser dynamic disabled / runtime NO_GO。R4/R5、正式 WP3、WP4+、PLUGIN、Frontend、Integration、Release 未准入。无依赖静态 DAG 仍需自己的独立准入，不被本局部缺口自动否决。
+- 本候选只做三文档 diff/链接/事实一致性和独立治理 Review，禁止业务/API/Schema/依赖/Browser/Docker/session/测试；下一 SDK 取证或 fail-closed 设计须另签完整 lease，设计审查后才可单次离线实现。
+
+```text
+Task ID: FT-GOV21-R3-FAIL-CLOSED-DOC-01
+Control Epoch: GOV-2.1
+Parent Goal: Preserve real R3 fail-closed invariant after locked SDK interface audit
+Exact Baseline: 1c7b15a7a285cd183a94ddca460f023163700a4c
+Exact Branch: codex/r3-fail-closed-contract
+Authorized Operation: One three-document amendment and one targeted document validation
+Allowed Files: docs/GOVERNANCE-V2.md, docs/CURRENT-GATE.md, docs/02-DELIVERY-BOARD.md
+Allowed Tools: apply_patch; read-only Git/file/link checks
+Forbidden Operations: business/API/Schema edits, install/test/runtime, commit/push/PR/merge, old lease continuation
+Max Iterations: 1
+Hard Deadline: 15 minutes from operation start
+Expected Evidence: Exact scope/link/fact checks; unchanged safety limits; no runtime admission
+Stop Condition: One validation result or failure/deadline/revocation
+Next Authority Owner: FlowTracer controller
+```
+
+## 历史：H1 合同候选（PR #84 已合并，以下不提供 live authority）
 
 - PR #83 已 MERGED；精确 merge/main `673f4b8f30bd1f7229510a1db8872e680b5a1fee`。CONTROL_EPOCH=GOV-2.1 已生效。下面 FT-GOV-V2.1 候选记录已结束，仅作历史，不表示 epoch 仍待生效。
 - 当前操作：总控只修订现有 [GOVERNANCE-V2 §11.6](GOVERNANCE-V2.md#116-r3-host-binding-最小补充合同2026-10-02控制-pr-合并后可申请新-lease)、本 gate 与看板，冻结 H1 最小 offline adapter 边界；此控制 PR 合并前不实施 H1。

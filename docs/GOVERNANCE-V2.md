@@ -256,6 +256,27 @@ native 仍未决：旧 extension 只 block WebSocket，observer 只接受旧 `we
 
 H2 与唯一 composite 真实执行须分别签发新完整 lease；H1 完成不自动准入。不能为凑 PASS 降低原主 invariant，也不能把这些局部未决变成静态能力的全局 veto。
 
+### 11.7 H2 接口审计与 callback fail-closed 补充（2026-10-02）
+
+事实基准：PR #84 合同已合并 `a215051d2a2f53b41d9b22339f1bab52a27dbdf7`；PR #85 H1 OFFLINE ONLY 已合并 `1c7b15a7a285cd183a94ddca460f023163700a4c`，候选 `7f4a108ed4102f183837cb9189d4c95f81272ed8`，24/24 标准库离线测试与 Backend CI 通过。这些证据只覆盖离线 adapter，不是 R3 PASS 或真实执行许可。
+
+新证据：原 Backend 的 `FT-GOV21-R3-H2-INTERFACE-01` 只读审计已结束。Scrapling 0.4.15 本地 `_controllers.py:155-162` 捕获 `page_setup` 的 `Exception` 后继续 `page.goto`，`:168-172` 同样捕获 `page_action` 异常。H1 的 `Rejected(ValueError)` 属于该捕获范围；身份拒绝可能先于 guards 安装，事后 `driver_incomplete` / finally cleanup 不能倒推此前无导航。此为源码层 P1 未决边界；入口 NO_GO，未观察或宣称实际泄漏。既有直接传播异常的 synthetic stub 不覆盖该控制流，旧通过证据不重复、不扩大结论。
+
+#### 最小拒绝合同（立即控制，记录经本 PR 审查合并）
+
+- SDK 会吞异常时，抛 `Rejected` 本身不是 enforcement。身份、setup、action、callback budget 或 native readback 拒绝须成为不可逆的本次执行拒绝状态；SDK 后续返回成功不能清除拒绝或产生 PASS。
+- 身份/setup 拒绝必须在 SDK 可继续正常导航之前建立可证明的不可绕过拒绝边界，或确定终止精确 owned runtime；不能仅等待 15s watchdog、事后 close、JS wrapper、后置 `driver_incomplete` 或代理 deny。宿主终止未完成/ownership 不符/absence 未证实即 NO_GO，不能自行重试或删除外部资源。
+- 下一设计必须明确 callback 到宿主监督器的拒绝传播、同线程 driver 限制、独立终止的 deadline 与 SDK catch-and-continue 顺序。不得用跨线程 Playwright 调用实现 watchdog；既有 15s/5s/120s（含最多 30s cleanup）上限不增加。
+- targeted synthetic 验证必须准确模拟 SDK 捕获 callback Exception 后试图继续 goto/action 的分支；覆盖 setup 身份拒绝、action 拒绝、callback timeout、cleanup 失败、SDK 正常返回但拒绝已发生。只有证明拒绝不能被吞掉/转为成功，才可称该离线分支已修复；实际无导航/无出口仍需新许可下的真实证据。
+
+#### 其余接口事实与下一边界
+
+Scrapling `_base.py:516-517` 与 `_controllers.py:85-88` 在创建 persistent context 前转发 `additional_args`，可作为 `service_workers='block'` 的参数入口源码证据；锁定 Playwright 1.62.0 本地 SDK 尚缺，接受参数、实际注册阻断及 extension worker 兼容性仍 UNKNOWN。popup 创建前 native 拒绝仍 UNKNOWN，不以事后 close/route.abort/JS 替换冒充。
+
+旧 DNR rule 仅 WebSocket；observer 只接受旧 host/route，且 receipt 的 initiator 为 null。新 route、actual worker actor/ready/attempt/vendor-ID、规则 readback 与有界 flush 须实际绑定。旧 proxy/fixture 缺 tunnel ID、upstream local socket 与 fixture accepted socket/请求序号；§11.6 的逐请求 token/socket join 仍是待实施合同，不把 opaque CONNECT 当解密请求证据。
+
+下一最小操作仅可另签：锁定 SDK 来源取证与 fail-closed 接口设计，或该设计审查后的单次离线实现/验证。此补充不准入 H2 大实现、Browser/Docker/session、R4/R5 或下游；不得重跑 PR #82/#85 未变证据。原 Backend 与 GitHub 已返回 STOP，旧 lease 均 EXPIRED。任何新任务继续适用 GOV-2.1 完整 record。
+
 ## 12. Governance v2.1 — Live Authority & In-Flight Task Control
 
 CONTROL PACKAGE：`FT-GOV-V2.1`；来源 `main@335c6a2da418b2d3b2c4c70b59ee3d20d08c08cb`（PR #82 merge）。本节为现有治理的修订，不重做 v2，不建立平行治理体系，不实现 Möbius。

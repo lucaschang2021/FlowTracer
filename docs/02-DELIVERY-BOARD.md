@@ -4,17 +4,18 @@
 
 **M0：架构初步冻结 — 已完成**
 
-**当前阶段：FT-GOV-V2.1 Live Authority 修订；CONTROL_INTERRUPT 已即时生效，仓库 epoch 待本修订合并**
+**当前阶段：GOV-2.1 已生效；R3 host-binding 最小合同候选，H1 未准入**
 
 Backend Alpha Core、Architecture Governance Pass、WP1/WP2 已完成。R1..R2C 证据保留；PR #80/#81/#82 已合并，offline harness ready 不等于 R3 PASS。R3 BLOCKED、Browser dynamic disabled；旧 Backend/GitHub STOPPED，工程 Execution Authority=NONE。v2 DAG 与风险规则保持，WP4+ 须独立准入；R4/R5、正式 Browser、PLUGIN、Frontend、Integration、Release 未准入。
 
-本次来源基准：`main@335c6a2da418b2d3b2c4c70b59ee3d20d08c08cb`；新控制 PR 合并后 main 是其后代。现行合同 [GOVERNANCE-V2 §12](GOVERNANCE-V2.md#12-governance-v21--live-authority--in-flight-task-control) 与 [CURRENT-GATE](CURRENT-GATE.md) 优先，历史行不提供执行权。PR #79 DO NOT MERGE，另签重评或 supersede/close；本修订不处理其共享状态。
+本次来源基准：`main@673f4b8f30bd1f7229510a1db8872e680b5a1fee`（PR #83 merge）；新控制 PR 合并后 main 是其后代。现行合同 [GOVERNANCE-V2 §12](GOVERNANCE-V2.md#12-governance-v21--live-authority--in-flight-task-control)、§11.6 与 [CURRENT-GATE](CURRENT-GATE.md) 优先，历史行不提供执行权。PR #79 DO NOT MERGE；本修订不处理其共享状态。
 
 ## 工作项
 
 | ID | 工作项 | 负责人窗口 | 状态 | 依赖 | 验收产物 |
 | --- | --- | --- | --- | --- | --- |
-| FT-GOV-V2.1 | Live Authority / In-Flight Control Amendment | 总控 | 中断/快照完成；修订待独立 Review/PR/合并 | main@335c6a2；FT-GOV-002 | GOVERNANCE-V2 §12；合并后 GOV-2.1，STOP，不恢复旧工程任务 |
+| FT-GOV-V2.1 | Live Authority / In-Flight Control Amendment | 总控 | 完成（PR #83 合并，旧工程未恢复） | main@335c6a2；FT-GOV-002 | merge 673f4b8；GOVERNANCE-V2 §12；GOV-2.1 |
+| R3-HOST-CONTRACT | 最小 host approval/runtime/监督绑定合同 | 总控 | 候选；待独立 Review/PR/合并 | GOV-2.1；a398068 为未发布输入资产 | GOVERNANCE-V2 §11.6；H1/H2/真实执行分别签 lease |
 | ARC-001 | Alpha 范围与非目标 | 总控 | 完成 | - | `00-PROJECT-CONTROL.md` |
 | ARC-002 | 核心技术决策 ADR | 总控 | 完成 | ARC-001 | `01-ARCHITECTURE-DECISIONS.md` |
 | ARC-003 | 领域模型与 ERD | 总控 | 完成 | ARC-002 | `03-BACKEND-CONTRACT-BASELINE.md` |

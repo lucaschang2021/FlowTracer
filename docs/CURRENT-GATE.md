@@ -2,6 +2,35 @@
 
 更新时间：2026-10-02。
 
+## 当前 live control：GOV-2.1 / R3 host-binding 合同候选
+
+- PR #83 已 MERGED；精确 merge/main `673f4b8f30bd1f7229510a1db8872e680b5a1fee`。CONTROL_EPOCH=GOV-2.1 已生效。下面 FT-GOV-V2.1 候选记录已结束，仅作历史，不表示 epoch 仍待生效。
+- 当前操作：总控只修订现有 [GOVERNANCE-V2 §11.6](GOVERNANCE-V2.md#116-r3-host-binding-最小补充合同2026-10-02控制-pr-合并后可申请新-lease)、本 gate 与看板，冻结 H1 最小 offline adapter 边界；此控制 PR 合并前不实施 H1。
+- 只读审查已结束：Backend Preflight-02 部分报告因错误依赖路径停点。总控通过 Git tree 核实真实依赖为 `contract_v2.py → dnr_offline/contract.py`；这是路径核验错误，不是新增 R3 安全缺陷，不再重复整次 preflight。
+- 来源资产 `a3980682b7fd306f130250978c3ef6dade224233` 仅供新 lease 审查/复用；旧 scope REVOKED。Backend 当前 STOPPED，fetch-only lease 与 preflight lease 均已结束。旧 dirty/untracked 全保留。
+- R3 BLOCKED、Browser dynamic disabled / runtime NO_GO；R4/R5、正式 WP3/WP4+、PLUGIN、Frontend、Integration、Release 未准入。静态 DAG 不被 Browser 自动 veto，但仍需独立实际依赖准入。
+- 当前验收：仅三文档差异、链接/边界一致性、v2/v2.1 回归、独立 P0/P1=0。不得跑 PR #82 或业务测试、Browser/Docker/CDP/session/install，不改业务/API/Schema/production config。
+- 合并后总控可另签 H1（一次 offline increment + 一次 targeted verification），未绑定 native/tunnel ports 仍明确 NO_GO；失败 REPORT+STOP，不自续 repair/commit/push/下一增量。H2 和真实执行须另签许可。
+
+```text
+Task ID: FT-GOV21-R3-HOST-CONTRACT-01
+Control Epoch: GOV-2.1
+Parent Goal: Freeze minimum host binding needed for R3
+Exact Baseline: 673f4b8f30bd1f7229510a1db8872e680b5a1fee
+Exact Branch: codex/r3-host-binding-contract
+Authorized Operation: One three-document contract increment and one document validation
+Allowed Files: docs/GOVERNANCE-V2.md, docs/CURRENT-GATE.md, docs/02-DELIVERY-BOARD.md
+Allowed Tools: apply_patch; read-only Git/file/link checks
+Forbidden Operations: business/test/install/runtime/network publication/merge/old task continuation
+Max Iterations: 1
+Hard Deadline: 15 minutes from operation start
+Expected Evidence: Scope/link checks, H1 boundary and unchanged safety invariant, no drift
+Stop Condition: One validation result or failure/deadline/revocation; no implicit commit
+Next Authority Owner: FlowTracer controller
+```
+
+## 历史：FT-GOV-V2.1 修订候选与已完成操作
+
 ## 当前最高控制：FT-GOV-V2.1
 
 - 来源基准：`main@335c6a2da418b2d3b2c4c70b59ee3d20d08c08cb`，包含 PR #80 Governance v2、#81 composite contract、#82 offline harness。合并后的 main 是该基准后代，不要求等于父基准。

@@ -1,4 +1,14 @@
 {
+  "accepted_runtime_constraints": {
+    "cpu": 1.0,
+    "memory": "768m",
+    "pids": 128,
+    "proxy": "198.51.100.20:18080",
+    "read_only": true,
+    "source": "backend/experiments/browser-r2c/r2c_a4/compose.yaml",
+    "tmpfs": "256m",
+    "uid": 10001
+  },
   "authority_reproofs": 0,
   "budget": {
     "bytes": 5242880,
@@ -6,26 +16,38 @@
     "pages": 4,
     "requests": 20
   },
+  "budget_status": "PROPOSAL_NOT_OPERATOR_POLICY_OVERRIDE",
   "concrete_image_sha": null,
+  "critical_gaps": [
+    "actual host record loader, pinned image/topology and bounded host executor UNBOUND",
+    "native worker WS/popup/SW enforcement-observation port",
+    "worker ready+attempt native correlation",
+    "CONNECT-to-per-request trusted receipt producer",
+    "H1 offline protocol requires independent review; no actual host reap evidence"
+  ],
   "driver": "DynamicFetcher.fetch",
   "execution_id": null,
-  "fixture_host": "fixture-r3.test",
-  "fixture_port": 443,
-  "forbidden": [
-    "direct_Playwright_driver",
-    "Docker",
+  "fixture_host": "navigation-r3.test",
+  "fixture_port": 8443,
+  "h1_callback_limit_ms": 5000,
+  "h1_cleanup_limit_ms": 30000,
+  "h1_offline_status": "IMPLEMENTED_SYNTHETIC_VERIFICATION_PENDING_NOT_RUNTIME_PERMISSION",
+  "h1_parent_limit_ms": 120000,
+  "input_sha256": "f61e1ffdfb6e8daeeebf8813f52436b74272252da8ca4010483ed71b16b8056a",
+  "next": "Independent offline review; report concrete host/native attribution gaps before any runtime permit",
+  "published_candidate_sha": null,
+  "real_adapter_status": "DRIVER_HOOKS_AND_RECEIPT_JOIN_WIRED_NATIVE_HOST_PORTS_UNBOUND",
+  "runtime_executions": 0,
+  "runtime_permission": "NO_GO",
+  "schema": "r3-composite-plan-v1",
+  "scope_forbidden": [
+    "Browser",
     "CDP",
+    "Docker",
+    "build",
     "network",
     "dependency_install",
     "business_full_suite"
   ],
-  "input_sha256": "e78f3e006612971703d7c8d8dce9d8a29ffd8d1de04eb0ab7f9bf22054085061",
-  "next": "Independent offline review; separately permit host-adapter implementation and exact runtime inputs",
-  "parent_rule": "PREVENTED_BY_DENIED_PARENT requires actual parent denial; child request null",
-  "published_candidate_sha": null,
-  "real_adapter_status": "NOT_WIRED",
-  "runtime_executions": 0,
-  "runtime_permission": "NO_GO",
-  "schema": "r3-composite-plan-v1",
-  "topology": "PROPOSED_R2C_LOCAL_ONLY_NOT_AUTHORIZED"
+  "topology": "R2C_A4_ISOLATED_LOCAL_ONLY_REQUIRES_EXACT_PERMIT"
 }

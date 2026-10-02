@@ -15,13 +15,20 @@ window.composite = {
   update: registration => registration.update(),
   swFetch: registration => registration.active.postMessage('fetch')
 };</script>"""
-WORKER = b"onmessage=()=>new WebSocket('wss://fixture-r3.test/worker-ws');"
+WORKER = b"""postMessage({kind:'ready'});
+onmessage=()=>{postMessage({kind:'attempt'});
+new WebSocket('wss://navigation-r3.test:8443/worker-ws');};"""
 SW = b"onmessage=()=>fetch('/sw-fetch');"
 
 
 def response(route: str) -> tuple[int, bytes, str, str | None]:
     routes = {
-        "navigation": (200, PAGE, "text/html", None),
+        "navigation": (
+            200,
+            PAGE.replace(b"fixture-r3.test", b"navigation-r3.test:8443"),
+            "text/html",
+            None,
+        ),
         "redirect-start": (302, b"", "text/plain", "/redirect-end"),
         "redirect-end": (200, b"<title>redirect</title>", "text/html", None),
         "iframe": (200, b"<title>frame</title>", "text/html", None),

@@ -3,7 +3,7 @@
 ## 1. 文档地位
 
 - 输入基线：用户提供的《FlowTracer 技术设计文档 Alpha v0.1》。
-- 当前阶段：Governance v2 治理 rebaseline（纯控制文档；合并后生效），见 [当前闸门](CURRENT-GATE.md)。
+- 当前阶段：FT-GOV-V2.1 Live Authority 修订（governance-only）；CONTROL_INTERRUPT 已即时生效，仓库 GOV-2.1 epoch 须 exact-head 合并后确认，见 [当前闸门](CURRENT-GATE.md)。
 - 当前结论：Backend Alpha BE-1..BE-8、AG-0..AG-6、ACQ WP-1/WP-2 已完成；Browser R3 未通过。现行治理以 [GOVERNANCE-V2](GOVERNANCE-V2.md) 为准，不把本控制包解释为下游准入。
 - 项目正式名称：FlowTracer。
 - Radar 是 FlowTracer 的核心领域对象，不再作为项目名称使用。
@@ -66,6 +66,7 @@
 - Alpha 优先验证端到端价值，不提前实现后续版本能力。
 - 所有开发必须经过任务规划、开发分支、commit、push、Pull Request、Review 和 Merge。
 - 禁止直接向 `main` push；未经总控明确 Review 和授权，GitHub 管理角色不得合并。
+- Authority is leased：Goal 不等于执行权；任务只拥有当前获准操作，不拥有未来步骤的默认续权。按 [Governance v2.1 §12](GOVERNANCE-V2.md#12-governance-v21--live-authority--in-flight-task-control) 填写完整 Task Authority Record；操作后 checkpoint 刷新，过期/撤销/epoch 不匹配即 STOP。控制中断不等待 PR 合并，等待子任务不延权，默认 MAX_ITERATIONS=1、deadline=15 minutes。
 
 ## 5. 里程碑与阶段闸门
 
@@ -108,9 +109,9 @@
 ## 7. 当前状态
 
 - 已完成：Backend Alpha Core、Architecture Governance Pass、ACQ Contract Freeze、WP-1 Source/Safety 与 WP-2 Static；R1/R1C/R1D/R1E/R2C 证据保留。
-- 进行中：Governance v2 CONTROL REBASELINE；R3 保持 BLOCKED，Browser dynamic disabled。
+- 进行中：FT-GOV-V2.1 治理修订与 FT-GOV-002 记录；R3 保持 BLOCKED，Browser dynamic disabled；旧 Backend/GitHub 已 STOPPED，工程 Execution Authority=NONE。
 - 尚未准入：R4/R5、正式 WP-3、WP-4..WP-8、PLUGIN-1、Frontend、Integration、Release。
-- 当前来源：`main@31fa751a3c074111f14b640a727a972eb996ef05`；PR #78 已合并，PR #79 暂不合并。合并治理后先做 Dependency Re-evaluation，不自动开工。
+- 当前来源：`main@335c6a2da418b2d3b2c4c70b59ee3d20d08c08cb`；PR #80/#81/#82 已合并。PR #79 DO NOT MERGE，须另签重评；本修订合并后 STOP，不自动恢复旧任务或签发工程下一步。
 
 ## 8. Memory 演进边界（接任总控必须遵守）
 
@@ -219,6 +220,8 @@ FlowTracer：主动发现内容 → AI 判断价值 → 形成情报 → 进入�
 因此，未来 Obsidian 集成应增强 FlowTracer 的长期知识沉淀能力，而不能改变 FlowTracer 作为“主动发现与理解信息”的核心定位。
 
 ## 9. 接任总控的变更禁令
+
+总控交接必须携带 Governance v2/v2.1、实际 CONTROL_EPOCH/合并状态、当前 gate、精确 SHA、有效及撤销 lease、原子操作快照与证据。交接或新窗口不产生续权；恢复工程须另签完整 NEW TASK AUTHORITY。
 
 除非重新走正式 ADR、影响分析与阶段准入流程，否则接任总控不得：
 

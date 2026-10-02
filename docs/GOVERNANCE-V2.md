@@ -1,6 +1,6 @@
 # FlowTracer Governance v2 — Adaptive Risk-Based Governance
 
-状态：CONTROL REBASELINE — GOVERNANCE ONLY；本控制 PR 合并后生效。
+状态：Governance v2 已合并；§12 为 FT-GOV-V2.1 治理修订。CONTROL_INTERRUPT 自总控收到指令立即生效；GOV-2.1 仓库 epoch 在本修订 exact-head 合并后生效。候选、操作控制与永久记录不得混报。
 
 来源基准：`main@31fa751a3c074111f14b640a727a972eb996ef05`（PR #78）。合并后 main 是该来源的后代，不要求等于来源 SHA。本文件是治理语义的唯一现行核心文档，不是业务、Browser session 或下游 Admission。
 
@@ -159,9 +159,9 @@ FT-GOV-001：局部 R3 的 evidence expansion、serial dependency inflation、pa
 
 ## 10. Authority、发布与停止
 
-本文件合并前只是候选；合并后 supersede docs/37、41、49 的现行治理/验收合同，以及其他历史文档中相冲突的绝对串行/P2 blanket blocker 语义。旧记录作为历史事实，不得再次当作当前开工许可。CURRENT-GATE 给出现行准入，delivery board 的旧行只作归档，下一次同步不得反向覆盖现行裁定。
+Governance v2（PR #80）已合并，supersede docs/37、41、49 的相冲突治理/验收语义。旧记录不提供当前执行权。CURRENT-GATE 与本文件 §12 的 live authority 优先；控制指令的即时撤销不等待 PR 合并。看板历史行不得反向覆盖现行裁定。
 
-PR #79 暂不合并；本包合并后重新评估 README 内容，过时则 supersede，不现在追赶旧治理表述。
+PR #79：DO NOT MERGE。除非另签只读重评 lease，证明文本完全符合 Governance v2、v2.1 与届时 main，否则应 supersede/close；本修订不执行该 PR 的修改、关闭或合并。
 
 本包流程：审计 → 单一核心文档与现有文档同步 → 文档/架构一致性检查 → 独立治理 Review（P0/P1=0）→ 控制 PR → exact-head merge → STOP。纯文档不重复业务全量测试、不运行 Browser/Docker。合并后只可另申请 Dependency Re-evaluation，不自动运行 session 或 WP4。
 
@@ -169,7 +169,7 @@ SSRF/SitePolicy/预算、无公网测试、无凭据/登录态、无 CAPTCHA/访
 
 ## 11. R3 composite 最小合同与离线实施包（2026-10-01）
 
-来源：Governance v2 merge `35ae356d292c5300f39f99f0726c829ad270b744`；本节经独立 Review/控制 PR 合并后，仅准入离线 harness 实施，不准入真实执行。无新增治理文档、API、Schema、依赖、镜像、业务 capability 或 WP4 Admission。
+来源：Governance v2 merge `35ae356d292c5300f39f99f0726c829ad270b744`。本节合同已由 PR #81 合并，离线产物 PR #82 已合并；以下实施权限描述是历史记录，不是持续 lease，已被 §12 撤销。技术 invariant 保留；不准入真实执行、API、Schema、依赖、镜像、业务 capability 或 WP4。
 
 ### 11.1 依赖重评与本次唯一目标
 
@@ -225,4 +225,90 @@ Backend 完成一次定向测试后提交精确离线 candidate 并报告，未�
 
 ### 11.5 当前遥测与下一动作
 
-本最小阶段计时从新任务开始记录，未知为 UNKNOWN；review/wait/implementation/governance 分列，避免重复累计。Docs-only PR Count 待该控制 PR 创建后为 1；已验收 authority 复证执行数=0；Gate Iteration Count 当前 runtime=0。合并后原 Backend 执行本节离线包；R3 runtime、R4/R5、正式 WP3/WP4+ 均未准入。
+本最小阶段计时从新任务开始记录，未知为 UNKNOWN；review/wait/implementation/governance 分列。PR #81/#82 已合并；输入无影响性变化时复用 PR #82 离线证据，不重跑。旧 Backend 不再执行本节工作包；R3 runtime、R4/R5、正式 WP3/WP4+ 均未准入。
+
+## 12. Governance v2.1 — Live Authority & In-Flight Task Control
+
+CONTROL PACKAGE：`FT-GOV-V2.1`；来源 `main@335c6a2da418b2d3b2c4c70b59ee3d20d08c08cb`（PR #82 merge）。本节为现有治理的修订，不重做 v2，不建立平行治理体系，不实现 Möbius。
+
+### 12.1 Authority is leased / 即时控制
+
+**A task owns an operation, not the future. 任务只拥有当前获准操作的执行权，不拥有未来步骤的默认续权。**
+
+Authority 必须 SCOPED、VERSIONED、REVOCABLE、EXPIRING AT CHECKPOINT。Parent Goal 是目标，不是无限期执行许可。Controller Operational Authority 自控制指令收到立即生效；Repository Governance Record 经独立 Review、PR、exact-head merge 永久记录。不得等待记录合并才停止旧任务。
+
+本包接收即 `CONTROL_INTERRUPT=ACTIVE`，撤销旧 GOV-2.0、LEGACY-R3、PRE-GOV2 任务的后续操作权。修订合并后 `CONTROL_EPOCH=GOV-2.1`；合并前此值只是受控修订/快照 lease 的目标 epoch，不得宣称仓库 epoch 已切换。接收中断后旧任务已无续权，无论其 epoch 是否仍与未合并仓库文本相等。
+
+每次操作前核对 epoch、Current Gate、当前 task authority、revocation/expiry、Allowed Next Operation 和精确输入。`task.control_epoch != current.control_epoch` 即 STALE_AUTHORITY → STOP；相等只是必要条件，不能覆盖撤销或过期。治理合同、总控裁定、风险等级变化：旧 authority 在下一安全 checkpoint REVOKED。Latest controller authority supersedes incomplete historical task goals。
+
+### 12.2 In-flight 原子操作与 deadline
+
+收到中断时逐任务标记 RUNNING_ATOMIC / CHECKPOINT_REQUIRED / AUTHORITY_REVOKED，并最终记录 STOPPED；不得仅依据旧 Goal、锁文件或等待意图推断进程仍活跃。
+
+- 已启动且可安全中止：立即 graceful stop，保存 stdout、stderr、exit state、owned resources、working-tree diff、generated artifacts，进入 CHECKPOINT_REQUIRED。
+- 中止会破坏文件或证据：只允许已启动、不可分割的当前动作完成，随后 STOP；不得开始下一条命令或借快照补修、测试、提交。
+- 原子操作默认 hard deadline 为启动后 15 minutes。full suite、build、大型确定性验证、获准 Browser session 只有 lease 明示更长时限才可延长；无 long-run authority 不得持续数小时。超限由明确停止策略安全处理并报告，不自动创建替代 session。
+- 保存与清理仅限已授权的保全范围；未知资源标 UNKNOWN，不借此启动 runtime 探测或删除用户资产。
+
+### 12.3 Checkpoint preemption / no implicit continuation
+
+执行链：Authority → Atomic Operation → Checkpoint → Authority Refresh / Revoke → Next Operation。每个原子动作结束必须重新核对并由总控签发下一 lease；未刷新即 EXPIRED。
+
+“继续推进/收尾/核验、完成剩余工作、按照原计划、等 Backend 返回”均不构成 authority。没有明确 NEXT_OPERATION 与 STOP_CONDITION：NO_GO。任务不能以“原 Goal 未完成”继续收尾、修一下、测完或先出 candidate。
+
+Machine-owned wait 只允许 command runner 等待已获准、有 deadline 的 pytest/build/CI/runtime。Model/Backend 不因命令结束自动执行 fix→test→fix。总控等待子任务只可记录状态、等当前获准原子结果，不延长子 authority；结果返回后 STOP → controller review → new authority。
+
+每个 implementation lease 默认最多 1 implementation increment + 1 targeted verification，MAX_ITERATIONS=1。失败 REPORT + STOP。只有完整 lease 显式声明 bounded repair loop、MAX_ITERATIONS、deadline、每次 checkpoint 刷新才可有更多次数；不允许循环自续权。验证、发布、合并分别签发其 operation lease，不由 Goal 推导。
+
+### 12.4 必填 Task Authority Record / 生命周期
+
+```text
+Task ID:
+Control Epoch:
+Parent Goal:
+Exact Baseline:
+Exact Branch:
+Authorized Operation:
+Allowed Files:
+Allowed Tools:
+Forbidden Operations:
+Max Iterations:
+Hard Deadline:
+Expected Evidence:
+Stop Condition:
+Next Authority Owner:
+```
+
+核心字段缺失、输入不匹配、已过期或撤销：NOT ADMITTED。发布/Review lease 必须绑定精确 candidate SHA；真实执行还须绑定 manifest/plan/fixture/validator/runtime 等合同输入，不用分支名替代 identity。
+
+生命周期：ISSUED → ACTIVE → RUNNING_ATOMIC → CHECKPOINT → EXPIRED；治理变化 → REVOKED；P0 → EMERGENCY_STOP；禁止 indefinite ACTIVE。每个子任务返回后总控明确 REVIEW、ACCEPT/REJECT、必要时 REBASELINE；只有 ISSUE NEXT AUTHORITY 才能续跑。总控不得把 Agent Goal 当作后台永久线程。
+
+### 12.5 当前裁定 / task snapshot
+
+Capability State ≠ Execution Authority。当前 `R3=BLOCKED`、`browser_dynamic=disabled / runtime NO_GO`，同时 `Engineering Execution Authority=NONE` 完全合法。安全 NO_GO 既不是旧 Agent 无限修 Browser 的授权，也不是静态 DAG 无依赖路径的全局 veto。
+
+PR #80（v2）、#81（composite contract）、#82（offline harness）已合并，来源 main 为 `335c6a2da418b2d3b2c4c70b59ee3d20d08c08cb`。PR #82 仅为 OFFLINE HARNESS READY，不是 R3 PASS；输入未变不重复其测试。R1..R2C、已消费 session、旧 source/inventory/stub 资产仅保留为历史 evidence。
+
+| 旧任务 / identity | 中断现场及保全 | 当前 authority |
+| --- | --- | --- |
+| Backend `01a02d1e-f890-7e01-ad25-04c8bc7f0d1f`；旧 turn `01a0f728-aad6-7600-9f50-9702bdc957e7` | STOPPED，无活动命令；`feat/acq1-r3-composite-offline@a3980682b7fd306f130250978c3ef6dade224233`；角色报告该 commit 先于中断，未独立验收/发布；四份 Plan A dirty + 历史 untracked 全保留；未报告本轮 owned runtime | 所有后续接线/实现/repair/test/commit/push/PR/诊断/runtime/准入 REVOKED；单次只读快照已结束 |
+| GitHub `01a02e6a-c14c-7d13-97c8-f39b6dbea384`；快照 turn `01a0f73b-1b06-7c42-b881-a08cb9f68bd5` | STOPPED，无活动命令；`codex/r3-composite-offline-publication@0908f82bd36e21b9437187b199500395e04ee778`，clean；PR #79 未合并 | 旧发布/自动合并/README/等待续权 REVOKED；单次只读快照已结束 |
+| 历史协作子 Agent | 2026-10-02 live team inventory 仅 `/root` running；历史 R1C/R1D/R3/review 名称不是 live handle | 旧 authority STALE；不重启已结束任务 |
+
+Preserved running indivisible atomic operations：NONE（两个原角色已报告无活动命令）。未审查/重跑 `a398068...`；不得将其历史 commit 当作恢复许可。唯一当前工作为总控 FT-GOV-V2.1 governance-only，及逐 checkpoint 新签的独立治理 Review/发布 lease。其他工程 authority 为 NONE；外部未知 task 若试图继续 FlowTracer 也必须满足完整 record，不能继承旧 Goal。
+
+### 12.6 FT-GOV-002 / Möbius 经验与交接
+
+Incident：FT-GOV-002。Failure：治理已 supersede，旧运行任务仍持有隐含 Goal continuation。Observed：Backend 在旧任务下继续 wiring/stub/test closure，总控等待 final candidate。Root Cause：把 authority 建模为 goal-level persistent permission，而非 checkpoint-scoped revocable lease。Correction：Authority Epoch、Atomic-operation Lease、Checkpoint Preemption、Revocation、Stale-task Detection、No Implicit Continuation。
+
+FT-GOV-001：Governance itself can overgrow。FT-GOV-002：Authority itself can become stale。未来 Möbius 的经验模型为 Goal → Authority Lease → Execution → Evidence → Checkpoint → Authority Refresh/Revoke → Gate；所需 Task Contract、Exact SHA、Evidence Authority、Epoch、Lease、Revocation、Dependency DAG、Stage Gate 只记设计经验，不增加产品、runtime 或模块。
+
+上下文不足时，总控交接必须带 v2/v2.1、实际 epoch 与合并状态、精确基准、现行 gate、有效/撤销 lease、任务快照、证据及待办。新窗口/新总控不继承旧工程执行权；重新核验后另签完整 authority。
+
+### 12.7 本次验收与最终 STOP
+
+只改 GOVERNANCE-V2、CURRENT-GATE、00-PROJECT-CONTROL、必要 delivery board；无平行治理文档。控制步骤：即时中断 → 盘点/安全快照（不等 Goal）→ 修订现有文档 → 独立治理 Review（P0/P1=0）→ 控制 PR → exact-head merge → 宣告 GOV-2.1 → STOP。每一步是可撤销、有界 lease，前一步结束不自动授权后一步。
+
+验收逐项核对：抢占旧 Goal、原子动作/deadline、Goal≠authority、epoch、stale 检测、checkpoint refresh、无隐式续权、等待不延权、patch-loop 上限、capability/authority 分离、FT-GOV-002、v2 risk/DAG/A1/evidence-once 保持、无业务/API/Schema/runtime 漂移、独立 P0/P1=0。
+
+禁止 business/API/Schema/migration、依赖安装、production config、Browser/Docker/R3 real session、R4/R5/WP4+。不重复 PR #82 离线证据。合并后旧任务不恢复，任何工程恢复必须另签 NEW TASK AUTHORITY。本章不取消既有安全、质量、精确 PR/merge 或可靠额度 <=5% 停点纪律。

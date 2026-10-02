@@ -4,16 +4,17 @@
 
 **M0：架构初步冻结 — 已完成**
 
-**当前阶段：Governance v2 已生效；R3 composite 离线 harness 合同待本控制 PR 合并**
+**当前阶段：FT-GOV-V2.1 Live Authority 修订；CONTROL_INTERRUPT 已即时生效，仓库 epoch 待本修订合并**
 
-Backend Alpha Core、Architecture Governance Pass、WP1/WP2 已完成。R1/R1C/R1D/R1E/R2C 已验收证据保留；Governance v2 PR #80 已合并，R3 仍 BLOCKED。Browser dynamic disabled，不再天然 veto 静态路径；WP4+ 必须按真实依赖重评及单独准入。R4/R5、正式 Browser、PLUGIN、Frontend、Integration、Release 未准入。
+Backend Alpha Core、Architecture Governance Pass、WP1/WP2 已完成。R1..R2C 证据保留；PR #80/#81/#82 已合并，offline harness ready 不等于 R3 PASS。R3 BLOCKED、Browser dynamic disabled；旧 Backend/GitHub STOPPED，工程 Execution Authority=NONE。v2 DAG 与风险规则保持，WP4+ 须独立准入；R4/R5、正式 Browser、PLUGIN、Frontend、Integration、Release 未准入。
 
-本次来源基准：`main@35ae356d292c5300f39f99f0726c829ad270b744`（Governance v2 PR #80）；新控制 PR 合并后 main 是其后代。现行合同 [GOVERNANCE-V2](GOVERNANCE-V2.md) 与 [CURRENT-GATE](CURRENT-GATE.md) 优先，历史行不提供新许可。
+本次来源基准：`main@335c6a2da418b2d3b2c4c70b59ee3d20d08c08cb`；新控制 PR 合并后 main 是其后代。现行合同 [GOVERNANCE-V2 §12](GOVERNANCE-V2.md#12-governance-v21--live-authority--in-flight-task-control) 与 [CURRENT-GATE](CURRENT-GATE.md) 优先，历史行不提供执行权。PR #79 DO NOT MERGE，另签重评或 supersede/close；本修订不处理其共享状态。
 
 ## 工作项
 
 | ID | 工作项 | 负责人窗口 | 状态 | 依赖 | 验收产物 |
 | --- | --- | --- | --- | --- | --- |
+| FT-GOV-V2.1 | Live Authority / In-Flight Control Amendment | 总控 | 中断/快照完成；修订待独立 Review/PR/合并 | main@335c6a2；FT-GOV-002 | GOVERNANCE-V2 §12；合并后 GOV-2.1，STOP，不恢复旧工程任务 |
 | ARC-001 | Alpha 范围与非目标 | 总控 | 完成 | - | `00-PROJECT-CONTROL.md` |
 | ARC-002 | 核心技术决策 ADR | 总控 | 完成 | ARC-001 | `01-ARCHITECTURE-DECISIONS.md` |
 | ARC-003 | 领域模型与 ERD | 总控 | 完成 | ARC-002 | `03-BACKEND-CONTRACT-BASELINE.md` |
@@ -66,7 +67,7 @@ Backend Alpha Core、Architecture Governance Pass、WP1/WP2 已完成。R1/R1C/R
 | PM-020 | ACQ-1 WP-3 Remediation Evidence 顺序闸门准入 | 总控 | 完成（PR #53 已合并） | ACQ-1-WP3-PF、ADR-031 | `41-ACQ1-WP3-REMEDIATION-EVIDENCE-ADMISSION.md`；仅 R1→R5 证据/原型，不准入正式 WP-3 |
 | ACQ-1-WP3-R1 | Locked image、SBOM/license 与双 no-cache 构建证据 | Backend / Architecture | 完成（PR #54 已验收合并） | PM-020 | `42-ACQ1-WP3-REMEDIATION-EVIDENCE-PACKAGE.md`；commit `89ed802f4f2ac608a260f68637f1aaf541cd3143`；merge `34364d0082e4ecdbe4331d77a21ef6d25c2fca8a`；P0/P1/P2=0/0/0 |
 | ACQ-1-WP3-R2 | Production-shaped controlled egress proxy/namespace 证据 | Backend / Architecture | 完成（PR #56 已验收合并） | ACQ-1-WP3-R1 | `43-ACQ1-WP3-R2-ACTIVATION.md`、`42-ACQ1-WP3-REMEDIATION-EVIDENCE-PACKAGE.md`；commit `7c6e778e05c34bb8341d6898eea729de5dc311b2`；merge `c5799082ba8e0ae5edf8ddfb861e24de784cdf93`；P0/P1/P2=0/0/0 |
-| ACQ-1-WP3-R3 | Application policy / no-bypass / credible correlation | Backend / 总控 | BLOCKED；composite 离线包待本控制 PR 合并 | R1E/R2C authority 复用 | `GOVERNANCE-V2.md` §5/§11；44/49 保留历史；离线通过不等于 R3 PASS |
+| ACQ-1-WP3-R3 | Application policy / no-bypass / credible correlation | Backend / 总控 | BLOCKED；offline harness PR #82 已合并；旧执行权撤销 | R1E/R2C evidence 复用；新 lease 未签 | `GOVERNANCE-V2.md` §5/§11/§12；44/49 保留历史；离线通过不等于 R3 PASS |
 | ACQ-1-WP3-R1C | Full Chromium runtime compatibility remediation | Backend / Architecture | 完成（PR #60 已验收合并） | ACQ-1-WP3-R3 BLOCKED | `45-ACQ1-WP3-R3-RUNTIME-REMEDIATION.md`、`42-ACQ1-WP3-REMEDIATION-EVIDENCE-PACKAGE.md`；candidate `787a0df0548e05431fa60426f48f239ba7195465`；merge `df0c3512080f384dbd6c820d7627cbe721e37422`；P0/P1/P2=0/0/0 |
 | ACQ-1-WP3-R1D | Runtime Identity v2 与 runtime/audit 边界修复 | Backend / Architecture | 完成（PR #63 已验收合并） | ACQ-1-WP3-R2C BLOCKED | ADR-032、`47-ACQ1-WP3-R1D-RUNTIME-IDENTITY.md`；candidate `a804a371ec99615278c2cd60f442dc58299ff7c5`；merge `db9c4fad0ca826b472d18d85c69db53848cfcd94`；P0/P1/P2=0/0/0 |
 | ACQ-1-WP3-R1E | Deterministic account metadata 与跨日 Runtime Identity v2 修复 | Backend / Architecture | 完成（PR #66 已验收合并） | ACQ-1-WP3-R2C-A2 BLOCKED | ADR-033、`48-ACQ1-WP3-R1E-DETERMINISTIC-ACCOUNT.md`；head `3636dd261ece31c046406aa7b2279f6f7bd7dad8`；merge `cac5b4e1908801ff4ed1a96c2388a0a71653d6ee`；P0/P1/P2=0/0/0 |

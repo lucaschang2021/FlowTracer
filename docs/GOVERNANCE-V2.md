@@ -223,9 +223,38 @@ R1E/R2C 只作无影响性变化的 authority 复用与当前绑定验证；不�
 
 Backend 完成一次定向测试后提交精确离线 candidate 并报告，未经后续总控许可不 push/PR/执行。总控独立复核代码/hash/negative matrix → 冻结 runtime Inputs/Objective/Threat/Invariant/PASS/BLOCK → 另签唯一 session 执行许可。连续两次不收敛触发 §8，不能自动第三轮补丁。
 
-### 11.5 当前遥测与下一动作
+### 11.5 历史遥测与下一动作（不提供续权）
 
 本最小阶段计时从新任务开始记录，未知为 UNKNOWN；review/wait/implementation/governance 分列。PR #81/#82 已合并；输入无影响性变化时复用 PR #82 离线证据，不重跑。旧 Backend 不再执行本节工作包；R3 runtime、R4/R5、正式 WP3/WP4+ 均未准入。
+
+### 11.6 R3 host binding 最小补充合同（2026-10-02，控制 PR 合并后可申请新 lease）
+
+来源：`main@673f4b8f30bd1f7229510a1db8872e680b5a1fee`（GOV-2.1 PR #83）。只读 preflight 报告是部分结论，不伪称全部审查通过。被遗漏的直接依赖已由总控 Git 对象核对：`dnr_runtime/contract_v2.py` 导入的是 `dnr_offline/contract.py`；FLAGS 为 `--load-extension=/opt/flowtracer-r3-dnr` 与 `--disable-extensions-except=/opt/flowtracer-r3-dnr`。不得在 composite 的同名顶层 `contract/collector` namespace 中直接导入旧 runtime；不读取或覆盖旧 dirty 字节。
+
+复用资产：`a3980682b7fd306f130250978c3ef6dade224233`，父 `fba06dfa20bde0385d2e6a36408b11ffca48809e`。这是未发布、未正式验收的旧 artifact identity，不是 authority。九文件增量可作为输入，须在新 lease 下审查被修改的闭包；历史 R1E/R2C 与 PR #82 未变证据不重复。
+
+#### H1：下一最小实现边界
+
+下一工作包只可申请 **一次离线 implementation increment + 一次受影响定向 verification**：绑定 host approval 输入校验、两段 runtime identity、独立 parent deadline/owned cleanup 的具体 adapter。不得同时滚入 native observer、TLS fixture/proxy 实现、真实执行或第二轮 repair。Allowed Files 仍为 §11.4 的 composite_v1 十文件，核心改动限定 contract/collector/harness/supervisor/test/manifest/plan/README；fixture/validator 只有直接必要兼容改动才可列入新 lease。
+
+- HostApproval：沿用已提交 host 程序的固定 record digest、精确 candidate/Git raw input closure、image/R1E 引用、一次性 consumption、session ownership 校验方式。将旧 source-preflight/baseline-enabled 模式显式拒绝；不能将其 consumed record 改名复用。composite 的具体真实 record、execution ID、record 路径/digest、image ID、topology/mount/command 只有后续真实 lease 才冻结；缺任何适用输入即 NO_GO。离线 adapter 可以验证这些已声明输入，不得填造实际许可、生成可用 record、或接受 caller Boolean/环境变量绕过。
+- 身份分两段：fetch 前仅核验 host-owned image/container/pinned input；page_setup 内在正常导航前取得实际 root Browser/executable/product/profile 与适用 extension/context 事实。此时缺失 target、错误 source、错误 runtime、旧库存页硬门槛或身份未建立即拒绝。不能在 Chrome 尚未启动时声称已有 browser identity，也不能以 `chrome://extensions` 页面完美性作为前置。
+- 明确 host/driver ownership：独立 parent watchdog 不调用 Playwright 的跨线程同步对象。driver callbacks 与 CDP readback 在同一 driver-owning thread；对 async observer hash/storage 的 configure/snapshot/flush 采用有界 await，epoch 改变、丢失或 flush 未完成不能成功。H1 只建受检两段生命周期边界，不宣称 native ports 已绑定。
+- deadline 分层：composite 总动作预算不超过 15s（包括 setup/action/correlation），单个 callback/读操作不超过剩余预算且至多 5s；独立 parent hard deadline 至多 120s，预留 host close/reap/absence 核验最多 30s。总 120s 包含清理，不能在超时后再无界等待。固定 lease 可采用更短限值，不可自行延长。
+- owned cleanup：只针对 host 验证的 exact container ID/name/session label，记录 kill/wait/rm 与 absence（或已结束的终态）；错误 ownership 不得误删。`context.close()` 或 caller `closed=true` 不是最终证据。作用域内错误、安全拒绝与 cleanup 失败分别记录安全 code，任何关键 cleanup 未知不得 PASS；未知外部资源不清理。
+- `launch_real/host_session` 保持 NO_GO。默认 CLI/import 无文件、网络、进程 I/O；测试只能注入明确 SYNTHETIC executor/host facts，不能调用 Docker/CDP/Browser。H1 结束只报告具体 adapter 的离线证据、未绑定 ports、精确 diff/hash，无 R3 PASS 或 ready-to-run session。
+
+发布边界：Backend 不改变 main 或旧父历史，不自行 push/PR。保留四份 Plan A dirty/untracked；若必须沿原分支暂存，后续发布仍由 GitHub 在干净最新 main 分支仅移植明确 artifact 增量，核验全路径 raw blobs，不带入旧未合并 source parents。下一实施 lease 必须绑定实际 branch/HEAD 与适用本控制合并 SHA，不从本节推导无限续权。
+
+#### H2：网络事实模型与 native 未决边界（不是本次实施许可）
+
+opaque CONNECT proxy 无法观察 TLS 内的 request ID/正文；旧 proxy/fixture 原样日志不能满足逐请求关联。后续最小 adapter 采用：host 插入的有界 application request token → 受控 TLS fixture 实际请求/token/route/client socket → proxy 上游 local socket tuple + connection ID/epoch + validated destination。一个 keepalive tunnel 可承载多个请求；显式 join，不能以时间接近或要求“一请求一 CONNECT”代替。
+
+proxy receipt 只证明 validated tunnel forwarding，不虚构解密/body count；正文实际字节计数由 fixture 发送完成事实取得。后续实验内部 schema 必须区分 connection 与 request，允许多个 request 引用同一 tunnel；不能继续把每个 proxy transport ID 强制唯一。application token、execution/actor/parent/route 与 fixture/tunnel 全部严格核对，错配/重放/丢失即拒绝。此处不授权公开 API、生产 proxy、MITM、真实私网/公网或扩大 SitePolicy。
+
+native 仍未决：旧 extension 只 block WebSocket，observer 只接受旧 `websocket-r3.test:8443/dnr-(page|worker)-(ws|wss)`；不能把 composite 路由或四 R2C flags 当作 extension 已加载。可信 extension readback、ruleset、实际 worker actor 与 native receipt 必须绑定；旧 inventory 许可路径不整段复用。popup/SW 的创建/注册前置拒绝契约保持，不以 JS wrapper、异常、创建后 close 或空日志冒充。能否通过锁定 driver 的真实 context setting 满足 SW、如何阻断 popup 必须先取得具体接口/实现证据后由总控裁定，未决则该 runtime 路径 NO_GO。
+
+H2 与唯一 composite 真实执行须分别签发新完整 lease；H1 完成不自动准入。不能为凑 PASS 降低原主 invariant，也不能把这些局部未决变成静态能力的全局 veto。
 
 ## 12. Governance v2.1 — Live Authority & In-Flight Task Control
 

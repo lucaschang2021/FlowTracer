@@ -1,6 +1,42 @@
 # FlowTracer 当前阶段闸门
 
-更新时间：2026-10-01。
+更新时间：2026-10-02。
+
+## 当前最高控制：FT-GOV-V2.1
+
+- 来源基准：`main@335c6a2da418b2d3b2c4c70b59ee3d20d08c08cb`，包含 PR #80 Governance v2、#81 composite contract、#82 offline harness。合并后的 main 是该基准后代，不要求等于父基准。
+- `CONTROL_INTERRUPT=ACTIVE` 已于总控收到指令即时生效，不等 PR。仓库 epoch：GOV-2.1 **待本修订 exact-head 合并**；下面旧许可无后续执行权。唯一核心治理为 [GOVERNANCE-V2 §12](GOVERNANCE-V2.md#12-governance-v21--live-authority--in-flight-task-control)。
+- 本阶段唯一范围：四份现有控制文档修订、独立治理 Review、控制 PR/精确合并；每一步另签有界操作 lease。不是旧工程 Goal 的恢复。
+- Capability：R3 BLOCKED、Browser dynamic disabled / runtime NO_GO；Execution Authority：旧工程 NONE。原 Backend 与 GitHub 角色均 STOPPED、无活动命令，完整快照在 §12.5。Backend `a3980682b7fd306f130250978c3ef6dade224233` 仅是角色报告的中断前历史产物，未在本阶段验收/发布；不恢复收尾、测试或提交。
+- 原始 dirty/untracked、历史失败与已消费 session 全保留；总控工作树既有 `backend/tests/test_error_paths.py` 删除改动及 `.r3-control/` 不纳入本 PR，不恢复/清除。
+- PR #82 的离线证据按 evidence-once 引用，输入未变不重跑；OFFLINE HARNESS READY 不等于 R3 PASS。PR #79 DO NOT MERGE，须另签针对 v2/v2.1/current main 的重评或 supersede/close。
+- 禁止业务/API/Schema/migration、Browser/Docker/session、依赖安装、production config、R4/R5、正式 WP3/WP4+、PLUGIN/Frontend/Integration/Release。v2 Risk/DAG/A1/安全 invariant 保持；本修订不授权下游。
+- 必读：本文件、GOVERNANCE-V2、00-PROJECT-CONTROL、02-DELIVERY-BOARD 的本次范围；不回读整套历史。
+- 验收：仅四文档 diff/链接/合同一致性、v2 回归、epoch/lease/checkpoint/revocation/等待/循环/状态分离、FT-GOV-002；独立 P0/P1=0。不重复任何业务或 PR #82 测试，不运行 runtime。
+- 合并后声明 CONTROL_EPOCH=GOV-2.1 并 STOP。不自动恢复旧 Backend；未来任何工程须完整 NEW TASK AUTHORITY，泛称“继续”不是 operation lease。
+
+### 当前修订操作 record（候选；后续步骤须重新签发）
+
+```text
+Task ID: FT-GOV-V2.1-DOC-01
+Control Epoch: GOV-2.1 operational amendment; repository activation pending merge
+Parent Goal: Record FT-GOV-V2.1 without restoring engineering authority
+Exact Baseline: 335c6a2da418b2d3b2c4c70b59ee3d20d08c08cb
+Exact Branch: codex/governance-v2-1
+Authorized Operation: One governance-only documentation increment and one targeted document validation
+Allowed Files: docs/GOVERNANCE-V2.md, docs/CURRENT-GATE.md, docs/00-PROJECT-CONTROL.md, docs/02-DELIVERY-BOARD.md
+Allowed Tools: apply_patch; read-only Git/file/link checks
+Forbidden Operations: business edits, tests, install, runtime, push/PR/merge, old task continuation
+Max Iterations: 1
+Hard Deadline: 15 minutes from this operation start; no self-extension
+Expected Evidence: Four-document diff, v2 invariant preservation, scope/link checks, task snapshots
+Stop Condition: Document check result or failure/deadline/revocation; no automatic repair/commit
+Next Authority Owner: FlowTracer controller, under FT-GOV-V2.1 user package
+```
+
+已完成中断快照 lease（两个原角色，单次只读、15 minutes、无 runtime/测试/提交）已 EXPIRED。新 Review/commit/publication/merge record 必须绑定届时精确 SHA，不由上述 Parent Goal 自动推导。
+
+## 历史控制记录（以下准入/下一步文字不再提供 live authority）
 
 ## 现行治理切换（本控制 PR 合并后生效）
 

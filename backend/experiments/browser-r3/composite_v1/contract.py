@@ -8,8 +8,8 @@ import re
 
 SCHEMA = "r3-composite-v1"
 POLICY = "r3-composite-policy-v1"
-CONTROL = "6128d4c3bbdbcdfa036be745d35dc37117004495"
-PARENT = "0de2d5658832b667aa00a5a8e73350a06b285bbb"
+CONTROL = "335c6a2da418b2d3b2c4c70b59ee3d20d08c08cb"
+PARENT = "fba06dfa20bde0385d2e6a36408b11ffca48809e"
 FILES = (
     "contract.py",
     "fixture.py",

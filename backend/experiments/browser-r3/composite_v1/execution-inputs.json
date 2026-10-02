@@ -1,39 +1,39 @@
 {
-  "artifact_parent": "0de2d5658832b667aa00a5a8e73350a06b285bbb",
+  "artifact_parent": "a3980682b7fd306f130250978c3ef6dade224233",
   "authority_refs": [
     "R1E-PR66",
     "R2C-A4-PR68"
   ],
-  "control_commit": "6128d4c3bbdbcdfa036be745d35dc37117004495",
+  "control_commit": "a215051d2a2f53b41d9b22339f1bab52a27dbdf7",
   "external_code_dependencies": [],
   "files": {
     "README.md": {
-      "git_blob": "c60e41e5e9194ca9003e3f3762c953ebeba61bea",
-      "sha256": "b273579c6cc3cd509b5f6314058e32f893ecb2f0e9ee0547a7c1199555d469e0"
+      "git_blob": "f0a8ebf317b574e6887face9a17b2bed35d77be7",
+      "sha256": "f33ab56f6623b81cbecb1cb29c978e1882a602ff49bc668e0470b55a79784b44"
     },
     "collector.py": {
-      "git_blob": "6f6ab53da77f9a00deec6dbf9d9584f364bb0388",
-      "sha256": "ea996a63e1fb2d16cbaf9c1c2c7cc9e833431beb654a470ef85ebef6d45ee1c0"
+      "git_blob": "a9206084a9a082dec8d1e6877738425707421e47",
+      "sha256": "9f1432b0e6676e82e60d702669f5918c89078aa7579039e648a0f1210e70c63d"
     },
     "contract.py": {
-      "git_blob": "dc2b595da3d38ba7e7dd50ad5da9b94a0ef9f625",
-      "sha256": "8d8fd78940d22cd3a83072e1b68e7688cad3181032ab7831563bdb8421a4fe7f"
+      "git_blob": "8502ea2cb355e6c92222141cad93b29bf8952a71",
+      "sha256": "773b980a2e82b77909d969b27581e704bb7b6a77b907d07c5d9d88b85e89200b"
     },
     "fixture.py": {
-      "git_blob": "b416f6caf78a875ac2cdcb0d55e4e6c968a3e969",
-      "sha256": "aea498fabd7558697649b13b5016f06c1a880c52f54adb346d2ae581fdd70f9b"
+      "git_blob": "582806a7436a5af19a45412672972a42c775a942",
+      "sha256": "1d50ac7b99e069c8db50413f441e4040dd65f1cf9602997a711e6c121eddc7de"
     },
     "harness.py": {
-      "git_blob": "6180b971d51453f045a7484b77c0cfff1dd635d4",
-      "sha256": "5fb28ff435532d10904283a207728d3247a362cfa6bf10d701cb334c6f5c0293"
+      "git_blob": "3a110b0c09a00879877048187ddd7d2265bf545f",
+      "sha256": "3c51a86d957b58937b33a0d017a85fb7c225e3f18857f45e534baa68aa9441b1"
     },
     "supervisor.py": {
-      "git_blob": "2db51f05e399450a06f271a0617bc3aa8d9c4c71",
-      "sha256": "bf4a03b283511a690441240e2e3bebc02c653063c3094f971946dbbfe824d3b7"
+      "git_blob": "7e53631cc7cdc975b8ebc102f901c57a6e7b35b2",
+      "sha256": "1978ac1e9339440ff4007883e4ed1464df7ab8365a2c1e551a8cc196fb4aee69"
     },
     "test_composite.py": {
-      "git_blob": "c91bdfcdc22fcfaf1a07bf0afd845699b1c88d1c",
-      "sha256": "d81b2747522eeee21954774a10fcaf482ec873611055bfcaf5f5bcd518ab7a01"
+      "git_blob": "3f546b8585bd5a2fd250bcba6fa2901b125af79d",
+      "sha256": "34f9b501e2682ba17a1c16a2c4d530c238ca1d8e521c8752657aece08cc2226d"
     },
     "validator.py": {
       "git_blob": "1a31b36001576d7cac11e3652891ad5c231ffff8",
@@ -44,6 +44,36 @@
     "execution-inputs.json",
     "execution-plan.json"
   ],
+  "interface_refs": {
+    "backend/experiments/browser-r2c/r2c_a4/browser_probe.py": {
+      "commit": "335c6a2da418b2d3b2c4c70b59ee3d20d08c08cb",
+      "git_blob": "0dc047d03c9e63dd4291b078efb0ebfce1ffd52d",
+      "sha256": "ff9b2e57f785afb0cceeb589979c3fb896e31ccb56ce16eea8ae9ccaabbf45dc"
+    },
+    "backend/experiments/browser-r2c/r2c_a4/compose.yaml": {
+      "commit": "335c6a2da418b2d3b2c4c70b59ee3d20d08c08cb",
+      "git_blob": "863c9ef2686b0b18234fa3c27c754afe3e78723a",
+      "sha256": "4ff4944b20f8f91dc86be91a329fcdbdefef60ad22d4df49ce98dd9874d06c53"
+    },
+    "backend/experiments/browser-r3/dnr_runtime/probe.py": {
+      "commit": "335c6a2da418b2d3b2c4c70b59ee3d20d08c08cb",
+      "git_blob": "eb1b5260e07441052645ca1f3b17473ef6b7dff2",
+      "sha256": "5eabe9d6883f083f95d9b70dc5a19258c43f2bb8482b4a89a462e81e5f700e45"
+    },
+    "backend/experiments/browser-r3/dnr_runtime/proxy.py": {
+      "commit": "335c6a2da418b2d3b2c4c70b59ee3d20d08c08cb",
+      "git_blob": "1687e5f438f2ada020d907eb99a91b32802ecde1",
+      "sha256": "7c0efef0d294eee84d414b7caa77fdb2e4702c482b0035e9bba3a6631d61da57"
+    },
+    "backend/uv.lock": {
+      "commit": "335c6a2da418b2d3b2c4c70b59ee3d20d08c08cb",
+      "git_blob": "7a26ae0966332e6b0bba771c93672ef0651a54ef",
+      "sha256": "e8f7699a4337003de273a2d6a9c2f015815a0439459a4b0efbdb26e319e8d6fa"
+    }
+  },
+  "runtime_dependencies": {
+    "scrapling": "0.4.15 via backend/uv.lock; not imported offline"
+  },
   "schema": "r3-composite-inputs-v1",
   "scope": "OFFLINE_ONLY"
 }

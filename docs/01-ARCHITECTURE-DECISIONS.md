@@ -264,3 +264,12 @@
 - 验证：R1E 必须重新执行两次独立 no-cache 构建，生成完整逐路径 manifests 与新 authority；重复 Browser 619、Debian 206、SBOM 231、license 206/206、UID 10001、DynamicFetcher、Crashpad、runtime/audit 边界、历史资产保护与精确清理门禁。
 - 顺序：R1E 独立复审并合并后，R2C 才能以新 authority 开启全新会话。R3-R5 与正式 WP-3 继续阻塞。
 
+## ADR-034：WP-4 Router 降级、Circuit 与 Throttle 规则冻结
+
+- 状态：**Accepted**（2026-10-05 由总控签发 WP-4 准入并在本控制面生效；实现与验收见 `docs/60-ACQ1-WP4-ROUTER-STAGE-REPORT.md`，冻结规则以 `docs/57-ACQ1-WP4-ROUTER-CONTRACT-ADDENDUM.md` 含实现注记为准）
+- 背景：`docs/29` WP-4 的开工前置要求"已验收 Static/Native Router 与 SitePolicy/预算"，但仓库尚缺降级/预算/Circuit/Throttle 的精确规则；WP-1/WP-2 已提供 `EffectiveSitePolicy`、`EffectiveResourceBudget`、quality v1 与 `SourceAcquisitionState`，规则可在其上冻结而不引入 Browser。
+- 决策：WP-4 Router 的后端选择、顺序降级、质量阈值、Circuit 状态机、AutoThrottle、预算账本、decision trace、新增安全错误码与指标，以 `docs/57-ACQ1-WP4-ROUTER-CONTRACT-ADDENDUM.md` 为准。`dynamic_browser`/`advanced_browser` 在 Router 中**永不选择**；`allow_browser=true` 时整次以 `acquisition_browser_not_admitted` fail-closed，不静默降级。
+- 安全：降级与重试不得作用于 `network_policy_denied`、`site_policy_denied`、`acquisition_budget_exhausted`、`ssrf_blocked`、`unsupported_port`、`acquisition_circuit_open`、`acquisition_browser_not_admitted`、`acquisition_no_backend` 等安全终态；预算跨 attempt/fallback/redirect **逐跳累计**、不重置；AutoThrottle 只能在既有 `EffectiveSitePolicy` 保守交集内调整，不得放宽 crawl delay、RPM、并行度或绕过访问控制。
+- 兼容：只使用既有 `BackendName`、`SourceHealthStatus`、`SourceAcquisitionState`、`CollectionRun`/`AcquisitionAttempt` 冻结字段；无新表、无公开 API/Schema 变化；既有单后端 `execute_run` 路径保持不变，Router 走独立 `execute_route_run` 入口与独立模块。
+- 边界：本 ADR 不放宽 WP-1/WP-2 安全契约、不引入 Browser/Discovery/Change/Opportunity。实现完成后须独立复审并合并；WP-5 仍须另行准入。
+

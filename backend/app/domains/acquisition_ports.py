@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 from decimal import Decimal
-from typing import Protocol, TypeVar
+from typing import Any, Protocol, TypeVar
 from uuid import UUID
 
 SourceKindT = TypeVar("SourceKindT", contravariant=True)
@@ -48,6 +48,17 @@ class RunCompletion:
 
 
 @dataclass(frozen=True, slots=True)
+class SourceRuntimeFacts:
+    """Read-only projection of SourceAcquisitionState for router decisions (no I/O)."""
+
+    health_status: str
+    consecutive_failures: int
+    circuit_open_until: datetime | None
+    last_error_code: str | None
+    latency_ewma_ms: int | None
+
+
+@dataclass(frozen=True, slots=True)
 class PublishedEvent[PublishedEventT]:
     user_id: UUID
     event: PublishedEventT
@@ -69,6 +80,14 @@ class AcquisitionRunRepository(Protocol[SourceT, PersistedResultT, ParsedResultT
         result: PersistedResultT,
         parsed: ParsedResultT,
         quality_score: Decimal | None,
+        quality_met: bool = True,
+        fallback_count: int = 0,
+        attempt_ordinal: int = 1,
+        fallback_reason: str | None = None,
+        budget_summary: dict[str, Any] | None = None,
+        decision_version: str = ...,
+        attempt_budget_used: dict[str, Any] | None = None,
+        run_started_at: datetime | None = None,
     ) -> RunCompletion | None: ...
 
     async def finish_failure(
@@ -80,6 +99,30 @@ class AcquisitionRunRepository(Protocol[SourceT, PersistedResultT, ParsedResultT
         retries: int,
         error_code: str,
         safe_error: str,
+        run_started_at: datetime | None = None,
+        attempt_ordinal: int = 1,
+        fallback_count: int = 0,
+        record_attempt: bool = True,
     ) -> bool: ...
+
+    async def record_attempt(
+        self,
+        claim: RunClaim[SourceT],
+        *,
+        ordinal: int,
+        backend_name: str,
+        attempt_started_at: datetime,
+        attempt_finished_at: datetime,
+        status: str,
+        retry_count: int,
+        error_code: str,
+        safe_error: str,
+        quality_score: Decimal | None = None,
+        fallback_reason: str | None = None,
+        budget_used: dict[str, Any] | None = None,
+        bytes_received: int = 0,
+    ) -> bool: ...
+
+    async def circuit_facts(self, source_id: UUID) -> SourceRuntimeFacts | None: ...
 
     async def event_for(self, run_id: UUID) -> PublishedEvent[PublishedEventT] | None: ...

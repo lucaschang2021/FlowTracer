@@ -58,6 +58,8 @@ unavailability. Stable client-visible codes include:
   `ai_auth_failed`
 - `embedding_invalid_output`, `embedding_timeout`, `embedding_rate_limited`,
   `embedding_provider_unavailable`, `embedding_auth_failed`
+- `opportunity_not_found` (missing or cross-user opportunity), `action_payload_unavailable`
+  (opportunity exists but has no scored, human-approved action payload yet)
 - `internal_error` (show a generic retry/error UI and retain the request ID for diagnostics)
 
 ## Pagination and ordering
@@ -84,6 +86,7 @@ timestamps. Filters and exact request/response schemas are defined in OpenAPI.
 | Intelligence | `GET /intelligence`, `GET /intelligence/{analysis_id}`, `POST /analyses/{analysis_id}/retry` |
 | Memory | `GET/POST /bookmarks`, `PATCH/DELETE /bookmarks/{bookmark_id}`, `POST /memory/search` |
 | Notification | `GET /notifications`, `POST /notifications/{notification_id}/read`, `POST /notifications/read-all` |
+| Opportunity | `GET /opportunities`, `GET /opportunities/{opportunity_id}`, `GET /opportunities/{opportunity_id}/action-payload` |
 
 Manual collection and retry return HTTP 202. Collection responses include `Location`; clients
 poll the referenced CollectionRun. `Idempotency-Key` on manual collection is optional, printable
@@ -93,7 +96,7 @@ ASCII after trimming, and at most 128 characters.
 
 | Enum | Values |
 | --- | --- |
-| `RadarType` | `academic`, `business`, `technology`, `market`, `policy`, `competitive`, `custom` |
+| `RadarType` | `academic`, `business`, `technology`, `market`, `policy`, `competitive`, `custom`, `opportunity` |
 | `ResourceStatus` | `active`, `paused`, `archived` |
 | `SourceType` | `rss`, `url`, `api` (Alpha create accepts only `rss` and `url`) |
 | `CollectionRunStatus` | `queued`, `running`, `succeeded`, `partial`, `failed` |
@@ -103,6 +106,13 @@ ASCII after trimming, and at most 128 characters.
 | `Recommendation` | `must_read`, `read`, `monitor`, `archive` |
 | `NotificationPriority` | `normal`, `high`, `critical` |
 | `NotificationStatus` | `unread`, `read` |
+| `NotificationKind` | `intelligence`, `opportunity` |
+| `OpportunityStatus` | `active`, `expired`, `removed`, `rejected` |
+| `OpportunityRecommendation` | `act_now`, `review`, `watch`, `dismiss` |
+
+`RadarType.opportunity` is the ACQ-1 compatibility change for generated clients: regenerate client
+types. Creating an opportunity radar pairs with opportunity-family sources; its notifications use
+`kind=opportunity`.
 
 ## Representative payloads
 
@@ -197,10 +207,32 @@ After every reconnect, foreground resume, 1013, or suspected event gap, recover 
 - collection: `GET /sources/{source_id}/runs` and `GET /collection-runs/{run_id}`
 - analysis: `GET /intelligence` or `GET /intelligence/{analysis_id}`
 - notifications: `GET /notifications?status=unread`
+- opportunities: `GET /opportunities` and `GET /opportunities/{opportunity_id}/action-payload`
+
+## Opportunity notifications and action payloads
+
+`NotificationResponse` carries `kind` and nullable fact targets: `analysis_id` is set only for
+`kind=intelligence`, `opportunity_id` is set only for `kind=opportunity` (exactly one is non-null).
+Opportunity notifications do **not** produce WebSocket events (the three frozen events above are
+unchanged); recover them through `GET /notifications`.
+
+Opportunity list filters: `radar_id`, `status`, `recommendation`, `min_score`, `currency`
+(ISO-4217 uppercase), `deadline` (returns opportunities whose deadline is not after the value).
+The detail response embeds the latest score. The action payload endpoint returns the immutable,
+non-executable projection (`payload`, `payload_version`, `payload_hash`, `generated_at`); the
+payload always contains `requires_human_approval=true` and never carries credentials, proposal
+text, or any execution capability. Treat the payload as read-only display data.
 
 ## Known Alpha limits
 
 - RSS and a single HTML page are supported; no authenticated browsing or deep crawl.
+- Dynamic/Advanced Browser is disabled and not admitted; sources must stay on the static paths.
+- Controlled Discovery plans a frontier but does not fetch discovered URLs yet (I2 not admitted).
+- Change Intelligence is shadow-written evidence; RawItem production conditions are unchanged.
+- Opportunity Radar v1 covers first-seen listings only: scores are produced by the background
+  evaluator (one deterministic pass per opportunity and radar), re-evaluation of changed versions,
+  platform-side access authorization workflows, and multi-currency FX are not part of this Alpha.
+  Action payloads are read-only and require a human to act outside this product.
 - WebSocket is an online hint, not a durable queue. REST/PostgreSQL is the fact source.
 - One configured Analysis Provider and one Embedding Provider are used; there is no router/fallback.
 - Compose embeds Beat in one worker service. Do not scale that service above one replica.

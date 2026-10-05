@@ -1,33 +1,18 @@
 # FlowTracer 当前阶段闸门
 
-更新时间：2026-10-02。
+更新时间：2026-10-05（WP-8 Final 收尾时重写；此前版本停留在 2026-10-02 的 GOV-2.1 候选状态）。
 
-## 当前 live control：GOV-2.1 / callback fail-closed 合同候选
+## 当前状态：ACQ-1 后端收尾完成（委托方确认）；Browser 分支保持 disabled
 
-- 当前事实基准：`main@1c7b15a7a285cd183a94ddca460f023163700a4c`；PR #83（GOV-2.1）、#84（H1 合同）、#85（H1 offline artifact）已合并。#85 候选 `7f4a108`：独立离线 24/24、Backend CI PASS；不等于 R3 PASS。
-- 原 Backend `FT-GOV21-R3-H2-INTERFACE-01` 已只读报告并 STOP：Scrapling 0.4.15 吞 setup/action Exception 后继续执行；H1 抛 Rejected 未证明拒绝后无导航。源码层 P1 未决，真实入口一直 NO_GO，未声称实际泄漏。Playwright 1.62 SDK、popup 前置拒绝、worker 原生 actor、逐请求 tunnel join 仍缺证据。
-- 当前唯一操作：总控修订 [GOVERNANCE-V2 §11.7](GOVERNANCE-V2.md#117-h2-接口审计与-callback-fail-closed-补充2026-10-02)、本 gate、看板；不是 H2 实施或 runtime。旧任务无续权，已保存资产不重跑。
-- Capability：R3 BLOCKED / Browser dynamic disabled / runtime NO_GO。R4/R5、正式 WP3、WP4+、PLUGIN、Frontend、Integration、Release 未准入。无依赖静态 DAG 仍需自己的独立准入，不被本局部缺口自动否决。
-- 本候选只做三文档 diff/链接/事实一致性和独立治理 Review，禁止业务/API/Schema/依赖/Browser/Docker/session/测试；下一 SDK 取证或 fail-closed 设计须另签完整 lease，设计审查后才可单次离线实现。
+- 事实基准：本地 `main` 的提交序列（WP-1..WP-8 全部已合并）见 `docs/69-ACQ1-FINAL-STAGE-REPORT.md` §Commit。验收模式：**委托方确认（owner-confirmed，无独立第三方角色）**；此前各阶段"未准入"行已被逐项书面许可取代，见 `docs/02-DELIVERY-BOARD.md`。
+- 已完成：WP-1（Source 契约/健康/lease）、WP-2（静态 adapter/quality）、WP-4（Router v1）、WP-5 I1（Discovery 规划与 Frontier）、WP-6 I1（版本证据 shadow-write）、WP-7 I1（Opportunity Radar）、WP-8（收尾：价值闭环 E2E、可重复启动验证、性能基线、秘密扫描、能力清单、Frontend/运维/handoff 文档）。
+- 仍禁用/阻塞：Dynamic/Advanced Browser **disabled**（`BROWSER_DYNAMIC_ENABLED=False`，`allow_browser=True` fail-closed）；R3 真实执行为 **BLOCKED**，须另签 B 阶段 lease；R4/R5 未准入。R3 离线增量（A1 设计 + A2 DenialLatch/deny-terminate + F1-F6 取证 + 就绪报告）位于分支 `feat/acq1-r3-fail-closed-offline`（docs/54/55/56/59 在该分支，**未合并**）；main 仅含基线离线 harness。
+- 未准入：WP-5 I2（crawl 执行）、WP-6 I2（RawItem writer 切换/读取 API/语义变化）、WP-7 I2（平台逐站点授权/版本驱动重评/多币种 FX）、PLUGIN-1、Frontend（FE-001）、Integration（INT-001）、Release（REL-001）。
+- 一致性处置（2026-10-05）：本文件此前与看板/提交事实（WP-4..WP-7 已按委托方书面指示完成并合并）不一致。WP-8 依委托方明确指示继续并重写本节为当前事实；不改变任何既有安全边界、R1..R2C 已验收证据与 R3 的 BLOCKED 判定，也不追认任何未签发的真实执行权限。
+- 执行权：当前无任何未决 lease/授权；任何新工作（含 R3 真实执行、各 I2 增量、Frontend 准入）须按 `GOVERNANCE-V2 §12` 另签完整 NEW TASK AUTHORITY。
+- 能力与证据指针：`docs/68-ACQ1-CAPABILITY-MANIFEST.md`；最终门禁矩阵与限制：`docs/69-ACQ1-FINAL-STAGE-REPORT.md`。
 
-```text
-Task ID: FT-GOV21-R3-FAIL-CLOSED-DOC-01
-Control Epoch: GOV-2.1
-Parent Goal: Preserve real R3 fail-closed invariant after locked SDK interface audit
-Exact Baseline: 1c7b15a7a285cd183a94ddca460f023163700a4c
-Exact Branch: codex/r3-fail-closed-contract
-Authorized Operation: One three-document amendment and one targeted document validation
-Allowed Files: docs/GOVERNANCE-V2.md, docs/CURRENT-GATE.md, docs/02-DELIVERY-BOARD.md
-Allowed Tools: apply_patch; read-only Git/file/link checks
-Forbidden Operations: business/API/Schema edits, install/test/runtime, commit/push/PR/merge, old lease continuation
-Max Iterations: 1
-Hard Deadline: 15 minutes from operation start
-Expected Evidence: Exact scope/link/fact checks; unchanged safety limits; no runtime admission
-Stop Condition: One validation result or failure/deadline/revocation
-Next Authority Owner: FlowTracer controller
-```
-
-## 历史：H1 合同候选（PR #84 已合并，以下不提供 live authority）
+## 历史操作记录（以下不提供 live authority）
 
 - PR #83 已 MERGED；精确 merge/main `673f4b8f30bd1f7229510a1db8872e680b5a1fee`。CONTROL_EPOCH=GOV-2.1 已生效。下面 FT-GOV-V2.1 候选记录已结束，仅作历史，不表示 epoch 仍待生效。
 - 当前操作：总控只修订现有 [GOVERNANCE-V2 §11.6](GOVERNANCE-V2.md#116-r3-host-binding-最小补充合同2026-10-02控制-pr-合并后可申请新-lease)、本 gate 与看板，冻结 H1 最小 offline adapter 边界；此控制 PR 合并前不实施 H1。

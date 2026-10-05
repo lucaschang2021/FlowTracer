@@ -203,7 +203,7 @@ python scripts/benchmark_offline.py      # 预期末行: BENCHMARK COMPLETE（JS
 1. **根 `README.md`（中/英）**：状态声明、进度表、开发状态段落、路线图段落与关键文档索引已对齐 `docs/68/69` 事实；WP-3 行改为「未准入（fail-closed）」并新增 WP-4..WP-8 完成行（含 438 tests / 92.16% 指针）。
 2. **`docs/00-PROJECT-CONTROL.md` 头部**：改为 2026-10-05 当前状态并注明 FT-GOV-V2.1 段落为历史记录。
 
-处置提交见紧随本分支合并的 traceability 提交记录。此后对外展示以 `README.md` + 本文件 + `docs/68/69` + `docs/02-DELIVERY-BOARD.md` + `docs/CURRENT-GATE.md` 为准。
+处置提交：`8cf39b3`；no-ff 合并：`e98fb52`（本 traceability 提交记录以上哈希）。此后对外展示以 `README.md` + 本文件 + `docs/68/69` + `docs/02-DELIVERY-BOARD.md` + `docs/CURRENT-GATE.md` 为准。
 
 ## 9. 移交操作指引
 

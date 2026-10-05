@@ -28,6 +28,9 @@ EXPECTED_TABLES = {
     "bookmarks",
     "notifications",
     "ai_usage_records",
+    "source_artifacts",
+    "acquisition_snapshots",
+    "change_events",
 }
 
 EXPECTED_ENUMS = {
@@ -123,6 +126,12 @@ EXPECTED_UNIQUES = {
     "bookmarks": {("user_id", "document_id")},
     "notifications": {("user_id", "analysis_id")},
     "acquisition_attempts": {("run_id", "ordinal")},
+    "source_artifacts": {("source_id", "artifact_key")},
+    "acquisition_snapshots": {
+        ("artifact_id", "version"),
+        ("artifact_id", "content_hash", "metadata_hash", "structure_hash"),
+    },
+    "change_events": {("collection_run_id", "artifact_id")},
 }
 
 EXPECTED_PARTIAL_INDEXES = {
@@ -170,6 +179,8 @@ EXPECTED_CHECKS = {
     "analyses": ("relevance", "importance", "novelty", "impact", "radar_score"),
     "document_chunks": ("chunk_index",),
     "ai_usage_records": ("input_tokens", "total_tokens", "estimated_cost", "duration_ms"),
+    "acquisition_snapshots": ("version", "quality_score"),
+    "change_events": ("materiality", "change_type"),
 }
 
 EXPECTED_FOREIGN_KEYS = {
@@ -213,6 +224,17 @@ EXPECTED_FOREIGN_KEYS = {
     "ai_usage_records": {
         (("user_id",), "users", ("id",), "CASCADE"),
         (("analysis_id",), "analyses", ("id",), "SET NULL"),
+    },
+    "source_artifacts": {(("source_id",), "sources", ("id",), "RESTRICT")},
+    "acquisition_snapshots": {
+        (("artifact_id",), "source_artifacts", ("id",), "RESTRICT"),
+        (("collection_run_id",), "collection_runs", ("id",), "RESTRICT"),
+    },
+    "change_events": {
+        (("artifact_id",), "source_artifacts", ("id",), "RESTRICT"),
+        (("collection_run_id",), "collection_runs", ("id",), "RESTRICT"),
+        (("previous_snapshot_id",), "acquisition_snapshots", ("id",), "RESTRICT"),
+        (("current_snapshot_id",), "acquisition_snapshots", ("id",), "RESTRICT"),
     },
 }
 

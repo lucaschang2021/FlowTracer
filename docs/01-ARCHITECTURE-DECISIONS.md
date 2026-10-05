@@ -282,3 +282,12 @@
 - 兼容：复用既有 `DiscoveryMode` 枚举、`Source.discovery_mode` 列与 `SourceAcquisitionState.checkpoint` JSONB；无迁移；RSS 与非达标页不触发发现。
 - 边界：本 ADR 不放宽访问控制/CAPTCHA/robots 相关不变量，不引入 Browser/Change/Opportunity；I2 与 WP-6 仍须各自独立准入。
 
+## ADR-036：WP-6 Change Intelligence 采用 shadow-write 版本证据优先契约
+
+- 状态：**Accepted**（2026-10-05 冻结并实现 I1；实现与验收见 `docs/64-ACQ1-WP6-CHANGE-STAGE-REPORT.md`，规则与实现注记以 `docs/63-ACQ1-WP6-CHANGE-CONTRACT.md` 为准）
+- 背景：ADR-024 已冻结 Artifact/Snapshot/ChangeEvent 版本证据方向；`docs/23` §10/§13 已给出模型与 schema。切换 RawItem 生成条件属于破坏性步骤，必须先积累可复现的快照/变更证据。
+- 决策：WP-6 拆为两个增量。**I1（本次）**只做 **shadow-write 版本证据**：三表 expand 迁移、三类指纹（content/metadata/structure）、噪声规范化、确定性分类与 materiality、bounded field diff、removed（两次成功观测缺失）、legacy backfill、迁移循环与**安全 downgrade guard**；**RawItem 写路径与公开 API 完全不变**（不新增 `raw_items.snapshot_id`）。**I2（未准入）**才做 writer 切换（仅 qualifying Snapshot 生成 RawItem、索引重建）、读取 API 与语义变化。
+- 安全：证据写入与 run 成功同事务，失败不落半成品；fingerprint/structure 不含凭据与完整 DOM；change_type 为闭集并由 named CHECK 约束；downgrade 在有证据行时 fail-closed 拒绝。
+- 兼容：复用既有 `RawItem`/`CollectionRun`/`Source` 结构；新模型置于独立 `app/models/evidence.py`，不修改 `entities.py`（避免基线模块增长）；无 OpenAPI 变化。
+- 边界：本 ADR 不引入 Browser/Discovery 执行/Opportunity，不改动 Notification/Document 下游；I2 与 WP-7 仍须各自独立准入。
+

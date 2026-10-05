@@ -15,12 +15,15 @@ from app.models.entities import (
     SourceAcquisitionState,
     User,
 )
+from app.models.evidence import AcquisitionSnapshot, ChangeEvent, SourceArtifact
 
 __all__ = [
     "AIUsageRecord",
     "AcquisitionAttempt",
+    "AcquisitionSnapshot",
     "Analysis",
     "Bookmark",
+    "ChangeEvent",
     "CollectionRun",
     "Document",
     "DocumentChunk",
@@ -31,5 +34,6 @@ __all__ = [
     "RefreshToken",
     "Source",
     "SourceAcquisitionState",
+    "SourceArtifact",
     "User",
 ]

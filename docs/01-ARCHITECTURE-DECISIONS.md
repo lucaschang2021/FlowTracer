@@ -273,3 +273,12 @@
 - 兼容：只使用既有 `BackendName`、`SourceHealthStatus`、`SourceAcquisitionState`、`CollectionRun`/`AcquisitionAttempt` 冻结字段；无新表、无公开 API/Schema 变化；既有单后端 `execute_run` 路径保持不变，Router 走独立 `execute_route_run` 入口与独立模块。
 - 边界：本 ADR 不放宽 WP-1/WP-2 安全契约、不引入 Browser/Discovery/Change/Opportunity。实现完成后须独立复审并合并；WP-5 仍须另行准入。
 
+## ADR-035：WP-5 Controlled Discovery 采用规划优先的 fail-closed 契约
+
+- 状态：**Accepted**（2026-10-05 冻结并实现 I1；实现与验收见 `docs/62-ACQ1-WP5-DISCOVERY-STAGE-REPORT.md`，规则与实现注记以 `docs/61-ACQ1-WP5-DISCOVERY-CONTRACT.md` 为准）
+- 背景：WP-5 涉及新 frontier 状态、scope 扩散与预算风险；仓库纪律要求先冻结规则再实现，且 Browser-dependent discovery 持续暂停（`browser_dynamic=disabled`）。
+- 决策：WP-5 拆为两个增量。**I1（本次）**只做发现**规划与 Frontier 状态**：四种 scope（`single_page`/`same_path`/`same_domain`/`approved_domains`）的精确边界、确定性 link scoring、站点 `allow_paths`/`deny_paths` 门、三硬上限（`max_depth`/`max_frontier_size`/`max_discovered_urls`）、URL 哈希并发去重、`SourceAcquisitionState.checkpoint` 持久化与幂等恢复；**不向发现的 URL 发起任何请求**。**I2（未准入）**才实现 crawl 执行、robots.txt 获取与逐跳计费。
+- 安全：全部判定 fail-closed——无法解析、越 scope、命中 deny、超上限一律拒绝；I1 无网络副作用；预算与既有 WP-1/WP-4 语义不变；不新增公开 API（证据落 `budget_summary["discovery"]` 与 checkpoint 内部字段）。
+- 兼容：复用既有 `DiscoveryMode` 枚举、`Source.discovery_mode` 列与 `SourceAcquisitionState.checkpoint` JSONB；无迁移；RSS 与非达标页不触发发现。
+- 边界：本 ADR 不放宽访问控制/CAPTCHA/robots 相关不变量，不引入 Browser/Change/Opportunity；I2 与 WP-6 仍须各自独立准入。
+

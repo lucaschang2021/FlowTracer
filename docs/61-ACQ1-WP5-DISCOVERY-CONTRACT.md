@@ -1,7 +1,12 @@
-# ACQ-1 WP-5 Controlled Discovery 契约冻结（草案）
+# ACQ-1 WP-5 Controlled Discovery 契约冻结（含实现注记）
 
-状态：**DRAFT — NOT FROZEN / NOT ADMITTED**。本文件补齐 `docs/29` WP-5 的开工前置：把 Controlled Discovery 的精确规则写成可冻结合同。所有 `PROPOSED` 值须经 ADR 冻结后才成为合同；`FROZEN` 项引用既有已冻结事实，不得改。
-日期：2026-10-05。依据：`docs/29` WP-5、`docs/23` 采集契约、`GOVERNANCE-V2 §3`（Capability DAG）、ADR-022/023/026；锚定代码：`app/models/entities.py`（`DiscoveryMode`、`Source`）、`app/services/acquisition_policy.py`、`app/services/acquisition_router.py`、`app/services/acquisition_route.py`、`app/schemas/resources.py`。
+状态：**FROZEN（ADR-035 Accepted）+ IMPLEMENTED（discovery-v1，I1 范围）**。冻结规则以本文件为准；§15 实现注记记录落到代码时的精确裁定。
+日期：2026-10-05。依据：`docs/29` WP-5、`docs/23` 采集契约、`GOVERNANCE-V2 §3`（Capability DAG）、ADR-022/023/026、ADR-034/035；锚定代码：`app/models/entities.py`（`DiscoveryMode`、`Source`）、`app/services/discovery_policy.py`、`app/services/discovery_links.py`、`app/services/discovery_frontier.py`、`app/services/acquisition_route.py`、`app/services/acquisition_policy.py`、`app/schemas/resources.py`。
+
+## 0. 增量拆分（冻结）
+
+- **I1（本增量，已实现）**：Discovery **规划与 Frontier 状态**——四种 scope 边界、link scoring、站点路径策略、硬上限、并发/跨 run 去重、checkpoint 持久化与恢复。**不向发现的 URL 发出任何请求**（无 crawl 执行）。
+- **I2（未准入，另行许可）**：**crawl 执行**——对 frontier 中的 URL 发起真实抓取、逐跳计费、robots.txt 获取与遵守、子资源与 redirect 计费、取消/恢复的抓取语义。I2 开工前须补齐其自身准入与 robots 契约（§5 的 robots 义务在 I2 生效；I1 因不抓取而不触发）。
 
 ## 1. 范围与非目标
 
@@ -98,10 +103,28 @@
 
 本草案经 ADR 冻结为合同后，方可签发独立 WP-5 Admission（精确 baseline/branch/允许文件/回滚），再由 Backend 实现并 Stage-Gate 验收。本草案本身**不授权任何实现、迁移或 API 变化**。
 
-## 12. 待冻结项（OPEN）
+## 12. 冻结裁定（2026-10-05）
 
-1. §3/§4/§6 的 `min_score`、`max_frontier_size`、`max_discovered_urls` 默认值与 operator 上限；
-2. §6 发现专属上限是落在 `ResourceBudgetProfile` 还是 operator 侧；
-3. §8 是否落独立 frontier 表，或复用 `checkpoint` JSONB（影响 migration）；
-4. §4 `nofollow` 的默认（RESPECT 跳过 vs 记录）；
-5. 是否在 v1 暴露 discovery 统计 API，或仅落内部证据。
+1. `min_score`=20；`max_frontier_size`=500（硬上限 `FRONTIER_HARD_CAP`，profile 值取 min）；`max_discovered_urls = max_pages × 5`；
+2. discovery 参数落在既有 `ResourceBudgetProfile`（`max_depth`/`max_pages`）与固定常量，不新增 profile 字段；
+3. **不落独立 frontier 表**：复用 `SourceAcquisitionState.checkpoint` JSONB（无 migration）；
+4. `nofollow` 链接：I1 记录但结果中不单列；I2 决定抓取语义；
+5. 不新增公开 API：discovery 证据落在 `CollectionRun.budget_summary["discovery"]` 与 `SourceAcquisitionState.checkpoint`（内部证据）。
+
+## 15. 实现注记（2026-10-05，discovery-v1 / I1 实值）
+
+1. **模块**：`discovery_policy.py`（scope/scoring/路径门，纯函数）、`discovery_links.py`（有界 HTML 链接抽取，stdlib）、`discovery_frontier.py`（规划+checkpoint 合并，纯函数）；执行接线在 `acquisition_route.py`（`_plan_discovery`）与 `acquisition_run_repository.py`（`finish_success(discovery_checkpoint=…)` → `_update_source_state(checkpoint_update=…)`），读取经 `acquisition_attempts._discovery_checkpoint`。
+2. **触发条件**：仅 `SourceType.URL` 且 `discovery_mode != single_page` 且该 stage **质量达标**（`met`）时规划；RSS 与非达标页不产生 discovery 证据，checkpoint 不被触碰。
+3. **scoring 实值（对 §4 的精确化）**：深度惩罚为 `-20 × max(0, depth-1)`（种子页直链为第 1 层，不惩罚；更深层才衰减）；同路径目录前缀 `+30`；同主机 `+15`；跨主机但在批准交集内 `+10`；命中 `allow_paths` `+10`；锚文本 ≥4 字符 `+10`；追踪参数 `-10`；clamp `[0,100]`。`deny_paths` 在打分前直接拒绝（计入 `rejected_scope`）。
+4. **scope 硬前置（fail-closed）**：仅 `http/https`、端口 80/443、拒绝 userinfo/`@`；无法解析即拒绝。规范化为 `url_normalization.normalize_source_url` 后比较。
+5. **上限**：`max_depth` 取 `min(profile.max_depth, 3)`；`max_frontier_size` 取 `min(配置, 500)`；`max_discovered_urls` 为累计 accepted 上限（跨 run）。任一超限即停止入队（`truncated` 标记）；**无 unrestricted crawl 路径**。
+6. **去重与顺序**：URL 的 SHA-256 为身份键；`seen` 上限 `MAX_SEEN_HASHES=2000`（确定性截断）；单页链接 ≤200；入队顺序按 `(-score, depth, url)` 稳定排序。
+7. **checkpoint 文档**：`{version:1, seen:[hash…], frontier:[{url,parent_url,depth,score}…], counters:{runs,accepted_total}}`；成功终结时**整文档替换**写入（与 run 成功同事务）；损坏内容按空状态容忍处理。
+8. **取消与恢复**：无 crawl（I1），"取消"即未写入；已写入的 checkpoint 即事实；重复 run 幂等（`duplicates` 计数、`accepted=0`）。
+9. **robots**：I1 不抓取，故不触发 robots 义务；`deny_if_unavailable` 的抓取前门禁随 I2 落地（§0）。
+10. **运行摘要**：`CollectionRun.budget_summary["discovery"] = {policy_version, scope, links_found, rejected_scope, rejected_score, duplicates, accepted, frontier_size, depth_cap, truncated}`。
+
+## 16. 复验
+
+- 纯策略/规划测试 + DB 集成测试共 18 项（`tests/test_acquisition_discovery.py`）；WP-4/WP-1/WP-2 回归与全量套件见 `docs/62-ACQ1-WP5-DISCOVERY-STAGE-REPORT.md`。
+- 架构门（跟踪后）`introduced=0`；ruff/format/mypy 全绿。

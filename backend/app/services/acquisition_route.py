@@ -28,7 +28,7 @@ from app.domains.acquisition_ports import (
     RunClaim,
     SourceRuntimeFacts,
 )
-from app.models.entities import BackendName, Source, SourceType
+from app.models.entities import BackendName, DiscoveryMode, Source, SourceType
 from app.services.acquisition import (
     _publish_repository_event,
     _repository_heartbeat_loop,
@@ -59,6 +59,7 @@ from app.services.acquisition_types import (
     CollectionError,
     ParseResult,
 )
+from app.services.discovery_frontier import DiscoveryPlan, plan_discovery
 from app.services.extraction import attach_extraction_observations
 from app.services.extraction_quality import aggregate_quality
 
@@ -117,6 +118,8 @@ class _RouteRun:
         self.fallback_reason: str | None = None
         self.budget: EffectiveResourceBudget | None = None
         self.chain: list[tuple[RouteCandidate, RunBackend]] = []
+        self.profile: Any | None = None
+        self.discovery_checkpoint: dict[str, Any] | None = None
 
 
 async def execute_route_run(
@@ -174,6 +177,7 @@ async def _route_attempts(route: _RouteRun) -> bool:
         raise CollectionError(
             "source_profile_invalid", "Source acquisition profile is invalid"
         ) from None
+    route.profile = profile
     route.chain = _select_chain(route, profile)
     facts = await route.repository.circuit_facts(route.source.id)
     blocked = circuit_blocks(facts, datetime.now(UTC))
@@ -181,6 +185,8 @@ async def _route_attempts(route: _RouteRun) -> bool:
         raise CollectionError(blocked, "Source circuit is open", retryable=False)
     await _apply_throttle(route, facts, profile)
     route.budget = effective_resource_budget(profile)
+    if discovery_enabled(route.source.source_type, route.source.discovery_mode):
+        route.discovery_checkpoint = await route.repository.discovery_checkpoint(route.source.id)
     request = AcquisitionRequest(
         source_id=route.source.id,
         run_id=route.run_id,
@@ -203,9 +209,7 @@ async def _route_attempts(route: _RouteRun) -> bool:
     raise CollectionError("internal_collection_error", "Collection failed unexpectedly")
 
 
-def _select_chain(
-    route: _RouteRun, profile: Any
-) -> list[tuple[RouteCandidate, RunBackend]]:
+def _select_chain(route: _RouteRun, profile: Any) -> list[tuple[RouteCandidate, RunBackend]]:
     candidates = select_candidates(
         source_type=route.source.source_type,
         mode=route.source.acquisition_mode,
@@ -373,6 +377,7 @@ async def _finalize_success(
     candidate: RouteCandidate,
     evaluation: _StageEvaluation,
 ) -> bool:
+    plan = _plan_discovery(route, evaluation)
     completion = await route.repository.finish_success(
         route.claimed,
         backend_name=candidate.backend.value,
@@ -385,9 +390,14 @@ async def _finalize_success(
         fallback_count=candidate.stage - 1,
         attempt_ordinal=candidate.stage,
         fallback_reason=route.fallback_reason,
-        budget_summary=route_summary(route.traces, accepted_backend=candidate.backend),
+        budget_summary=route_summary(
+            route.traces,
+            accepted_backend=candidate.backend,
+            discovery=None if plan is None else plan.summary,
+        ),
         decision_version=ROUTER_VERSION,
         attempt_budget_used={**evaluation.usage, "trace": evaluation.trace},
+        discovery_checkpoint=None if plan is None else plan.checkpoint,
     )
     if completion is None:
         return False
@@ -411,6 +421,37 @@ async def _finalize_success(
         duration_ms=round((time.monotonic() - route.started) * 1000),
     )
     return True
+
+
+def discovery_enabled(source_type: SourceType, mode: DiscoveryMode) -> bool:
+    """Discovery planning applies to URL sources that opted into a scope beyond single page."""
+    return source_type == SourceType.URL and mode != DiscoveryMode.SINGLE_PAGE
+
+
+def _plan_discovery(route: _RouteRun, evaluation: _StageEvaluation) -> DiscoveryPlan | None:
+    """Plan+checkpoint for one accepted URL page; None when discovery is inactive."""
+    if route.profile is None or not discovery_enabled(
+        route.source.source_type, route.source.discovery_mode
+    ):
+        return None
+    if not evaluation.met:
+        return None
+    policy = effective_site_policy(route.profile, route.source.normalized_url)
+    budget = route.profile.resource_budget
+    response = evaluation.result.response
+    return plan_discovery(
+        seed_url=route.source.normalized_url,
+        body=response.body,
+        content_type=response.content_type,
+        final_url=response.final_url,
+        scope=route.source.discovery_mode,
+        approved_domains=frozenset(policy.approved_domains),
+        allow_paths=policy.allow_paths,
+        deny_paths=policy.deny_paths,
+        checkpoint=route.discovery_checkpoint,
+        max_depth=int(budget.max_depth),
+        max_discovered_urls=max(0, int(budget.max_pages)) * 5,
+    )
 
 
 def _dispatch_raw_items(route: _RouteRun, raw_item_ids: tuple[UUID, ...]) -> None:

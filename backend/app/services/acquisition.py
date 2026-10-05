@@ -543,6 +543,7 @@ async def _update_source_state(
     quality_score: Decimal | None = None,
     now: datetime,
     counts_toward_circuit_failures: bool = True,
+    checkpoint_update: dict[str, Any] | None = None,
 ) -> None:
     state = await session.scalar(
         select(SourceAcquisitionState)
@@ -576,6 +577,9 @@ async def _update_source_state(
         state.last_success_at = now
         state.last_error_code = None
         state.health_status = SourceHealthStatus.HEALTHY
+        if checkpoint_update is not None:
+            # Discovery owns the whole checkpoint document (versioned, self-contained).
+            state.checkpoint = checkpoint_update
     else:
         state.failure_count += 1
         if counts_toward_circuit_failures:

@@ -101,6 +101,19 @@ async def _circuit_facts(
         )
 
 
+async def _discovery_checkpoint(
+    factory: async_sessionmaker[AsyncSession], source_id: UUID
+) -> dict[str, Any]:
+    """Persisted discovery checkpoint for a source; empty dict when absent."""
+    async with factory() as session:
+        state = await session.scalar(
+            select(SourceAcquisitionState).where(SourceAcquisitionState.source_id == source_id)
+        )
+        if state is None or not isinstance(state.checkpoint, dict):
+            return {}
+        return dict(state.checkpoint)
+
+
 async def _record_attempt(
     factory: async_sessionmaker[AsyncSession],
     run_id: UUID,

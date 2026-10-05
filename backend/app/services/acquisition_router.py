@@ -228,13 +228,19 @@ class RouteBudgetLedger:
 
 
 def route_summary(
-    traces: list[dict[str, object]], *, accepted_backend: BackendName | None
+    traces: list[dict[str, object]],
+    *,
+    accepted_backend: BackendName | None,
+    discovery: dict[str, object] | None = None,
 ) -> dict[str, object]:
     """Closed run-level summary stored on CollectionRun.budget_summary."""
-    return {
+    summary: dict[str, object] = {
         "decision_version": ROUTER_VERSION,
         "stages": len(traces),
         "fallbacks": max(0, len(traces) - 1),
         "accepted_backend": None if accepted_backend is None else accepted_backend.value,
         "trace": traces,
     }
+    if discovery is not None:
+        summary["discovery"] = discovery
+    return summary

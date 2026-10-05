@@ -35,6 +35,7 @@ from app.services.acquisition_attempts import (
     DECISION_VERSION,
     _attempt,
     _circuit_facts,
+    _discovery_checkpoint,
     _record_attempt,
 )
 from app.services.acquisition_types import (
@@ -104,6 +105,7 @@ async def _record_success(
     decision_version: str = DECISION_VERSION,
     attempt_budget_used: dict[str, Any] | None = None,
     run_started_at: datetime | None = None,
+    discovery_checkpoint: dict[str, Any] | None = None,
 ) -> None:
     run.fetched_count = parsed.fetched_count
     run.created_count = len(created)
@@ -158,6 +160,7 @@ async def _record_success(
         error_code=None,
         quality_score=quality_score,
         now=finished_at,
+        checkpoint_update=discovery_checkpoint,
     )
 
 
@@ -194,6 +197,7 @@ class SqlAlchemyAcquisitionRunRepository:
         decision_version: str = DECISION_VERSION,
         attempt_budget_used: dict[str, Any] | None = None,
         run_started_at: datetime | None = None,
+        discovery_checkpoint: dict[str, Any] | None = None,
     ) -> RunCompletion | None:
         async with self._factory() as session:
             source = await session.scalar(
@@ -233,6 +237,7 @@ class SqlAlchemyAcquisitionRunRepository:
                 decision_version=decision_version,
                 attempt_budget_used=attempt_budget_used,
                 run_started_at=run_started_at,
+                discovery_checkpoint=discovery_checkpoint,
             )
             await session.commit()
             return RunCompletion(
@@ -313,6 +318,9 @@ class SqlAlchemyAcquisitionRunRepository:
 
     async def circuit_facts(self, source_id: UUID) -> SourceRuntimeFacts | None:
         return await _circuit_facts(self._factory, source_id)
+
+    async def discovery_checkpoint(self, source_id: UUID) -> dict[str, Any]:
+        return await _discovery_checkpoint(self._factory, source_id)
 
     async def event_for(self, run_id: UUID) -> PublishedEvent[Any] | None:
         return await _collection_event(self._factory, run_id)

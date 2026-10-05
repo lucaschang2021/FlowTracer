@@ -6,6 +6,11 @@
 
 > **验收口径**：与 WP-4 相同——本环境无第二角色、无可用远端，无法执行独立第三方复审；经委托方确认以"开发自测证据 + 委托方确认"验收，**不声称独立复审已完成**。复审对象为本地 `main` 合并提交。
 
+## Commit / Branch / PR
+
+- 分支：`feat/acq-1e-discovery`（含本阶段提交 39b34f1 起的增量）；合并提交：`main@1c410b1`（`--no-ff`，树与验证头 `915f9f1` 逐字节一致）。
+- 远端：**未推送**（无可用远端写权限），无 PR。复审对象为本地 `main@1c410b1` 的 exact head。
+
 ## Phase / Status
 
 - Phase：ACQ-1E Controlled Discovery **I1（规划与 Frontier 状态）**；静态范围，Browser disabled。

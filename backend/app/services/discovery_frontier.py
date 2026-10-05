@@ -21,7 +21,6 @@ from app.services.discovery_policy import (
     MAX_DISCOVERY_LINKS_PER_PAGE,
     MAX_FRONTIER_SIZE_DEFAULT,
     MIN_SCORE_DEFAULT,
-    host_of,
     path_allowed,
     scope_allows,
     score_link,
@@ -110,6 +109,76 @@ def _classify(
     return normalized, score
 
 
+def _collect_candidates(
+    *,
+    links: list[LinkRef],
+    seed_url: str,
+    scope: DiscoveryMode,
+    approved_domains: frozenset[str],
+    allow_paths: tuple[str, ...],
+    deny_paths: tuple[str, ...],
+    seen: set[str],
+    min_score: int,
+) -> tuple[list[dict[str, Any]], dict[str, int]]:
+    """Classify each link; returns surviving rows plus rejection counters."""
+    rows: list[dict[str, Any]] = []
+    counters = {"rejected_scope": 0, "rejected_score": 0, "duplicates": 0}
+    for link in links:
+        classified = _classify(
+            seed_url=seed_url,
+            scope=scope,
+            approved_domains=approved_domains,
+            allow_paths=allow_paths,
+            deny_paths=deny_paths,
+            link=link,
+        )
+        if classified is None:
+            counters["rejected_scope"] += 1
+            continue
+        normalized, score = classified
+        if score < min_score:
+            counters["rejected_score"] += 1
+            continue
+        digest = _url_hash(normalized)
+        if digest in seen or any(row["url"] == normalized for row in rows):
+            counters["duplicates"] += 1
+            continue
+        rows.append(
+            {"url": normalized, "parent_url": seed_url, "depth": 1, "score": score, "hash": digest}
+        )
+    return rows, counters
+
+
+def _select_within_caps(
+    rows: list[dict[str, Any]],
+    *,
+    existing_frontier: list[dict[str, Any]],
+    accepted_total: int,
+    frontier_cap: int,
+    url_cap: int,
+    depth_cap: int,
+) -> list[dict[str, Any]]:
+    """Deterministic cap selection: score desc, then depth, then URL ordinal."""
+    if depth_cap < 1:
+        return []
+    rows.sort(key=lambda row: (-int(row["score"]), int(row["depth"]), str(row["url"])))
+    accepted: list[dict[str, Any]] = []
+    for row in rows:
+        if len(existing_frontier) + len(accepted) >= frontier_cap:
+            break
+        if accepted_total + len(accepted) >= url_cap:
+            break
+        accepted.append(
+            {
+                "url": row["url"],
+                "parent_url": row["parent_url"],
+                "depth": row["depth"],
+                "score": row["score"],
+            }
+        )
+    return accepted
+
+
 def plan_discovery(
     *,
     seed_url: str,
@@ -132,53 +201,25 @@ def plan_discovery(
     accepted_total = int(counters.get("accepted_total", 0))
     depth_cap = max(0, min(max_depth, 3))
     frontier_cap = max(0, min(max_frontier_size, FRONTIER_HARD_CAP))
-    url_cap = max(0, max_discovered_urls)
     counters = {**counters, "runs": int(counters.get("runs", 0)) + 1}
-
-    candidate_rows: list[dict[str, Any]] = []
-    rejected_scope = rejected_score = duplicates = 0
-    for link in links:
-        classified = _classify(
-            seed_url=seed_url,
-            scope=scope,
-            approved_domains=approved_domains,
-            allow_paths=allow_paths,
-            deny_paths=deny_paths,
-            link=link,
-        )
-        if classified is None:
-            rejected_scope += 1
-            continue
-        normalized, score = classified
-        if score < min_score:
-            rejected_score += 1
-            continue
-        digest = _url_hash(normalized)
-        if digest in seen or any(row["url"] == normalized for row in candidate_rows):
-            duplicates += 1
-            continue
-        candidate_rows.append(
-            {"url": normalized, "parent_url": seed_url, "depth": 1, "score": score, "hash": digest}
-        )
-
-    if depth_cap < 1:
-        candidate_rows = []
-    candidate_rows.sort(key=lambda row: (-int(row["score"]), int(row["depth"]), str(row["url"])))
-    accepted: list[dict[str, Any]] = []
-    for row in candidate_rows:
-        if len(existing_frontier) + len(accepted) >= frontier_cap:
-            break
-        if accepted_total + len(accepted) >= url_cap:
-            break
-        accepted.append(
-            {
-                "url": row["url"],
-                "parent_url": row["parent_url"],
-                "depth": row["depth"],
-                "score": row["score"],
-            }
-        )
-
+    rows, rejects = _collect_candidates(
+        links=links,
+        seed_url=seed_url,
+        scope=scope,
+        approved_domains=approved_domains,
+        allow_paths=allow_paths,
+        deny_paths=deny_paths,
+        seen=seen,
+        min_score=min_score,
+    )
+    accepted = _select_within_caps(
+        rows,
+        existing_frontier=existing_frontier,
+        accepted_total=accepted_total,
+        frontier_cap=frontier_cap,
+        url_cap=max(0, max_discovered_urls),
+        depth_cap=depth_cap,
+    )
     for row in accepted:
         seen.add(_url_hash(str(row["url"])))
     if len(seen) > MAX_SEEN_HASHES:
@@ -189,13 +230,13 @@ def plan_discovery(
         "policy_version": DISCOVERY_POLICY_VERSION,
         "scope": scope.value,
         "links_found": len(links),
-        "rejected_scope": rejected_scope,
-        "rejected_score": rejected_score,
-        "duplicates": duplicates,
+        "rejected_scope": rejects["rejected_scope"],
+        "rejected_score": rejects["rejected_score"],
+        "duplicates": rejects["duplicates"],
         "accepted": len(accepted),
         "frontier_size": len(merged_frontier),
         "depth_cap": depth_cap,
-        "truncated": len(existing_frontier) + len(candidate_rows) > len(merged_frontier),
+        "truncated": len(existing_frontier) + len(rows) > len(merged_frontier),
     }
     checkpoint_next = {
         "version": CHECKPOINT_VERSION,
@@ -204,7 +245,3 @@ def plan_discovery(
         "counters": counters,
     }
     return DiscoveryPlan(entries=accepted, summary=summary, checkpoint=checkpoint_next)
-
-
-def seed_host_of(seed_url: str) -> str | None:
-    return host_of(seed_url)

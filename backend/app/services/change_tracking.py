@@ -7,6 +7,7 @@ working unchanged while version evidence accumulates alongside it (docs/23 §10)
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import datetime
 from decimal import ROUND_HALF_UP, Decimal
 from uuid import UUID, uuid4
@@ -36,6 +37,24 @@ from app.services.version_evidence import (
 MAX_ARTIFACT_KEY = 512
 MAX_SAFE_METADATA_VALUE = 2000
 REMOVED_MISS_THRESHOLD = 2
+
+
+@dataclass(frozen=True, slots=True)
+class EvidenceWrite:
+    """One artifact/event observation from a successful run."""
+
+    artifact_id: UUID
+    snapshot_id: UUID
+    change_type: str
+    candidate: RawCandidate
+
+
+@dataclass(frozen=True, slots=True)
+class EvidenceResult:
+    """Evidence written for one successful run: event count and per-candidate writes."""
+
+    events: int
+    writes: tuple[EvidenceWrite, ...]
 
 
 def artifact_key_for(candidate: RawCandidate) -> str:
@@ -239,7 +258,7 @@ async def _record_candidate(
     body: bytes | None,
     quality: Decimal,
     fetched_at: datetime,
-) -> None:
+) -> EvidenceWrite:
     artifact = await _upsert_artifact(
         session,
         source_id=run.source_id,
@@ -265,6 +284,8 @@ async def _record_candidate(
         quality=quality,
         fetched_at=fetched_at,
     )
+    if current is None:  # pragma: no cover - created/changed always resolve a snapshot
+        raise CollectionError("internal_collection_error", "Version evidence snapshot is missing")
     previous_values = None if latest is None else latest.safe_metadata.get("metadata_values")
     # Flush the newly inserted snapshot first: without ORM relationships the unit of
     # work cannot infer insert order, and the event's FKs need the snapshot row to exist.
@@ -275,7 +296,7 @@ async def _record_candidate(
             artifact_id=artifact.id,
             collection_run_id=run.id,
             previous_snapshot_id=None if latest is None else latest.id,
-            current_snapshot_id=current.id if current is not None else None,
+            current_snapshot_id=current.id,
             change_type=change_type,
             materiality=_change_materiality(change_type, prior or hashes, hashes),
             field_diff=bounded_field_diff(
@@ -292,6 +313,12 @@ async def _record_candidate(
     if meta.get("miss_streak"):
         meta["miss_streak"] = 0
         artifact.safe_metadata = meta
+    return EvidenceWrite(
+        artifact_id=artifact.id,
+        snapshot_id=current.id,
+        change_type=change_type,
+        candidate=candidate,
+    )
 
 
 async def _mark_missing(
@@ -350,24 +377,27 @@ async def record_version_evidence(
     body: bytes | None,
     quality_score: Decimal | None,
     fetched_at: datetime,
-) -> int:
-    """Shadow-write evidence for one successful run; returns ChangeEvent rows written."""
+) -> EvidenceResult:
+    """Shadow-write evidence for one successful run; returns writes and event count."""
     quality = _snapshot_quality(quality_score)
     observed: set[str] = set()
     events = 0
+    writes: list[EvidenceWrite] = []
     for candidate in parsed.candidates:
         observed.add(artifact_key_for(candidate))
-        await _record_candidate(
-            session,
-            run=run,
-            candidate=candidate,
-            body=body,
-            quality=quality,
-            fetched_at=fetched_at,
+        writes.append(
+            await _record_candidate(
+                session,
+                run=run,
+                candidate=candidate,
+                body=body,
+                quality=quality,
+                fetched_at=fetched_at,
+            )
         )
         events += 1
     events += await _mark_missing(session, run=run, observed=observed, now=fetched_at)
-    return events
+    return EvidenceResult(events=events, writes=tuple(writes))
 
 
 async def _backfill_one(

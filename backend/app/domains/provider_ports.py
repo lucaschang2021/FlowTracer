@@ -4,6 +4,8 @@ import math
 import struct
 from collections.abc import Sequence
 from dataclasses import dataclass
+from datetime import datetime
+from decimal import Decimal
 from typing import Any, Protocol
 
 EMBEDDING_DIMENSIONS = 1536
@@ -47,6 +49,35 @@ class AnalysisProvider(Protocol):
 
     async def analyze(
         self, request: AnalysisRequest, *, repair_error: str | None = None
+    ) -> ProviderResponse: ...
+
+
+@dataclass(frozen=True)
+class OpportunityEvaluationRequest:
+    """Bounded opportunity facts plus radar goal/skills; no user or source secrets."""
+
+    title: str
+    description: str
+    platform: str | None
+    budget_min: Decimal | None
+    budget_max: Decimal | None
+    currency: str | None
+    skills: tuple[str, ...]
+    deadline: datetime | None
+    published_at: datetime | None
+    estimated_effort_hours: Decimal | None
+    delivery_type: str | None
+    radar_name: str
+    radar_goal: str
+    radar_keywords: tuple[str, ...]
+
+
+class OpportunityEvaluationProvider(Protocol):
+    name: str
+    model: str
+
+    async def evaluate(
+        self, request: OpportunityEvaluationRequest, *, repair_error: str | None = None
     ) -> ProviderResponse: ...
 
 

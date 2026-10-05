@@ -40,7 +40,9 @@ async def list_notifications(
         priority=priority,
     )
     return NotificationPage(
-        items=[NotificationResponse.model_validate(item) for item in items],
+        items=[
+            NotificationResponse.from_fact(item, opportunity_id) for item, opportunity_id in items
+        ],
         page=page,
         page_size=page_size,
         total=total,
@@ -64,7 +66,7 @@ async def read_notification(
     user: User = Depends(get_current_user),
     session: AsyncSession = Depends(get_session),
 ) -> NotificationResponse:
-    item = await notifications.mark_notification_read(
+    item, opportunity_id = await notifications.mark_notification_read(
         session, user_id=user.id, notification_id=notification_id
     )
-    return NotificationResponse.model_validate(item)
+    return NotificationResponse.from_fact(item, opportunity_id)

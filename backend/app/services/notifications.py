@@ -4,7 +4,7 @@ from datetime import UTC, datetime
 from decimal import Decimal
 from uuid import UUID
 
-from sqlalchemy import func, select, update
+from sqlalchemy import func, select, text, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
@@ -19,6 +19,7 @@ from app.models.entities import (
     Radar,
     ResourceStatus,
 )
+from app.models.opportunity import OpportunityScore
 from app.services.events import EventPublisher, build_event, publish_safely
 
 
@@ -87,7 +88,10 @@ async def dispatch_notifications(
                     url=document.canonical_url,
                     status=NotificationStatus.UNREAD,
                 )
-                .on_conflict_do_nothing(index_elements=["user_id", "analysis_id"])
+                .on_conflict_do_nothing(
+                    index_elements=["user_id", "analysis_id"],
+                    index_where=text("analysis_id IS NOT NULL"),
+                )
                 .returning(Notification.id, Notification.created_at)
             )
             inserted = result.one_or_none()
@@ -120,7 +124,7 @@ async def list_notifications(
     page_size: int,
     status: NotificationStatus | None,
     priority: NotificationPriority | None,
-) -> tuple[list[Notification], int]:
+) -> tuple[list[tuple[Notification, UUID | None]], int]:
     predicates = [Notification.user_id == user_id]
     if status is not None:
         predicates.append(Notification.status == status)
@@ -129,18 +133,17 @@ async def list_notifications(
     total = int(
         await session.scalar(select(func.count()).select_from(Notification).where(*predicates)) or 0
     )
-    items = list(
-        (
-            await session.scalars(
-                select(Notification)
-                .where(*predicates)
-                .order_by(Notification.created_at.desc(), Notification.id.desc())
-                .offset((page - 1) * page_size)
-                .limit(page_size)
-            )
-        ).all()
-    )
-    return items, total
+    rows = (
+        await session.execute(
+            select(Notification, OpportunityScore.opportunity_id)
+            .outerjoin(OpportunityScore, OpportunityScore.id == Notification.opportunity_score_id)
+            .where(*predicates)
+            .order_by(Notification.created_at.desc(), Notification.id.desc())
+            .offset((page - 1) * page_size)
+            .limit(page_size)
+        )
+    ).all()
+    return [(row[0], row[1]) for row in rows], total
 
 
 async def mark_notification_read(
@@ -149,7 +152,7 @@ async def mark_notification_read(
     user_id: UUID,
     notification_id: UUID,
     now: datetime | None = None,
-) -> Notification:
+) -> tuple[Notification, UUID | None]:
     notification = await session.scalar(
         select(Notification)
         .where(Notification.id == notification_id, Notification.user_id == user_id)
@@ -162,7 +165,14 @@ async def mark_notification_read(
         notification.read_at = now or datetime.now(UTC)
         await session.commit()
         await session.refresh(notification)
-    return notification
+    opportunity_id: UUID | None = None
+    if notification.opportunity_score_id is not None:
+        opportunity_id = await session.scalar(
+            select(OpportunityScore.opportunity_id).where(
+                OpportunityScore.id == notification.opportunity_score_id
+            )
+        )
+    return notification, opportunity_id
 
 
 async def mark_all_notifications_read(

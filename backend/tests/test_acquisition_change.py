@@ -655,14 +655,14 @@ class TestMigrationCycle:
     @pytest.mark.asyncio
     async def test_cycle_and_downgrade_guard(self, change_engine: AsyncEngine) -> None:
         # Empty evidence tables: downgrade and re-upgrade must round-trip.
-        downgraded = self.run_alembic("downgrade", "-1")
+        downgraded = self.run_alembic("downgrade", "20260830_0004")
         assert downgraded.returncode == 0, downgraded.stderr
         check = self.run_alembic("current")
         assert "20261005_0005" not in check.stdout
         upgraded = self.run_alembic("upgrade", "head")
         assert upgraded.returncode == 0, upgraded.stderr
         after = self.run_alembic("current")
-        assert "20261005_0005" in after.stdout
+        assert "20261005_0006" in after.stdout
 
         # Guard: with evidence rows present the downgrade must refuse.
         source_id = await create_source(change_engine)
@@ -672,8 +672,13 @@ class TestMigrationCycle:
             candidates=[candidate(raw_text="Guard body.")],
             body=HTML_V1,
         )
-        guarded = self.run_alembic("downgrade", "-1")
+        guarded = self.run_alembic("downgrade", "20260830_0004")
         assert guarded.returncode != 0
         assert "refusing to drop version evidence table" in guarded.stderr
+        # A later revision may already have been downgraded and committed before the
+        # guard fired; restore head so the shared test database stays on the latest
+        # revision for every following suite.
+        restored = self.run_alembic("upgrade", "head")
+        assert restored.returncode == 0, restored.stderr
         still = self.run_alembic("current")
-        assert "20261005_0005" in still.stdout
+        assert "20261005_0006" in still.stdout

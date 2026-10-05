@@ -43,6 +43,7 @@ from app.services.acquisition_types import (
     CollectionError,
     ParseResult,
 )
+from app.services.change_tracking import record_version_evidence
 
 
 async def _persist_candidates(
@@ -85,6 +86,87 @@ async def _persist_candidates(
     return created, duplicates
 
 
+def _fill_run_success(
+    *,
+    run: CollectionRun,
+    source: Source,
+    backend: BackendName,
+    attempt_started_at: datetime,
+    result: AcquisitionResult,
+    parsed: ParseResult,
+    quality_score: Decimal | None,
+    created_count: int,
+    duplicates: int,
+    quality_met: bool,
+    fallback_count: int,
+    budget_summary: dict[str, Any] | None,
+    run_started_at: datetime | None,
+    finished_at: datetime,
+) -> int:
+    run.fetched_count = parsed.fetched_count
+    run.created_count = created_count
+    run.duplicate_count = duplicates
+    run.failed_count = parsed.failed_count
+    run.status = (
+        CollectionRunStatus.PARTIAL
+        if parsed.failed_count or not quality_met
+        else CollectionRunStatus.SUCCEEDED
+    )
+    run.finished_at = finished_at
+    run.error_code = None if quality_met else "acquisition_quality_unmet"
+    run.error_message = (
+        None if quality_met else "Extraction quality did not reach the acceptable bucket"
+    )
+    run.backend = backend.value
+    run.fallback_count = fallback_count
+    run.pages_count = 1
+    duration_from = run_started_at or attempt_started_at
+    duration_ms = max(0, round((finished_at - duration_from).total_seconds() * 1000))
+    run.duration_ms = duration_ms
+    run.budget_summary = budget_summary if budget_summary is not None else result.budget_used
+    run.quality_score = quality_score
+    source.last_fetched_at = finished_at
+    return duration_ms
+
+
+def _add_success_attempt(
+    session: AsyncSession,
+    *,
+    run: CollectionRun,
+    source: Source,
+    backend: BackendName,
+    attempt_started_at: datetime,
+    result: AcquisitionResult,
+    quality_score: Decimal | None,
+    finished_at: datetime,
+    ordinal: int,
+    fallback_reason: str | None,
+    attempt_budget_used: dict[str, Any] | None,
+    decision_version: str,
+) -> None:
+    session.add(
+        _attempt(
+            run_id=run.id,
+            source_id=source.id,
+            backend=backend,
+            started_at=attempt_started_at,
+            finished_at=finished_at,
+            status=AcquisitionAttemptStatus.SUCCEEDED,
+            requested_url=source.normalized_url,
+            response_url=result.response.final_url,
+            status_code=result.response.status_code,
+            content_type=result.response.content_type,
+            retry_count=result.retry_count,
+            bytes_received=len(result.response.body),
+            quality_score=quality_score,
+            ordinal=ordinal,
+            fallback_reason=fallback_reason,
+            budget_used=attempt_budget_used,
+            decision_version=decision_version,
+        )
+    )
+
+
 async def _record_success(
     session: AsyncSession,
     *,
@@ -107,60 +189,56 @@ async def _record_success(
     run_started_at: datetime | None = None,
     discovery_checkpoint: dict[str, Any] | None = None,
 ) -> None:
-    run.fetched_count = parsed.fetched_count
-    run.created_count = len(created)
-    run.duplicate_count = duplicates
-    run.failed_count = parsed.failed_count
-    run.status = (
-        CollectionRunStatus.PARTIAL
-        if parsed.failed_count or not quality_met
-        else CollectionRunStatus.SUCCEEDED
-    )
     finished_at = datetime.now(UTC)
-    run.finished_at = finished_at
-    run.error_code = None if quality_met else "acquisition_quality_unmet"
-    run.error_message = (
-        None if quality_met else "Extraction quality did not reach the acceptable bucket"
+    duration_ms = _fill_run_success(
+        run=run,
+        source=source,
+        backend=backend,
+        attempt_started_at=attempt_started_at,
+        result=result,
+        parsed=parsed,
+        quality_score=quality_score,
+        created_count=len(created),
+        duplicates=duplicates,
+        quality_met=quality_met,
+        fallback_count=fallback_count,
+        budget_summary=budget_summary,
+        run_started_at=run_started_at,
+        finished_at=finished_at,
     )
-    run.backend = backend.value
-    run.fallback_count = fallback_count
-    run.pages_count = 1
-    duration_from = run_started_at or attempt_started_at
-    run.duration_ms = max(0, round((finished_at - duration_from).total_seconds() * 1000))
-    run.budget_summary = budget_summary if budget_summary is not None else result.budget_used
-    run.quality_score = quality_score
-    source.last_fetched_at = finished_at
-    session.add(
-        _attempt(
-            run_id=run.id,
-            source_id=source.id,
-            backend=backend,
-            started_at=attempt_started_at,
-            finished_at=finished_at,
-            status=AcquisitionAttemptStatus.SUCCEEDED,
-            requested_url=source.normalized_url,
-            response_url=result.response.final_url,
-            status_code=result.response.status_code,
-            content_type=result.response.content_type,
-            retry_count=result.retry_count,
-            bytes_received=len(result.response.body),
-            quality_score=quality_score,
-            ordinal=ordinal,
-            fallback_reason=fallback_reason,
-            budget_used=attempt_budget_used,
-            decision_version=decision_version,
-        )
+    _add_success_attempt(
+        session,
+        run=run,
+        source=source,
+        backend=backend,
+        attempt_started_at=attempt_started_at,
+        result=result,
+        quality_score=quality_score,
+        finished_at=finished_at,
+        ordinal=ordinal,
+        fallback_reason=fallback_reason,
+        attempt_budget_used=attempt_budget_used,
+        decision_version=decision_version,
     )
     await _update_source_state(
         session,
         source_id=source.id,
         succeeded=True,
         backend=backend,
-        duration_ms=run.duration_ms,
+        duration_ms=duration_ms,
         error_code=None,
         quality_score=quality_score,
         now=finished_at,
         checkpoint_update=discovery_checkpoint,
+    )
+    # Shadow-write version evidence in the same transaction; RawItem behavior unchanged.
+    await record_version_evidence(
+        session,
+        run=run,
+        parsed=parsed,
+        body=result.response.body,
+        quality_score=quality_score,
+        fetched_at=finished_at,
     )
 
 

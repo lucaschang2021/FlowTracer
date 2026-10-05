@@ -20,7 +20,7 @@ Phase / Status：ACQ-1-WP7 I1 **ACCEPTED（委托方确认，无独立第三方�
 
 ## Commit / Branch / PR
 
-分支 `feat/acq-1g-opportunity`；实现+文档 commit 与 no-ff merge、traceability commit 在合并后由文档记录（本地 Git，无 GitHub 远端可用；委托方确认模式）。
+分支 `feat/acq-1g-opportunity`；实现+文档 commit `53f2058`；no-ff merge 到 `main`：`bba30aa`；本 traceability commit 记录以上哈希。本地 Git（无 GitHub 远端可用；委托方确认模式）。
 
 ## Schema / Migration
 

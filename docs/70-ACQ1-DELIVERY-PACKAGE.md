@@ -94,6 +94,10 @@
 | `scripts/secret_scan.py` | `SECRET SCAN CLEAN` | 扫描全部 git 跟踪文件；植入自检证明会报警 |
 | `scripts/benchmark_offline.py` | 组件级 + 运行级（p50 81.9ms / p95 126.6ms / 峰值 ≈124KB / fallback 0-10）| 单机 fixture 参考，非 SLA；Browser 标注 NOT MEASURED |
 
+### 4.4 第二轮复核与证据去向（2026-10-05 晚，同机）
+
+同日另有一轮同机复核：全量 pytest 已复跑并留存日志 `ft_verify_pytest.log`（末行 `438 passed`、`Total coverage: 92.16%`，与 §4.1 一致，且为独立于 §4.1 的另一次运行）；`ft-smoke.py`（httpx 版 注册→登录→Radar 冒烟）与 `ft-inspect-schema.py`（OpenAPI 结构探查，用于编写冒烟脚本）亦留存；首版 PowerShell 冒烟 `ft-smoke.ps1` 已弃用。以上文件均位于交付机系统临时目录（**仓库外，不随 Git bundle 交付**）。compose 验证栈（含 `flowtracer_postgres_data`、`flowtracer_redis_data`）已 `down -v` 精确删除，无容器/网络/卷残留；测试容器 `ft-pg-test` / `ft-redis-test` 验证前停止、验证后恢复。除上述文件外其余门禁仅屏幕输出，结果已记录于 §4.1，并可按 §6 的命令复现；接收方无需上述临时文件。
+
 ## 5. 能力范围
 
 ### 5.1 已验收可用（委托方确认；证据指针逐项）
@@ -192,11 +196,14 @@ python scripts/benchmark_offline.py      # 预期末行: BENCHMARK COMPLETE（JS
 7. **仓库形态**：无远端；全部历史在本地 Git。构建产物镜像 `flowtracer-backend:be6` 为本地验证产物，非交付必需。
 8. **宿主机 `uv sync`**：本机曾无 uv 环境；该缺口已由 §4.2 容器内 `uv sync --locked` 实测覆盖。
 
-## 8. 交付前待处置事项（文档一致性）
+## 8. 文档一致性处置记录（已闭环，2026-10-05）
 
-1. **根 `README.md`（中英文）进度表仍停留在 WP-2 时代**，写着 "WP-3..WP-8 未准入 / 下一阶段是 WP-3"，与仓库事实（WP-4..WP-8 已完成并合并）直接矛盾。对外展示前建议按 `docs/68/69` 对齐；该修改超出 WP-8 冻结白名单，需委托方书面确认后执行（一处文档提交即可）。
-2. **`docs/00-PROJECT-CONTROL.md` 头部**仍为 FT-GOV-V2.1 修订期措辞，建议加注"历史"或对齐。
-3. 在对齐完成前，**以本文件 + `docs/02-DELIVERY-BOARD.md` + `docs/68/69` + `docs/CURRENT-GATE.md` 为准**。
+原列出的两处交付前待处置事项已修正（纯文档变更，可经 Git 历史完整还原）：
+
+1. **根 `README.md`（中/英）**：状态声明、进度表、开发状态段落、路线图段落与关键文档索引已对齐 `docs/68/69` 事实；WP-3 行改为「未准入（fail-closed）」并新增 WP-4..WP-8 完成行（含 438 tests / 92.16% 指针）。
+2. **`docs/00-PROJECT-CONTROL.md` 头部**：改为 2026-10-05 当前状态并注明 FT-GOV-V2.1 段落为历史记录。
+
+处置提交见紧随本分支合并的 traceability 提交记录。此后对外展示以 `README.md` + 本文件 + `docs/68/69` + `docs/02-DELIVERY-BOARD.md` + `docs/CURRENT-GATE.md` 为准。
 
 ## 9. 移交操作指引
 

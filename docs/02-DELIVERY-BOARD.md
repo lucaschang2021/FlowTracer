@@ -77,13 +77,13 @@ Backend Alpha Core、Architecture Governance Pass、WP1/WP2 已完成。R1..R2C 
 | ACQ-1-WP3-R2C | R1C/R1D/R1E 完整 Chromium 上的 controlled egress 完整回归 | Backend / Architecture | 完成（PR #68 已验收合并） | ACQ-1-WP3-R1E Accepted | A4 head `e4f636bd88ba8c298ca7b1ec1e074b5bcd1351e1`；merge `c584fd06ff136025dc6a0aba9815291b16682aa2`；P0/P1/P2=0/0/0；`42-ACQ1-WP3-REMEDIATION-EVIDENCE-PACKAGE.md` |
 | ACQ-1-WP3-R4..R5 | 回收/资源与双 worker 隔离证据 | Backend | 未准入 | 各自主 invariant 与实际安全输入 | `GOVERNANCE-V2.md` §6；41 为历史，不重复扩张 R3 |
 | ACQ-1-WP3 | Dynamic/Advanced Browser、隔离 worker/queue 与受控 egress | Backend | 正式实现未准入 | PM-018 后续正式 Admission PR 合并 | `29-ACQ1-WORK-PACKAGES.md`；不得由 Preflight 直接续做 |
-| ACQ-1-WP4..8 | ACQ-1 后续工作包 | Backend | 未准入 | Static WP4 依赖 WP1/WP2；WP5..8 按实际输入递进，Browser optional | `29-ACQ1-WORK-PACKAGES.md`、`GOVERNANCE-V2.md`；逐项重评并独立准入 |
+| ACQ-1-WP4..8 | ACQ-1 后续工作包（总览；明细见下列各行） | Backend | WP-4..WP-8 已按委托方书面指示逐项完成（委托方确认）；Browser 分支自始未纳入 | 明细行各自证据 | `29-ACQ1-WORK-PACKAGES.md`；逐项独立准入语义由委托方书面指示行使 |
 | ACQ-1-WP4-CONTRACT | WP-4 Router 降级/Circuit/Throttle 规则冻结与实现 | Backend / Architecture | 完成（ADR-034 Accepted；实现+阶段验收完成，待独立复审后合并） | WP-1 + WP-2 已验收；WP-4 Admission 已签发 | ADR-034、`docs/57`（含 §15 实现注记）、`docs/58`（已签发）、`docs/60` 阶段报告；分支 `feat/acq-1c-router`；router-v1 |
 | ACQ-1-WP5 | Controlled Discovery（四 scope/Frontier/评分/硬预算/取消恢复） | Backend / Architecture | I1 完成（规划与 Frontier 状态；委托方确认）；I2（crawl 执行）未准入 | WP-4 已验收；ADR-035 冻结 | ADR-035、`docs/61-ACQ1-WP5-DISCOVERY-CONTRACT.md`（含实现注记）、`docs/62` 报告；discovery-v1 |
 | ACQ-1-WP6 | Version Evidence / Change Intelligence（Artifact/Snapshot/ChangeEvent/三指纹/materiality/removed/backfill） | Backend / Architecture | I1 完成（shadow-write 版本证据；委托方确认）；I2（writer 切换/读取 API/语义变化）未准入 | WP-5 I1 已验收；ADR-036 冻结 | ADR-036、`docs/63-ACQ1-WP6-CHANGE-CONTRACT.md`（含实现注记）、`docs/64` 报告；version-evidence-v1；迁移 `20261005_0005` |
 | ACQ-1-WP7 | Opportunity Radar（radar enum/三表/Hard Filter/score v1/Provider/Action Payload/Notification XOR/REST） | Backend / Architecture | I1 完成（本地 job 全管线；委托方确认）；I2（平台授权工作流/版本驱动重评/FX）未准入 | WP-6 I1 已验收；ADR-037 冻结 | ADR-037、`docs/65-ACQ1-WP7-OPPORTUNITY-CONTRACT.md`（含实现注记）、`docs/66` 报告；opportunity-score-v1；迁移 `20261005_0006`；435 passed/92.16%；commit `53f2058`、merge `bba30aa` |
-| ACQ-1-WP8 | ACQ-1 Final（价值闭环、OpenAPI/Frontend handoff、运行文档） | Backend | 未准入 | WP-7 I1 完成；Browser 分支保持 disabled | 逐项重评并独立准入；不得虚报未验收能力 |
-| ACQ-1-WP3-B | R3 真实执行证据（B 阶段） | Backend | 未准入；离线增量就绪 | 需真实执行 lease + 锁定环境 | `docs/55/56/59`；R3 仍 BLOCKED |
+| ACQ-1-WP8 | ACQ-1 Final（价值闭环 E2E、可重复启动、性能基线、秘密扫描、能力清单与交接文档） | Backend / Architecture | 完成（委托方确认）；不新增任何能力 | WP-7 I1 完成；Browser 分支保持 disabled | `docs/67`（规划/实现注记）、`docs/68` 能力清单、`docs/69` 最终报告；`tests/test_acq1_final_e2e.py`；`scripts/verify_fresh_startup.py`、`scripts/secret_scan.py`、`scripts/benchmark_offline.py` |
+| ACQ-1-WP3-B | R3 真实执行证据（B 阶段） | Backend | 未准入；离线增量就绪 | 需真实执行 lease + 锁定环境 | R3 离线增量与 `docs/54/55/56/59` 位于分支 `feat/acq1-r3-fail-closed-offline`（未合并）；R3 仍 BLOCKED |
 | PLUGIN-1 | 用户指定的后续插件工作包 | 待定 | 待办、未准入 | ACQ-1 全部完成验收后、Frontend 前 | 尚无正式准入或架构基线；不得视为已实现 |
 | FE-001 | 前端实现 | Frontend | 未准入 | ACQ-1 经总控验收并冻结 Acquisition Contract | 桌面端与前端测试 |
 | INT-001 | 集成与缺陷修复 | Integration | 未准入 | ACQ-1、FE-001 | E2E 报告与缺陷闭环 |

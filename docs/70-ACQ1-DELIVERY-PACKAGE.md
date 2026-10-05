@@ -1,0 +1,225 @@
+# FlowTracer ACQ-1 交付包说明书
+
+状态：**FINAL（交付说明，documentation only）**。本文件不新增能力、不改变任何冻结契约与安全边界。
+交付代码基线：`main @ 2da5665`（其后仅追加本交付说明文档；本地 Git 仓库，**无远端**）。
+日期：2026-10-05。
+验收模式：**委托方确认（owner-confirmed）**——无独立第三方验收角色；全部"完成"判定由仓库内可执行的测试、脚本与文档构成，逐项见 §4。
+
+## 三十秒摘要
+
+- **交付物**：FlowTracer Alpha v0.1 后端全量 —— BE-1..BE-8 基线 + ACQ-1 工作包 WP-1、WP-2、WP-4、WP-5(I1)、WP-6(I1)、WP-7(I1)、WP-8。
+- **不包含**：Dynamic/Advanced Browser（未准入，disabled；R3 BLOCKED）、各工作包的 I2 增量、前端/集成/发布。
+- **质量证据**：438 项测试全过 / 覆盖率 92.16%（阈值 87.61%）；全部静态门禁与迁移门禁通过；**Docker 全栈已实测可从零启动**（§4.2）。
+- **启动方式**：六条 `docker compose` 命令（§6.2），完成后 `health/ready` 返回 database/redis 双 ok。
+- **硬性禁区（禁止虚报）**：Browser 不可用、无 crawl 执行、RawItem writer 未切换、无自动投标/报价/付款——能力清单见 `docs/68`。
+- **证据入口**：`docs/68`（能力清单）、`docs/69`（最终报告）、本文件 §4（门禁矩阵）、`docs/02`（看板）。
+
+---
+
+## 1. 交付概述
+
+| 项 | 内容 |
+| --- | --- |
+| 交付对象 | 面向个人的桌面 AI 情报系统的后端：持续采集 → 清洗/去重 → AI 分析/评分 → 记忆检索 → 通知；以及 ACQ-1 采集增强（路由、发现、版本证据、机会雷达） |
+| 交付形态 | 完整 Git 仓库（含全部提交历史与分支）；**无 GitHub 远端**，接收方需自建远端或通过 `git bundle` 接收（§9） |
+| 运行形态 | Docker Compose 四服务：`api` / `worker`（内嵌 Beat，勿扩多副本）/ `postgres`（pgvector）/ `redis` |
+| 技术栈 | Python 3.13、FastAPI、Pydantic、Celery、PostgreSQL 16 + pgvector、Redis 7、SQLAlchemy 2 Async、Alembic、Pytest |
+| 迁移头 | `20261005_0006`（共 6 个迁移，空库全链已验证） |
+| 依赖锁定 | `pyproject.toml` + `uv.lock`；容器内 `uv sync --locked` 已验证（§4.2） |
+
+## 2. 交付内容清单
+
+| 类别 | 位置 | 说明 |
+| --- | --- | --- |
+| 后端代码 | `backend/app/` | 分层：api / services / domains / models / providers / adapters / tasks / core |
+| 数据库迁移 | `backend/alembic/versions/` | `0001`..`0006`（0006 = WP-7 机会雷达 + 通知 XOR + radar enum） |
+| OpenAPI 冻结快照 | `backend/openapi/flowtracer-alpha-v0.1.json` | blob `1544614955…`，`--check` 零漂移 |
+| 测试 | `backend/tests/` | 438 项；含 `test_alpha_e2e.py`（BE-8 闭环）与 `test_acq1_final_e2e.py`（ACQ-1 价值闭环） |
+| 验证脚本 | `backend/scripts/` | `verify_fresh_startup.py`（可重复启动）、`secret_scan.py`（秘密扫描）、`benchmark_offline.py`（性能基线）、`export_openapi.py` |
+| 基础设施 | `infra/compose.yaml` | 四服务编排 + 健康检查 + 命名卷 |
+| 运行/交接文档 | `backend/ALPHA-OPERATIONS.md`、`FRONTEND-HANDOFF.md`、`PERFORMANCE-BASELINE.md`、`DEVELOPMENT.md` | 启动、恢复、环境矩阵、前端契约、性能参考 |
+| 治理/契约文档 | `docs/00`..`docs/70` | 入口：`docs/68` 能力清单、`docs/69` 最终报告、`docs/02` 交付看板、`docs/CURRENT-GATE.md` 当前闸门、本文件 |
+| 架构门 | `ARCHITECTURE.toml` + `backend/architecture_gate/` | `introduced=0 / P0=0` |
+
+附：各工作包契约与阶段报告 —— WP-1 `docs/32/33`、WP-2 `docs/35/36`、WP-4 `docs/57/58/60`、WP-5 `docs/61/62`、WP-6 `docs/63/64`、WP-7 `docs/65/66`、WP-8 `docs/67/68/69`；契约总纲 `docs/23`（采集）、`docs/24`（机会）、`docs/25`（验收）。
+
+## 3. 交付基线提交记录（本地 Git）
+
+| 里程碑 | 合并提交 | 门槛证据（合并时）|
+| --- | --- | --- |
+| WP-4 Router v1 | `91ef8d9` | 373 passed / 91.92% |
+| WP-5 Discovery I1 | `1c410b1` | 391 passed / 91.78% |
+| WP-6 版本证据 I1 | `8f4f52a` | 403 passed / 92.17% |
+| WP-7 机会雷达 I1 | `bba30aa` | 435 passed / 92.16% |
+| WP-8 Final 收尾 | `afd7b72` | 438 passed / 92.16% + fresh startup + secret scan |
+| 记录提交（交付基线）| `2da5665` | 其后仅追加本说明书 |
+
+更早基线（BE-1..BE-8、WP-1、WP-2、R1..R2C 证据）在同一仓库历史与 `docs/` 归档中；R3 离线增量位于分支 `feat/acq1-r3-fail-closed-offline`（**未合并**，见 §5.2）。
+
+## 4. 验收证据
+
+### 4.1 自动化门禁（最终候选提交 `123ae18`，2026-10-05 全量执行）
+
+| 门禁 | 结果 |
+| --- | --- |
+| 全量测试 + 覆盖率 | **438 passed / 92.16%**（阈值 87.61%）|
+| `ruff check` / `ruff format --check` | 通过（274 files）|
+| `mypy app`（strict）| 通过（100 source files）|
+| 架构门（baseline-no-regression）| `introduced=0 / P0=0`（existing 130 / resolved 27）|
+| `alembic check` | No new upgrade operations detected（零漂移）|
+| OpenAPI 冻结校验 | `export_openapi.py --check` 通过 |
+| 秘密扫描 | `SECRET SCAN CLEAN`（含植入自检）|
+| 空库迁移循环 | upgrade head → check → downgrade base → re-upgrade 通过（真实 PostgreSQL 16）|
+| `docker compose config` | 通过 |
+| `git diff --check` | clean |
+
+### 4.2 Docker 全栈实测（2026-10-05，按 `ALPHA-OPERATIONS.md` Quick Start 原样执行）
+
+| 步骤 | 结果 |
+| --- | --- |
+| `docker compose build api`（容器内 `uv sync --locked --no-dev`）| ✅ 镜像 `flowtracer-backend:be6` 构建成功（lock 解析 75 包，安装 61 包）|
+| 启动 `postgres` + `redis` | ✅ 两服务 healthy |
+| 空库 `alembic upgrade head` | ✅ `0001`→`0006` 六个迁移全部通过 |
+| 启动 `api` + `worker` | ✅ 两服务 healthy；`celery inspect ping` → pong（1 node online）|
+| `GET /api/v1/health/live` | ✅ `{"status":"ok","service":"flowtracer-api","version":"0.1.0"}` |
+| `GET /api/v1/health/ready` | ✅ `{"status":"ready","checks":{"database":"ok","redis":"ok"}}` |
+| 端到端冒烟（真实容器栈）| ✅ 注册 201 → 登录 200 → 创建 Radar 201 → 列表 `total=1` |
+| 清理 | ✅ 验证用容器/网络/卷精确删除，无残留 |
+
+### 4.3 三项验证脚本（均可复跑）
+
+| 脚本 | 实测结果 | 约束 |
+| --- | --- | --- |
+| `scripts/verify_fresh_startup.py` | `FRESH STARTUP VERIFIED`（建库→迁移循环→启动→OpenAPI 比对→删库）| 仅接受 `*_test` 库名 |
+| `scripts/secret_scan.py` | `SECRET SCAN CLEAN` | 扫描全部 git 跟踪文件；植入自检证明会报警 |
+| `scripts/benchmark_offline.py` | 组件级 + 运行级（p50 81.9ms / p95 126.6ms / 峰值 ≈124KB / fallback 0-10）| 单机 fixture 参考，非 SLA；Browser 标注 NOT MEASURED |
+
+## 5. 能力范围
+
+### 5.1 已验收可用（委托方确认；证据指针逐项）
+
+- **采集与解析**：RSS/Atom、单页 HTML、Scrapling 静态解析、`extraction-quality-v1`、通用 family extractor（`docs/33/36`）。
+- **路由**：Router v1 —— 静态候选、有序降级、质量门、Circuit、AutoThrottle、累计预算账本、闭合决策 trace（`docs/60`，ADR-034）。
+- **发现**：Controlled Discovery I1 —— 四种 scope 规划、确定性评分、硬上限、checkpoint 恢复；**不向发现的 URL 发起请求**（`docs/62`，ADR-035）。
+- **版本证据**：Artifact/Snapshot/ChangeEvent 影子写入、三指纹、materiality、两次缺失判 removed、legacy backfill；**RawItem 写路径不变**（`docs/64`，ADR-036）。
+- **机会雷达**：Freelance v1 Hard Filter、`opportunity-score-v1`、评估 Provider（Fake/OpenAI 兼容）、只读 Action Payload（`requires_human_approval=true`）、通知 XOR、REST 三端点（`docs/66`，ADR-037）。
+- **智能链路**：清洗、全局去重、AI 分析/评分、成本审计、Embedding、pgvector 检索、收藏与记忆搜索（`docs/08/09/18`）。
+- **通知与事件**：通知 REST（含 `kind=intelligence|opportunity`）、WS 三冻结事件、CollectionRun/Analysis 重试与补偿任务（`docs/18/21`）。
+
+### 5.2 禁用 / 未准入（**不得虚报为已实现**）
+
+| 项 | 状态 |
+| --- | --- |
+| Dynamic / Advanced Browser | **disabled**（`BROWSER_DYNAMIC_ENABLED=False`；`allow_browser=True` → `acquisition_browser_not_admitted`）；R3 真实执行 **BLOCKED**，需另签 lease |
+| R3 离线增量（A1 设计/A2 DenialLatch/F1-F6 取证/就绪报告）| 位于分支 `feat/acq1-r3-fail-closed-offline`（`docs/54/55/56/59` 在该分支），**未合并** |
+| R4 回收/资源、R5 双 worker 隔离 | 未准入 |
+| WP-5 I2（crawl 执行）、WP-6 I2（writer 切换/读取 API/语义变化）、WP-7 I2（平台授权工作流/版本驱动重评/多币种 FX）| 未实现 |
+| 机会通知的 WS 事件扩张 | 禁止（ADR-026：ACQ-1 不扩张 WS）|
+| 自动投标/报价/工期/合同/沟通/付款/外部 Agent | **永久禁止**（ACQ-1 边界）|
+| Frontend（FE-001）、Integration（INT-001）、Release（REL-001）、PLUGIN-1 | 未准入；`frontend/` 仅为占位目录 |
+
+## 6. 接收与验收指引
+
+### 6.1 环境要求
+
+- Git；Docker Desktop（Linux containers），支持 `compose up --wait`。
+- 可选：宿主机跑质量门禁需 Python 3.13 + `uv`（或等价 `python -m` 调用）。
+- 应用为 **fail-fast**：不隐式加载 `.env`；宿主机运行/迁移需显式提供环境变量（样例见 `backend/.env.example`；测试套件经 `conftest.py` 自动注入）。
+
+### 6.2 路径 A：Docker 全栈启动（推荐，接收方第一步）
+
+在仓库根目录依次执行（与 `ALPHA-OPERATIONS.md` Quick Start 一致）：
+
+```powershell
+docker compose -f infra/compose.yaml config
+docker compose -f infra/compose.yaml build api
+docker compose -f infra/compose.yaml up -d --wait postgres redis
+docker compose -f infra/compose.yaml run --rm api alembic upgrade head
+docker compose -f infra/compose.yaml up -d --wait api worker
+curl.exe http://localhost:8000/api/v1/health/live
+curl.exe http://localhost:8000/api/v1/health/ready
+docker compose -f infra/compose.yaml exec worker celery -A app.tasks.celery_app:celery_app inspect ping
+```
+
+预期输出（实测样本）：`live` 返回 `{"status":"ok",...}`；`ready` 返回 `{"status":"ready","checks":{"database":"ok","redis":"ok"}}`；ping 返回 `pong`。
+停止（保留数据卷）：`docker compose -f infra/compose.yaml down`；仅在明确要删除开发数据时加 `--volumes`。
+
+### 6.3 路径 B：宿主机质量门禁复跑
+
+```powershell
+cd backend
+uv sync --locked
+uv run ruff check .
+uv run ruff format --check .
+uv run mypy app
+uv run pytest --cov-fail-under=87.61
+uv run python scripts/export_openapi.py --check
+uv run alembic check
+```
+
+预期：全部通过；覆盖率 ≥ 87.61%；`alembic check` 输出 `No new upgrade operations detected`；OpenAPI `--check` 退出码 0。
+（无 `uv` 时以 `python -m pytest` 等等价命令执行；测试需要 `TEST_DATABASE_URL` 指向 `*_test` 库，见 `backend/tests/conftest.py`。）
+
+### 6.4 路径 C：三项验证脚本
+
+```powershell
+cd backend
+python scripts/verify_fresh_startup.py   # 预期末行: FRESH STARTUP VERIFIED
+python scripts/secret_scan.py            # 预期末行: SECRET SCAN CLEAN
+python scripts/benchmark_offline.py      # 预期末行: BENCHMARK COMPLETE（JSON 报告）
+```
+
+前两者需要数据库可达（`*_test` 保护）；基准脚本需要可用的隔离 PostgreSQL。
+
+### 6.5 验收判定建议（勾选清单）
+
+- [ ] 六条启动命令全部成功，`ready` 双 ok；worker ping 有 pong。
+- [ ] 冒烟：注册 → 登录 → 创建 Radar → 列表返回 1 条。
+- [ ] 全量测试 ≥ 438 项通过、覆盖率 ≥ 87.61%。
+- [ ] `alembic check` 零漂移；OpenAPI `--check` 通过。
+- [ ] `verify_fresh_startup.py` 与 `secret_scan.py` 输出预期末行。
+- [ ] 对照 `docs/68` 确认交付内容中**没有** Browser/I2/前端等禁用能力被虚报。
+- [ ] 记录本次验收使用的提交哈希（`git rev-parse HEAD`）与执行日期。
+
+## 7. 已知限制（交付边界，如实声明）
+
+1. **验收模式**：委托方确认（owner-confirmed），无独立第三方复核；如需第三方复核属新增治理决定，需另行安排。
+2. **Browser**：不可用（§5.2 全部条目）；性能基线中 Browser 相关一律 NOT MEASURED（无估算值）。
+3. **发现不抓取**：Discovery 仅规划 frontier 与写 checkpoint；不存在 unrestricted crawl 入口。
+4. **版本证据为影子写入**：RawItem 产生条件未切换（`raw_items` 无 `snapshot_id` 列）。
+5. **机会雷达**：仅首见快照建条目；并发调度同一 (opportunity, radar) 可能重复 AI 调用但有界、结果幂等；单币种 USD（无 FX）。
+6. **性能数据**：单机、隔离 fixture、确定性 stub 的复现参考，非 SLA/容量结论（`PERFORMANCE-BASELINE.md`）。
+7. **仓库形态**：无远端；全部历史在本地 Git。构建产物镜像 `flowtracer-backend:be6` 为本地验证产物，非交付必需。
+8. **宿主机 `uv sync`**：本机曾无 uv 环境；该缺口已由 §4.2 容器内 `uv sync --locked` 实测覆盖。
+
+## 8. 交付前待处置事项（文档一致性）
+
+1. **根 `README.md`（中英文）进度表仍停留在 WP-2 时代**，写着 "WP-3..WP-8 未准入 / 下一阶段是 WP-3"，与仓库事实（WP-4..WP-8 已完成并合并）直接矛盾。对外展示前建议按 `docs/68/69` 对齐；该修改超出 WP-8 冻结白名单，需委托方书面确认后执行（一处文档提交即可）。
+2. **`docs/00-PROJECT-CONTROL.md` 头部**仍为 FT-GOV-V2.1 修订期措辞，建议加注"历史"或对齐。
+3. 在对齐完成前，**以本文件 + `docs/02-DELIVERY-BOARD.md` + `docs/68/69` + `docs/CURRENT-GATE.md` 为准**。
+
+## 9. 移交操作指引
+
+推荐以 Git 打包移交（保留全部历史与分支，且自动排除未跟踪工作区文件）：
+
+```powershell
+# 交付方（本仓库根目录）
+git bundle create flowtracer-acq1-delivery.bundle --all
+
+# 接收方
+git clone flowtracer-acq1-delivery.bundle FlowTracer
+cd FlowTracer
+git checkout main
+```
+
+说明：
+- bundle 含**全部分支**（包括未合并的 R3 离线增量分支与历史 feat/chore 分支），便于审计；不包含未跟踪文件（如工作区元数据）。
+- 仓库仅含占位凭据（秘密扫描 CLEAN）。**共享/部署前必须更换** `JWT_SECRET`、数据库口令等（经环境变量或 `.env` 提供，勿使用示例值）。
+- 也可整目录拷贝，但需自行排除未跟踪文件；bundle 方式更可靠。
+
+## 10. 建议的后续路径（由委托方书面决定）
+
+1. （可选）安排独立第三方复核，对照 `docs/68/69` 与本文件 §4。
+2. 若需要浏览器能力：签发 R3 B 阶段真实执行 lease（草案在未合并分支 `docs/56`），通过后合并 R3 离线增量。
+3. Frontend（FE-001）准入准备：以 `backend/FRONTEND-HANDOFF.md` + OpenAPI 快照为契约输入。
+4. 集成（INT-001）与 Alpha 发布（REL-001）：按 `docs/02` 看板顺序推进。

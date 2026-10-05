@@ -86,6 +86,17 @@
 - 本阶段：**0 / 0 / 0**（架构门 introduced=0；P0=0）。
 - 架构门参考：`existing=130 / introduced=0 / resolved=27 / P0=0 / P1=114 / P2=16`（与 AG-6 一致，未新增）。
 
+## 门禁复核更正（2026-10-05）
+
+首次门禁检查时 `acquisition_route.py`（新增）与 `acquisition_attempts.py`（后续新增）**尚未被 Git 跟踪**，而架构门只扫描 `git ls-files` 结果，因此首轮 `introduced=0` 存在**未跟踪文件盲区**。提交后复跑门禁，如实暴露 6 项 introduced findings（新模块 627 行超限 ×2；新模块引入 `schemas`/`events` 跨层导入 ×4）。
+
+处置（提交 `refactor(acq-1c): extract attempt helpers into tracked module`）：
+
+1. 新增 `app/services/acquisition_attempts.py`（被跟踪模块，仅导入允许层），承载 attempt 持久化辅助；`acquisition_route.py` 由 627 行降至 478 行；
+2. `acquisition_route.py` 移除 `schemas`/`events` 导入：profile 加载改为经 `acquisition.py`（历史豁免模块）的 `validate_source_profile`；事件发布与心跳辅助回迁至 `acquisition.py`；`select_candidates` 改用 `allow_browser: bool` 参数（`acquisition_router.py` 同步移除 schema 导入）。
+
+复验：门禁在全文件被跟踪状态下 `introduced=0 / P0=0 / status=passed`；回归 36/36 通过。**教训（流程）**：门禁与 hash 闭包类检查必须在 `git add` 之后执行，或在检查前确认新增文件已被跟踪。
+
 ## Recommendation
 
 `ACCEPTED（委托方确认）`。实现、自测与阶段门禁均通过；独立第三方复审因环境限制（无第二角色、无可写远端）未执行，已在文首明确记录，未声称其完成。复审对象：本地 `main@91ef8d9`。

@@ -17,7 +17,6 @@ from decimal import Decimal
 
 from app.domains.acquisition_ports import SourceRuntimeFacts
 from app.models.entities import AcquisitionMode, BackendName, SourceType
-from app.schemas.resources import AcquisitionProfileV1
 from app.services.acquisition_policy import EffectiveResourceBudget
 from app.services.acquisition_types import CollectionError
 from app.services.extraction_quality import quality_bucket
@@ -92,14 +91,14 @@ class RouteCandidate:
 
 
 def select_candidates(
-    *, source_type: SourceType, mode: AcquisitionMode, profile: AcquisitionProfileV1
+    *, source_type: SourceType, mode: AcquisitionMode, allow_browser: bool
 ) -> tuple[RouteCandidate, ...]:
     """Ordered static candidate chain; browser stages remain disabled by admission."""
     if mode.value not in {AcquisitionMode.AUTO.value, AcquisitionMode.NATIVE.value}:
         raise CollectionError(
             "acquisition_mode_unsupported", "Acquisition mode is not available in this worker"
         )
-    if profile.allow_browser:
+    if allow_browser:
         raise CollectionError(
             "acquisition_browser_not_admitted",
             "Browser acquisition is not admitted",
@@ -229,13 +228,19 @@ class RouteBudgetLedger:
 
 
 def route_summary(
-    traces: list[dict[str, object]], *, accepted_backend: BackendName | None
+    traces: list[dict[str, object]],
+    *,
+    accepted_backend: BackendName | None,
+    discovery: dict[str, object] | None = None,
 ) -> dict[str, object]:
     """Closed run-level summary stored on CollectionRun.budget_summary."""
-    return {
+    summary: dict[str, object] = {
         "decision_version": ROUTER_VERSION,
         "stages": len(traces),
         "fallbacks": max(0, len(traces) - 1),
         "accepted_backend": None if accepted_backend is None else accepted_backend.value,
         "trace": traces,
     }
+    if discovery is not None:
+        summary["discovery"] = discovery
+    return summary

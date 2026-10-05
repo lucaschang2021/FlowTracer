@@ -19,30 +19,21 @@ from decimal import Decimal
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
-
 from app.core.logging import get_logger
 from app.domains.acquisition_ports import (
     AcquisitionBackend as AcquisitionBackendPort,
 )
 from app.domains.acquisition_ports import (
     AcquisitionRunRepository,
-    PublishedEvent,
     RunClaim,
     SourceRuntimeFacts,
 )
-from app.models.entities import (
-    AcquisitionAttempt,
-    AcquisitionAttemptStatus,
-    BackendName,
-    CollectionRun,
-    CollectionRunStatus,
-    Source,
-    SourceAcquisitionState,
-    SourceType,
+from app.models.entities import BackendName, DiscoveryMode, Source, SourceType
+from app.services.acquisition import (
+    _publish_repository_event,
+    _repository_heartbeat_loop,
+    validate_source_profile,
 )
-from app.schemas.resources import AcquisitionProfileV1
 from app.services.acquisition_parsers import parse_feed, parse_html
 from app.services.acquisition_policy import (
     EffectiveResourceBudget,
@@ -68,164 +59,13 @@ from app.services.acquisition_types import (
     CollectionError,
     ParseResult,
 )
-from app.services.events import EventPublisher, publish_safely
+from app.services.discovery_frontier import DiscoveryPlan, plan_discovery
 from app.services.extraction import attach_extraction_observations
 from app.services.extraction_quality import aggregate_quality
 
-DECISION_VERSION = "acquisition-native-v1"
 Dispatch = Callable[[str, str], None]
 RunRepository = AcquisitionRunRepository[Source, AcquisitionResult, ParseResult, Any]
 RunBackend = AcquisitionBackendPort[AcquisitionRequest, AcquisitionResult]
-
-
-def _attempt(
-    *,
-    run_id: UUID,
-    source_id: UUID,
-    backend: BackendName,
-    started_at: datetime,
-    finished_at: datetime,
-    status: AcquisitionAttemptStatus,
-    requested_url: str,
-    response_url: str | None = None,
-    status_code: int | None = None,
-    content_type: str | None = None,
-    retry_count: int = 0,
-    bytes_received: int = 0,
-    error: CollectionError | None = None,
-    quality_score: Decimal | None = None,
-    ordinal: int = 1,
-    fallback_reason: str | None = None,
-    budget_used: dict[str, Any] | None = None,
-    decision_version: str = DECISION_VERSION,
-) -> AcquisitionAttempt:
-    pages = 1 if status == AcquisitionAttemptStatus.SUCCEEDED else 0
-    return AcquisitionAttempt(
-        run_id=run_id,
-        source_id=source_id,
-        ordinal=ordinal,
-        backend=backend,
-        started_at=started_at,
-        finished_at=finished_at,
-        status=status,
-        requested_url=requested_url,
-        final_url=response_url,
-        status_code=status_code,
-        content_type=content_type,
-        duration_ms=max(0, round((finished_at - started_at).total_seconds() * 1000)),
-        retry_count=retry_count,
-        pages=pages,
-        bytes_received=bytes_received,
-        budget_used=(
-            budget_used
-            if budget_used is not None
-            else {
-                "requests": retry_count + 1,
-                "pages": pages,
-                "bytes_received": bytes_received,
-            }
-        ),
-        error_code=None if error is None else error.code,
-        safe_error=None if error is None else error.safe_message,
-        decision_version=decision_version,
-        quality_score=quality_score,
-        fallback_reason=fallback_reason,
-    )
-
-
-async def _circuit_facts(
-    factory: async_sessionmaker[AsyncSession], source_id: UUID
-) -> SourceRuntimeFacts | None:
-    async with factory() as session:
-        state = await session.scalar(
-            select(SourceAcquisitionState).where(SourceAcquisitionState.source_id == source_id)
-        )
-        if state is None:
-            return None
-        return SourceRuntimeFacts(
-            health_status=state.health_status.value,
-            consecutive_failures=state.consecutive_failures,
-            circuit_open_until=state.circuit_open_until,
-            last_error_code=state.last_error_code,
-            latency_ewma_ms=state.latency_ewma_ms,
-        )
-
-
-async def _record_attempt(
-    factory: async_sessionmaker[AsyncSession],
-    run_id: UUID,
-    claim_token: UUID,
-    *,
-    source_id: UUID,
-    ordinal: int,
-    backend: BackendName,
-    requested_url: str,
-    started_at: datetime,
-    finished_at: datetime,
-    status: AcquisitionAttemptStatus,
-    retry_count: int,
-    error_code: str,
-    safe_error: str,
-    quality_score: Decimal | None = None,
-    fallback_reason: str | None = None,
-    budget_used: dict[str, Any] | None = None,
-    bytes_received: int = 0,
-    decision_version: str = ROUTER_VERSION,
-) -> bool:
-    """Persist one intermediate route attempt without touching run or source state."""
-    async with factory() as session:
-        run = await session.scalar(
-            select(CollectionRun).where(
-                CollectionRun.id == run_id,
-                CollectionRun.status == CollectionRunStatus.RUNNING,
-                CollectionRun.claim_token == claim_token,
-            )
-        )
-        if run is None:
-            return False
-        session.add(
-            _attempt(
-                run_id=run_id,
-                source_id=source_id,
-                backend=backend,
-                started_at=started_at,
-                finished_at=finished_at,
-                status=status,
-                requested_url=requested_url,
-                retry_count=retry_count,
-                bytes_received=bytes_received,
-                error=CollectionError(error_code, safe_error),
-                quality_score=quality_score,
-                ordinal=ordinal,
-                fallback_reason=fallback_reason,
-                budget_used=budget_used,
-                decision_version=decision_version,
-            )
-        )
-        await session.commit()
-        return True
-
-
-async def _repository_heartbeat_loop(repository: RunRepository, claim: RunClaim[Source]) -> None:
-    while True:
-        await asyncio.sleep(60)
-        if not await repository.heartbeat(claim.run_id, claim.claim_token):
-            return
-
-
-async def _publish_repository_event(
-    repository: RunRepository,
-    run_id: UUID,
-    publisher: EventPublisher | None,
-) -> None:
-    published: PublishedEvent[Any] | None = await repository.event_for(run_id)
-    if published is not None:
-        await publish_safely(
-            publisher,
-            user_id=published.user_id,
-            event=published.event,
-            resource_id=run_id,
-        )
 
 
 @dataclass(frozen=True, slots=True)
@@ -251,7 +91,7 @@ class _RouteRun:
         correlation_id: str | None,
         task_id: str | None,
         raw_dispatch: Dispatch | None,
-        publisher: EventPublisher | None,
+        publisher: Any | None,
         started: float,
     ) -> None:
         self.repository = repository
@@ -278,6 +118,8 @@ class _RouteRun:
         self.fallback_reason: str | None = None
         self.budget: EffectiveResourceBudget | None = None
         self.chain: list[tuple[RouteCandidate, RunBackend]] = []
+        self.profile: Any | None = None
+        self.discovery_checkpoint: dict[str, Any] | None = None
 
 
 async def execute_route_run(
@@ -288,7 +130,7 @@ async def execute_route_run(
     correlation_id: str | None = None,
     task_id: str | None = None,
     raw_dispatch: Dispatch | None = None,
-    publisher: EventPublisher | None = None,
+    publisher: Any | None = None,
 ) -> bool:
     """Routed run entrypoint: claim, then execute the ordered static stage chain."""
     started = time.monotonic()
@@ -330,11 +172,12 @@ async def _run_claimed(route: _RouteRun) -> bool:
 
 async def _route_attempts(route: _RouteRun) -> bool:
     try:
-        profile = AcquisitionProfileV1.model_validate(route.source.acquisition_profile)
+        profile = validate_source_profile(route.source.acquisition_profile)
     except ValueError:
         raise CollectionError(
             "source_profile_invalid", "Source acquisition profile is invalid"
         ) from None
+    route.profile = profile
     route.chain = _select_chain(route, profile)
     facts = await route.repository.circuit_facts(route.source.id)
     blocked = circuit_blocks(facts, datetime.now(UTC))
@@ -342,6 +185,8 @@ async def _route_attempts(route: _RouteRun) -> bool:
         raise CollectionError(blocked, "Source circuit is open", retryable=False)
     await _apply_throttle(route, facts, profile)
     route.budget = effective_resource_budget(profile)
+    if discovery_enabled(route.source.source_type, route.source.discovery_mode):
+        route.discovery_checkpoint = await route.repository.discovery_checkpoint(route.source.id)
     request = AcquisitionRequest(
         source_id=route.source.id,
         run_id=route.run_id,
@@ -364,13 +209,11 @@ async def _route_attempts(route: _RouteRun) -> bool:
     raise CollectionError("internal_collection_error", "Collection failed unexpectedly")
 
 
-def _select_chain(
-    route: _RouteRun, profile: AcquisitionProfileV1
-) -> list[tuple[RouteCandidate, RunBackend]]:
+def _select_chain(route: _RouteRun, profile: Any) -> list[tuple[RouteCandidate, RunBackend]]:
     candidates = select_candidates(
         source_type=route.source.source_type,
         mode=route.source.acquisition_mode,
-        profile=profile,
+        allow_browser=bool(profile.allow_browser),
     )
     chain: list[tuple[RouteCandidate, RunBackend]] = []
     for candidate in candidates:
@@ -387,7 +230,7 @@ def _select_chain(
 async def _apply_throttle(
     route: _RouteRun,
     facts: SourceRuntimeFacts | None,
-    profile: AcquisitionProfileV1,
+    profile: Any,
 ) -> None:
     crawl_delay_ms = effective_site_policy(profile, route.source.normalized_url).crawl_delay_ms
     delay_ms = throttle_delay_ms(facts, crawl_delay_ms=crawl_delay_ms)
@@ -405,7 +248,7 @@ async def _apply_throttle(
 
 
 def _evaluate_stage(
-    route: _RouteRun, result: AcquisitionResult, profile: AcquisitionProfileV1
+    route: _RouteRun, result: AcquisitionResult, profile: Any
 ) -> tuple[ParseResult, AcquisitionResult, Decimal | None, dict[str, int]]:
     response = result.response
     parsed = (
@@ -431,7 +274,7 @@ async def _run_stage(
     candidate: RouteCandidate,
     implementation: RunBackend,
     request: AcquisitionRequest,
-    profile: AcquisitionProfileV1,
+    profile: Any,
 ) -> _StageEvaluation | None:
     route.stage = candidate.stage
     route.backend_name = candidate.backend
@@ -534,6 +377,7 @@ async def _finalize_success(
     candidate: RouteCandidate,
     evaluation: _StageEvaluation,
 ) -> bool:
+    plan = _plan_discovery(route, evaluation)
     completion = await route.repository.finish_success(
         route.claimed,
         backend_name=candidate.backend.value,
@@ -546,9 +390,14 @@ async def _finalize_success(
         fallback_count=candidate.stage - 1,
         attempt_ordinal=candidate.stage,
         fallback_reason=route.fallback_reason,
-        budget_summary=route_summary(route.traces, accepted_backend=candidate.backend),
+        budget_summary=route_summary(
+            route.traces,
+            accepted_backend=candidate.backend,
+            discovery=None if plan is None else plan.summary,
+        ),
         decision_version=ROUTER_VERSION,
         attempt_budget_used={**evaluation.usage, "trace": evaluation.trace},
+        discovery_checkpoint=None if plan is None else plan.checkpoint,
     )
     if completion is None:
         return False
@@ -572,6 +421,37 @@ async def _finalize_success(
         duration_ms=round((time.monotonic() - route.started) * 1000),
     )
     return True
+
+
+def discovery_enabled(source_type: SourceType, mode: DiscoveryMode) -> bool:
+    """Discovery planning applies to URL sources that opted into a scope beyond single page."""
+    return source_type == SourceType.URL and mode != DiscoveryMode.SINGLE_PAGE
+
+
+def _plan_discovery(route: _RouteRun, evaluation: _StageEvaluation) -> DiscoveryPlan | None:
+    """Plan+checkpoint for one accepted URL page; None when discovery is inactive."""
+    if route.profile is None or not discovery_enabled(
+        route.source.source_type, route.source.discovery_mode
+    ):
+        return None
+    if not evaluation.met:
+        return None
+    policy = effective_site_policy(route.profile, route.source.normalized_url)
+    budget = route.profile.resource_budget
+    response = evaluation.result.response
+    return plan_discovery(
+        seed_url=route.source.normalized_url,
+        body=response.body,
+        content_type=response.content_type,
+        final_url=response.final_url,
+        scope=route.source.discovery_mode,
+        approved_domains=frozenset(policy.approved_domains),
+        allow_paths=policy.allow_paths,
+        deny_paths=policy.deny_paths,
+        checkpoint=route.discovery_checkpoint,
+        max_depth=int(budget.max_depth),
+        max_discovered_urls=max(0, int(budget.max_pages)) * 5,
+    )
 
 
 def _dispatch_raw_items(route: _RouteRun, raw_item_ids: tuple[UUID, ...]) -> None:

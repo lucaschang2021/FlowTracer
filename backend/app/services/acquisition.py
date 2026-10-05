@@ -22,6 +22,7 @@ from app.domains.acquisition_ports import (
 from app.domains.acquisition_ports import (
     AcquisitionRunRepository,
     PublishedEvent,
+    RunClaim,
 )
 from app.models.entities import (
     AcquisitionAttemptStatus,
@@ -38,12 +39,8 @@ from app.models.entities import (
     SourceType,
 )
 from app.schemas.resources import AcquisitionProfileV1
+from app.services.acquisition_attempts import _attempt
 from app.services.acquisition_parsers import parse_feed, parse_html
-from app.services.acquisition_route import (
-    _attempt,
-    _publish_repository_event,
-    _repository_heartbeat_loop,
-)
 from app.services.acquisition_router import circuit_open_until, counts_toward_circuit
 from app.services.acquisition_types import (
     AcquisitionRequest,
@@ -546,6 +543,7 @@ async def _update_source_state(
     quality_score: Decimal | None = None,
     now: datetime,
     counts_toward_circuit_failures: bool = True,
+    checkpoint_update: dict[str, Any] | None = None,
 ) -> None:
     state = await session.scalar(
         select(SourceAcquisitionState)
@@ -579,6 +577,9 @@ async def _update_source_state(
         state.last_success_at = now
         state.last_error_code = None
         state.health_status = SourceHealthStatus.HEALTHY
+        if checkpoint_update is not None:
+            # Discovery owns the whole checkpoint document (versioned, self-contained).
+            state.checkpoint = checkpoint_update
     else:
         state.failure_count += 1
         if counts_toward_circuit_failures:
@@ -669,6 +670,33 @@ async def _finish_failure(
             )
         await session.commit()
         return True
+
+
+def validate_source_profile(raw: dict[str, Any]) -> AcquisitionProfileV1:
+    """Closed profile loader shared by the legacy and routed run paths."""
+    return AcquisitionProfileV1.model_validate(raw)
+
+
+async def _repository_heartbeat_loop(repository: RunRepository, claim: RunClaim[Source]) -> None:
+    while True:
+        await asyncio.sleep(60)
+        if not await repository.heartbeat(claim.run_id, claim.claim_token):
+            return
+
+
+async def _publish_repository_event(
+    repository: RunRepository,
+    run_id: UUID,
+    publisher: EventPublisher | None,
+) -> None:
+    published = await repository.event_for(run_id)
+    if published is not None:
+        await publish_safely(
+            publisher,
+            user_id=published.user_id,
+            event=published.event,
+            resource_id=run_id,
+        )
 
 
 async def execute_run(

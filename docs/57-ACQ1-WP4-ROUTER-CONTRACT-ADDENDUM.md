@@ -1,7 +1,7 @@
-# ACQ-1 WP-4 Router 契约 Addendum（草案 / 规则冻结提案）
+# ACQ-1 WP-4 Router 契约 Addendum（冻结 + 实现注记）
 
-状态：**DRAFT — NOT FROZEN**。本文件补齐现行闸门点名的缺口："仍缺降级/预算/Circuit/Throttle 等精确规则"。所有 `PROPOSED` 值须经总控 ADR 冻结后才成为合同；`FROZEN` 项引用既有已冻结事实，不得改。
-日期：2026-10-05。依据：`docs/29` WP-4、`docs/23` 采集契约、`GOVERNANCE-V2 §3`（Capability DAG）、ADR-022/023/026；锚定代码：`app/services/acquisition_policy.py`、`app/services/acquisition_types.py`、`app/models/entities.py`、`app/schemas/resources.py`。
+状态：**FROZEN（ADR-034 Accepted）+ IMPLEMENTED（router-v1 实值）**。冻结规则以本文件为准；`§15 实现注记`记录落到代码时的精确裁定。
+日期：2026-10-05（冻结与实现）。依据：`docs/29` WP-4、`docs/23` 采集契约、`GOVERNANCE-V2 §3`（Capability DAG）、ADR-022/023/026；锚定代码：`app/services/acquisition_policy.py`、`app/services/acquisition_types.py`、`app/services/acquisition_router.py`、`app/services/acquisition_route.py`、`app/models/entities.py`、`app/schemas/resources.py`。
 
 ## 1. 范围与非目标
 
@@ -100,13 +100,27 @@ Native success 零 Browser；质量阈值与降级；预算累计精确（逐跳
 - 回滚：feature flag 固定到 `rss`/`native_http`；保留 attempt 历史；安全策略不可回滚。
 - 迁移：预计无新表；若需 Circuit/Throttle 持久字段，仅在既有 `source_acquisition_states`/`collection_runs` 上 expand，附 upgrade/downgrade/re-upgrade 循环证据（如发生，触发 ADR）。
 
-## 13. 待总控冻结项（OPEN）
+## 13. 冻结裁定（2026-10-05，原 OPEN 项已由 §15 实值裁定）
 
-1. 第 4 节成功阈值与第 5 节 Circuit 计数/退避参数、第 6 节 AutoThrottle 参数；
-2. 第 8 节 trace 是否落在 `budget_used` JSONB 内或独立列；
-3. 第 9 节新增错误码命名；
-4. 是否允许 `scrapling_http` 在 WP-2 之外的调用路径（当前候选列表已含，需确认无 router 越权）。
+1. 第 4 节成功阈值（`acceptable`）与第 5 节 Circuit 计数/退避、第 6 节 AutoThrottle 参数 → §15.3/5/6 实值；
+2. 第 8 节 trace 落在 `budget_used`（含 "trace" 子对象）→ §15.7；
+3. 第 9 节新增错误码命名随实现生效（`acquisition_browser_not_admitted`、`acquisition_circuit_open`、`acquisition_quality_unmet`、`acquisition_no_backend`）；
+4. `scrapling_http` 调用路径 → §15.1（不注册为生产 stage）。
 
 ## 14. 流程
 
-本 Addendum 经总控 ADR/控制 PR 冻结后，方可签发独立 WP-4 Admission（精确 baseline/branch/允许文件/回滚），再由 Backend 实现并 Stage-Gate 验收。本草案本身不授权任何实现。
+本 Addendum 经 ADR-034 冻结；WP-4 Admission 已签发（`docs/58`），实现在 `feat/acq-1c-router` 完成并阶段验收（`docs/60`）。合并前需独立复审该 exact head；WP-5 仍须另行准入。
+
+## 15. 实现注记（2026-10-05，router-v1 实值）
+
+以下为落代码时对草案的精确裁定（以代码与 docs/60 为准）：
+
+1. **候选链现状**：URL → `(native_http,)`；RSS → `(rss,)`。`scrapling_http` 作为第二 fetch 阶段在 WP-1 安全不变量下**没有独立安全网络路径**（抓取必须经 SafeFetcher），故不注册为生产阶段；级联机制本身完整并由测试覆盖（测试以受控替换证明两阶段降级、顺序、预算与幂等行为）。Browser 尾部保持 disabled（`BROWSER_DYNAMIC_ENABLED=False`），任何 `allow_browser` 请求 fail-closed。
+2. **降级触发**：stage 失败且 code ∉ 安全终态集合（含非 retryable 传输失败）或质量未达 `acceptable`；安全终态集合 = {network_policy_denied, site_policy_denied, ssrf_blocked, unsupported_port, acquisition_budget_exhausted, acquisition_browser_not_admitted, acquisition_no_backend, acquisition_circuit_open, acquisition_mode_unsupported, source_profile_invalid}。
+3. **质量门**：`quality_bucket == "acceptable"` 为达标；`None`（无观测信号）按 legacy 视为达标；低/边缘质量在有下一阶段时降级，无下一阶段时 run 记 `PARTIAL` + `acquisition_quality_unmet`，RawItem 保留、quality 保存。
+4. **预算语义**：run 级账本跨 stage 累计（requests/pages/bytes_received）；进入下一 stage 前先检查"再发一个请求/一页是否仍可负担"，超出即 `acquisition_budget_exhausted` 终态且**不产生**该 stage 的 attempt 行（未发生传输）。默认 profile（max_pages=1）下不产生第二 stage——这是 fail-closed 预算的正确表现。
+5. **Circuit**：`consecutive_failures ≥ 4 → unhealthy`、`≥ 5 → circuit_open` 并置窗口 `900 × 2^(min(cf-5,3))` 秒、封顶 7200；成功清零并关闭窗口。仅非策略类失败计入 `consecutive_failures`（策略/预算/SSRF/端口类只在 `failure_count` 可见）。open 且未到期时整次拒绝 `acquisition_circuit_open`（无传输、无 attempt、无状态增量）；到期后为半开单次探测。
+6. **AutoThrottle**：仅在 `last_error_code ∈ {http_error, request_timeout, dns_resolution_failed}` 且 `consecutive_failures ≥ 1` 时生效：`delay = min(max(crawl_delay_ms, 250 × 2^min(cf,7)), 30000)` ms；成功一次即回到 0。不缩短 `poll_interval_minutes`。
+7. **trace 落地**：`AcquisitionAttempt.decision_version="router-v1"`；`budget_used = {requests, pages, bytes_received, trace}`，trace 为 §8 封闭键集；`CollectionRun.budget_summary = {decision_version, stages, fallbacks, accepted_backend, trace[]}`。
+8. **指标**：无新增 metrics 依赖；以既有 structlog 事件（`collection_completed` / `collection_failed` / `collection_throttled`，含 backend/fallback_count）承载 v1 观测。Prometheus 类指标留待后续准入。
+9. **入口隔离**：Router 走独立 `execute_route_run`（`app/services/acquisition_route.py`）；既有 `execute_run` 单后端路径与全部既有测试保持不变（零回归）。

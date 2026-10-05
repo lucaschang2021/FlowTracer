@@ -78,8 +78,8 @@ Backend Alpha Core、Architecture Governance Pass、WP1/WP2 已完成。R1..R2C 
 | ACQ-1-WP3-R4..R5 | 回收/资源与双 worker 隔离证据 | Backend | 未准入 | 各自主 invariant 与实际安全输入 | `GOVERNANCE-V2.md` §6；41 为历史，不重复扩张 R3 |
 | ACQ-1-WP3 | Dynamic/Advanced Browser、隔离 worker/queue 与受控 egress | Backend | 正式实现未准入 | PM-018 后续正式 Admission PR 合并 | `29-ACQ1-WORK-PACKAGES.md`；不得由 Preflight 直接续做 |
 | ACQ-1-WP4..8 | ACQ-1 后续工作包 | Backend | 未准入 | Static WP4 依赖 WP1/WP2；WP5..8 按实际输入递进，Browser optional | `29-ACQ1-WORK-PACKAGES.md`、`GOVERNANCE-V2.md`；逐项重评并独立准入 |
-| ACQ-1-WP4-CONTRACT | WP-4 Router 降级/Circuit/Throttle 规则冻结候选 | Backend / Architecture | 规则已冻结候选（ADR-034 Proposed），**实现待准入（HOLD）** | WP-1 + WP-2 已验收；待总控 ADR 审查并签发 WP-4 Admission | `docs/57-ACQ1-WP4-ROUTER-CONTRACT-ADDENDUM.md`（草案）、ADR-034、`docs/58-ACQ1-WP4-ADMISSION-DRAFT.md`（草案）；分支 `feat/acq-1c-router-contract-freeze`；不构成实现许可 |
-| ACQ-1-WP5..8 | ACQ-1 后续工作包 | Backend | 未准入（HOLD，依赖已验收 WP-4） | 静态 Router/SitePolicy/预算验收后逐项重评 | `29-ACQ1-WORK-PACKAGES.md`；不得跳过版本证据 |
+| ACQ-1-WP4-CONTRACT | WP-4 Router 降级/Circuit/Throttle 规则冻结与实现 | Backend / Architecture | 完成（ADR-034 Accepted；实现+阶段验收完成，待独立复审后合并） | WP-1 + WP-2 已验收；WP-4 Admission 已签发 | ADR-034、`docs/57`（含 §15 实现注记）、`docs/58`（已签发）、`docs/60` 阶段报告；分支 `feat/acq-1c-router`；router-v1 |
+| ACQ-1-WP5..8 | ACQ-1 后续工作包 | Backend | 未准入（依赖已验收 WP-4） | 静态 Router/SitePolicy/预算验收后逐项重评 | `29-ACQ1-WORK-PACKAGES.md`；不得跳过版本证据 |
 | PLUGIN-1 | 用户指定的后续插件工作包 | 待定 | 待办、未准入 | ACQ-1 全部完成验收后、Frontend 前 | 尚无正式准入或架构基线；不得视为已实现 |
 | FE-001 | 前端实现 | Frontend | 未准入 | ACQ-1 经总控验收并冻结 Acquisition Contract | 桌面端与前端测试 |
 | INT-001 | 集成与缺陷修复 | Integration | 未准入 | ACQ-1、FE-001 | E2E 报告与缺陷闭环 |

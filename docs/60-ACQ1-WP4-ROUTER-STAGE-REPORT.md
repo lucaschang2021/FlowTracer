@@ -1,8 +1,10 @@
 # ACQ-1 WP-4 Router 阶段验收报告
 
-状态：**COMPLETE — READY FOR INDEPENDENT REVIEW**（静态范围；Browser 仍 disabled）。
+状态：**ACCEPTED（委托方确认，无独立第三方角色）**（静态范围；Browser 仍 disabled）。
 日期：2026-10-05。格式：`docs/29-ACQ1-WORK-PACKAGES.md` 阶段报告格式。
 依据：`docs/58-ACQ1-WP4-ADMISSION.md`（已签发）、ADR-034、`docs/57`（含 §15 实现注记）。
+
+> **验收口径说明（2026-10-05）**：本仓库标准流程要求"独立复审（P0/P1=0）"。当前环境无第二角色、且无可用远端（GitHub 不可推送），因此**无法执行独立第三方复审**。经委托方确认，本阶段以"开发角色自测证据 + 委托方确认"验收，明确**不声称独立复审已完成**。复审对象为本地 `main` 合并提交（见下 Commit 段）。后续任何具备独立角色的环境可对该 exact head 补做复审。
 
 ## Phase / Status
 
@@ -24,8 +26,9 @@
 
 ## Commit / Branch / PR
 
-- 分支：`feat/acq-1c-router`（基线 `86379a8`，父 `c338fbb` = main/PR #86）。
-- 本地仓库完成 commit；远端 PR 待授权后创建。
+- 分支：`feat/acq-1c-router`（基线 `86379a8`，父 `c338fbb` = origin/main 快照）。
+- 本地提交：`d9a7c8f`（冻结+准入）→ `fc270bd`（实现）→ `55cf551`（报告）→ 合并 `91ef8d9`（本地 `main`）。
+- 远端：**未推送**（本环境无可用远端写权限），无 PR。复审对象为本地 `main@91ef8d9` 的 exact head。
 
 ## Schema / Migration
 
@@ -85,8 +88,8 @@
 
 ## Recommendation
 
-`READY FOR INDEPENDENT REVIEW`。复审对象：分支 `feat/acq-1c-router` 的 exact head（代码 + docs/57/58/60 + ADR-034 + 看板）。
+`ACCEPTED（委托方确认）`。实现、自测与阶段门禁均通过；独立第三方复审因环境限制（无第二角色、无可写远端）未执行，已在文首明确记录，未声称其完成。复审对象：本地 `main@91ef8d9`。
 
 ## Next Phase Admission Recommendation
 
-独立复审并合并后，方可评估 WP-5（Controlled Discovery）的依赖重评与独立准入；WP-5 不得跳过版本证据。WP-3/R3 状态不受本报告影响（仍 BLOCKED）。
+本阶段经委托方确认验收后，WP-5（Controlled Discovery）具备依赖重评资格：其真实依赖"已验收 Static/Native Router 与 SitePolicy/预算"已满足。按仓库纪律，WP-5 须**先冻结规则（文档）再准入实现**；建议下一步为 WP-5 契约冻结草案（`docs/61`），不含代码/迁移。WP-3/R3 状态不受本报告影响（仍 BLOCKED）。

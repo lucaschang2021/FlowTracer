@@ -56,7 +56,8 @@
 
 - 新增 `test_acquisition_discovery.py`：**18/18**（scope 边界 6、scoring 2、规划/上限/去重/幂等 6、链接抽取 1、DB 集成 3）。
 - 定向回归（router/lease/app-port/tasks/acquisition）：36/36。
-- **全量（单次门禁）：见 §Commit 后复验**（本报告随后由总控命令补记：全量套件结果与覆盖率）。
+- **全量（单次门禁）：391 passed（389 + 2 项 PATH 复跑）/ 0 failed，覆盖率 91.78%**（CI 门槛 87.61%）。
+  - 说明：首轮运行中 `test_architecture_gate.py` 的 2 项因本次 shell 会话 PATH 未含 `git` 而失败（子进程调用 `git`）；带 `F:\Git\cmd` 复跑 13/13 通过。用户级 PATH 已持久化，新终端可直接复现全绿。
 
 ## Docker / Compose / Browser Runtime
 

@@ -22,7 +22,7 @@ Phase / Status：ACQ-1-WP8 **FINAL — ACCEPTED（委托方确认，无独立第
 
 ## 3. Commit / Branch / PR
 
-分支 `feat/acq-1h-final`；实现+文档 commit 与 no-ff merge 到 `main`、traceability commit 见本文件追加的哈希记录（本地 Git，无 GitHub 远端可用；委托方确认模式）。
+分支 `feat/acq-1h-final`；实现+文档 commit `123ae18`；no-ff merge 到 `main`：`afd7b72`；本 traceability commit 记录以上哈希。本地 Git（无 GitHub 远端可用；委托方确认模式）。
 
 ## 4. 最终门禁矩阵（docs/25 §1，最终候选一次执行）
 

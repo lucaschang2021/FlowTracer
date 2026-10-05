@@ -16,6 +16,11 @@ from app.models.entities import (
     User,
 )
 from app.models.evidence import AcquisitionSnapshot, ChangeEvent, SourceArtifact
+from app.models.opportunity import (
+    OpportunityActionPayload,
+    OpportunityItem,
+    OpportunityScore,
+)
 
 __all__ = [
     "AIUsageRecord",
@@ -28,6 +33,9 @@ __all__ = [
     "Document",
     "DocumentChunk",
     "Notification",
+    "OpportunityActionPayload",
+    "OpportunityItem",
+    "OpportunityScore",
     "Radar",
     "RadarSource",
     "RawItem",

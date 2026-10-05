@@ -21,8 +21,7 @@ branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
 CHANGE_TYPE_SQL = (
-    "'created', 'unchanged', 'content_changed', 'metadata_changed', "
-    "'structure_changed', 'removed'"
+    "'created', 'unchanged', 'content_changed', 'metadata_changed', 'structure_changed', 'removed'"
 )
 EVIDENCE_TABLES = ("change_events", "acquisition_snapshots", "source_artifacts")
 
@@ -100,14 +99,12 @@ def upgrade() -> None:
             server_default=sa.text("now()"),
             nullable=False,
         ),
-        sa.CheckConstraint("quality_score BETWEEN 0 AND 1", name="ck_acquisition_snapshots_quality"),
+        sa.CheckConstraint(
+            "quality_score BETWEEN 0 AND 1", name="ck_acquisition_snapshots_quality"
+        ),
         sa.CheckConstraint("version >= 1", name="ck_acquisition_snapshots_version"),
-        sa.ForeignKeyConstraint(
-            ["artifact_id"], ["source_artifacts.id"], ondelete="RESTRICT"
-        ),
-        sa.ForeignKeyConstraint(
-            ["collection_run_id"], ["collection_runs.id"], ondelete="RESTRICT"
-        ),
+        sa.ForeignKeyConstraint(["artifact_id"], ["source_artifacts.id"], ondelete="RESTRICT"),
+        sa.ForeignKeyConstraint(["collection_run_id"], ["collection_runs.id"], ondelete="RESTRICT"),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint(
             "artifact_id", "version", name="uq_acquisition_snapshots_artifact_version"
@@ -143,12 +140,8 @@ def upgrade() -> None:
             server_default=sa.text("now()"),
             nullable=False,
         ),
-        sa.CheckConstraint(
-            f"change_type IN ({CHANGE_TYPE_SQL})", name="ck_change_events_type"
-        ),
-        sa.CheckConstraint(
-            "materiality BETWEEN 0 AND 1", name="ck_change_events_materiality"
-        ),
+        sa.CheckConstraint(f"change_type IN ({CHANGE_TYPE_SQL})", name="ck_change_events_type"),
+        sa.CheckConstraint("materiality BETWEEN 0 AND 1", name="ck_change_events_materiality"),
         sa.CheckConstraint(
             "change_type <> 'created' OR "
             "(previous_snapshot_id IS NULL AND current_snapshot_id IS NOT NULL)",
@@ -164,12 +157,8 @@ def upgrade() -> None:
             "(previous_snapshot_id IS NOT NULL AND current_snapshot_id IS NOT NULL)",
             name="ck_change_events_standard",
         ),
-        sa.ForeignKeyConstraint(
-            ["artifact_id"], ["source_artifacts.id"], ondelete="RESTRICT"
-        ),
-        sa.ForeignKeyConstraint(
-            ["collection_run_id"], ["collection_runs.id"], ondelete="RESTRICT"
-        ),
+        sa.ForeignKeyConstraint(["artifact_id"], ["source_artifacts.id"], ondelete="RESTRICT"),
+        sa.ForeignKeyConstraint(["collection_run_id"], ["collection_runs.id"], ondelete="RESTRICT"),
         sa.ForeignKeyConstraint(
             ["current_snapshot_id"], ["acquisition_snapshots.id"], ondelete="RESTRICT"
         ),
@@ -187,7 +176,9 @@ def downgrade() -> None:
     """Safe downgrade guard: refuse to drop the evidence layer while rows exist."""
     connection = op.get_bind()
     for table in EVIDENCE_TABLES:
-        remaining = connection.execute(sa.text(f"SELECT count(*) FROM {table}")).scalar()
+        remaining = connection.execute(
+            sa.text(f"SELECT count(*) FROM {table}")  # noqa: S608 - frozen module tuple
+        ).scalar()
         if remaining:
             raise RuntimeError(
                 f"refusing to drop version evidence table {table}: {remaining} row(s) exist"

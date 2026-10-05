@@ -3,7 +3,6 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 from decimal import Decimal
-from enum import Enum as PyEnum
 from enum import StrEnum
 from typing import Any
 
@@ -14,7 +13,6 @@ from sqlalchemy import (
     Boolean,
     CheckConstraint,
     DateTime,
-    Enum,
     ForeignKey,
     Index,
     Integer,
@@ -29,6 +27,11 @@ from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
+from app.models.notification import Notification as Notification
+from app.models.notification import NotificationPriority as NotificationPriority
+from app.models.notification import NotificationStatus as NotificationStatus
+from app.models.types import enum_column as enum_column
+from app.models.types import varchar_enum as varchar_enum
 
 
 class RadarType(StrEnum):
@@ -39,6 +42,7 @@ class RadarType(StrEnum):
     POLICY = "policy"
     COMPETITIVE = "competitive"
     CUSTOM = "custom"
+    OPPORTUNITY = "opportunity"
 
 
 class ResourceStatus(StrEnum):
@@ -143,33 +147,6 @@ class Recommendation(StrEnum):
     READ = "read"
     MONITOR = "monitor"
     ARCHIVE = "archive"
-
-
-class NotificationPriority(StrEnum):
-    NORMAL = "normal"
-    HIGH = "high"
-    CRITICAL = "critical"
-
-
-class NotificationStatus(StrEnum):
-    UNREAD = "unread"
-    READ = "read"
-
-
-def enum_column(enum_type: type[PyEnum], name: str) -> Enum:
-    return Enum(
-        enum_type, name=name, values_callable=lambda values: [item.value for item in values]
-    )
-
-
-def varchar_enum(enum_type: type[PyEnum], length: int) -> Enum:
-    return Enum(
-        enum_type,
-        native_enum=False,
-        create_constraint=False,
-        length=length,
-        values_callable=lambda values: [item.value for item in values],
-    )
 
 
 class TimestampMixin:
@@ -718,43 +695,6 @@ class Bookmark(TimestampMixin, Base):
         index=True,
     )
     note: Mapped[str | None] = mapped_column(Text)
-
-
-class Notification(Base):
-    __tablename__ = "notifications"
-    __table_args__ = (
-        UniqueConstraint("user_id", "analysis_id"),
-        Index(
-            "ix_notifications_user_status_created_at", "user_id", "status", text("created_at DESC")
-        ),
-    )
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    user_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
-    )
-    analysis_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
-        ForeignKey("analyses.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True,
-    )
-    title: Mapped[str] = mapped_column(String(240), nullable=False)
-    content: Mapped[str] = mapped_column(Text, nullable=False)
-    priority: Mapped[NotificationPriority] = mapped_column(
-        enum_column(NotificationPriority, "notification_priority")
-    )
-    reason: Mapped[str] = mapped_column(String(1000), nullable=False)
-    url: Mapped[str | None] = mapped_column(Text)
-    status: Mapped[NotificationStatus] = mapped_column(
-        enum_column(NotificationStatus, "notification_status"),
-        nullable=False,
-        default=NotificationStatus.UNREAD,
-        server_default="unread",
-    )
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), nullable=False, server_default=text("now()")
-    )
-    read_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
 class AIUsageRecord(Base):

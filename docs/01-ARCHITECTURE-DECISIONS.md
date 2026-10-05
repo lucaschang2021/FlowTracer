@@ -291,3 +291,12 @@
 - 兼容：复用既有 `RawItem`/`CollectionRun`/`Source` 结构；新模型置于独立 `app/models/evidence.py`，不修改 `entities.py`（避免基线模块增长）；无 OpenAPI 变化。
 - 边界：本 ADR 不引入 Browser/Discovery 执行/Opportunity，不改动 Notification/Document 下游；I2 与 WP-7 仍须各自独立准入。
 
+## ADR-037：WP-7 Opportunity 采用独立事实表与 XOR 通知兼容扩展
+
+- 状态：**Accepted**（2026-10-05 冻结并实现 I1；实现与验收见 `docs/66-ACQ1-WP7-OPPORTUNITY-STAGE-REPORT.md`，规则与实现注记以 `docs/65-ACQ1-WP7-OPPORTUNITY-CONTRACT.md` 为准）
+- 背景：ADR-025 已冻结 Opportunity 独立事实/评分/Action Payload 契约与 `docs/24` 精确规则；`radar_type` 是仓库中唯一需要真实 PostgreSQL enum 迁移的枚举（`docs/23` §39），Notification 需要在不改变既有 Analysis 通知语义的前提下容纳机会通知。
+- 决策：WP-7 拆为两个增量。**I1（本次）**实现：`radar_type=opportunity` enum 重建迁移与三重 downgrade guard；`opportunities`/`opportunity_scores`/`opportunity_action_payloads` 三表；Freelance v1 Hard Filter 与 opportunity-score-v1（服务端 Decimal）；确定性 JSON-LD JobPosting 提取（仅显式字段，无猜测）；`OpportunityEvaluationProvider`（fake + OpenAI-compatible，硬过滤先于远程调用，≤3 次调用、2/4s 退避、一次 repair、调用在事务外、逐调用 AIUsageRecord）；不可执行 Action Payload（`requires_human_approval=true` + SHA-256 + 32 KiB 守卫）；Notification XOR 兼容扩展（部分唯一索引 + exactly-one named CHECK + RESTRICT FK）；REST 三端点与本地 job 管线。**I2（未准入）**：平台逐站点访问授权工作流、版本变化驱动的 item 生命周期与重评、多币种固定 FX Profile。
+- 安全：评估失败不写半成品（分数插入冲突即 no-op）；通知资格（≥85 与 threshold、risk≤30、ambiguity≤40、active 且 deadline 未过、Radar 所有权）在事务内复验；Action Payload 无凭据、无 Proposal 文本、无执行能力；公开响应不含 raw HTML/Prompt/向量/内部 trace。
+- 兼容：`entities.py` 为基线上限模块，Notification（连同两个枚举）移入 `app/models/notification.py`、enum 助手移入 `app/models/types.py` 并由 entities 重新导出（净减行）；新 API/schema 文件不新增 `models_persistence` 跨层导入指纹；WS 事件不扩张（ADR-026）。
+- 边界：本 ADR 不实现自动投标/报价/沟通/付款/外部执行（永久禁止），不批准任何平台自动访问；I2 与 WP-8 须各自独立准入。
+

@@ -9,9 +9,14 @@ from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from app.core.config import Settings
 from app.db.session import create_database_engine, create_session_factory
-from app.domains.provider_ports import AnalysisProvider, EmbeddingProvider
+from app.domains.provider_ports import (
+    AnalysisProvider,
+    EmbeddingProvider,
+    OpportunityEvaluationProvider,
+)
 from app.providers.analysis import build_provider
 from app.providers.embedding import build_embedding_provider
+from app.providers.opportunity import build_opportunity_provider
 from app.services.events import EventPublisher, RedisEventPublisher
 from app.services.readiness import ReadinessService, build_readiness_service
 
@@ -30,6 +35,10 @@ class ApiDependencies:
 
 def build_analysis_dependency(settings: Settings) -> AnalysisProvider:
     return build_provider(settings)
+
+
+def build_opportunity_dependency(settings: Settings) -> OpportunityEvaluationProvider:
+    return build_opportunity_provider(settings)
 
 
 def build_embedding_dependency(settings: Settings) -> EmbeddingProvider:

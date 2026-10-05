@@ -44,6 +44,7 @@ from app.services.acquisition_types import (
     ParseResult,
 )
 from app.services.change_tracking import record_version_evidence
+from app.services.opportunity_ingest import record_opportunity_items
 
 
 async def _persist_candidates(
@@ -232,13 +233,17 @@ async def _record_success(
         checkpoint_update=discovery_checkpoint,
     )
     # Shadow-write version evidence in the same transaction; RawItem behavior unchanged.
-    await record_version_evidence(
+    evidence = await record_version_evidence(
         session,
         run=run,
         parsed=parsed,
         body=result.response.body,
         quality_score=quality_score,
         fetched_at=finished_at,
+    )
+    # Opportunity items exist only for opportunity-family sources; other sources untouched.
+    await record_opportunity_items(
+        session, source=source, evidence=evidence, body=result.response.body
     )
 
 

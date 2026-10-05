@@ -10,7 +10,7 @@
 - 未准入：WP-5 I2（crawl 执行）、WP-6 I2（RawItem writer 切换/读取 API/语义变化）、WP-7 I2（平台逐站点授权/版本驱动重评/多币种 FX）、PLUGIN-1、Frontend（FE-001）、Integration（INT-001）、Release（REL-001）。
 - 一致性处置（2026-10-05）：本文件此前与看板/提交事实（WP-4..WP-7 已按委托方书面指示完成并合并）不一致。WP-8 依委托方明确指示继续并重写本节为当前事实；不改变任何既有安全边界、R1..R2C 已验收证据与 R3 的 BLOCKED 判定，也不追认任何未签发的真实执行权限。
 - 执行权：当前无任何未决 lease/授权；任何新工作（含 R3 真实执行、各 I2 增量、Frontend 准入）须按 `GOVERNANCE-V2 §12` 另签完整 NEW TASK AUTHORITY。
-- 能力与证据指针：`docs/68-ACQ1-CAPABILITY-MANIFEST.md`；最终门禁矩阵与限制：`docs/69-ACQ1-FINAL-STAGE-REPORT.md`。
+- 能力与证据指针：`docs/68-ACQ1-CAPABILITY-MANIFEST.md`；最终门禁矩阵与限制：`docs/69-ACQ1-FINAL-STAGE-REPORT.md`；交付包说明书（移交/验收指引）：`docs/70-ACQ1-DELIVERY-PACKAGE.md`。
 
 ## 历史操作记录（以下不提供 live authority）
 

@@ -208,13 +208,12 @@ async def load_state(engine: AsyncEngine, source_id: UUID) -> SourceAcquisitionS
 
 class TestPurePolicies:
     def test_select_candidates_is_static_only(self) -> None:
-        profile = AcquisitionProfileV1()
         rss = select_candidates(
-            source_type=SourceType.RSS, mode=AcquisitionMode.AUTO, profile=profile
+            source_type=SourceType.RSS, mode=AcquisitionMode.AUTO, allow_browser=False
         )
         assert [candidate.backend for candidate in rss] == [BackendName.RSS]
         url = select_candidates(
-            source_type=SourceType.URL, mode=AcquisitionMode.NATIVE, profile=profile
+            source_type=SourceType.URL, mode=AcquisitionMode.NATIVE, allow_browser=False
         )
         assert [candidate.backend for candidate in url] == [BackendName.NATIVE_HTTP]
         for candidate in rss + url:
@@ -228,21 +227,21 @@ class TestPurePolicies:
             select_candidates(
                 source_type=SourceType.URL,
                 mode=AcquisitionMode.AUTO,
-                profile=AcquisitionProfileV1(allow_browser=True),
+                allow_browser=True,
             )
         assert browser.value.code == "acquisition_browser_not_admitted"
         with pytest.raises(CollectionError) as dynamic:
             select_candidates(
                 source_type=SourceType.URL,
                 mode=AcquisitionMode.DYNAMIC,
-                profile=AcquisitionProfileV1(),
+                allow_browser=False,
             )
         assert dynamic.value.code == "acquisition_mode_unsupported"
         with pytest.raises(CollectionError) as api:
             select_candidates(
                 source_type=SourceType.API,
                 mode=AcquisitionMode.AUTO,
-                profile=AcquisitionProfileV1(),
+                allow_browser=False,
             )
         assert api.value.code == "acquisition_no_backend"
 

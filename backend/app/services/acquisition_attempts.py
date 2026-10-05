@@ -1,0 +1,156 @@
+"""Per-attempt persistence helpers shared by the legacy and routed run paths.
+
+Lives in its own module so the routed executor stays within the architecture gate's
+module budget and imports only allowed layers (models, domain ports, service types).
+"""
+
+from __future__ import annotations
+
+from datetime import datetime
+from decimal import Decimal
+from typing import Any
+from uuid import UUID
+
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+
+from app.domains.acquisition_ports import SourceRuntimeFacts
+from app.models.entities import (
+    AcquisitionAttempt,
+    AcquisitionAttemptStatus,
+    BackendName,
+    CollectionRun,
+    CollectionRunStatus,
+    SourceAcquisitionState,
+)
+from app.services.acquisition_types import CollectionError
+
+DECISION_VERSION = "acquisition-native-v1"
+
+
+def _attempt(
+    *,
+    run_id: UUID,
+    source_id: UUID,
+    backend: BackendName,
+    started_at: datetime,
+    finished_at: datetime,
+    status: AcquisitionAttemptStatus,
+    requested_url: str,
+    response_url: str | None = None,
+    status_code: int | None = None,
+    content_type: str | None = None,
+    retry_count: int = 0,
+    bytes_received: int = 0,
+    error: CollectionError | None = None,
+    quality_score: Decimal | None = None,
+    ordinal: int = 1,
+    fallback_reason: str | None = None,
+    budget_used: dict[str, Any] | None = None,
+    decision_version: str = DECISION_VERSION,
+) -> AcquisitionAttempt:
+    pages = 1 if status == AcquisitionAttemptStatus.SUCCEEDED else 0
+    return AcquisitionAttempt(
+        run_id=run_id,
+        source_id=source_id,
+        ordinal=ordinal,
+        backend=backend,
+        started_at=started_at,
+        finished_at=finished_at,
+        status=status,
+        requested_url=requested_url,
+        final_url=response_url,
+        status_code=status_code,
+        content_type=content_type,
+        duration_ms=max(0, round((finished_at - started_at).total_seconds() * 1000)),
+        retry_count=retry_count,
+        pages=pages,
+        bytes_received=bytes_received,
+        budget_used=(
+            budget_used
+            if budget_used is not None
+            else {
+                "requests": retry_count + 1,
+                "pages": pages,
+                "bytes_received": bytes_received,
+            }
+        ),
+        error_code=None if error is None else error.code,
+        safe_error=None if error is None else error.safe_message,
+        decision_version=decision_version,
+        quality_score=quality_score,
+        fallback_reason=fallback_reason,
+    )
+
+
+async def _circuit_facts(
+    factory: async_sessionmaker[AsyncSession], source_id: UUID
+) -> SourceRuntimeFacts | None:
+    async with factory() as session:
+        state = await session.scalar(
+            select(SourceAcquisitionState).where(SourceAcquisitionState.source_id == source_id)
+        )
+        if state is None:
+            return None
+        return SourceRuntimeFacts(
+            health_status=state.health_status.value,
+            consecutive_failures=state.consecutive_failures,
+            circuit_open_until=state.circuit_open_until,
+            last_error_code=state.last_error_code,
+            latency_ewma_ms=state.latency_ewma_ms,
+        )
+
+
+async def _record_attempt(
+    factory: async_sessionmaker[AsyncSession],
+    run_id: UUID,
+    claim_token: UUID,
+    *,
+    source_id: UUID,
+    ordinal: int,
+    backend: BackendName,
+    requested_url: str,
+    started_at: datetime,
+    finished_at: datetime,
+    status: AcquisitionAttemptStatus,
+    retry_count: int,
+    error_code: str,
+    safe_error: str,
+    quality_score: Decimal | None = None,
+    fallback_reason: str | None = None,
+    budget_used: dict[str, Any] | None = None,
+    bytes_received: int = 0,
+    decision_version: str = DECISION_VERSION,
+) -> bool:
+    """Persist one intermediate route attempt without touching run or source state."""
+    async with factory() as session:
+        run = await session.scalar(
+            select(CollectionRun).where(
+                CollectionRun.id == run_id,
+                CollectionRun.status == CollectionRunStatus.RUNNING,
+                CollectionRun.claim_token == claim_token,
+            )
+        )
+        if run is None:
+            return False
+        session.add(
+            _attempt(
+                run_id=run_id,
+                source_id=source_id,
+                backend=backend,
+                started_at=started_at,
+                finished_at=finished_at,
+                status=status,
+                requested_url=requested_url,
+                retry_count=retry_count,
+                bytes_received=bytes_received,
+                error=CollectionError(error_code, safe_error),
+                quality_score=quality_score,
+                ordinal=ordinal,
+                fallback_reason=fallback_reason,
+                budget_used=budget_used,
+                decision_version=decision_version,
+            )
+        )
+        await session.commit()
+        return True

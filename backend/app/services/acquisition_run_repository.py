@@ -31,7 +31,7 @@ from app.services.acquisition import (
     _update_source_state,
     heartbeat_run,
 )
-from app.services.acquisition_route import (
+from app.services.acquisition_attempts import (
     DECISION_VERSION,
     _attempt,
     _circuit_facts,

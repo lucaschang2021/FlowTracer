@@ -202,7 +202,7 @@ def test_collection_worker_injects_user_event_publisher(monkeypatch: pytest.Monk
 
     monkeypatch.setattr(acquisition, "_with_database", with_database)
     monkeypatch.setattr(acquisition, "_with_events", with_events)
-    monkeypatch.setattr(acquisition, "execute_run", execute)
+    monkeypatch.setattr(acquisition, "execute_route_run", execute)
     result = acquisition.collect_source.apply(args=[str(uuid4())])
     assert result.successful() and result.get() is True
     assert received == [publisher]

@@ -8,7 +8,9 @@ from app.core.composition import with_database, with_events
 from app.core.config import get_settings
 from app.core.context import bind_context, reset_context
 from app.core.logging import get_logger
-from app.services.acquisition import dispatch_queued_runs, execute_run, schedule_due_sources
+from app.models.entities import BackendName
+from app.services.acquisition import dispatch_queued_runs, schedule_due_sources
+from app.services.acquisition_route import execute_route_run
 from app.services.acquisition_run_repository import SqlAlchemyAcquisitionRunRepository
 from app.services.native_acquisition import NativeAcquisitionBackend
 from app.services.safe_fetcher import SafeFetcher
@@ -38,13 +40,16 @@ def collect_source(self: Any, run_id: str, correlation_id: str | None = None) ->
 
         async def collect(factory: Any) -> bool:
             repository = SqlAlchemyAcquisitionRunRepository(factory)
-            backend = NativeAcquisitionBackend(SafeFetcher())
+            native = NativeAcquisitionBackend(SafeFetcher())
             return bool(
                 await _with_events(
-                    lambda publisher: execute_run(
+                    lambda publisher: execute_route_run(
                         repository,
                         UUID(run_id),
-                        backend=backend,
+                        backends={
+                            BackendName.RSS: native,
+                            BackendName.NATIVE_HTTP: native,
+                        },
                         correlation_id=resolved_correlation_id,
                         task_id=str(self.request.id),
                         raw_dispatch=_enqueue_raw_item,

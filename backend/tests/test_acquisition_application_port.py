@@ -90,6 +90,14 @@ class FakeRunRepository:
         self.failures.append((kwargs["error_code"], kwargs["safe_error"]))
         return True
 
+    async def record_attempt(self, claim: Any, **kwargs: Any) -> bool:
+        del claim, kwargs
+        return True
+
+    async def circuit_facts(self, source_id: UUID) -> Any:
+        del source_id
+        return None
+
     async def event_for(self, run_id: UUID) -> PublishedEvent[EventEnvelope] | None:
         if not self.finished:
             return None

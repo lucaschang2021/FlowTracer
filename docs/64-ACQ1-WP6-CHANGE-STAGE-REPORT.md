@@ -62,8 +62,8 @@
 
 ## Commit / Branch / PR
 
-- 分支：`feat/acq-1f-change`；合并提交：`main`（`--no-ff`，树与验证头逐字节一致，见提交后补记）。
-- 远端：**未推送**（无可用远端写权限），无 PR。复审对象为本地 `main` 的 exact head。
+- 分支：`feat/acq-1f-change`（`6919a97` 实现 → `798e495` 冻结与报告）；合并提交：`main@8f4f52a`（`--no-ff`，树与验证头 `798e495` 逐字节一致）。
+- 远端：**未推送**（无可用远端写权限），无 PR。复审对象为本地 `main@8f4f52a` 的 exact head。
 
 ## Docker / Compose / Browser Runtime
 

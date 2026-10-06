@@ -2,7 +2,7 @@
 
 Phase / Status：**Phase 2 COMPLETE（I2 crawl 执行落成；委托方确认 + 可独立复核）**。
 日期：2026-10-06。依据：`docs/71-ACQ1-CLOSURE-PLAN.md` §Phase 2、独立审核未完成清单 §3（完整 WP-5）、`docs/61` §0/§5/§6/§7、ADR-039。
-分支 `feat/acq1-closure-p2`。
+分支 `feat/acq1-closure-p2`；实现提交 `56eebd7`；no-ff 合并 `ddb0723`；本 traceability 提交记录以上哈希。
 
 ## 1. 逐项收口与证据
 

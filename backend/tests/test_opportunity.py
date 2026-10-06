@@ -915,10 +915,37 @@ class TestMigrationCycle:
         # committed; restore head so the schema matches the running code again.
         assert self.run_alembic("upgrade", "head").returncode == 0
 
-        # With opportunity facts present, dropping the opportunity layer is refused.
+        # The evaluation-version guard (0009) refuses once a re-evaluation exists.
         await run_acquisition(opportunity_engine, source_id=source_id)
         factory = async_sessionmaker(opportunity_engine, expire_on_commit=False)
         async with factory() as session:
+            item_row = await session.scalar(select(OpportunityItem))
+            radar_row = await session.scalar(select(Radar))
+            assert item_row is not None and radar_row is not None
+            session.add(
+                OpportunityScore(
+                    id=uuid4(),
+                    opportunity_id=item_row.id,
+                    radar_id=radar_row.id,
+                    score_version="opportunity-score-v1",
+                    evaluation_version=1,
+                    hard_filter_passed=False,
+                    disqualifiers=["insufficient_data"],
+                    recommendation="dismiss",
+                    reason="guard fixture",
+                    scored_at=NOW,
+                )
+            )
+            await session.commit()
+            await session.execute(text("UPDATE opportunity_scores SET evaluation_version = 2"))
+            await session.commit()
+        version_guarded = self.run_alembic("downgrade", "20261006_0008")
+        assert version_guarded.returncode != 0
+        assert "refusing to drop opportunity_scores.evaluation_version" in version_guarded.stderr
+
+        # With opportunity facts present, dropping the opportunity layer is refused.
+        async with factory() as session:
+            await session.execute(text("DELETE FROM opportunity_scores"))
             radar_row = await session.scalar(select(Radar))
             assert radar_row is not None
             await session.execute(text("DELETE FROM radars"))
@@ -964,7 +991,7 @@ class TestMigrationCycle:
         restored = self.run_alembic("upgrade", "head")
         assert restored.returncode == 0, restored.stderr
         after = self.run_alembic("current")
-        assert "20261006_0008" in after.stdout
+        assert "20261006_0009" in after.stdout
 
 
 def test_opportunity_task_and_beat_schedule(monkeypatch: pytest.MonkeyPatch) -> None:

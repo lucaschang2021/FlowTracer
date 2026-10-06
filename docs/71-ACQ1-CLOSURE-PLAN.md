@@ -94,7 +94,9 @@
 - **3.4 序列验证**：removed、重新出现、内容回退、连续重复观测（与 Phase 0.3 共测）。
 - **3.5 写路径切换**：迁移、回填、兼容性验证与 downgrade guard。
 
-## Phase 4 — WP-7 机遇收口
+## Phase 4 — WP-7 机遇收口 —— **已完成（2026-10-06）**
+
+> **状态：COMPLETE。** ChangeEvent 驱动 ingest（created 建档 / content_changed 原位刷新 / removed 转换）、crawl 输出接入（4.1）、评分版本化重评与 removed/expired/重现生命周期（4.2，ADR-041）、REST/通知/人工确认契约冻结验证（4.3）、禁止项保持（4.4，FX 与外部执行不扩张），全部有证据；见 `docs/76-ACQ1-CLOSURE-P4-REPORT.md`。
 
 - **4.1 真实输入**：Discovery/Change 的真实输出接入 Opportunity（不再只处理首见页面）。
 - **4.2 生命周期与重评**：内容变化、移除、过期的状态与评分生命周期一致（评分版本化；唯一约束按需修订）。

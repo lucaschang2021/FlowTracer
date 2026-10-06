@@ -23,11 +23,13 @@ from app.models.entities import (
     BackendName,
     CollectionRun,
     CollectionRunStatus,
+    Source,
     SourceAcquisitionState,
 )
 from app.models.raw_item import RawItem, RawItemStatus
 from app.services.acquisition_types import CollectionError, RawCandidate
-from app.services.change_tracking import EvidenceWrite, record_page_evidence
+from app.services.change_tracking import EvidenceResult, EvidenceWrite, record_page_evidence
+from app.services.opportunity_ingest import record_opportunity_items
 
 DECISION_VERSION = "acquisition-native-v1"
 QUALIFYING_CHANGE_TYPES = frozenset({"created", "content_changed"})
@@ -267,13 +269,15 @@ async def write_crawl_page(
     session: AsyncSession,
     *,
     run: CollectionRun,
-    source_id: UUID,
+    source: Source,
     page: CrawlPageRecord,
 ) -> UUID | None:
     """Persist one crawled page: attempt row, version evidence, qualifying RawItem.
 
+    Also advances the opportunity lifecycle for opportunity-family sources.
     Returns the RawItem id when the page observation qualified (created / content
     change), else None."""
+    source_id = source.id
     ordinal = await next_attempt_ordinal(session, run.id, page.ordinal)
     error = (
         None
@@ -314,6 +318,12 @@ async def write_crawl_page(
         body=page.evidence.get("body"),
         quality_score=page.quality_score,
         fetched_at=page.finished_at,
+    )
+    await record_opportunity_items(
+        session,
+        source=source,
+        evidence=EvidenceResult(events=0, writes=(write,)),
+        body=page.evidence.get("body"),
     )
     created, _duplicates = await persist_snapshot_items(
         session,

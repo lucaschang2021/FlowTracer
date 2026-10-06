@@ -147,7 +147,7 @@ EXPECTED_UNIQUES = {
     },
     "change_events": {("collection_run_id", "artifact_id")},
     "opportunities": {("snapshot_id",)},
-    "opportunity_scores": {("opportunity_id", "radar_id", "score_version")},
+    "opportunity_scores": {("opportunity_id", "radar_id", "score_version", "evaluation_version")},
     "opportunity_action_payloads": {
         ("opportunity_score_id", "payload_version"),
         ("payload_hash",),

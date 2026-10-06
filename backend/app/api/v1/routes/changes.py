@@ -7,8 +7,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.dependencies import get_current_user, get_session
-from app.models.entities import User
+from app.api.dependencies import User, get_current_user, get_session
 from app.schemas.changes import ChangeEventPage, ChangeEventResponse, SnapshotRef
 from app.schemas.errors import documented_error
 from app.services import change_queries

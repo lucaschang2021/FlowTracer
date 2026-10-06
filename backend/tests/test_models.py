@@ -97,6 +97,7 @@ EXPECTED_INDEXES = {
         "ix_raw_items_collection_run_id",
         "ix_raw_items_content_hash",
         "ix_raw_items_source_id",
+        "uq_raw_items_snapshot",
         "uq_raw_items_source_external",
     },
     "documents": {"ix_documents_raw_item_id", "ix_documents_status_created_at"},
@@ -158,7 +159,8 @@ EXPECTED_PARTIAL_INDEXES = {
     "uq_radars_active_user_name": "deleted_at IS NULL",
     "uq_sources_active_user_url": "deleted_at IS NULL",
     "uq_collection_runs_source_idempotency": "idempotency_key IS NOT NULL",
-    "uq_raw_items_source_external": "external_id IS NOT NULL",
+    "uq_raw_items_snapshot": "snapshot_id IS NOT NULL",
+    "uq_raw_items_source_external": "(external_id IS NOT NULL) AND (snapshot_id IS NULL)",
     "uq_notifications_user_analysis": "analysis_id IS NOT NULL",
     "uq_notifications_user_opportunity_score": "opportunity_score_id IS NOT NULL",
 }
@@ -245,6 +247,7 @@ EXPECTED_FOREIGN_KEYS = {
     "raw_items": {
         (("source_id",), "sources", ("id",), "RESTRICT"),
         (("collection_run_id",), "collection_runs", ("id",), "CASCADE"),
+        (("snapshot_id",), "acquisition_snapshots", ("id",), "RESTRICT"),
     },
     "documents": {(("raw_item_id",), "raw_items", ("id",), "RESTRICT")},
     "analyses": {

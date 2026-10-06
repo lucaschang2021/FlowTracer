@@ -14,6 +14,7 @@ from datetime import UTC, datetime
 from decimal import Decimal
 from typing import Any
 from urllib.parse import urlsplit
+from uuid import UUID
 
 from app.domains.acquisition_ports import (
     AcquisitionRunRepository as RunRepositoryPort,
@@ -21,6 +22,7 @@ from app.domains.acquisition_ports import (
 from app.domains.acquisition_ports import (
     CrawlFetched,
     CrawlPageRecord,
+    CrawlStepResult,
     CrawlTransport,
     RunClaim,
 )
@@ -95,6 +97,7 @@ class CrawlState:
     ordinal_cursor: int
     skipped: set[str] = field(default_factory=set)
     observed: list[str] = field(default_factory=list)
+    raw_item_ids: list[UUID] = field(default_factory=list)
     pages_fetched: int = 0
     pages_failed: int = 0
     robots_skipped: int = 0
@@ -174,7 +177,7 @@ async def cas_crawl_step(
     document: dict[str, Any],
     page: CrawlPageRecord | None = None,
     allow_takeover: bool = False,
-) -> int | None:
+) -> CrawlStepResult | None:
     """Commit one claim-guarded CAS step, absorbing benign version bumps.
 
     A failed CAS is retried only while the claimant still holds the run claim and
@@ -278,7 +281,7 @@ async def commit_failure(state: CrawlState, *, entry_hash: str, record: CrawlPag
         state.claim_lost = True
         return
     state.checkpoint = document
-    state.version = committed
+    state.version = committed.version
     state.pages_failed += 1
     state.ordinal_cursor += 1
 
@@ -299,22 +302,13 @@ async def _commit_success(
         parsed, quality = _evaluate_page(state, response)
     except CollectionError as exc:
         state.skipped.add(entry_hash)
-        record = CrawlPageRecord(
+        record = _fetched_page_record(
+            state,
+            fetched,
             requested_url=target_url,
-            ordinal=state.ordinal_cursor,
-            status="failed",
             started_at=started_at,
-            finished_at=datetime.now(UTC),
-            backend_name=ctx.backend_name.value,
-            decision_version="discovery-crawl-v1",
-            status_code=fetched.status_code,
-            response_url=fetched.final_url,
-            content_type=fetched.content_type,
-            retry_count=fetched.retry_count,
-            bytes_received=len(fetched.body),
-            requests_used=fetched.requests_used,
-            error_code=exc.code,
-            safe_error=exc.safe_message,
+            status="failed",
+            error=exc,
         )
         await commit_failure(state, entry_hash=entry_hash, record=record)
         return
@@ -324,21 +318,12 @@ async def _commit_success(
         document = _child_plan(state, entry, fetched=fetched, checkpoint=begin).checkpoint
     document = crawl_finish_success(document)
     candidate = parsed.candidates[0]
-    record = CrawlPageRecord(
+    record = _fetched_page_record(
+        state,
+        fetched,
         requested_url=target_url,
-        ordinal=state.ordinal_cursor,
-        status="succeeded",
         started_at=started_at,
-        finished_at=datetime.now(UTC),
-        backend_name=ctx.backend_name.value,
-        decision_version="discovery-crawl-v1",
-        status_code=fetched.status_code,
-        response_url=fetched.final_url,
-        content_type=fetched.content_type,
-        retry_count=fetched.retry_count,
-        bytes_received=len(fetched.body),
-        requests_used=fetched.requests_used,
-        quality_score=quality,
+        quality=quality,
         evidence={
             "text": candidate.raw_text,
             "title": candidate.title,
@@ -357,10 +342,46 @@ async def _commit_success(
         state.claim_lost = True
         return
     state.checkpoint = document
-    state.version = committed
+    state.version = committed.version
     state.pages_fetched += 1
     state.ordinal_cursor += 1
     state.observed.append(artifact_key_for(candidate))
+    if committed.raw_item_id is not None:
+        state.raw_item_ids.append(committed.raw_item_id)
+
+
+def _fetched_page_record(
+    state: CrawlState,
+    fetched: CrawlFetched,
+    *,
+    requested_url: str,
+    started_at: datetime,
+    status: str = "succeeded",
+    quality: Decimal | None = None,
+    error: CollectionError | None = None,
+    evidence: dict[str, Any] | None = None,
+) -> CrawlPageRecord:
+    """Bounded per-page record shared by the success and parse-failure paths."""
+    ctx = state.ctx
+    return CrawlPageRecord(
+        requested_url=requested_url,
+        ordinal=state.ordinal_cursor,
+        status=status,
+        started_at=started_at,
+        finished_at=datetime.now(UTC),
+        backend_name=ctx.backend_name.value,
+        decision_version="discovery-crawl-v1",
+        status_code=fetched.status_code,
+        response_url=fetched.final_url,
+        content_type=fetched.content_type,
+        retry_count=fetched.retry_count,
+        bytes_received=len(fetched.body),
+        requests_used=fetched.requests_used,
+        error_code=None if error is None else error.code,
+        safe_error=None if error is None else error.safe_message,
+        quality_score=quality,
+        evidence=evidence,
+    )
 
 
 def _evaluate_page(

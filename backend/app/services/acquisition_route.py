@@ -487,7 +487,8 @@ async def _finalize_success(
     if completion is None:
         return False
     await _publish_repository_event(route.repository, route.run_id, route.publisher)
-    _dispatch_raw_items(route, completion.raw_item_ids)
+    crawl_item_ids = () if crawl is None else crawl.raw_item_ids
+    _dispatch_raw_items(route, completion.raw_item_ids + crawl_item_ids)
     get_logger().info(
         "collection_completed",
         message="Collection run completed",

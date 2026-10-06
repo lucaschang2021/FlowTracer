@@ -106,6 +106,14 @@ class CrawlFetched:
     requests_used: int
 
 
+@dataclass(frozen=True, slots=True)
+class CrawlStepResult:
+    """One committed crawl step: the new checkpoint version and any created RawItem."""
+
+    version: int
+    raw_item_id: UUID | None = None
+
+
 class CrawlTransport(Protocol):
     """Provider port for WP-5 I2 crawl fetches.
 
@@ -210,11 +218,11 @@ class AcquisitionRunRepository(Protocol[SourceT, PersistedResultT, ParsedResultT
         expected_version: int,
         checkpoint: dict[str, Any],
         page: CrawlPageRecord | None = None,
-    ) -> int | None:
+    ) -> CrawlStepResult | None:
         """CAS one crawl step: claim-guarded checkpoint write, optional page record.
 
-        Returns the new version, or None when the claim is gone or the state version
-        no longer matches (another writer intervened).
+        Returns the new version (plus any RawItem the page commit created), or None
+        when the claim is gone or the state version no longer matches.
         """
         ...
 

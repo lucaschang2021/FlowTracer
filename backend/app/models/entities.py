@@ -30,6 +30,9 @@ from app.db.base import Base
 from app.models.notification import Notification as Notification
 from app.models.notification import NotificationPriority as NotificationPriority
 from app.models.notification import NotificationStatus as NotificationStatus
+from app.models.raw_item import RawItem as RawItem
+from app.models.raw_item import RawItemStatus as RawItemStatus
+from app.models.types import TimestampMixin as TimestampMixin
 from app.models.types import enum_column as enum_column
 from app.models.types import varchar_enum as varchar_enum
 
@@ -118,13 +121,6 @@ class CollectionRunStatus(StrEnum):
     FAILED = "failed"
 
 
-class RawItemStatus(StrEnum):
-    FETCHED = "fetched"
-    CLEANED = "cleaned"
-    DUPLICATE = "duplicate"
-    FAILED = "failed"
-
-
 class DocumentStatus(StrEnum):
     PENDING = "pending"
     CLEANING = "cleaning"
@@ -147,18 +143,6 @@ class Recommendation(StrEnum):
     READ = "read"
     MONITOR = "monitor"
     ARCHIVE = "archive"
-
-
-class TimestampMixin:
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), nullable=False, server_default=text("now()")
-    )
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        nullable=False,
-        server_default=text("now()"),
-        onupdate=text("now()"),
-    )
 
 
 class User(TimestampMixin, Base):
@@ -539,47 +523,6 @@ class AcquisitionAttempt(Base):
     error_code: Mapped[str | None] = mapped_column(String(80))
     safe_error: Mapped[str | None] = mapped_column(String(500))
     decision_version: Mapped[str] = mapped_column(String(40), nullable=False)
-
-
-class RawItem(TimestampMixin, Base):
-    __tablename__ = "raw_items"
-    __table_args__ = (
-        Index(
-            "uq_raw_items_source_external",
-            "source_id",
-            "external_id",
-            unique=True,
-            postgresql_where=text("external_id IS NOT NULL"),
-        ),
-        Index("ix_raw_items_content_hash", "content_hash"),
-    )
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    source_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
-        ForeignKey("sources.id", ondelete="RESTRICT"),
-        nullable=False,
-        index=True,
-    )
-    collection_run_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
-        ForeignKey("collection_runs.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True,
-    )
-    external_id: Mapped[str | None] = mapped_column(String(512))
-    canonical_url: Mapped[str] = mapped_column(Text, nullable=False)
-    title: Mapped[str | None] = mapped_column(Text)
-    published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    fetched_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
-    content_type: Mapped[str | None] = mapped_column(String(160))
-    raw_text: Mapped[str] = mapped_column(Text, nullable=False)
-    content_hash: Mapped[str] = mapped_column(CHAR(64), nullable=False)
-    item_metadata: Mapped[dict[str, Any]] = mapped_column(
-        "metadata", JSONB, nullable=False, default=dict, server_default=text("'{}'::jsonb")
-    )
-    status: Mapped[RawItemStatus] = mapped_column(enum_column(RawItemStatus, "raw_item_status"))
-    error_code: Mapped[str | None] = mapped_column(String(80))
-    error_message: Mapped[str | None] = mapped_column(String(500))
 
 
 class Document(TimestampMixin, Base):

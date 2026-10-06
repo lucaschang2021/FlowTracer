@@ -591,8 +591,8 @@ class TestBackfillAndCompat:
 
     @pytest.mark.asyncio
     async def test_raw_item_write_path_unchanged(self, change_engine: AsyncEngine) -> None:
-        """The legacy writer keeps producing RawItems with unchanged columns; the
-        snapshot linkage column belongs to the I2 writer switch and must not exist yet."""
+        """I2 writer switch: RawItems come from qualifying snapshots and are linked via
+        snapshot_id; a repeated observation of the same content creates no new item."""
         factory = async_sessionmaker(change_engine, expire_on_commit=False)
         async with factory() as session:
             columns = await session.execute(
@@ -602,41 +602,56 @@ class TestBackfillAndCompat:
                 )
             )
             names = {row[0] for row in columns}
-            assert "snapshot_id" not in names
+            assert "snapshot_id" in names
         source_id = await create_source(change_engine)
         run_id = await queue_run(change_engine, source_id)
-        repository = SqlAlchemyAcquisitionRunRepository(factory)
-        claimed = await repository.claim_run(run_id, worker_id="w")
-        assert claimed is not None
         parsed = ParseResult(candidates=[candidate(raw_text="Writer compatibility body.")])
-        completion = await repository.finish_success(
-            claimed,
-            backend_name="native_http",
-            attempt_started_at=NOW,
-            result=AcquisitionResult(
-                FetchResponse(
-                    "https://example.com/doc",
-                    "text/html; charset=utf-8",
-                    HTML_V1,
+
+        async def observe(run: UUID) -> object:
+            repo = SqlAlchemyAcquisitionRunRepository(factory)
+            claim = await repo.claim_run(run, worker_id="w")
+            assert claim is not None
+            return await repo.finish_success(
+                claim,
+                backend_name="native_http",
+                attempt_started_at=NOW,
+                result=AcquisitionResult(
+                    FetchResponse(
+                        "https://example.com/doc",
+                        "text/html; charset=utf-8",
+                        HTML_V1,
+                    ),
+                    retry_count=0,
+                    budget_used={"requests": 1, "pages": 1, "bytes_received": len(HTML_V1)},
                 ),
-                retry_count=0,
-                budget_used={"requests": 1, "pages": 1, "bytes_received": len(HTML_V1)},
-            ),
-            parsed=parsed,
-            quality_score=Decimal("0.7000"),
-        )
-        assert completion is not None
-        async with factory() as session:
-            items = await session.scalar(
-                select(func.count()).select_from(RawItem).where(RawItem.source_id == source_id)
+                parsed=parsed,
+                quality_score=Decimal("0.7000"),
             )
-            assert items == 1
+
+        completion = await observe(run_id)
+        assert completion is not None
+        assert completion.created_count == 1
+        async with factory() as session:
+            item = await session.scalar(select(RawItem).where(RawItem.source_id == source_id))
+            assert item is not None and item.snapshot_id is not None
+            snapshot = await session.get(AcquisitionSnapshot, item.snapshot_id)
+            assert snapshot is not None
+            assert snapshot.artifact_id is not None
             artifacts = await session.scalar(
                 select(func.count())
                 .select_from(SourceArtifact)
                 .where(SourceArtifact.source_id == source_id)
             )
             assert artifacts == 1
+
+        second = await observe(await queue_run(change_engine, source_id))
+        assert second is not None
+        assert (second.created_count, second.duplicate_count) == (0, 1)
+        async with factory() as session:
+            items = await session.scalar(
+                select(func.count()).select_from(RawItem).where(RawItem.source_id == source_id)
+            )
+            assert items == 1
         assert artifact_key_for(candidate(raw_text="x")) == "https://example.com/doc"
 
 
@@ -662,7 +677,7 @@ class TestMigrationCycle:
         upgraded = self.run_alembic("upgrade", "head")
         assert upgraded.returncode == 0, upgraded.stderr
         after = self.run_alembic("current")
-        assert "20261006_0007" in after.stdout
+        assert "20261006_0008" in after.stdout
 
         # Guard: with evidence rows present the downgrade must refuse.
         source_id = await create_source(change_engine)
@@ -681,4 +696,30 @@ class TestMigrationCycle:
         restored = self.run_alembic("upgrade", "head")
         assert restored.returncode == 0, restored.stderr
         still = self.run_alembic("current")
-        assert "20261006_0007" in still.stdout
+        assert "20261006_0008" in still.stdout
+
+        # Snapshot-identity guard: a snapshot-linked RawItem makes the 0008
+        # downgrade refuse (the legacy constraint cannot express the new rows).
+        factory = async_sessionmaker(change_engine, expire_on_commit=False)
+        run_id = await queue_run(change_engine, source_id)
+        repository = SqlAlchemyAcquisitionRunRepository(factory)
+        claim = await repository.claim_run(run_id, worker_id="guard")
+        assert claim is not None
+        completion = await repository.finish_success(
+            claim,
+            backend_name="native_http",
+            attempt_started_at=NOW,
+            result=AcquisitionResult(
+                FetchResponse("https://example.com/guard", "text/html; charset=utf-8", HTML_V1),
+                retry_count=0,
+                budget_used={"requests": 1, "pages": 1, "bytes_received": len(HTML_V1)},
+            ),
+            parsed=ParseResult(candidates=[candidate(raw_text="Guard writer body.")]),
+            quality_score=Decimal("0.7000"),
+        )
+        assert completion is not None and completion.created_count == 1
+        blocked = self.run_alembic("downgrade", "20261006_0007")
+        assert blocked.returncode != 0
+        assert "refusing to drop raw_items.snapshot_id" in blocked.stderr
+        final = self.run_alembic("current")
+        assert "20261006_0008" in final.stdout

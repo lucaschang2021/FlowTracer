@@ -61,12 +61,14 @@ from app.models.entities import (
     SourceType,
     User,
 )
+from app.models.evidence import AcquisitionSnapshot
 from app.models.notification import Notification, NotificationStatus
 from app.models.opportunity import (
     OpportunityActionPayload,
     OpportunityItem,
     OpportunityScore,
 )
+from app.models.raw_item import RawItem, RawItemStatus
 from app.schemas.resources import AcquisitionProfileV1
 from app.services.acquisition_types import ParseResult, RawCandidate
 from app.services.change_tracking import record_version_evidence
@@ -899,7 +901,7 @@ class TestMigrationCycle:
     async def test_cycle_with_irreversible_data_guards(
         self, opportunity_engine: AsyncEngine
     ) -> None:
-        downgraded = self.run_alembic("downgrade", "20261005_0005")
+        downgraded = self.run_alembic("downgrade", "20261006_0007")
         assert downgraded.returncode == 0, downgraded.stderr
         upgraded = self.run_alembic("upgrade", "head")
         assert upgraded.returncode == 0, upgraded.stderr
@@ -909,6 +911,9 @@ class TestMigrationCycle:
         enum_guarded = self.run_alembic("downgrade", "20261005_0005")
         assert enum_guarded.returncode != 0
         assert "refusing to rebuild radar_type" in enum_guarded.stderr
+        # Revisions above the refused guard may already have been downgraded and
+        # committed; restore head so the schema matches the running code again.
+        assert self.run_alembic("upgrade", "head").returncode == 0
 
         # With opportunity facts present, dropping the opportunity layer is refused.
         await run_acquisition(opportunity_engine, source_id=source_id)
@@ -922,6 +927,33 @@ class TestMigrationCycle:
         assert data_guarded.returncode != 0
         assert "refusing to drop opportunity table" in data_guarded.stderr
 
+        # The snapshot-identity guard (0008) separately refuses while any RawItem is
+        # snapshot-linked: the legacy constraint cannot express the new rows.
+        assert self.run_alembic("upgrade", "head").returncode == 0
+        async with factory() as session:
+            snapshot = await session.scalar(select(AcquisitionSnapshot))
+            run_row = await session.scalar(select(CollectionRun))
+            assert snapshot is not None and run_row is not None
+            session.add(
+                RawItem(
+                    source_id=run_row.source_id,
+                    collection_run_id=run_row.id,
+                    snapshot_id=snapshot.id,
+                    external_id="guard-item",
+                    canonical_url="https://example.com/guard-item",
+                    fetched_at=NOW,
+                    content_type="text/html",
+                    raw_text="Snapshot guard body",
+                    content_hash="0" * 64,
+                    item_metadata={},
+                    status=RawItemStatus.FETCHED,
+                )
+            )
+            await session.commit()
+        snapshot_guarded = self.run_alembic("downgrade", "20261006_0007")
+        assert snapshot_guarded.returncode != 0
+        assert "refusing to drop raw_items.snapshot_id" in snapshot_guarded.stderr
+
         # Emptying every ACQ-1G fact lets the downgrade round-trip safely.
         async with opportunity_engine.begin() as connection:
             await connection.execute(text(f"TRUNCATE {TABLES} CASCADE"))
@@ -932,7 +964,7 @@ class TestMigrationCycle:
         restored = self.run_alembic("upgrade", "head")
         assert restored.returncode == 0, restored.stderr
         after = self.run_alembic("current")
-        assert "20261006_0007" in after.stdout
+        assert "20261006_0008" in after.stdout
 
 
 def test_opportunity_task_and_beat_schedule(monkeypatch: pytest.MonkeyPatch) -> None:

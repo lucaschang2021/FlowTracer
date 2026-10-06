@@ -12,11 +12,11 @@ from datetime import datetime
 from decimal import ROUND_HALF_UP, Decimal
 from uuid import UUID, uuid4
 
-from sqlalchemy import select, tuple_
+from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.entities import CollectionRun, RawItem, Source
+from app.models.entities import CollectionRun, Source
 from app.models.evidence import AcquisitionSnapshot, ChangeEvent, SourceArtifact
 from app.services.acquisition_types import CollectionError, ParseResult, RawCandidate
 from app.services.version_evidence import (
@@ -146,7 +146,7 @@ async def _snapshot_by_trio(
     )
 
 
-def _build_snapshot(
+def build_snapshot(
     *,
     artifact_id: UUID,
     run_id: UUID,
@@ -249,7 +249,7 @@ async def _resolve_current(
         # Content reverted to an earlier state: versions count distinct states.
         return existing
     version = 1 if latest is None else latest.version + 1
-    snapshot = _build_snapshot(
+    snapshot = build_snapshot(
         artifact_id=artifact.id,
         run_id=run.id,
         version=version,
@@ -452,116 +452,10 @@ async def record_page_evidence(
     )
 
 
-async def _backfill_one(
-    session: AsyncSession, *, source: Source, item: RawItem, identity: str
-) -> bool:
-    """Create the version-1 snapshot chain for one legacy RawItem; False when present."""
-    key = identity[:MAX_ARTIFACT_KEY]
-    existing = await session.scalar(
-        select(SourceArtifact.id).where(
-            SourceArtifact.source_id == source.id,
-            SourceArtifact.artifact_key == key,
-        )
-    )
-    if existing is not None:
-        return False
-    normalized = normalize_content(item.raw_text)
-    values = metadata_values(
-        title=item.title,
-        author=None,
-        published_at=item.published_at,
-        content_type=item.content_type,
-    )
-    summary = structure_summary(
-        body=None, content_type=item.content_type or "", normalized_content=normalized
-    )
-    hashes = (
-        content_fingerprint(normalized),
-        metadata_fingerprint(values),
-        structure_fingerprint(summary),
-    )
-    artifact = SourceArtifact(
-        id=uuid4(),
-        source_id=source.id,
-        artifact_key=key,
-        canonical_url=identity[:MAX_ARTIFACT_KEY],
-        first_seen_at=item.fetched_at,
-        last_seen_at=item.fetched_at,
-        safe_metadata={},
-    )
-    session.add(artifact)
-    # Explicit dependency order: without ORM relationships the unit of work cannot
-    # order these inserts, and each row's FKs must already exist.
-    await session.flush()
-    snapshot = _build_snapshot(
-        artifact_id=artifact.id,
-        run_id=item.collection_run_id,
-        version=1,
-        fetched_at=item.fetched_at,
-        candidate=RawCandidate(
-            external_id=item.external_id or str(item.id),
-            canonical_url=identity,
-            raw_text=item.raw_text,
-            content_type=item.content_type or "",
-            title=item.title,
-            published_at=item.published_at,
-        ),
-        normalized=normalized,
-        values=values,
-        summary=summary,
-        hashes=hashes,
-        quality=Decimal("0.0000"),
-    )
-    snapshot.evidence = {"extractor": EXTRACTOR_VERSION, "origin": "legacy_backfill"}
-    session.add(snapshot)
-    await session.flush()
-    artifact.current_snapshot_id = snapshot.id
-    session.add(
-        ChangeEvent(
-            id=uuid4(),
-            artifact_id=artifact.id,
-            collection_run_id=item.collection_run_id,
-            previous_snapshot_id=None,
-            current_snapshot_id=snapshot.id,
-            change_type="created",
-            materiality=Decimal("1.0000"),
-            field_diff={"changed": [], "fields": {}},
-            detector_version=DETECTOR_VERSION,
-            occurred_at=item.fetched_at,
-        )
-    )
-    return True
-
-
 async def backfill_source_evidence(
     session: AsyncSession, *, source: Source, batch_size: int = 200
 ) -> int:
-    """One-shot legacy backfill: existing RawItems become version-1 snapshots.
+    """One-shot legacy backfill entry point (implementation in ``change_backfill``)."""
+    from app.services.change_backfill import backfill_source_evidence as implementation
 
-    Advances a deterministic ``(created_at, id)`` cursor between batches so every item
-    of the source is processed regardless of size; artifacts that already carry a
-    snapshot are skipped, so repeated calls stay idempotent.
-    """
-    created = 0
-    cursor: tuple[datetime, UUID] | None = None
-    while True:
-        statement = select(RawItem).where(RawItem.source_id == source.id)
-        if cursor is not None:
-            statement = statement.where(tuple_(RawItem.created_at, RawItem.id) > cursor)
-        items = list(
-            (
-                await session.scalars(
-                    statement.order_by(RawItem.created_at.asc(), RawItem.id.asc()).limit(batch_size)
-                )
-            ).all()
-        )
-        if not items:
-            break
-        for item in items:
-            identity = item.canonical_url or item.external_id or str(item.id)
-            if await _backfill_one(session, source=source, item=item, identity=identity):
-                created += 1
-        cursor = (items[-1].created_at, items[-1].id)
-        if len(items) < batch_size:
-            break
-    return created
+    return await implementation(session, source=source, batch_size=batch_size)

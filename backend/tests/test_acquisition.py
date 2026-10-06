@@ -394,13 +394,15 @@ async def test_worker_is_idempotent_partial_and_applies_three_level_deduplicatio
         run = await session.get(CollectionRun, second_run)
         assert run is not None
         assert run.status == CollectionRunStatus.PARTIAL
+        # I2 writer (ADR-040): identity is the qualifying snapshot, so a feed entry
+        # repointed to a new canonical URL is a new artifact and yields a new RawItem.
         assert (run.fetched_count, run.created_count, run.duplicate_count, run.failed_count) == (
             5,
-            1,
-            3,
+            4,
+            0,
             1,
         )
-        assert int(await session.scalar(select(func.count()).select_from(RawItem)) or 0) == 2
+        assert int(await session.scalar(select(func.count()).select_from(RawItem)) or 0) == 5
         attempt = await session.scalar(
             select(AcquisitionAttempt).where(AcquisitionAttempt.run_id == second_run)
         )
@@ -412,7 +414,7 @@ async def test_worker_is_idempotent_partial_and_applies_three_level_deduplicatio
 
     items = await client.get(f"/api/v1/collection-runs/{second_run}/items", headers=headers)
     assert items.status_code == 200
-    assert items.json()["total"] == 1
+    assert items.json()["total"] == 4
     assert "raw_text" not in items.json()["items"][0]
     assert items.json()["items"][0]["metadata"] == {}
 

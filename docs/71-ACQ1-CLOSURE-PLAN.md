@@ -73,7 +73,9 @@
 - **1.3 Circuit 独立验证**：半开探测（并发下同一时刻仅一个探针）、成功闭合、失败重开且退避升级；throttle 恢复（成功后延迟衰减）行为测试。
 - **1.4 Browser 不可达**：保持不可达且不作为 fallback（断言不变）。
 
-## Phase 2 — WP-5 受控发现：完整抓取执行
+## Phase 2 — WP-5 受控发现：完整抓取执行 —— **已完成（2026-10-06）**
+
+> **状态：COMPLETE。** I2 crawl 执行经 ADR-039 准入：frontier 消费（真实 SafeFetcher 路径、每页 attempt+版本证据）、robots/crawl delay 执行、逐跳 scope/SitePolicy/SSRF 复核、四账跨页累计且超限前停止、claim 丢失即停 + CAS 检查点恢复 + 崩溃不重抓不丢目标、双 run 并发去重，全部有证据；见 `docs/74-ACQ1-CLOSURE-P2-REPORT.md`。
 
 - **2.1 消费 frontier**：实际抓取发现的页面（真实 `SafeFetcher` 路径；每页产生 attempt 记录）。
 - **2.2 robots/domain policy**：获取并执行 robots 与站点策略、crawl delay（依赖 Phase 0.4 执行器）。

@@ -6,7 +6,7 @@
 ## 0. 增量拆分（冻结）
 
 - **I1（本增量，已实现）**：Discovery **规划与 Frontier 状态**——四种 scope 边界、link scoring、站点路径策略、硬上限、并发/跨 run 去重、checkpoint 持久化与恢复。**不向发现的 URL 发出任何请求**（无 crawl 执行）。
-- **I2（未准入，另行许可）**：**crawl 执行**——对 frontier 中的 URL 发起真实抓取、逐跳计费、robots.txt 获取与遵守、子资源与 redirect 计费、取消/恢复的抓取语义。I2 开工前须补齐其自身准入与 robots 契约（§5 的 robots 义务在 I2 生效；I1 因不抓取而不触发）。
+- **I2（已准入并实现，2026-10-06，收口 Phase 2 / ADR-039；注记见 §17）**：**crawl 执行**——对 frontier 中的 URL 发起真实抓取、逐跳计费、robots.txt 获取与遵守、子资源与 redirect 计费、取消/恢复的抓取语义。I2 自身准入与 robots 契约由 ADR-039 补齐（§5 的 robots 义务在 I2 生效）。
 
 ## 1. 范围与非目标
 
@@ -128,3 +128,16 @@
 
 - 纯策略/规划测试 + DB 集成测试共 18 项（`tests/test_acquisition_discovery.py`）；WP-4/WP-1/WP-2 回归与全量套件见 `docs/62-ACQ1-WP5-DISCOVERY-STAGE-REPORT.md`。
 - 架构门（跟踪后）`introduced=0`；ruff/format/mypy 全绿。
+
+## 17. 实现注记（2026-10-06，crawl execution / I2 实值；ADR-039）
+
+1. **模块**：`discovery_pages.py`（状态、逐页步骤：验证器/抓取/评估/子规划/CAS 提交、`budget_gap` 纯函数）、`discovery_crawl.py`（循环、robots 接线、上下文工厂 `crawl_context_for`/`plan_seed_page`、run 证据）、`discovery_robots.py`（robots 获取/解析/判定）；生产 transport 为 `native_acquisition.SafeCrawlTransport`（经 `SafeFetcher`），worker 在 `execute_route_run(discovery_transport=…)` 注入。无 transport 时保持 I1 规划语义不变。
+2. **触发**：`SourceType.URL` 且 `discovery_mode != single_page` 且 stage 质量达标（与 I1 相同门槛）；RSS/非达标不进入 crawl。
+3. **逐跳复核**：目标与每个 redirect hop 均执行 `NetworkPolicy.validate` + `EffectiveSitePolicy.validate_target` + `scope_allows`（范围违例为 `site_policy_denied`，fail-closed，越界 hop 不传输）；robots 目标仅做 origin/approved-host 网络校验（无路径门）。
+4. **robots 细节**：每 origin 缓存于本 run；仅接受 `text/plain`（否则按 unavailable）；`Crawl-delay` 以秒计并作为该 host 后续请求的间距下限（与 `max(crawl_delay, 60000/rpm)` 取 max 后经 SiteGate 执行）；robots 请求计入 requests（不计 pages），max_requests=2（允许一次 http→https 跳转）、max_retries=0。
+5. **预算边界**：`budget_gap` 判定为“下一请求是否仍可负担”（`used+1 > max` 即阻塞；bytes 为 `used >= max` 阻塞），在 robots 消耗后、页面请求前**再次**检查；停止原因写入 `stopped_reason` ∈ {frontier_empty, targets_deferred, page_budget, request_budget, byte_budget, time_budget, robots_unavailable, checkpoint_conflict, claim_lost}。
+6. **checkpoint v2**：`{version:2, seen, frontier[{url,parent_url,depth,score,attempts}], crawl{run_id,claimed_at,expires_at}, counters{runs,accepted_total,crawled,failed,abandoned}}`；v1 文档按等价形态读取（无 lease/attempts 视为缺省）；`checkpoint_view` 对损坏内容保持空态容忍。
+7. **CAS 与并发**：`commit_crawl_step` 在单事务内完成 claim 校验（run RUNNING + token）→ `state.version == expected` → 页面 attempt + 版本证据 → checkpoint 替换 + version+1；无关写者的版本前进由 `cas_crawl_step` 在租约仍属本 run 时重试（最多 3 次），其他 crawl 接管（租约 run_id 不同且未过期）立即停止；双 run 并发时后到者以 `checkpoint_conflict` 跳过 crawl（不传输、不写 checkpoint）。
+8. **崩溃恢复**：成功页在提交事务内进 `seen` 并移除 frontier；失败页原位 attempts+1；崩溃/claim 丢失时未提交页留在 frontier；同 run 重新 claim 后接管自身租约并继续；stale worker 的迟到写因 claim token 不匹配被拒（`commit_crawl_step` 返回 None）。attempt ordinal 用 `requested-if-free-else-max+1` 保证 `(run_id, ordinal)` 跨重入唯一。
+9. **证据落点**：attempt 行（ordinal=stage+1+n、`decision_version=discovery-crawl-v1`、requested_url=页面 URL、requests/pages/bytes 账）＋版本证据（artifact/snapshot/change event，键=页面 canonical URL）；run 级 `budget_summary.discovery.crawl` 含 pages_fetched/failed、robots_skipped、requests_used、bytes_received、frontier_remaining、complete、stopped_reason、robots 每 origin 状态。
+10. **明确的边界**：a) crawl run 暂停 miss-streak removed 判定（consume-once 非全量重复观测；feed/single-page 路径不变）；b) 本增量不改 RawItem/下游写入（WP-6 接线）；c) 逐目标 Circuit 升级延后（run 级 Circuit 语义不变）；d) robots 缓存仅实例/run 级；e) 注入 stub transport 的测试不覆盖 `_decode_body` 逐字节硬截断（该证据在 Phase 0 的真实读取路径测试中）。

@@ -299,7 +299,7 @@ class TestFrontierPlanning:
     def test_malformed_checkpoint_is_tolerated(self) -> None:
         result = plan(checkpoint={"seen": "not-a-list", "frontier": 5, "counters": []})
         assert len(result.entries) == 2
-        assert result.checkpoint["version"] == 1
+        assert result.checkpoint["version"] == 2
 
     def test_approved_domains_scope_includes_intersection(self) -> None:
         result = plan(scope=DiscoveryMode.APPROVED_DOMAINS)
@@ -446,7 +446,7 @@ class TestRoutedDiscovery:
             # The two accepted URLs plus the in-page repeat all hit the persisted seen set.
             assert discovery_two["duplicates"] == 3
             checkpoint = state.checkpoint
-            assert checkpoint["version"] == 1
+            assert checkpoint["version"] == 2
             assert len(checkpoint["frontier"]) == 2
             assert checkpoint["counters"]["accepted_total"] == 2
             urls = {entry["url"] for entry in checkpoint["frontier"]}

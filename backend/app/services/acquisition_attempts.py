@@ -11,10 +11,10 @@ from decimal import Decimal
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from app.domains.acquisition_ports import SourceRuntimeFacts
+from app.domains.acquisition_ports import CrawlPageRecord, SourceRuntimeFacts
 from app.models.entities import (
     AcquisitionAttempt,
     AcquisitionAttemptStatus,
@@ -23,9 +23,29 @@ from app.models.entities import (
     CollectionRunStatus,
     SourceAcquisitionState,
 )
-from app.services.acquisition_types import CollectionError
+from app.services.acquisition_types import CollectionError, RawCandidate
+from app.services.change_tracking import record_page_evidence
 
 DECISION_VERSION = "acquisition-native-v1"
+
+
+async def next_attempt_ordinal(session: AsyncSession, run_id: UUID, requested: int) -> int:
+    """Allocate a per-run attempt ordinal that survives re-claims and crawl layering.
+
+    The requested ordinal is used when still free (fresh runs keep the stage number;
+    crawl pages keep stage+1+n); otherwise the value moves past the current maximum,
+    which keeps ``(run_id, ordinal)`` unique across crash/resume executions."""
+    taken = await session.scalar(
+        select(AcquisitionAttempt.id)
+        .where(AcquisitionAttempt.run_id == run_id, AcquisitionAttempt.ordinal == requested)
+        .limit(1)
+    )
+    if taken is None:
+        return requested
+    highest = await session.scalar(
+        select(func.max(AcquisitionAttempt.ordinal)).where(AcquisitionAttempt.run_id == run_id)
+    )
+    return int(highest or 0) + 1
 
 
 def _attempt(
@@ -138,14 +158,17 @@ async def _record_attempt(
     """Persist one intermediate route attempt without touching run or source state."""
     async with factory() as session:
         run = await session.scalar(
-            select(CollectionRun).where(
+            select(CollectionRun)
+            .where(
                 CollectionRun.id == run_id,
                 CollectionRun.status == CollectionRunStatus.RUNNING,
                 CollectionRun.claim_token == claim_token,
             )
+            .with_for_update()
         )
         if run is None:
             return False
+        ordinal = await next_attempt_ordinal(session, run_id, ordinal)
         session.add(
             _attempt(
                 run_id=run_id,
@@ -167,3 +190,66 @@ async def _record_attempt(
         )
         await session.commit()
         return True
+
+
+def _candidate_from_evidence(payload: dict[str, Any]) -> RawCandidate:
+    return RawCandidate(
+        external_id=str(payload.get("external_id") or ""),
+        canonical_url=str(payload.get("canonical_url") or ""),
+        raw_text=str(payload.get("text") or ""),
+        content_type=str(payload.get("content_type") or ""),
+        title=payload.get("title"),
+        published_at=payload.get("published_at"),
+        metadata=dict(payload.get("metadata") or {}),
+    )
+
+
+async def write_crawl_page(
+    session: AsyncSession,
+    *,
+    run: CollectionRun,
+    source_id: UUID,
+    page: CrawlPageRecord,
+) -> None:
+    """Persist one crawled page: its attempt row, and (on success) version evidence."""
+    ordinal = await next_attempt_ordinal(session, run.id, page.ordinal)
+    error = (
+        None
+        if page.error_code is None
+        else CollectionError(page.error_code, page.safe_error or "Crawl target failed")
+    )
+    session.add(
+        _attempt(
+            run_id=run.id,
+            source_id=source_id,
+            backend=BackendName(page.backend_name),
+            started_at=page.started_at,
+            finished_at=page.finished_at,
+            status=AcquisitionAttemptStatus(page.status),
+            requested_url=page.requested_url,
+            response_url=page.response_url,
+            status_code=page.status_code,
+            content_type=page.content_type,
+            retry_count=page.retry_count,
+            bytes_received=page.bytes_received,
+            error=error,
+            quality_score=page.quality_score,
+            ordinal=ordinal,
+            decision_version=page.decision_version,
+            budget_used={
+                "requests": max(page.requests_used, page.retry_count + 1),
+                "pages": 1 if page.status == "succeeded" else 0,
+                "bytes_received": page.bytes_received,
+            },
+        )
+    )
+    if page.status != "succeeded" or page.evidence is None:
+        return
+    await record_page_evidence(
+        session,
+        run=run,
+        candidate=_candidate_from_evidence(page.evidence),
+        body=page.evidence.get("body"),
+        quality_score=page.quality_score,
+        fetched_at=page.finished_at,
+    )

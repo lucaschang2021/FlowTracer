@@ -124,3 +124,7 @@ Native success 零 Browser；质量阈值与降级；预算累计精确（逐跳
 7. **trace 落地**：`AcquisitionAttempt.decision_version="router-v1"`；`budget_used = {requests, pages, bytes_received, trace}`，trace 为 §8 封闭键集；`CollectionRun.budget_summary = {decision_version, stages, fallbacks, accepted_backend, trace[]}`。
 8. **指标**：无新增 metrics 依赖；以既有 structlog 事件（`collection_completed` / `collection_failed` / `collection_throttled`，含 backend/fallback_count）承载 v1 观测。Prometheus 类指标留待后续准入。
 9. **入口隔离**：Router 走独立 `execute_route_run`（`app/services/acquisition_route.py`）；既有 `execute_run` 单后端路径与全部既有测试保持不变（零回归）。
+
+## 16. 收口注记（2026-10-06，ADR-038）
+
+独立审核确认“测试替换选择器不能代替生产能力”后，§15.1 的“不注册为生产 stage”裁定由 **ADR-038** 取代：`scrapling_http` 以**受控静态重试阶段**注册为生产 stage 2（`static_retry`），与主阶段一样强制经 `SafeFetcher`（逐跳计费、预算硬执行、站点限速与串行复用 WP-4/收口 Phase 0 的机制），因此满足原裁定的安全前提（无独立、不可控网络路径）。候选表按有效预算门控（`max_pages ≥ 2 且 max_requests ≥ 2` 才产生 stage 2）；默认 profile 与 §15.4 的 fail-closed 预算语义不变。生产路径降级证据（不再以 patch 选择器取证）见 `docs/73-ACQ1-CLOSURE-P1-REPORT.md`。

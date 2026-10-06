@@ -91,9 +91,20 @@ class RouteCandidate:
 
 
 def select_candidates(
-    *, source_type: SourceType, mode: AcquisitionMode, allow_browser: bool
+    *,
+    source_type: SourceType,
+    mode: AcquisitionMode,
+    allow_browser: bool,
+    allow_static_retry: bool = False,
 ) -> tuple[RouteCandidate, ...]:
-    """Ordered static candidate chain; browser stages remain disabled by admission."""
+    """Ordered static candidate chain; browser stages remain disabled by admission.
+
+    ``allow_static_retry`` (closure Phase 1, ADR-038): when the effective budget can
+    fund a second page/request the URL chain gains the controlled static-retry stage,
+    which re-fetches through the same SafeFetcher pipeline. The default profile
+    (``max_pages=1``) keeps the single-stage chain, so the budget refusal semantics of
+    docs/57 §15.4 are unchanged.
+    """
     if mode.value not in {AcquisitionMode.AUTO.value, AcquisitionMode.NATIVE.value}:
         raise CollectionError(
             "acquisition_mode_unsupported", "Acquisition mode is not available in this worker"
@@ -111,7 +122,10 @@ def select_candidates(
         return (RouteCandidate(1, BackendName.RSS, "rss_feed"),)
     # URL: native static stage first. The browser tail stays disabled: no candidate is
     # ever derived from it while BROWSER_DYNAMIC_ENABLED is False.
-    return (RouteCandidate(1, BackendName.NATIVE_HTTP, "native_static"),)
+    candidates = [RouteCandidate(1, BackendName.NATIVE_HTTP, "native_static")]
+    if allow_static_retry:
+        candidates.append(RouteCandidate(2, BackendName.SCRAPLING_HTTP, "static_retry"))
+    return tuple(candidates)
 
 
 def quality_met(score: Decimal | None) -> bool:

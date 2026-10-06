@@ -1,16 +1,16 @@
 # FlowTracer 当前阶段闸门
 
-更新时间：2026-10-05（WP-8 Final 收尾时重写；此前版本停留在 2026-10-02 的 GOV-2.1 候选状态）。
+更新时间：2026-10-06（独立审核后修订；此前版本为 2026-10-05 WP-8 收尾稿）。
 
-## 当前状态：ACQ-1 后端收尾完成（委托方确认）；Browser 分支保持 disabled
+## 当前状态：I1/阶段性交付；收口未完成（独立审核确认）；Browser 分支保持 disabled
 
-- 事实基准：本地 `main` 的提交序列（WP-1..WP-8 全部已合并）见 `docs/69-ACQ1-FINAL-STAGE-REPORT.md` §Commit。验收模式：**委托方确认（owner-confirmed，无独立第三方角色）**；此前各阶段"未准入"行已被逐项书面许可取代，见 `docs/02-DELIVERY-BOARD.md`。
-- 已完成：WP-1（Source 契约/健康/lease）、WP-2（静态 adapter/quality）、WP-4（Router v1）、WP-5 I1（Discovery 规划与 Frontier）、WP-6 I1（版本证据 shadow-write）、WP-7 I1（Opportunity Radar）、WP-8（收尾：价值闭环 E2E、可重复启动验证、性能基线、秘密扫描、能力清单、Frontend/运维/handoff 文档）。
-- 仍禁用/阻塞：Dynamic/Advanced Browser **disabled**（`BROWSER_DYNAMIC_ENABLED=False`，`allow_browser=True` fail-closed）；R3 真实执行为 **BLOCKED**，须另签 B 阶段 lease；R4/R5 未准入。R3 离线增量（A1 设计 + A2 DenialLatch/deny-terminate + F1-F6 取证 + 就绪报告）位于分支 `feat/acq1-r3-fail-closed-offline`（docs/54/55/56/59 在该分支，**未合并**）；main 仅含基线离线 harness。
-- 未准入：WP-5 I2（crawl 执行）、WP-6 I2（RawItem writer 切换/读取 API/语义变化）、WP-7 I2（平台逐站点授权/版本驱动重评/多币种 FX）、PLUGIN-1、Frontend（FE-001）、Integration（INT-001）、Release（REL-001）。
-- 一致性处置（2026-10-05）：本文件此前与看板/提交事实（WP-4..WP-7 已按委托方书面指示完成并合并）不一致。WP-8 依委托方明确指示继续并重写本节为当前事实；不改变任何既有安全边界、R1..R2C 已验收证据与 R3 的 BLOCKED 判定，也不追认任何未签发的真实执行权限。
-- 执行权：当前无任何未决 lease/授权；任何新工作（含 R3 真实执行、各 I2 增量、Frontend 准入）须按 `GOVERNANCE-V2 §12` 另签完整 NEW TASK AUTHORITY。
-- 能力与证据指针：`docs/68-ACQ1-CAPABILITY-MANIFEST.md`；最终门禁矩阵与限制：`docs/69-ACQ1-FINAL-STAGE-REPORT.md`；交付包说明书（移交/验收指引）：`docs/70-ACQ1-DELIVERY-PACKAGE.md`。
+- 事实基准：本地 `main` 的提交序列（WP-1..WP-8 已合并）见 `docs/69` §Commit 与看板。验收模式：**委托方确认（owner-confirmed，无独立第三方角色）**；收口阶段的独立验收由审核方在精确候选提交上执行（"438 passed"仅为交付方报告）。
+- 已完成 **I1/实现范围**：WP-1（Source 契约/健康/lease）、WP-2（静态 adapter/quality）、WP-4（Router v1）、WP-5 I1（Discovery 规划与 Frontier）、WP-6 I1（版本证据 shadow-write）、WP-7 I1（Opportunity Radar）、WP-8 初版（价值闭环 E2E、可重复启动、性能基线、秘密扫描、能力清单、交接文档）。
+- **收口未完成（2026-10-06，独立审核确认）**：未完成清单与逐阶段执行映射见 [`docs/71-ACQ1-CLOSURE-PLAN.md`](71-ACQ1-CLOSURE-PLAN.md)——修 P1（逐跳预算/时间字节硬执行/版本回退/真实限速并行）→ WP-4 生产路径收口 → 完整 WP-5（抓取执行/robots/有界遍历/取消恢复）→ 完整 WP-6（写路径切换/读取 API/序列验证）→ WP-7 生命周期收口 → WP-8 整链验收与交接；**READY_FOR_FRONTEND 未达成**（判定条件见收口计划 §6）。
+- 仍禁用/阻塞：Dynamic/Advanced Browser **disabled**（`BROWSER_DYNAMIC_ENABLED=False`，`allow_browser=True` fail-closed）；R3 真实执行为 **BLOCKED**，须另签 B 阶段 lease；R4/R5 未准入。R3 离线增量位于分支 `feat/acq1-r3-fail-closed-offline`（docs/54/55/56/59 在该分支，**未合并**）。
+- 未准入：PLUGIN-1、Frontend（FE-001）、Integration（INT-001）、Release（REL-001）。
+- 执行权：当前无任何未决 lease/授权；任何新工作（含收口各阶段、R3 真实执行、Frontend 准入）须按 `GOVERNANCE-V2 §12` 另签完整 NEW TASK AUTHORITY。
+- 能力与证据指针：`docs/68-ACQ1-CAPABILITY-MANIFEST.md`（I1 能力清单）、`docs/69`（阶段报告）、`docs/70`（交付包说明书）、`docs/71`（收口计划）。
 
 ## 历史操作记录（以下不提供 live authority）
 

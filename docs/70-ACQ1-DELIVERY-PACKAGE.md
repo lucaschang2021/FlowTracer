@@ -1,18 +1,20 @@
 # FlowTracer ACQ-1 交付包说明书
 
-状态：**FINAL（交付说明，documentation only）**。本文件不新增能力、不改变任何冻结契约与安全边界。
-交付代码基线：`main @ 2da5665`（其后仅追加本交付说明文档；本地 Git 仓库，**无远端**）。
-日期：2026-10-05。
-验收模式：**委托方确认（owner-confirmed）**——无独立第三方验收角色；全部"完成"判定由仓库内可执行的测试、脚本与文档构成，逐项见 §4。
+> **修订声明（2026-10-06，独立审核后）**：本交付为 **I1 / 阶段性交付**——可接收、可运行、证据完整，但 **ACQ-1 整体收口未完成**：未完成清单（P1/P2 缺陷修复、WP-4 生产路径收口、完整 WP-5 抓取、完整 WP-6 写路径切换、WP-7 生命周期收口、WP-8 整链验收）与逐阶段执行映射见 [`docs/71-ACQ1-CLOSURE-PLAN.md`](71-ACQ1-CLOSURE-PLAN.md)；**READY_FOR_FRONTEND 未达成**。下文中的能力声明一律以 I1 边界为准。
+
+状态：**I1 STAGE DELIVERY（交付说明，documentation only）**。本文件不新增能力、不改变任何冻结契约与安全边界。
+交付代码基线：本地 `main`（本说明书随文档提交追加；最新的收口相关修正见 `docs/71` §9 溯源；本地 Git 仓库，**无远端**）。
+日期：2026-10-05（初稿）/ 2026-10-06（I1 边界修订）。
+验收模式：**委托方确认（owner-confirmed）**——无独立第三方验收角色；收口阶段的独立验收由审核方在精确候选提交上执行（"438 passed"仅为交付方报告）。
 
 ## 三十秒摘要
 
-- **交付物**：FlowTracer Alpha v0.1 后端全量 —— BE-1..BE-8 基线 + ACQ-1 工作包 WP-1、WP-2、WP-4、WP-5(I1)、WP-6(I1)、WP-7(I1)、WP-8。
-- **不包含**：Dynamic/Advanced Browser（未准入，disabled；R3 BLOCKED）、各工作包的 I2 增量、前端/集成/发布。
+- **交付物（I1 范围）**：FlowTracer Alpha v0.1 后端 —— BE-1..BE-8 基线 + ACQ-1 工作包 WP-1、WP-2、WP-4、WP-5(I1 规划)、WP-6(I1 影子证据)、WP-7(I1 首见与评分)、WP-8 初版。
+- **不包含**：Dynamic/Advanced Browser（未准入，disabled；R3 BLOCKED）、收口计划列出的全部未完成项（`docs/71`）、前端/集成/发布。
 - **质量证据**：438 项测试全过 / 覆盖率 92.16%（阈值 87.61%）；全部静态门禁与迁移门禁通过；**Docker 全栈已实测可从零启动**（§4.2）。
 - **启动方式**：六条 `docker compose` 命令（§6.2），完成后 `health/ready` 返回 database/redis 双 ok。
-- **硬性禁区（禁止虚报）**：Browser 不可用、无 crawl 执行、RawItem writer 未切换、无自动投标/报价/付款——能力清单见 `docs/68`。
-- **证据入口**：`docs/68`（能力清单）、`docs/69`（最终报告）、本文件 §4（门禁矩阵）、`docs/02`（看板）。
+- **硬性禁区（禁止虚报）**：Browser 不可用、无 crawl 执行、RawItem writer 未切换、无自动投标/报价/付款；收口未完成项不得表述为已完成——能力清单见 `docs/68`，收口清单见 `docs/71`。
+- **证据入口**：`docs/68`（能力清单）、`docs/69`（阶段报告）、`docs/71`（收口计划）、本文件 §4（门禁矩阵）、`docs/02`（看板）。
 
 ---
 
@@ -204,6 +206,8 @@ python scripts/benchmark_offline.py      # 预期末行: BENCHMARK COMPLETE（JS
 2. **`docs/00-PROJECT-CONTROL.md` 头部**：改为 2026-10-05 当前状态并注明 FT-GOV-V2.1 段落为历史记录。
 
 处置提交：`8cf39b3`；no-ff 合并：`e98fb52`（本 traceability 提交记录以上哈希）。此后对外展示以 `README.md` + 本文件 + `docs/68/69` + `docs/02-DELIVERY-BOARD.md` + `docs/CURRENT-GATE.md` 为准。
+
+3. **2026-10-06 独立审核（收口确认）**：审核方确认 ACQ-1 收口未完成（P1/P2 缺陷、WP-4 生产路径收口、完整 WP-5/WP-6、WP-7 生命周期收口、WP-8 整链验收），并给出未完成清单；清单的执行映射见 `docs/71-ACQ1-CLOSURE-PLAN.md`。README（中/英）、`docs/00`、`docs/02`、`docs/CURRENT-GATE.md` 与本文件已按"**I1/实现完成 + 收口未完成 + READY_FOR_FRONTEND 未达成**"口径修订；本文件的对外展示基准扩展为上述文件 + `docs/71`。
 
 ## 9. 移交操作指引
 

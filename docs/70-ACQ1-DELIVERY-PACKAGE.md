@@ -34,13 +34,13 @@
 | 类别 | 位置 | 说明 |
 | --- | --- | --- |
 | 后端代码 | `backend/app/` | 分层：api / services / domains / models / providers / adapters / tasks / core |
-| 数据库迁移 | `backend/alembic/versions/` | `0001`..`0006`（0006 = WP-7 机会雷达 + 通知 XOR + radar enum） |
-| OpenAPI 冻结快照 | `backend/openapi/flowtracer-alpha-v0.1.json` | blob `1544614955…`，`--check` 零漂移 |
-| 测试 | `backend/tests/` | 438 项；含 `test_alpha_e2e.py`（BE-8 闭环）与 `test_acq1_final_e2e.py`（ACQ-1 价值闭环） |
-| 验证脚本 | `backend/scripts/` | `verify_fresh_startup.py`（可重复启动）、`secret_scan.py`（秘密扫描）、`benchmark_offline.py`（性能基线）、`export_openapi.py` |
+| 数据库迁移 | `backend/alembic/versions/` | `0001`..`0009`（0007 = 观测指针；0008 = RawItem 快照身份；0009 = 评分评估版本） |
+| OpenAPI 冻结快照 | `backend/openapi/flowtracer-alpha-v0.1.json` | blob `faff18501e…`（收口 Phase 3 重新冻结，含 Change 读取端点），`--check` 零漂移 |
+| 测试 | `backend/tests/` | 500 项；含 `test_alpha_e2e.py`（BE-8 闭环）、`test_acq1_final_e2e.py` 与 `test_acq1_closure_p0.py`..`p5.py`（收口验收矩阵） |
+| 验证脚本 | `backend/scripts/` | `closure_acceptance.py`（收口独立验收复现器）、`verify_fresh_startup.py`、`secret_scan.py`、`benchmark_offline.py`、`export_openapi.py` |
 | 基础设施 | `infra/compose.yaml` | 四服务编排 + 健康检查 + 命名卷 |
 | 运行/交接文档 | `backend/ALPHA-OPERATIONS.md`、`FRONTEND-HANDOFF.md`、`PERFORMANCE-BASELINE.md`、`DEVELOPMENT.md` | 启动、恢复、环境矩阵、前端契约、性能参考 |
-| 治理/契约文档 | `docs/00`..`docs/70` | 入口：`docs/68` 能力清单、`docs/69` 最终报告、`docs/02` 交付看板、`docs/CURRENT-GATE.md` 当前闸门、本文件 |
+| 治理/契约文档 | `docs/00`..`docs/77` | 入口：`docs/68` 能力清单、`docs/69` 最终报告、`docs/02` 交付看板、`docs/CURRENT-GATE.md` 当前闸门、收口计划 `docs/71` 与报告 `docs/72`..`docs/77`、本文件 |
 | 架构门 | `ARCHITECTURE.toml` + `backend/architecture_gate/` | `introduced=0 / P0=0` |
 
 附：各工作包契约与阶段报告 —— WP-1 `docs/32/33`、WP-2 `docs/35/36`、WP-4 `docs/57/58/60`、WP-5 `docs/61/62`、WP-6 `docs/63/64`、WP-7 `docs/65/66`、WP-8 `docs/67/68/69`；契约总纲 `docs/23`（采集）、`docs/24`（机会）、`docs/25`（验收）。
@@ -55,19 +55,25 @@
 | WP-7 机会雷达 I1 | `bba30aa` | 435 passed / 92.16% |
 | WP-8 Final 收尾 | `afd7b72` | 438 passed / 92.16% + fresh startup + secret scan |
 | 记录提交（交付基线）| `2da5665` | 其后仅追加本说明书 |
+| 收口 Phase 0（P1/P2 六项修复）| `6e05480` | 456 passed / 92.13%；迁移 `0007`（`9cbdc97`→`6e05480`→`d0dbb56`）|
+| 收口 Phase 1（WP-4 生产路径收口）| `0fca397` | 466 passed / 92.17%；ADR-038（`ad0c8ae`→`0fca397`→`be5e255`）|
+| 收口 Phase 2（WP-5 I2 抓取执行）| `ddb0723` | 480 passed / 92.20%；ADR-039（`56eebd7`→`ddb0723`→`2c3640f`）|
+| 收口 Phase 3（WP-6 I2 写路径 + 读取 API）| `f5ba2c6` | 487 passed / 92.25%；ADR-040；迁移 `0008`（`8dc1fb1`→`f5ba2c6`→`fec3e90`）|
+| 收口 Phase 4（WP-7 生命周期与重评）| `e3eb0d0` | 494 passed / 92.29%；ADR-041；迁移 `0009`（`2eb60e4`→`e3eb0d0`→`45bcc76`）|
+| 收口 Phase 5（WP-8 整链验收与交接）| 见 `docs/77` | 500 passed / 92.2%；`scripts/closure_acceptance.py` |
 
 更早基线（BE-1..BE-8、WP-1、WP-2、R1..R2C 证据）在同一仓库历史与 `docs/` 归档中；R3 离线增量位于分支 `feat/acq1-r3-fail-closed-offline`（**未合并**，见 §5.2）。
 
 ## 4. 验收证据
 
-### 4.1 自动化门禁（最终候选提交 `123ae18`，2026-10-05 全量执行）
+### 4.1 自动化门禁（收口最终候选，2026-10-06 全量执行；此前的 `123ae18` 结果为 I1 基线，保留于 git 历史）
 
 | 门禁 | 结果 |
 | --- | --- |
-| 全量测试 + 覆盖率 | **438 passed / 92.16%**（阈值 87.61%）|
-| `ruff check` / `ruff format --check` | 通过（274 files）|
-| `mypy app`（strict）| 通过（100 source files）|
-| 架构门（baseline-no-regression）| `introduced=0 / P0=0`（existing 130 / resolved 27）|
+| 全量测试 + 覆盖率 | **500 passed / 92.2%**（阈值 87.61%）|
+| `ruff check` / `ruff format --check` | 通过（293 files）|
+| `mypy app`（strict）| 通过（109 source files）|
+| 架构门（baseline-no-regression）| `introduced=0 / P0=0`（existing 129 / resolved 28）|
 | `alembic check` | No new upgrade operations detected（零漂移）|
 | OpenAPI 冻结校验 | `export_openapi.py --check` 通过 |
 | 秘密扫描 | `SECRET SCAN CLEAN`（含植入自检）|
@@ -207,7 +213,9 @@ python scripts/benchmark_offline.py      # 预期末行: BENCHMARK COMPLETE（JS
 
 处置提交：`8cf39b3`；no-ff 合并：`e98fb52`（本 traceability 提交记录以上哈希）。此后对外展示以 `README.md` + 本文件 + `docs/68/69` + `docs/02-DELIVERY-BOARD.md` + `docs/CURRENT-GATE.md` 为准。
 
-3. **2026-10-06 独立审核（收口确认）**：审核方确认 ACQ-1 收口未完成（P1/P2 缺陷、WP-4 生产路径收口、完整 WP-5/WP-6、WP-7 生命周期收口、WP-8 整链验收），并给出未完成清单；清单的执行映射见 `docs/71-ACQ1-CLOSURE-PLAN.md`。README（中/英）、`docs/00`、`docs/02`、`docs/CURRENT-GATE.md` 与本文件已按"**I1/实现完成 + 收口未完成 + READY_FOR_FRONTEND 未达成**"口径修订；本文件的对外展示基准扩展为上述文件 + `docs/71`。
+3. **2026-10-06 独立审核（收口确认）**：审核方确认 ACQ-1 收口未完成并给出未完成清单；清单的执行映射见 `docs/71-ACQ1-CLOSURE-PLAN.md`。
+
+4. **2026-10-06 收口执行（Phase 0-5 全部完成）**：未完成清单已按优先级逐阶段执行完毕（Phase 0 P1/P2 六项修复 → Phase 1 WP-4 生产路径 → Phase 2 完整 WP-5 → Phase 3 完整 WP-6 → Phase 4 WP-7 → Phase 5 WP-8 整链验收与交接），每阶段含独立分支、门禁证据、阶段报告（`docs/72`–`docs/77`）与 no-ff 合并 + 溯源提交（§3）。对外口径更新为：**收口执行完毕；READY_FOR_FRONTEND 待审核方在精确候选提交上独立复核后判定**（可复现验收：`backend/scripts/closure_acceptance.py`，产出与候选哈希绑定的 JSON 报告）。`docs/00`、`docs/02`、`docs/CURRENT-GATE.md`、README（中/英）与本文件已按此口径修订。
 
 ## 9. 移交操作指引
 
@@ -230,7 +238,7 @@ git checkout main
 
 ## 10. 建议的后续路径（由委托方书面决定）
 
-1. （可选）安排独立第三方复核，对照 `docs/68/69` 与本文件 §4。
+1. 安排独立复核：在精确候选提交上运行 `backend/scripts/closure_acceptance.py`（或等价命令），对照 `docs/71` §6 的 8 项判定条件逐条核验；通过后即可判定 READY_FOR_FRONTEND。
 2. 若需要浏览器能力：签发 R3 B 阶段真实执行 lease（草案在未合并分支 `docs/56`），通过后合并 R3 离线增量。
 3. Frontend（FE-001）准入准备：以 `backend/FRONTEND-HANDOFF.md` + OpenAPI 快照为契约输入。
 4. 集成（INT-001）与 Alpha 发布（REL-001）：按 `docs/02` 看板顺序推进。

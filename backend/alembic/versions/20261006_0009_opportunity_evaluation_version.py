@@ -43,9 +43,7 @@ def downgrade() -> None:
     """Safe downgrade guard: refuse once any re-evaluation row exists."""
     rereviewed = (
         op.get_bind()
-        .execute(
-            sa.text("SELECT count(*) FROM opportunity_scores WHERE evaluation_version > 1")
-        )
+        .execute(sa.text("SELECT count(*) FROM opportunity_scores WHERE evaluation_version > 1"))
         .scalar()
     )
     if rereviewed:

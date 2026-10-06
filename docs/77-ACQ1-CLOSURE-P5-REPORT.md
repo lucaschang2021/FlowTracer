@@ -2,7 +2,7 @@
 
 Phase / Status：**Phase 5 COMPLETE（整链验收证据与交接材料就绪；READY_FOR_FRONTEND 待审核方独立复核）**。
 日期：2026-10-06。依据：`docs/71-ACQ1-CLOSURE-PLAN.md` §Phase 5、独立审核未完成清单 §6（WP-8 整链验收与交接）、`docs/25` §16、ADR-038–ADR-041。
-分支 `feat/acq1-closure-p5`。
+分支 `feat/acq1-closure-p5`；实现提交 `01d608c`；no-ff 合并 `6e0dbd4`；本 traceability 提交即最终候选（独立复核请以该提交为准）。
 
 ## 1. 逐项收口与证据
 

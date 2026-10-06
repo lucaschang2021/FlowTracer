@@ -11,10 +11,11 @@ from datetime import datetime
 from decimal import Decimal
 from uuid import UUID
 
-from sqlalchemy import func, select
+from sqlalchemy import ColumnElement, exists, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.errors import AppError
+from app.models.entities import RadarSource
 from app.models.opportunity import (
     OpportunityActionPayload,
     OpportunityItem,
@@ -39,6 +40,30 @@ def _latest_score_id_subquery(radar_id: UUID | None) -> object:
     return statement.scalar_subquery()
 
 
+def _score_filter_exists(
+    *, radar_id: UUID | None, recommendation: str | None, min_score: Decimal | None
+) -> ColumnElement[bool]:
+    """EXISTS over scores so the *qualifying set itself* is filtered, never a join row.
+
+    Score-level filters (recommendation / min_score) restrict the opportunity set to
+    items having at least one score — for the requested radar when ``radar_id`` is
+    given — that satisfies every provided condition. Without them the set stays the
+    item-level filters plus the radar's own source scope.
+    """
+    condition = select(OpportunityScore.id).where(
+        OpportunityScore.opportunity_id == OpportunityItem.id
+    )
+    if radar_id is not None:
+        condition = condition.where(OpportunityScore.radar_id == radar_id)
+    if recommendation is not None:
+        condition = condition.where(OpportunityScore.recommendation == recommendation)
+    if min_score is not None:
+        condition = condition.where(OpportunityScore.overall_score >= min_score)
+    # Correlate only the item: the list query also joins opportunity_scores, and
+    # auto-correlation would strip the subquery of its own FROM clause.
+    return exists(condition.correlate(OpportunityItem))
+
+
 async def list_opportunities(
     session: AsyncSession,
     *,
@@ -54,6 +79,19 @@ async def list_opportunities(
 ) -> tuple[list[tuple[OpportunityItem, OpportunityScore | None]], int]:
     latest = _latest_score_id_subquery(radar_id)
     predicates = [OpportunityItem.user_id == user_id]
+    if radar_id is not None:
+        # Radar scope bounds the opportunity set itself: only sources that the radar
+        # actually monitors belong to its view.
+        predicates.append(
+            exists(
+                select(RadarSource.source_id)
+                .where(
+                    RadarSource.radar_id == radar_id,
+                    RadarSource.source_id == OpportunityItem.source_id,
+                )
+                .correlate(OpportunityItem)
+            )
+        )
     if status is not None:
         predicates.append(OpportunityItem.status == status)
     if currency is not None:
@@ -61,17 +99,14 @@ async def list_opportunities(
     if deadline_before is not None:
         predicates.append(OpportunityItem.deadline.is_not(None))
         predicates.append(OpportunityItem.deadline <= deadline_before)
-    if recommendation is not None:
-        predicates.append(OpportunityScore.recommendation == recommendation)
-    if min_score is not None:
-        predicates.append(OpportunityScore.overall_score >= min_score)
-    total = int(
-        await session.scalar(
-            select(func.count())
-            .select_from(OpportunityItem)
-            .outerjoin(OpportunityScore, OpportunityScore.id == latest)
-            .where(*predicates)
+    if recommendation is not None or min_score is not None:
+        predicates.append(
+            _score_filter_exists(
+                radar_id=radar_id, recommendation=recommendation, min_score=min_score
+            )
         )
+    total = int(
+        await session.scalar(select(func.count()).select_from(OpportunityItem).where(*predicates))
         or 0
     )
     rows = (

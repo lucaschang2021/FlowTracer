@@ -4,6 +4,7 @@ import asyncio
 import ipaddress
 import socket
 import ssl
+import time
 import zlib
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
@@ -47,6 +48,46 @@ class WireResponse:
     body: bytes
 
 
+@dataclass(slots=True)
+class FetchSession:
+    """Mutable per-fetch accounting: real requests (hops + retries) and remaining budget.
+
+    ``max_requests``/``max_bytes`` bound the *whole* fetch chain (initial request,
+    every redirect hop, every retry), and ``deadline_monotonic`` is the run-level
+    absolute deadline. Checks happen *before* issuing the next request and while
+    reading the body, so a budget is enforced during execution instead of being
+    discovered after a full response was fetched.
+    """
+
+    max_requests: int | None = None
+    max_bytes: int | None = None
+    deadline_monotonic: float | None = None
+    requests_made: int = 0
+    redirects: int = 0
+    bytes_received: int = 0
+
+    def check(self) -> None:
+        if self.max_requests is not None and self.requests_made >= self.max_requests:
+            raise CollectionError("acquisition_budget_exhausted", "Request budget is exhausted")
+        if self.deadline_monotonic is not None and time.monotonic() >= self.deadline_monotonic:
+            raise CollectionError("acquisition_budget_exhausted", "Duration budget is exhausted")
+        if self.max_bytes is not None and self.bytes_received >= self.max_bytes:
+            raise CollectionError("acquisition_budget_exhausted", "Byte budget is exhausted")
+
+    def remaining_seconds(self) -> float | None:
+        if self.deadline_monotonic is None:
+            return None
+        return self.deadline_monotonic - time.monotonic()
+
+    def wait_timeout(self, base: float) -> float:
+        remaining = self.remaining_seconds()
+        if remaining is None:
+            return base
+        if remaining <= 0:
+            raise CollectionError("acquisition_budget_exhausted", "Duration budget is exhausted")
+        return min(base, max(0.1, remaining))
+
+
 class Transport(Protocol):
     async def __call__(
         self,
@@ -56,6 +97,7 @@ class Transport(Protocol):
         hostname: str,
         port: int,
         use_tls: bool,
+        session: FetchSession | None = None,
     ) -> WireResponse: ...
 
 
@@ -116,9 +158,12 @@ async def validate_target(url: str, resolver: Resolver) -> tuple[str, int, bool,
     return hostname, resolved_port, scheme == "https", validated
 
 
-async def _read_with_timeout(reader: asyncio.StreamReader, size: int = -1) -> bytes:
+async def _read_with_timeout(
+    reader: asyncio.StreamReader, size: int = -1, *, session: FetchSession | None = None
+) -> bytes:
+    timeout = READ_TIMEOUT if session is None else session.wait_timeout(READ_TIMEOUT)
     try:
-        return await asyncio.wait_for(reader.read(size), timeout=READ_TIMEOUT)
+        return await asyncio.wait_for(reader.read(size), timeout=timeout)
     except TimeoutError:
         raise CollectionError(
             "request_timeout", "Response read timed out", retryable=True
@@ -136,31 +181,57 @@ def _body_decoder(encoding: str) -> Any:
     raise CollectionError("unsupported_content_type", "Unsupported response content encoding")
 
 
-async def _decode_body(reader: asyncio.StreamReader, headers: dict[str, str]) -> bytes:
-    decoder = _body_decoder(headers.get("content-encoding", ""))
-    output = bytearray()
-    wire_bytes = 0
+class _BodyReadState:
+    """Budget-aware accumulation shared by the chunked and plain body readers."""
 
-    def append(chunk: bytes) -> None:
-        nonlocal wire_bytes
-        wire_bytes += len(chunk)
-        if wire_bytes > MAX_WIRE_BYTES:
-            raise CollectionError("response_too_large", "Response wire size is too large")
+    __slots__ = ("body_cap", "budget_limited", "decoder", "output", "wire_bytes", "wire_cap")
+
+    def __init__(self, decoder: Any, *, body_cap: int, budget_limited: bool) -> None:
+        self.decoder = decoder
+        self.output = bytearray()
+        self.wire_bytes = 0
+        self.body_cap = body_cap
+        self.budget_limited = budget_limited
+        self.wire_cap = (
+            MAX_WIRE_BYTES
+            if not budget_limited
+            else min(MAX_WIRE_BYTES, body_cap + WIRE_READ_CHUNK)
+        )
+
+    def oversize(self) -> CollectionError:
+        if self.budget_limited:
+            return CollectionError(
+                "acquisition_budget_exhausted", "Response exceeds the remaining byte budget"
+            )
+        return CollectionError("response_too_large", "Response exceeds 5 MiB")
+
+    def wire_oversize(self) -> CollectionError:
+        if self.budget_limited:
+            return CollectionError(
+                "acquisition_budget_exhausted",
+                "Response wire size exceeds the remaining byte budget",
+            )
+        return CollectionError("response_too_large", "Response wire size is too large")
+
+    def append(self, chunk: bytes) -> None:
+        self.wire_bytes += len(chunk)
+        if self.wire_bytes > self.wire_cap:
+            raise self.wire_oversize()
+        decoder = self.decoder
         if decoder is None:
-            remaining_plus_one = MAX_RESPONSE_BYTES - len(output) + 1
-            output.extend(chunk[:remaining_plus_one])
-            if len(output) > MAX_RESPONSE_BYTES:
-                raise CollectionError("response_too_large", "Response exceeds 5 MiB")
+            remaining_plus_one = self.body_cap - len(self.output) + 1
+            self.output.extend(chunk[:remaining_plus_one])
+            if len(self.output) > self.body_cap:
+                raise self.oversize()
             return
-
         pending = chunk
         try:
             while pending:
-                remaining_plus_one = MAX_RESPONSE_BYTES - len(output) + 1
+                remaining_plus_one = self.body_cap - len(self.output) + 1
                 decoded = decoder.decompress(pending, remaining_plus_one)
-                output.extend(decoded)
-                if len(output) > MAX_RESPONSE_BYTES:
-                    raise CollectionError("response_too_large", "Response exceeds 5 MiB")
+                self.output.extend(decoded)
+                if len(self.output) > self.body_cap:
+                    raise self.oversize()
                 if decoder.unused_data:
                     raise CollectionError("http_error", "Compressed response has trailing data")
                 tail = decoder.unconsumed_tail
@@ -170,71 +241,124 @@ async def _decode_body(reader: asyncio.StreamReader, headers: dict[str, str]) ->
         except zlib.error:
             raise CollectionError("http_error", "Response decompression failed") from None
 
-    if headers.get("transfer-encoding", "").lower() == "chunked":
-        while True:
-            line = await asyncio.wait_for(reader.readline(), timeout=READ_TIMEOUT)
-            if len(line) > 128:
-                raise CollectionError("http_error", "Malformed chunked response")
+    def finish(self) -> bytes:
+        decoder = self.decoder
+        if decoder is not None:
+            if not decoder.eof:
+                raise CollectionError("http_error", "Compressed response is incomplete")
             try:
-                length = int(line.split(b";", 1)[0].strip(), 16)
-            except ValueError:
-                raise CollectionError("http_error", "Malformed chunked response") from None
-            if length == 0:
-                trailer_bytes = 0
-                while True:
-                    trailer = await asyncio.wait_for(reader.readline(), timeout=READ_TIMEOUT)
-                    trailer_bytes += len(trailer)
-                    if trailer_bytes > 64 * 1024:
-                        raise CollectionError("http_error", "Chunk trailers are too large")
-                    if trailer in {b"\r\n", b"\n", b""}:
-                        break
-                break
-            if length < 0 or wire_bytes + length > MAX_WIRE_BYTES:
-                raise CollectionError("response_too_large", "Response wire size is too large")
-            remaining = length
-            while remaining:
-                read_size = min(remaining, WIRE_READ_CHUNK)
-                chunk = await asyncio.wait_for(reader.readexactly(read_size), timeout=READ_TIMEOUT)
-                append(chunk)
-                remaining -= len(chunk)
-            terminator = await asyncio.wait_for(reader.readexactly(2), timeout=READ_TIMEOUT)
-            if terminator != b"\r\n":
-                raise CollectionError("http_error", "Malformed chunked response")
-    else:
-        content_length = headers.get("content-length")
-        if content_length is not None:
-            try:
-                declared_length = int(content_length)
-            except ValueError:
-                raise CollectionError("http_error", "Malformed Content-Length") from None
-            if declared_length < 0:
-                raise CollectionError("http_error", "Malformed Content-Length")
-            if declared_length > MAX_WIRE_BYTES:
-                raise CollectionError("response_too_large", "Response wire size is too large")
-        while chunk := await _read_with_timeout(reader, WIRE_READ_CHUNK):
-            append(chunk)
+                flush_size = min(self.body_cap - len(self.output) + 1, WIRE_READ_CHUNK)
+                flushed = decoder.flush(flush_size)
+            except zlib.error:
+                raise CollectionError("http_error", "Response decompression failed") from None
+            self.output.extend(flushed)
+            if len(self.output) > self.body_cap:
+                raise self.oversize()
+        return bytes(self.output)
 
-    if decoder is not None:
-        if not decoder.eof:
-            raise CollectionError("http_error", "Compressed response is incomplete")
+
+async def _read_chunked_body(
+    reader: asyncio.StreamReader, state: _BodyReadState, timeout_for: Callable[[], float]
+) -> None:
+    while True:
+        line = await asyncio.wait_for(reader.readline(), timeout=timeout_for())
+        if len(line) > 128:
+            raise CollectionError("http_error", "Malformed chunked response")
         try:
-            flush_size = min(
-                MAX_RESPONSE_BYTES - len(output) + 1,
-                WIRE_READ_CHUNK,
-            )
-            flushed = decoder.flush(flush_size)
-        except zlib.error:
-            raise CollectionError("http_error", "Response decompression failed") from None
-        output.extend(flushed)
-        if len(output) > MAX_RESPONSE_BYTES:
-            raise CollectionError("response_too_large", "Response exceeds 5 MiB")
-    return bytes(output)
+            length = int(line.split(b";", 1)[0].strip(), 16)
+        except ValueError:
+            raise CollectionError("http_error", "Malformed chunked response") from None
+        if length == 0:
+            trailer_bytes = 0
+            while True:
+                trailer = await asyncio.wait_for(reader.readline(), timeout=timeout_for())
+                trailer_bytes += len(trailer)
+                if trailer_bytes > 64 * 1024:
+                    raise CollectionError("http_error", "Chunk trailers are too large")
+                if trailer in {b"\r\n", b"\n", b""}:
+                    break
+            return
+        if length < 0 or state.wire_bytes + length > state.wire_cap:
+            raise state.wire_oversize()
+        remaining = length
+        while remaining:
+            read_size = min(remaining, WIRE_READ_CHUNK)
+            chunk = await asyncio.wait_for(reader.readexactly(read_size), timeout=timeout_for())
+            state.append(chunk)
+            remaining -= len(chunk)
+        terminator = await asyncio.wait_for(reader.readexactly(2), timeout=timeout_for())
+        if terminator != b"\r\n":
+            raise CollectionError("http_error", "Malformed chunked response")
+
+
+async def _read_plain_body(
+    reader: asyncio.StreamReader,
+    headers: dict[str, str],
+    state: _BodyReadState,
+    session: FetchSession | None,
+) -> None:
+    content_length = headers.get("content-length")
+    if content_length is not None:
+        try:
+            declared_length = int(content_length)
+        except ValueError:
+            raise CollectionError("http_error", "Malformed Content-Length") from None
+        if declared_length < 0:
+            raise CollectionError("http_error", "Malformed Content-Length")
+        if declared_length > state.wire_cap:
+            raise state.wire_oversize()
+    while chunk := await _read_with_timeout(reader, WIRE_READ_CHUNK, session=session):
+        state.append(chunk)
+
+
+async def _decode_body(
+    reader: asyncio.StreamReader,
+    headers: dict[str, str],
+    *,
+    session: FetchSession | None = None,
+) -> bytes:
+    decoder = _body_decoder(headers.get("content-encoding", ""))
+    body_cap = MAX_RESPONSE_BYTES
+    budget_limited = False
+    if session is not None and session.max_bytes is not None:
+        remaining_bytes = session.max_bytes - session.bytes_received
+        if remaining_bytes <= 0:
+            raise CollectionError("acquisition_budget_exhausted", "Byte budget is exhausted")
+        if remaining_bytes < MAX_RESPONSE_BYTES:
+            body_cap = remaining_bytes
+            budget_limited = True
+    state = _BodyReadState(decoder, body_cap=body_cap, budget_limited=budget_limited)
+
+    def timeout_for() -> float:
+        return READ_TIMEOUT if session is None else session.wait_timeout(READ_TIMEOUT)
+
+    if headers.get("transfer-encoding", "").lower() == "chunked":
+        await _read_chunked_body(reader, state, timeout_for)
+    else:
+        await _read_plain_body(reader, headers, state, session)
+    body = state.finish()
+    if session is not None:
+        session.bytes_received += len(body)
+    return body
 
 
 async def default_transport(
-    *, url: str, connect_ip: str, hostname: str, port: int, use_tls: bool
+    *,
+    url: str,
+    connect_ip: str,
+    hostname: str,
+    port: int,
+    use_tls: bool,
+    session: FetchSession | None = None,
 ) -> WireResponse:
     context = ssl.create_default_context() if use_tls else None
+
+    def connect_timeout() -> float:
+        return CONNECT_TIMEOUT if session is None else session.wait_timeout(CONNECT_TIMEOUT)
+
+    def transport_read_timeout() -> float:
+        return READ_TIMEOUT if session is None else session.wait_timeout(READ_TIMEOUT)
+
     try:
         reader, writer = await asyncio.wait_for(
             asyncio.open_connection(
@@ -243,7 +367,7 @@ async def default_transport(
                 ssl=context,
                 server_hostname=hostname if use_tls else None,
             ),
-            timeout=CONNECT_TIMEOUT,
+            timeout=connect_timeout(),
         )
     except TimeoutError:
         raise CollectionError("request_timeout", "Connection timed out", retryable=True) from None
@@ -267,7 +391,7 @@ async def default_transport(
         await writer.drain()
         try:
             header_bytes = await asyncio.wait_for(
-                reader.readuntil(b"\r\n\r\n"), timeout=READ_TIMEOUT
+                reader.readuntil(b"\r\n\r\n"), timeout=transport_read_timeout()
             )
         except (asyncio.LimitOverrunError, asyncio.IncompleteReadError):
             raise CollectionError("http_error", "Malformed HTTP response") from None
@@ -286,7 +410,7 @@ async def default_transport(
             if not separator:
                 raise CollectionError("http_error", "Malformed HTTP header")
             headers[name.strip().lower()] = value.strip()
-        body = await _decode_body(reader, headers)
+        body = await _decode_body(reader, headers, session=session)
         return WireResponse(status_code=status_code, headers=headers, body=body)
     finally:
         writer.close()
@@ -321,22 +445,43 @@ class SafeFetcher:
             target_validator=combined,
         )
 
-    async def fetch(self, url: str, source_type: SourceType) -> FetchResponse:
+    async def fetch(
+        self,
+        url: str,
+        source_type: SourceType,
+        *,
+        session: FetchSession | None = None,
+    ) -> FetchResponse:
+        if session is None:
+            session = FetchSession()
         current_url = url
+        total_timeout = TOTAL_TIMEOUT
+        remaining = session.remaining_seconds()
+        if remaining is not None:
+            if remaining <= 0:
+                raise CollectionError(
+                    "acquisition_budget_exhausted", "Duration budget is exhausted"
+                )
+            total_timeout = min(TOTAL_TIMEOUT, remaining)
         try:
-            async with asyncio.timeout(TOTAL_TIMEOUT):
+            async with asyncio.timeout(total_timeout):
                 for redirect_count in range(MAX_REDIRECTS + 1):
+                    # Budget is checked *before* every issued request: hops, retries
+                    # and the initial request each consume one request credit.
+                    session.check()
                     if self._target_validator is not None:
                         self._target_validator(current_url)
                     hostname, port, use_tls, addresses = await validate_target(
                         current_url, self._resolver
                     )
+                    session.requests_made += 1
                     response = await self._transport(
                         url=current_url,
                         connect_ip=addresses[0],
                         hostname=hostname,
                         port=port,
                         use_tls=use_tls,
+                        session=session,
                     )
                     if response.status_code in {301, 302, 303, 307, 308}:
                         location = response.headers.get("location")
@@ -344,6 +489,7 @@ class SafeFetcher:
                             raise CollectionError("http_error", "Redirect is missing Location")
                         if redirect_count == MAX_REDIRECTS:
                             raise CollectionError("http_error", "Too many redirects")
+                        session.redirects += 1
                         current_url = urljoin(current_url, location)
                         continue
                     if response.status_code < 200 or response.status_code >= 300:
@@ -366,8 +512,14 @@ class SafeFetcher:
                         content_type=response.headers.get("content-type", media_type)[:160],
                         body=response.body,
                         status_code=response.status_code,
+                        redirects=session.redirects,
                     )
         except TimeoutError:
+            deadline = session.deadline_monotonic
+            if deadline is not None and time.monotonic() >= deadline - 0.05:
+                raise CollectionError(
+                    "acquisition_budget_exhausted", "Duration budget is exhausted"
+                ) from None
             raise CollectionError(
                 "request_timeout", "Request exceeded total timeout", retryable=True
             ) from None
@@ -384,14 +536,33 @@ async def fetch_with_retries(
     *,
     sleep: Sleep = asyncio.sleep,
     max_retries: int = 3,
+    session: FetchSession | None = None,
+    min_delay: float = 0.0,
 ) -> tuple[FetchResponse, int]:
+    if session is None:
+        session = FetchSession()
     retries = 0
     while True:
         try:
-            return await fetcher.fetch(url, source_type), retries
+            if isinstance(fetcher, SafeFetcher):
+                response = await fetcher.fetch(url, source_type, session=session)
+            else:
+                response = await fetcher.fetch(url, source_type)
+            return response, retries
         except CollectionError as exc:
+            if exc.requests_made is None and session.requests_made:
+                exc.requests_made = session.requests_made
             if not exc.retryable or retries >= max_retries:
                 exc.retry_count = retries
                 raise
-            await sleep(2 ** (retries + 1))
+            # A retry is itself a real request: it waits at least the site's
+            # crawl-delay / RPM spacing floor, or the exponential backoff if longer.
+            delay = max(2 ** (retries + 1), min_delay)
+            remaining = session.remaining_seconds()
+            if remaining is not None and remaining <= delay:
+                raise CollectionError(
+                    "acquisition_budget_exhausted",
+                    "Duration budget cannot cover another retry",
+                ) from None
+            await sleep(delay)
             retries += 1

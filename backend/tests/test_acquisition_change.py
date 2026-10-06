@@ -662,7 +662,7 @@ class TestMigrationCycle:
         upgraded = self.run_alembic("upgrade", "head")
         assert upgraded.returncode == 0, upgraded.stderr
         after = self.run_alembic("current")
-        assert "20261005_0006" in after.stdout
+        assert "20261006_0007" in after.stdout
 
         # Guard: with evidence rows present the downgrade must refuse.
         source_id = await create_source(change_engine)
@@ -681,4 +681,4 @@ class TestMigrationCycle:
         restored = self.run_alembic("upgrade", "head")
         assert restored.returncode == 0, restored.stderr
         still = self.run_alembic("current")
-        assert "20261005_0006" in still.stdout
+        assert "20261006_0007" in still.stdout

@@ -932,7 +932,7 @@ class TestMigrationCycle:
         restored = self.run_alembic("upgrade", "head")
         assert restored.returncode == 0, restored.stderr
         after = self.run_alembic("current")
-        assert "20261005_0006" in after.stdout
+        assert "20261006_0007" in after.stdout
 
 
 def test_opportunity_task_and_beat_schedule(monkeypatch: pytest.MonkeyPatch) -> None:

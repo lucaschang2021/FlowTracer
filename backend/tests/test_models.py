@@ -265,7 +265,10 @@ EXPECTED_FOREIGN_KEYS = {
         (("user_id",), "users", ("id",), "CASCADE"),
         (("analysis_id",), "analyses", ("id",), "SET NULL"),
     },
-    "source_artifacts": {(("source_id",), "sources", ("id",), "RESTRICT")},
+    "source_artifacts": {
+        (("source_id",), "sources", ("id",), "RESTRICT"),
+        (("current_snapshot_id",), "acquisition_snapshots", ("id",), "RESTRICT"),
+    },
     "acquisition_snapshots": {
         (("artifact_id",), "source_artifacts", ("id",), "RESTRICT"),
         (("collection_run_id",), "collection_runs", ("id",), "RESTRICT"),

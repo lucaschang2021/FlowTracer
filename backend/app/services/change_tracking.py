@@ -12,7 +12,7 @@ from datetime import datetime
 from decimal import ROUND_HALF_UP, Decimal
 from uuid import UUID, uuid4
 
-from sqlalchemy import select
+from sqlalchemy import select, tuple_
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -104,6 +104,20 @@ async def _upsert_artifact(
     if artifact is None:  # pragma: no cover - the unique constraint guarantees the row
         raise CollectionError("internal_collection_error", "Version evidence artifact is missing")
     return artifact
+
+
+async def _current_snapshot(
+    session: AsyncSession, artifact: SourceArtifact
+) -> AcquisitionSnapshot | None:
+    """Last observed state of the artifact; the classification baseline.
+
+    Distinct from ``_latest_snapshot`` (highest version number): after a revert the
+    pointer references the older, re-used snapshot, so repeated observations of the
+    same state classify as ``unchanged`` instead of re-reporting a change.
+    """
+    if artifact.current_snapshot_id is None:
+        return None
+    return await session.get(AcquisitionSnapshot, artifact.current_snapshot_id)
 
 
 async def _latest_snapshot(session: AsyncSession, artifact_id: UUID) -> AcquisitionSnapshot | None:
@@ -216,6 +230,7 @@ async def _resolve_current(
     *,
     run: CollectionRun,
     artifact: SourceArtifact,
+    prior_snapshot: AcquisitionSnapshot | None,
     latest: AcquisitionSnapshot | None,
     hashes: tuple[str, str, str],
     change_type: str,
@@ -228,7 +243,7 @@ async def _resolve_current(
 ) -> AcquisitionSnapshot | None:
     """Return the snapshot representing the current state; insert v-next unless reverted."""
     if change_type == "unchanged":
-        return latest
+        return prior_snapshot
     existing = await _snapshot_by_trio(session, artifact.id, *hashes)
     if existing is not None:
         # Content reverted to an earlier state: versions count distinct states.
@@ -267,13 +282,17 @@ async def _record_candidate(
         now=fetched_at,
     )
     normalized, values, summary, hashes = _compose_candidate(candidate, body)
+    # Classification baseline is the *last observed* state (the pointer), not the
+    # highest version number; version numbering still uses the latest snapshot.
+    prior_snapshot = await _current_snapshot(session, artifact)
     latest = await _latest_snapshot(session, artifact.id)
-    prior = None if latest is None else _trio(latest)
+    prior = None if prior_snapshot is None else _trio(prior_snapshot)
     change_type = classify_trio(previous=prior, current=hashes)
     current = await _resolve_current(
         session,
         run=run,
         artifact=artifact,
+        prior_snapshot=prior_snapshot,
         latest=latest,
         hashes=hashes,
         change_type=change_type,
@@ -286,16 +305,19 @@ async def _record_candidate(
     )
     if current is None:  # pragma: no cover - created/changed always resolve a snapshot
         raise CollectionError("internal_collection_error", "Version evidence snapshot is missing")
-    previous_values = None if latest is None else latest.safe_metadata.get("metadata_values")
+    previous_values = (
+        None if prior_snapshot is None else prior_snapshot.safe_metadata.get("metadata_values")
+    )
     # Flush the newly inserted snapshot first: without ORM relationships the unit of
     # work cannot infer insert order, and the event's FKs need the snapshot row to exist.
     await session.flush()
+    artifact.current_snapshot_id = current.id
     session.add(
         ChangeEvent(
             id=uuid4(),
             artifact_id=artifact.id,
             collection_run_id=run.id,
-            previous_snapshot_id=None if latest is None else latest.id,
+            previous_snapshot_id=None if prior_snapshot is None else prior_snapshot.id,
             current_snapshot_id=current.id,
             change_type=change_type,
             materiality=_change_materiality(change_type, prior or hashes, hashes),
@@ -347,8 +369,10 @@ async def _mark_missing(
         artifact.safe_metadata = meta
         if streak < REMOVED_MISS_THRESHOLD:
             continue
-        latest = await _latest_snapshot(session, artifact.id)
-        if latest is None:  # pragma: no cover - every artifact is created with a snapshot
+        previous = await _current_snapshot(session, artifact)
+        if previous is None:  # pragma: no cover - every artifact keeps a current pointer
+            previous = await _latest_snapshot(session, artifact.id)
+        if previous is None:  # pragma: no cover - every artifact is created with a snapshot
             continue
         artifact.removed_at = now
         session.add(
@@ -356,7 +380,7 @@ async def _mark_missing(
                 id=uuid4(),
                 artifact_id=artifact.id,
                 collection_run_id=run.id,
-                previous_snapshot_id=latest.id,
+                previous_snapshot_id=previous.id,
                 current_snapshot_id=None,
                 change_type="removed",
                 materiality=Decimal("1.0000"),
@@ -463,6 +487,7 @@ async def _backfill_one(
     snapshot.evidence = {"extractor": EXTRACTOR_VERSION, "origin": "legacy_backfill"}
     session.add(snapshot)
     await session.flush()
+    artifact.current_snapshot_id = snapshot.id
     session.add(
         ChangeEvent(
             id=uuid4(),
@@ -485,20 +510,30 @@ async def backfill_source_evidence(
 ) -> int:
     """One-shot legacy backfill: existing RawItems become version-1 snapshots.
 
-    Idempotent: artifacts that already carry a snapshot are skipped, so repeated calls
-    are safe. Deterministic order by RawItem creation time then id.
+    Advances a deterministic ``(created_at, id)`` cursor between batches so every item
+    of the source is processed regardless of size; artifacts that already carry a
+    snapshot are skipped, so repeated calls stay idempotent.
     """
-    items = (
-        await session.scalars(
-            select(RawItem)
-            .where(RawItem.source_id == source.id)
-            .order_by(RawItem.created_at.asc(), RawItem.id.asc())
-            .limit(batch_size)
-        )
-    ).all()
     created = 0
-    for item in items:
-        identity = item.canonical_url or item.external_id or str(item.id)
-        if await _backfill_one(session, source=source, item=item, identity=identity):
-            created += 1
+    cursor: tuple[datetime, UUID] | None = None
+    while True:
+        statement = select(RawItem).where(RawItem.source_id == source.id)
+        if cursor is not None:
+            statement = statement.where(tuple_(RawItem.created_at, RawItem.id) > cursor)
+        items = list(
+            (
+                await session.scalars(
+                    statement.order_by(RawItem.created_at.asc(), RawItem.id.asc()).limit(batch_size)
+                )
+            ).all()
+        )
+        if not items:
+            break
+        for item in items:
+            identity = item.canonical_url or item.external_id or str(item.id)
+            if await _backfill_one(session, source=source, item=item, identity=identity):
+                created += 1
+        cursor = (items[-1].created_at, items[-1].id)
+        if len(items) < batch_size:
+            break
     return created

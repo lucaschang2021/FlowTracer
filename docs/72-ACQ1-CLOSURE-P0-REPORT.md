@@ -2,7 +2,7 @@
 
 Phase / Status：**Phase 0 COMPLETE（独立审核清单的 6 项缺陷全部修复；委托方确认 + 可独立复核）**。
 日期：2026-10-06。依据：`docs/71-ACQ1-CLOSURE-PLAN.md` §Phase 0、独立审核未完成清单 §1。
-分支 `fix/acq1-closure-p0`。
+分支 `fix/acq1-closure-p0`；实现提交 `9cbdc97`；no-ff 合并 `6e05480`；本 traceability 提交记录以上哈希。
 
 ## 1. 逐项修复与证据
 

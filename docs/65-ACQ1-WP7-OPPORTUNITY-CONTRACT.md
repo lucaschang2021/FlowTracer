@@ -6,7 +6,7 @@
 ## 0. 增量拆分（冻结）
 
 - **I1（本增量，已实现）**：`radar_type=opportunity`、三表与迁移、Freelance v1 Hard Filter、`opportunity-score-v1`、Provider（fake + OpenAI-compatible）、Action Payload、Notification XOR 兼容扩展、REST 三端点、Celery 评估任务、本地 job 管线与并发幂等。
-- **I2（未准入）**：平台逐站点访问授权工作流、版本变化（ChangeEvent）驱动的 item 生命周期与重评、通知 WS 事件扩展（ADR-026 冻结 ACQ-1 不扩张 WS）、多币种固定 `fx_table`/`fx_version` Profile、Admin/Profile 编辑面。
+- **I2（生命周期与重评已准入并实现，2026-10-06，收口 Phase 4 / ADR-041；注记见 §12）**：版本变化（ChangeEvent）驱动的 item 生命周期与重评、crawl 输出接入、过期/移除转换。**仍不扩张**：平台逐站点访问授权工作流、通知 WS 事件（ADR-026 冻结）、多币种固定 `fx_table`/`fx_version`、Admin/Profile 编辑面、外部执行适配器。
 
 ## 1. 数据模型与 schema（FROZEN，docs/24 §2/§3）
 
@@ -88,3 +88,13 @@
 - 测试矩阵 `tests/test_opportunity.py`：**32/32**（硬过滤边界 6 + 评分/解析/资格 5 + 本地 job 全管线/调度 2 + 拒绝路径 1 + Provider 语义 3 + 资格与并发 3 + XOR 1 + REST 3 + 迁移循环守卫 1 + 任务/beat 1 + JSON-LD 提取 4 + Provider 替换 2）。
 - 模型契约 `tests/test_models.py` 扩展（3 表、radar_type enum、XOR 部分唯一索引、新 CHECK/FK）；OpenAPI 快照重生成并经 `test_contract_freeze` 冻结路径校验。
 - 定向回归（change/models/notifications/tasks/acquisition/intelligence/e2e）全绿；全量与覆盖率、架构门与 `alembic check` 见 `docs/66-ACQ1-WP7-OPPORTUNITY-STAGE-REPORT.md`。
+
+## 12. 实现注记（2026-10-06，lifecycle & re-evaluation / I2 实值；ADR-041）
+
+1. **Ingest（ChangeEvent 驱动）**：`record_opportunity_items` 处理 `created`（建档）/`content_changed`（原位刷新事实与 `snapshot_id`，重新激活 removed）/`removed`（`status=removed`，仅从 active 转换）；提取失败不猜测（保留上次事实或保持缺席）。item 的 `created_at/updated_at` 取快照 `fetched_at`（观测时钟）。
+2. **crawl 接线**：`write_crawl_page` 在页面提交事务内执行同一 ingest（`CrawlStepResult` 不额外扩展），因此被爬页面（Discovery 输出）进入 Opportunity。
+3. **评分版本化**：`opportunity_scores.evaluation_version`（默认 1）；唯一约束改为四元组 `uq_opportunity_scores_versioned`；重评 `evaluation_version = max+1`（竞争由约束仲裁，输者 skipped）；payload 与通知跟随新 score（每 score 至多一份）。
+4. **重评判据**：待评 = 无评分或 `latest(scored_at) < item.updated_at`；未变化观测不重评（I1 幂等语义保持）。
+5. **生命周期**：`expire_due_opportunities` 在派发前将 `active 且 deadline < now` 置 `expired`（beat 每 60s 触达）；移除事件置 `removed`；重现/内容变化置回 `active`（再由过期扫描复判）。`rejected` 保留闭集、无自动转换（用户动作面未准入）。
+6. **迁移 0009**：加列 + 约束替换；downgrade guard（`evaluation_version > 1` 存在即拒绝）；空态循环与 guard 行为均有测试（`test_opportunity.TestMigrationCycle`）。
+7. **禁止项保持**：非 USD → `currency_unsupported`（零 Provider 调用/零 usage/零汇率）；无 FX Profile 字段（schema 断言）；payload 键集与 `requires_human_approval=true` 冻结（REST 断言）。OpenAPI 零漂移（无 API 变化）。

@@ -677,7 +677,7 @@ class TestMigrationCycle:
         upgraded = self.run_alembic("upgrade", "head")
         assert upgraded.returncode == 0, upgraded.stderr
         after = self.run_alembic("current")
-        assert "20261006_0008" in after.stdout
+        assert "20261006_0009" in after.stdout
 
         # Guard: with evidence rows present the downgrade must refuse.
         source_id = await create_source(change_engine)
@@ -696,7 +696,7 @@ class TestMigrationCycle:
         restored = self.run_alembic("upgrade", "head")
         assert restored.returncode == 0, restored.stderr
         still = self.run_alembic("current")
-        assert "20261006_0008" in still.stdout
+        assert "20261006_0009" in still.stdout
 
         # Snapshot-identity guard: a snapshot-linked RawItem makes the 0008
         # downgrade refuse (the legacy constraint cannot express the new rows).
@@ -721,5 +721,9 @@ class TestMigrationCycle:
         blocked = self.run_alembic("downgrade", "20261006_0007")
         assert blocked.returncode != 0
         assert "refusing to drop raw_items.snapshot_id" in blocked.stderr
+        # Transactional DDL rolls the whole refused downgrade back, head stays 0009;
+        # the explicit upgrade keeps the shared test database on the latest revision.
         final = self.run_alembic("current")
-        assert "20261006_0008" in final.stdout
+        assert "20261006_0009" in final.stdout
+        restored = self.run_alembic("upgrade", "head")
+        assert restored.returncode == 0, restored.stderr

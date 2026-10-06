@@ -20,6 +20,7 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     Index,
+    Integer,
     Numeric,
     SmallInteger,
     String,
@@ -156,7 +157,8 @@ class OpportunityScore(Base):
             "opportunity_id",
             "radar_id",
             "score_version",
-            name="uq_opportunity_scores_triple",
+            "evaluation_version",
+            name="uq_opportunity_scores_versioned",
         ),
         Index("ix_opportunity_scores_radar", "radar_id"),
     )
@@ -168,6 +170,9 @@ class OpportunityScore(Base):
         UUID(as_uuid=True), ForeignKey("radars.id", ondelete="RESTRICT"), nullable=False
     )
     score_version: Mapped[str] = mapped_column(String(40), nullable=False)
+    evaluation_version: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=1, server_default=text("1")
+    )
     hard_filter_passed: Mapped[bool] = mapped_column(Boolean, nullable=False)
     disqualifiers: Mapped[list[Any]] = mapped_column(
         JSONB, nullable=False, default=list, server_default=text("'[]'::jsonb")

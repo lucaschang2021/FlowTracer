@@ -338,3 +338,18 @@
   6. **下游链路**：合格变化产生的新 RawItem 与既有管线同路（dispatch → 清洗 → 分析 → 情报 → 通知资格）；crawl 页产生的 RawItem 随 run 成功一并 dispatch（未 dispatch 的 FETCHED 项由既有 pending 扫描兜底）。
 - 兼容与回滚：`snapshot_id` nullable 保持 legacy 行与约束语义；回滚 = 关闭 writer（回退代码）+ 0008 降级（空 writer 状态）。
 - 边界：`semantic-change-v1`（LLM 语义变化分类，docs/23 §10）**不在收口验收范围**，未在本 ADR 启用（避免为收口扩张外部 AI 调用路径）；documents 与 RawItem 的版本关联（前代 Document 链接）不在本次范围。
+
+
+## ADR-041：WP-7 I2 生命周期与重评准入（ChangeEvent 驱动）
+
+- 状态：**Accepted**（2026-10-06，收口 Phase 4；实现与证据见 `docs/76-ACQ1-CLOSURE-P4-REPORT.md`）
+- 背景：`docs/65` §0 冻结 WP-7 两增量：I1（首见建 item、评分/载荷/通知、REST 三端点）与 I2（版本变化驱动的 item 生命周期与重评等）。独立审核清单要求完成“WP-7 收口”：Discovery/Change 真实输出接入 Opportunity、内容变化/移除/过期的状态与评分生命周期一致（评分版本化、唯一约束按需修订）、契约收口（OpenAPI 冻结）、禁止项保持（**FX 与外部执行适配器不扩张**）。
+- 决策：
+  1. **真实输入**：`record_opportunity_items` 升级为 ChangeEvent 驱动——`created` 建档、`content_changed` **原位刷新**该 artifact 的 item（facts + 快照身份，重新激活 removed）、`removed` 置 `status=removed`；crawl 页提交（`write_crawl_page`）同样执行该 ingest，因此 Discovery 输出（含被爬页面）与 Change 输出都进入 Opportunity。
+  2. **观察时钟**：item 的 `created_at/updated_at` 取快照 `fetched_at`（观测时间），使“重评新鲜度”由观测驱动而非 DB 即时时钟。
+  3. **评分版本化（唯一约束按需修订）**：`opportunity_scores` 新增 `evaluation_version`（默认 1）；唯一约束由 `(opportunity_id, radar_id, score_version)` 改为 `(opportunity_id, radar_id, score_version, evaluation_version)`；重评产生新行（version = max+1），同 rubric 的历史评分并存，评分三元组的重放幂等语义保留。payload 仍按 score 唯一（`opportunity_score_id`），通知按 `(user, opportunity_score_id)` 部分唯一。
+  4. **重评触发**：待评集合 = “最新观测新于最新评分”（`latest(scored_at) IS NULL OR < item.updated_at`），`_claim_target` 同判据；未变化 item 保持已评（不重评、不重发通知）。
+  5. **生命周期转换**：`expired` 由派发前扫描（`expire_due_opportunities`，beat 60s 路径）将 `active 且 deadline < now` 置为；`removed` 由移除事件置位；重现/内容变化置回 `active`（过期扫描再按 deadline 复判）；`rejected` 保留在闭集但无自动转换（用户动作面不在本次范围）。
+  6. **禁止项保持（4.4）**：非 USD 一律 `currency_unsupported` 拒绝（零 AI 调用、零 usage、零汇率查询）；不引入 `fx_table`/`fx_version` 或任何外部执行适配器；payload 键集与 `requires_human_approval=true` 冻结不变。
+- 迁移：`20261006_0009`（加列 + 约束替换）；**downgrade guard**：存在 `evaluation_version > 1` 行时拒绝降级。
+- 兼容：无 API/Schema/OpenAPI 变化（冻结快照与 blob pin 不变，`--check` 零漂移）；I1 行为对未变化 item 完全一致（首评语义、通知资格、人工确认边界均不变）。

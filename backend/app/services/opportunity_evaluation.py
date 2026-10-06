@@ -19,7 +19,7 @@ from decimal import Decimal
 from typing import Any
 from uuid import UUID, uuid4
 
-from sqlalchemy import CursorResult, select, text
+from sqlalchemy import CursorResult, func, or_, select, text, update
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
@@ -67,6 +67,7 @@ class _Target:
     radar_id: UUID
     user_id: UUID
     radar_threshold: int
+    evaluation_version: int
     request: OpportunityEvaluationRequest
     facts: OpportunityFacts
 
@@ -128,15 +129,32 @@ async def _claim_target(
     factory: async_sessionmaker[AsyncSession], opportunity_id: UUID, radar_id: UUID
 ) -> _Target | None:
     async with factory() as session:
-        scored = await session.scalar(
-            select(OpportunityScore.id).where(
+        scored_since = await session.scalar(
+            select(func.count()).where(
                 OpportunityScore.opportunity_id == opportunity_id,
                 OpportunityScore.radar_id == radar_id,
-                OpportunityScore.score_version == SCORE_VERSION,
+                OpportunityScore.scored_at
+                >= (
+                    select(OpportunityItem.updated_at)
+                    .where(OpportunityItem.id == opportunity_id)
+                    .scalar_subquery()
+                ),
             )
         )
-        if scored is not None:
+        if scored_since:
             return None
+        next_version = (
+            int(
+                await session.scalar(
+                    select(func.coalesce(func.max(OpportunityScore.evaluation_version), 0)).where(
+                        OpportunityScore.opportunity_id == opportunity_id,
+                        OpportunityScore.radar_id == radar_id,
+                    )
+                )
+                or 0
+            )
+            + 1
+        )
         row = (
             await session.execute(
                 select(OpportunityItem, Radar)
@@ -162,6 +180,7 @@ async def _claim_target(
             radar_id=radar.id,
             user_id=item.user_id,
             radar_threshold=radar.notification_threshold,
+            evaluation_version=next_version,
             request=_request_for(item, radar, facts),
             facts=facts,
         )
@@ -349,13 +368,14 @@ async def _write_hard_filter_failure(
                 opportunity_id=target.opportunity_id,
                 radar_id=target.radar_id,
                 score_version=SCORE_VERSION,
+                evaluation_version=target.evaluation_version,
                 hard_filter_passed=False,
                 disqualifiers=list(outcome.disqualifiers),
                 recommendation="dismiss",
                 reason=_dismiss_reason(outcome),
                 scored_at=now,
             )
-            .on_conflict_do_nothing(constraint="uq_opportunity_scores_triple")
+            .on_conflict_do_nothing(constraint="uq_opportunity_scores_versioned")
         )
         result = await session.execute(statement)
         await session.commit()
@@ -391,6 +411,7 @@ async def _write_score_bundle(
                 opportunity_id=target.opportunity_id,
                 radar_id=target.radar_id,
                 score_version=SCORE_VERSION,
+                evaluation_version=target.evaluation_version,
                 hard_filter_passed=True,
                 disqualifiers=[],
                 fit=dimensions.fit,
@@ -406,7 +427,7 @@ async def _write_score_bundle(
                 reason=evaluation.reason,
                 scored_at=now,
             )
-            .on_conflict_do_nothing(constraint="uq_opportunity_scores_triple")
+            .on_conflict_do_nothing(constraint="uq_opportunity_scores_versioned")
         )
         result = await session.execute(statement)
         if not (isinstance(result, CursorResult) and result.rowcount > 0):
@@ -493,14 +514,17 @@ async def _maybe_notify(
 async def _pending_pairs(
     factory: async_sessionmaker[AsyncSession], *, batch_size: int
 ) -> list[tuple[UUID, UUID]]:
-    score_exists = (
-        select(OpportunityScore.id)
+    """Pairs whose latest observation is newer than their latest score.
+
+    A changed opportunity (``updated_at`` moves on content refresh) re-enters the
+    queue and gets a new ``evaluation_version``; an unchanged item stays scored."""
+    latest_scored_at = (
+        select(func.max(OpportunityScore.scored_at))
         .where(
             OpportunityScore.opportunity_id == OpportunityItem.id,
             OpportunityScore.radar_id == Radar.id,
-            OpportunityScore.score_version == SCORE_VERSION,
         )
-        .exists()
+        .scalar_subquery()
     )
     async with factory() as session:
         rows = (
@@ -514,13 +538,37 @@ async def _pending_pairs(
                     Radar.radar_type == RadarType.OPPORTUNITY,
                     Radar.status == ResourceStatus.ACTIVE,
                     Radar.deleted_at.is_(None),
-                    ~score_exists,
+                    or_(
+                        latest_scored_at.is_(None),
+                        latest_scored_at < OpportunityItem.updated_at,
+                    ),
                 )
                 .order_by(OpportunityItem.created_at.asc(), OpportunityItem.id.asc())
                 .limit(batch_size)
             )
         ).all()
     return [(row[0], row[1]) for row in rows]
+
+
+async def expire_due_opportunities(
+    factory: async_sessionmaker[AsyncSession],
+    *,
+    now: datetime | None = None,
+) -> int:
+    """Flip active items past their deadline to ``expired`` (docs/24 §2 lifecycle)."""
+    reference = now or datetime.now(UTC)
+    async with factory() as session:
+        result = await session.execute(
+            update(OpportunityItem)
+            .where(
+                OpportunityItem.status == "active",
+                OpportunityItem.deadline.is_not(None),
+                OpportunityItem.deadline < reference,
+            )
+            .values(status="expired", updated_at=reference)
+        )
+        await session.commit()
+        return int(getattr(result, "rowcount", 0) or 0)
 
 
 async def dispatch_pending_opportunities(
@@ -533,6 +581,7 @@ async def dispatch_pending_opportunities(
     now: datetime | None = None,
 ) -> int:
     reference = now or datetime.now(UTC)
+    await expire_due_opportunities(factory, now=reference)
     pairs = await _pending_pairs(factory, batch_size=batch_size)
     completed = 0
     for opportunity_id, radar_id in pairs:

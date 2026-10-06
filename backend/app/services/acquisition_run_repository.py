@@ -546,7 +546,7 @@ class SqlAlchemyAcquisitionRunRepository:
             raw_item_id = None
             if page is not None:
                 raw_item_id = await write_crawl_page(
-                    session, run=run, source_id=claim.source.id, page=page
+                    session, run=run, source=claim.source, page=page
                 )
             state.checkpoint = checkpoint
             state.version += 1

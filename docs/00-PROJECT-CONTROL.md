@@ -3,7 +3,7 @@
 ## 1. 文档地位
 
 - 输入基线：用户提供的《FlowTracer 技术设计文档 Alpha v0.1》。
-- 当前状态（2026-10-05，WP-8 收尾后）：BE-1..BE-8、AG-0..AG-6 与 ACQ WP-1/WP-2/WP-4..WP-8 已完成（ACQ 部分为委托方确认，WP-5/6/7 为 I1 范围）；Dynamic/Advanced Browser 保持 disabled，R3 真实执行 BLOCKED。当前事实以 [当前闸门](CURRENT-GATE.md)、[交付看板](02-DELIVERY-BOARD.md) 与 [交付包说明书](70-ACQ1-DELIVERY-PACKAGE.md) 为准；能力清单与最终报告见 [68](68-ACQ1-CAPABILITY-MANIFEST.md) / [69](69-ACQ1-FINAL-STAGE-REPORT.md)。
+- 当前状态（2026-10-06，独立审核后）：BE-1..BE-8、AG-0..AG-6 与 ACQ WP-1/WP-2/WP-4..WP-8 已完成 **I1/实现范围**（ACQ 部分为委托方确认）；**独立审核确认收口未完成**——未完成清单（P1/P2 缺陷、WP-4 生产路径收口、完整 WP-5/WP-6、WP-7 生命周期收口、WP-8 整链验收）与执行映射见 [收口计划](71-ACQ1-CLOSURE-PLAN.md)；**READY_FOR_FRONTEND 未达成**。Dynamic/Advanced Browser 保持 disabled，R3 真实执行 BLOCKED。当前事实以 [当前闸门](CURRENT-GATE.md)、[交付看板](02-DELIVERY-BOARD.md) 与 [收口计划](71-ACQ1-CLOSURE-PLAN.md) 为准；能力清单与阶段报告见 [68](68-ACQ1-CAPABILITY-MANIFEST.md) / [69](69-ACQ1-FINAL-STAGE-REPORT.md) / [70](70-ACQ1-DELIVERY-PACKAGE.md)。
 - 历史说明：此前 FT-GOV-V2.1（governance-only）修订期的阶段/结论描述已由上述状态取代；治理仍以 [GOVERNANCE-V2](GOVERNANCE-V2.md) 为准，本文件不构成任何下游准入。
 - 项目正式名称：FlowTracer。
 - Radar 是 FlowTracer 的核心领域对象，不再作为项目名称使用。

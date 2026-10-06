@@ -128,4 +128,4 @@
 
 ## 9. 溯源
 
-- 计划文件提交、no-ff 合并与 traceability 提交的哈希：见紧随本分支的 traceability 提交记录（以 git 历史为准；本节与看板 WP-8/收口行同步更新）。
+- 计划文件提交：**`d51968b`**；no-ff 合并到 `main`：**`451d848`**；本 traceability 提交记录以上哈希（以 git 历史为准）。

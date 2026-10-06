@@ -2,7 +2,7 @@
 
 Phase / Status：**Phase 1 COMPLETE（生产路径收口；委托方确认 + 可独立复核）**。
 日期：2026-10-06。依据：`docs/71-ACQ1-CLOSURE-PLAN.md` §Phase 1、独立审核未完成清单 §2、ADR-038。
-分支 `feat/acq1-closure-p1`。
+分支 `feat/acq1-closure-p1`；实现提交 `ad0c8ae`；no-ff 合并 `0fca397`；本 traceability 提交记录以上哈希。
 
 ## 1. 逐项收口与证据
 

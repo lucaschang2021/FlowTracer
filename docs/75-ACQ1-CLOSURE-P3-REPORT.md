@@ -2,7 +2,7 @@
 
 Phase / Status：**Phase 3 COMPLETE（I2 写路径切换落成；委托方确认 + 可独立复核）**。
 日期：2026-10-06。依据：`docs/71-ACQ1-CLOSURE-PLAN.md` §Phase 3、独立审核未完成清单 §4（完整 WP-6）、`docs/23` §10/§13/§14、`docs/63` §0/§17、ADR-040。
-分支 `feat/acq1-closure-p3`。
+分支 `feat/acq1-closure-p3`；实现提交 `8dc1fb1`；no-ff 合并 `f5ba2c6`；本 traceability 提交记录以上哈希。
 
 ## 1. 逐项收口与证据
 

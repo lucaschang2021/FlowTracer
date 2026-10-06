@@ -2,7 +2,7 @@
 
 Phase / Status：**Phase 4 COMPLETE（I2 生命周期与重评落成；委托方确认 + 可独立复核）**。
 日期：2026-10-06。依据：`docs/71-ACQ1-CLOSURE-PLAN.md` §Phase 4、独立审核未完成清单 §5（WP-7 收口）、`docs/24`/`docs/65` §0/§12、ADR-041。
-分支 `feat/acq1-closure-p4`。
+分支 `feat/acq1-closure-p4`；实现提交 `2eb60e4`；no-ff 合并 `e3eb0d0`；本 traceability 提交记录以上哈希。
 
 ## 1. 逐项收口与证据
 

@@ -232,6 +232,7 @@ def route_summary(
     *,
     accepted_backend: BackendName | None,
     discovery: dict[str, object] | None = None,
+    throttle: dict[str, object] | None = None,
 ) -> dict[str, object]:
     """Closed run-level summary stored on CollectionRun.budget_summary."""
     summary: dict[str, object] = {
@@ -243,4 +244,6 @@ def route_summary(
     }
     if discovery is not None:
         summary["discovery"] = discovery
+    if throttle is not None:
+        summary["site_throttle"] = throttle
     return summary

@@ -13,7 +13,7 @@ import time
 import uuid
 from collections.abc import Callable, Mapping
 from contextlib import suppress
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from decimal import Decimal
 from typing import Any
@@ -56,12 +56,14 @@ from app.services.acquisition_router import (
 from app.services.acquisition_types import (
     AcquisitionRequest,
     AcquisitionResult,
+    AttemptBudget,
     CollectionError,
     ParseResult,
 )
 from app.services.discovery_frontier import DiscoveryPlan, plan_discovery
 from app.services.extraction import attach_extraction_observations
 from app.services.extraction_quality import aggregate_quality
+from app.services.site_gate import SiteGate
 
 Dispatch = Callable[[str, str], None]
 RunRepository = AcquisitionRunRepository[Source, AcquisitionResult, ParseResult, Any]
@@ -93,6 +95,7 @@ class _RouteRun:
         raw_dispatch: Dispatch | None,
         publisher: Any | None,
         started: float,
+        site_gate: SiteGate | None = None,
     ) -> None:
         self.repository = repository
         self.claimed = claimed
@@ -104,6 +107,8 @@ class _RouteRun:
         self.raw_dispatch = raw_dispatch
         self.publisher = publisher
         self.started = started
+        self.site_gate = site_gate if site_gate is not None else SiteGate()
+        self.throttle_snapshot: dict[str, int] = {}
         self.router_started_at = datetime.now(UTC)
         self.stage_started_at = self.router_started_at
         self.backend_name = (
@@ -131,6 +136,7 @@ async def execute_route_run(
     task_id: str | None = None,
     raw_dispatch: Dispatch | None = None,
     publisher: Any | None = None,
+    site_gate: SiteGate | None = None,
 ) -> bool:
     """Routed run entrypoint: claim, then execute the ordered static stage chain."""
     started = time.monotonic()
@@ -149,6 +155,7 @@ async def execute_route_run(
         raw_dispatch=raw_dispatch,
         publisher=publisher,
         started=started,
+        site_gate=site_gate,
     )
     return await _run_claimed(route)
 
@@ -269,6 +276,19 @@ def _evaluate_stage(
     return parsed, result, aggregate, attempt_usage(result.budget_used)
 
 
+def _remaining_attempt_budget(route: _RouteRun) -> AttemptBudget | None:
+    """Remaining effective budget for the next attempt, from the cumulative ledger."""
+    if route.budget is None:
+        return None
+    remaining_requests = max(1, route.budget.max_requests - route.ledger.totals["requests"])
+    remaining_bytes = max(0, route.budget.max_total_bytes - route.ledger.totals["bytes_received"])
+    return AttemptBudget(
+        max_requests=remaining_requests,
+        max_bytes=remaining_bytes,
+        deadline_monotonic=route.started + float(route.budget.max_duration_seconds),
+    )
+
+
 async def _run_stage(
     route: _RouteRun,
     candidate: RouteCandidate,
@@ -285,11 +305,29 @@ async def _run_stage(
             "acquisition_budget_exhausted", "Acquisition resource budget is exhausted"
         )
     route.stage_started_at = datetime.now(UTC)
+    site_policy = effective_site_policy(profile, route.source.normalized_url)
+    route.throttle_snapshot = {
+        "crawl_delay_ms": site_policy.crawl_delay_ms,
+        "requests_per_minute": site_policy.requests_per_minute,
+        "max_parallel_requests": site_policy.max_parallel_requests,
+        "enforced_in_flight": route.site_gate.enforced_in_flight,
+    }
+    stage_request = replace(request, remaining_budget=_remaining_attempt_budget(route))
     try:
-        result = await implementation.acquire(request)
+        # Every request passes the execution gate: crawl delay / RPM spacing are slept
+        # out between requests, and same-host requests are serialized.
+        async with route.site_gate.guard(
+            site_policy.origin_host,
+            crawl_delay_ms=site_policy.crawl_delay_ms,
+            requests_per_minute=site_policy.requests_per_minute,
+        ):
+            result = await implementation.acquire(stage_request)
     except CollectionError as exc:
-        usage = attempt_usage({"requests": exc.retry_count + 1})
-        route.ledger.charge_requests(exc.retry_count + 1)
+        # Bill the real request count (initial + redirect hops + retries); fall back to
+        # the conservative retry-derived count when the failure carries no transport count.
+        requests_made = max(exc.retry_count + 1, exc.requests_made or 0)
+        usage = attempt_usage({"requests": requests_made})
+        route.ledger.charge_requests(requests_made)
         trace = attempt_trace(
             ordinal=candidate.stage,
             backend=candidate.backend,
@@ -394,6 +432,10 @@ async def _finalize_success(
             route.traces,
             accepted_backend=candidate.backend,
             discovery=None if plan is None else plan.summary,
+            throttle={
+                **route.throttle_snapshot,
+                "delays_applied_ms": tuple(route.site_gate.delays_applied_ms),
+            },
         ),
         decision_version=ROUTER_VERSION,
         attempt_budget_used={**evaluation.usage, "trace": evaluation.trace},

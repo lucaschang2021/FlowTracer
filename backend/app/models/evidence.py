@@ -55,6 +55,12 @@ class SourceArtifact(TimestampMixin, Base):
     first_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     last_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     removed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # Last observed state; the classification baseline for change detection. Distinct
+    # from the highest version number once a revert re-uses an older snapshot.
+    current_snapshot_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("acquisition_snapshots.id", ondelete="RESTRICT"),
+    )
     safe_metadata: Mapped[dict[str, Any]] = mapped_column(
         JSONB, nullable=False, default=dict, server_default=text("'{}'::jsonb")
     )

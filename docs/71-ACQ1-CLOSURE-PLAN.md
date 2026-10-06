@@ -23,7 +23,9 @@
 5. **机会筛选未限定集合本身**：`services/opportunity_queries.py` 的筛选作用在"最近一条评分"的连接结果上，未定义"合格机会集合"本身（radar 作用域/存在性语义不明确）。
 6. **回填无游标**：`change_tracking.backfill_source_evidence` 先 `limit(batch_size)` 再逐条跳过已存在记录 → 第二次调用重复处理同一头部，**超过 batch_size 的记录永不处理**。
 
-## Phase 0 — P1/P2 缺陷修复（必须先做）
+## Phase 0 — P1/P2 缺陷修复（必须先做）—— **已完成（2026-10-06）**
+
+> **状态：COMPLETE。** 六项缺陷已全部修复并附测试证据，见 `docs/72-ACQ1-CLOSURE-P0-REPORT.md`：逐跳计费（`FetchSession`/`redirects` 计数、超限前停止）、时间与字节预算硬执行（贯穿读取/退避）、版本回退指针（迁移 `20261006_0007`，A→B→A→A / A→B→A→B / removed-重现全覆盖）、真实限速与串行（`SiteGate` 执行 crawl delay/RPM/并行并落盘证据）、机会筛选集合语义（EXISTS + radar 来源域）、回填游标推进（超批处理）。门禁：新增测试 18/18、全量候选结果见 §9 溯源与 `docs/72`。
 
 ### 0.1 预算逐跳计费（P1）
 

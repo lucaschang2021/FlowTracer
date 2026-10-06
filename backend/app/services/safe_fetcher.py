@@ -420,6 +420,34 @@ async def default_transport(
             pass
 
 
+def _allowed_content_types(
+    source_type: SourceType, override: frozenset[str] | None
+) -> frozenset[str]:
+    if override is not None:
+        return override
+    return _RSS_TYPES if source_type == SourceType.RSS else _HTML_TYPES
+
+
+def _accepted_response(
+    response: WireResponse,
+    allowed_types: frozenset[str],
+    *,
+    final_url: str,
+    redirects: int,
+) -> FetchResponse:
+    """Validate the terminal response content type and build the fetch outcome."""
+    media_type = response.headers.get("content-type", "").split(";", 1)[0].strip().lower()
+    if media_type not in allowed_types:
+        raise CollectionError("unsupported_content_type", "Response Content-Type is not supported")
+    return FetchResponse(
+        final_url=final_url,
+        content_type=response.headers.get("content-type", media_type)[:160],
+        body=response.body,
+        status_code=response.status_code,
+        redirects=redirects,
+    )
+
+
 class SafeFetcher:
     def __init__(
         self,
@@ -451,9 +479,13 @@ class SafeFetcher:
         source_type: SourceType,
         *,
         session: FetchSession | None = None,
+        content_types: frozenset[str] | None = None,
     ) -> FetchResponse:
+        """Fetch one URL; ``content_types`` overrides the default allowed set
+        (robots.txt), with the safety pipeline unchanged."""
         if session is None:
             session = FetchSession()
+        allowed_types = _allowed_content_types(source_type, content_types)
         current_url = url
         total_timeout = TOTAL_TIMEOUT
         remaining = session.remaining_seconds()
@@ -497,21 +529,15 @@ class SafeFetcher:
                             response.status_code in {408, 429} or response.status_code >= 500
                         )
                         raise CollectionError(
-                            "http_error", "Upstream HTTP request failed", retryable=retryable
+                            "http_error",
+                            "Upstream HTTP request failed",
+                            retryable=retryable,
+                            status_code=response.status_code,
                         )
-                    media_type = (
-                        response.headers.get("content-type", "").split(";", 1)[0].strip().lower()
-                    )
-                    allowed = _RSS_TYPES if source_type == SourceType.RSS else _HTML_TYPES
-                    if media_type not in allowed:
-                        raise CollectionError(
-                            "unsupported_content_type", "Response Content-Type is not supported"
-                        )
-                    return FetchResponse(
+                    return _accepted_response(
+                        response,
+                        allowed_types,
                         final_url=current_url,
-                        content_type=response.headers.get("content-type", media_type)[:160],
-                        body=response.body,
-                        status_code=response.status_code,
                         redirects=session.redirects,
                     )
         except TimeoutError:
@@ -538,6 +564,7 @@ async def fetch_with_retries(
     max_retries: int = 3,
     session: FetchSession | None = None,
     min_delay: float = 0.0,
+    content_types: frozenset[str] | None = None,
 ) -> tuple[FetchResponse, int]:
     if session is None:
         session = FetchSession()
@@ -545,7 +572,9 @@ async def fetch_with_retries(
     while True:
         try:
             if isinstance(fetcher, SafeFetcher):
-                response = await fetcher.fetch(url, source_type, session=session)
+                response = await fetcher.fetch(
+                    url, source_type, session=session, content_types=content_types
+                )
             else:
                 response = await fetcher.fetch(url, source_type)
             return response, retries

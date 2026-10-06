@@ -10,6 +10,7 @@ from sqlalchemy import or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.domains.acquisition_ports import (
+    CrawlPageRecord,
     PublishedEvent,
     RunClaim,
     RunCompletion,
@@ -38,13 +39,15 @@ from app.services.acquisition_attempts import (
     _circuit_facts,
     _discovery_checkpoint,
     _record_attempt,
+    next_attempt_ordinal,
+    write_crawl_page,
 )
 from app.services.acquisition_types import (
     AcquisitionResult,
     CollectionError,
     ParseResult,
 )
-from app.services.change_tracking import record_version_evidence
+from app.services.change_tracking import EvidenceResult, record_version_evidence
 from app.services.opportunity_ingest import record_opportunity_items
 
 CIRCUIT_PROBE_LEASE_SECONDS = 60
@@ -192,6 +195,9 @@ async def _record_success(
     attempt_budget_used: dict[str, Any] | None = None,
     run_started_at: datetime | None = None,
     discovery_checkpoint: dict[str, Any] | None = None,
+    crawl_pages_fetched: int = 0,
+    crawl_pages_failed: int = 0,
+    crawl_observed: tuple[str, ...] | None = None,
 ) -> None:
     finished_at = datetime.now(UTC)
     duration_ms = _fill_run_success(
@@ -210,6 +216,13 @@ async def _record_success(
         run_started_at=run_started_at,
         finished_at=finished_at,
     )
+    if crawl_pages_fetched or crawl_pages_failed:
+        # Crawl pages extend the run totals; any failed target makes the run partial.
+        run.fetched_count += crawl_pages_fetched
+        run.failed_count += crawl_pages_failed
+        if crawl_pages_failed:
+            run.status = CollectionRunStatus.PARTIAL
+    attempt_ordinal = await next_attempt_ordinal(session, run.id, ordinal)
     _add_success_attempt(
         session,
         run=run,
@@ -219,11 +232,41 @@ async def _record_success(
         result=result,
         quality_score=quality_score,
         finished_at=finished_at,
-        ordinal=ordinal,
+        ordinal=attempt_ordinal,
         fallback_reason=fallback_reason,
         attempt_budget_used=attempt_budget_used,
         decision_version=decision_version,
     )
+    await _apply_success_effects(
+        session,
+        run=run,
+        source=source,
+        backend=backend,
+        body=result.response.body,
+        parsed=parsed,
+        quality_score=quality_score,
+        duration_ms=duration_ms,
+        discovery_checkpoint=discovery_checkpoint,
+        crawl_observed=crawl_observed,
+        now=finished_at,
+    )
+
+
+async def _apply_success_effects(
+    session: AsyncSession,
+    *,
+    run: CollectionRun,
+    source: Source,
+    backend: BackendName,
+    body: bytes,
+    parsed: ParseResult,
+    quality_score: Decimal | None,
+    duration_ms: int,
+    discovery_checkpoint: dict[str, Any] | None,
+    crawl_observed: tuple[str, ...] | None,
+    now: datetime,
+) -> None:
+    """Source state, version evidence and downstream opportunity ingest for a success."""
     await _update_source_state(
         session,
         source_id=source.id,
@@ -232,21 +275,46 @@ async def _record_success(
         duration_ms=duration_ms,
         error_code=None,
         quality_score=quality_score,
-        now=finished_at,
+        now=now,
         checkpoint_update=discovery_checkpoint,
     )
-    # Shadow-write version evidence in the same transaction; RawItem behavior unchanged.
-    evidence = await record_version_evidence(
+    evidence = await _write_run_evidence(
         session,
         run=run,
         parsed=parsed,
-        body=result.response.body,
+        body=body,
         quality_score=quality_score,
-        fetched_at=finished_at,
+        fetched_at=now,
+        crawl_observed=crawl_observed,
     )
     # Opportunity items exist only for opportunity-family sources; other sources untouched.
-    await record_opportunity_items(
-        session, source=source, evidence=evidence, body=result.response.body
+    await record_opportunity_items(session, source=source, evidence=evidence, body=body)
+
+
+async def _write_run_evidence(
+    session: AsyncSession,
+    *,
+    run: CollectionRun,
+    parsed: ParseResult,
+    body: bytes,
+    quality_score: Decimal | None,
+    fetched_at: datetime,
+    crawl_observed: tuple[str, ...] | None,
+) -> EvidenceResult:
+    """Shadow-write version evidence; a crawl run suppresses removal detection.
+
+    The frontier is consumed once per target (docs/61 §7), so a crawl cycle is not
+    a repeated full-observation cycle of the artifact set; miss-streak removal stays
+    with the feed/single-page paths that observe every artifact each run."""
+    crawl_ran = crawl_observed is not None
+    return await record_version_evidence(
+        session,
+        run=run,
+        parsed=parsed,
+        body=body,
+        quality_score=quality_score,
+        fetched_at=fetched_at,
+        mark_missing=not crawl_ran,
     )
 
 
@@ -284,6 +352,9 @@ class SqlAlchemyAcquisitionRunRepository:
         attempt_budget_used: dict[str, Any] | None = None,
         run_started_at: datetime | None = None,
         discovery_checkpoint: dict[str, Any] | None = None,
+        crawl_pages_fetched: int = 0,
+        crawl_pages_failed: int = 0,
+        crawl_observed: tuple[str, ...] | None = None,
     ) -> RunCompletion | None:
         async with self._factory() as session:
             source = await session.scalar(
@@ -324,6 +395,9 @@ class SqlAlchemyAcquisitionRunRepository:
                 attempt_budget_used=attempt_budget_used,
                 run_started_at=run_started_at,
                 discovery_checkpoint=discovery_checkpoint,
+                crawl_pages_fetched=crawl_pages_fetched,
+                crawl_pages_failed=crawl_pages_failed,
+                crawl_observed=crawl_observed,
             )
             await session.commit()
             return RunCompletion(
@@ -426,6 +500,66 @@ class SqlAlchemyAcquisitionRunRepository:
 
     async def discovery_checkpoint(self, source_id: UUID) -> dict[str, Any]:
         return await _discovery_checkpoint(self._factory, source_id)
+
+    async def crawl_checkpoint(self, source_id: UUID) -> tuple[dict[str, Any], int]:
+        async with self._factory() as session:
+            state = await session.scalar(
+                select(SourceAcquisitionState).where(SourceAcquisitionState.source_id == source_id)
+            )
+            if state is None or not isinstance(state.checkpoint, dict):
+                return {}, 0
+            return dict(state.checkpoint), state.version
+
+    async def commit_crawl_step(
+        self,
+        claim: RunClaim[Source],
+        *,
+        expected_version: int,
+        checkpoint: dict[str, Any],
+        page: CrawlPageRecord | None = None,
+    ) -> int | None:
+        """Claim-guarded CAS write for one crawl step (reserve/release or page record).
+
+        The state row lock serializes the version check; a claim that is no longer the
+        running token (re-claimed or requeued) or a version bumped by another writer
+        both return None so the caller stops consuming the frontier."""
+        async with self._factory() as session:
+            run = await session.scalar(
+                select(CollectionRun)
+                .where(
+                    CollectionRun.id == claim.run_id,
+                    CollectionRun.status == CollectionRunStatus.RUNNING,
+                    CollectionRun.claim_token == claim.claim_token,
+                )
+                .with_for_update()
+            )
+            if run is None:
+                return None
+            state = await session.scalar(
+                select(SourceAcquisitionState)
+                .where(SourceAcquisitionState.source_id == claim.source.id)
+                .with_for_update()
+            )
+            if state is None or state.version != expected_version:
+                await session.rollback()
+                return None
+            if page is not None:
+                await write_crawl_page(session, run=run, source_id=claim.source.id, page=page)
+            state.checkpoint = checkpoint
+            state.version += 1
+            await session.commit()
+            return expected_version + 1
+
+    async def claim_alive(self, claim: RunClaim[Source]) -> bool:
+        async with self._factory() as session:
+            run_id = await session.scalar(
+                select(CollectionRun.id).where(
+                    CollectionRun.id == claim.run_id,
+                    CollectionRun.status == CollectionRunStatus.RUNNING,
+                    CollectionRun.claim_token == claim.claim_token,
+                )
+            )
+            return run_id is not None
 
     async def event_for(self, run_id: UUID) -> PublishedEvent[Any] | None:
         return await _collection_event(self._factory, run_id)

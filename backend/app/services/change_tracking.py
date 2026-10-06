@@ -401,8 +401,12 @@ async def record_version_evidence(
     body: bytes | None,
     quality_score: Decimal | None,
     fetched_at: datetime,
+    mark_missing: bool = True,
 ) -> EvidenceResult:
-    """Shadow-write evidence for one successful run; returns writes and event count."""
+    """Shadow-write evidence for one successful run; returns writes and event count.
+
+    ``mark_missing=False`` defers removal detection to the end of a multi-page crawl,
+    where the observed set is the union of the seed and every crawled page."""
     quality = _snapshot_quality(quality_score)
     observed: set[str] = set()
     events = 0
@@ -420,8 +424,32 @@ async def record_version_evidence(
             )
         )
         events += 1
-    events += await _mark_missing(session, run=run, observed=observed, now=fetched_at)
+    if mark_missing:
+        events += await _mark_missing(session, run=run, observed=observed, now=fetched_at)
     return EvidenceResult(events=events, writes=tuple(writes))
+
+
+async def record_page_evidence(
+    session: AsyncSession,
+    *,
+    run: CollectionRun,
+    candidate: RawCandidate,
+    body: bytes | None,
+    quality_score: Decimal | None,
+    fetched_at: datetime,
+) -> EvidenceWrite:
+    """Evidence for a single observed page (crawl target): one artifact write.
+
+    Removal detection stays with the run-level call and applies only to repeated
+    full-observation cycles (see ``record_version_evidence`` callers)."""
+    return await _record_candidate(
+        session,
+        run=run,
+        candidate=candidate,
+        body=body,
+        quality=_snapshot_quality(quality_score),
+        fetched_at=fetched_at,
+    )
 
 
 async def _backfill_one(

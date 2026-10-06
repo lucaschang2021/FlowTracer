@@ -308,3 +308,18 @@
 - 决策：注册**受控静态重试阶段**（`BackendName.SCRAPLING_HTTP`，stage 2、`static_retry`），与主阶段同样**强制经 `SafeFetcher`**（NetworkPolicy/SitePolicy/预算/逐跳计费/站点限速全部复用），因此不存在旁路；候选表按**有效预算**门控：`effective.max_pages >= 2 且 effective.max_requests >= 2` 时 URL 链为 `(native_static, static_retry)`，默认 profile（`max_pages=1`）保持单阶段，`docs/57` §15.4 的预算 fail-closed 语义不变。worker 始终装配 stage 2 后端；链构建时缺失的非主阶段视为不可用（不静默降级主阶段），主阶段缺失仍 `acquisition_no_backend` 终态。
 - 安全：Browser 尾部保持 disabled；`allow_browser` 请求继续 fail-closed；重试阶段与主阶段共享 run 级账本（降级/重试/重定向逐跳累计）与站点门（crawl delay/RPM 间距、同主机串行）。
 - 兼容：默认 profile 行为零变化；`docs/57` 补充 §16 收口注记；`docs/71` Phase 1.1 由此闭环。
+
+
+## ADR-039：WP-5 I2 完整抓取执行准入（crawl execution）
+
+- 状态：**Accepted**（2026-10-06，收口 Phase 2；实现与证据见 `docs/74-ACQ1-CLOSURE-P2-REPORT.md`）
+- 背景：`docs/61` §0 冻结了 WP-5 两增量：I1（规划与 Frontier 状态，已实现）与 I2（crawl 执行，未准入）。独立审核清单要求完成“完整 WP-5 抓取执行”（frontier 消费、robots/domain policy、逐跳复核、有界遍历、取消/恢复、并发去重）。本 ADR 即 §0 要求的 I2 自身准入与 robots 契约。
+- 决策（I2 语义冻结）：
+  1. **生产路径**：仅当 worker 注入 `discovery_transport`（`execute_route_run(discovery_transport=SafeCrawlTransport(SafeFetcher()))`）时消费 frontier；未注入即保持 I1 规划语义（现有测试与 final-e2e 不变）。抓取请求 100% 经 `SafeFetcher`（NetworkPolicy + EffectiveSitePolicy + **scope 逐跳复核** + FetchSession 硬预算），**无旁路**。
+  2. **robots（§5 义务生效）**：每 origin 一次，同一 transport 抓取（仅 `text/plain`、≤512 KiB、≤2 请求）；`fetched` → 遵守（disallow=跳过该目标且保留 frontier，`Crawl-delay` 作为站点间距下限被执行）；`missing`（404/410）或 `unavailable`：`respect` → 视为无规则继续，`deny_if_unavailable` → 整个 crawl 拒绝（`stopped_reason=robots_unavailable`，frontier 保留）。
+  3. **有界遍历（§6 逐跳口径）**：pages/requests/bytes/time 四账跨页累计，**每次请求前**检查（含 robots 消耗后的再检查），超限前停止并记 `stopped_reason`；`max_depth=min(profile,3)` 以 `base_depth` 跨 crawl 层生效；`max_frontier_size`/`max_discovered_urls` 沿用 I1 冻结值。
+  4. **消费语义（§7 原文“已抓取 URL 不重复抓取”）**：成功 → `seen` + `crawled`；失败 → 原位 attempts+1（后续 run 重试，连续 3 次失败退休为 `abandoned`）；robots 拒绝 → 仅本 run 跳过（下一 run 以新 robots 重判）。不产生任何无界扩散路径。
+  5. **取消/恢复（CAS）**：checkpoint v2 增加 `crawl` 租约（run_id、300s、逐步续期）；每步以 `commit_crawl_step` 做 claim 守卫的版本 CAS（`source_acquisition_states.version`）；无关写者造成的版本前进在租约仍属本 run 时重试（`cas_crawl_step`）；claim 丢失在下一步边界停止；崩溃恢复 = 同 run 重新 claim 后接管自己的租约，已提交页不重抓、pending 目标不丢失；attempt ordinal 按 `requested-if-free-else-max+1` 分配（重入唯一）。
+  6. **证据**：每个被抓取页面产生 attempt 行（`decision_version=discovery-crawl-v1`、backend=接受的 stage）并写入版本证据（artifact/snapshot/change event）；**本增量不改变 RawItem 写入**（下游链路接线属收口 Phase 3/WP-6）；crawl run 暂停 miss-streak 移除判定（consume-once 不是全量重复观测周期，避免对已消费页面误报 removed）——该边界记录为后续 WP 的扩展点。
+  7. **run 语义**：抓取页失败 → PARTIAL 且 `failed_count` 累计；预算/robots 停止 → SUCCEEDED（以 `budget_summary.discovery.crawl` 证据为准）；`fetched_count` 含抓取页。
+- 兼容与不变式：公开 API/Schema/OpenAPI/迁移**零变化**（checkpoint JSONB 复用，docs/61 §12.3）；SSRF/SitePolicy/预算/dispatch 边界只收紧不放宽；Browser 保持 disabled；自动投标/报价/沟通/付款/外部执行继续**永久禁止**。已知边界：跨 run 的全局 RPM 并行状态仍为实例级、robots 每 run 重取、逐目标 Circuit 升级延后（run 级 Circuit 语义不变）。

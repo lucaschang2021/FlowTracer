@@ -1,9 +1,8 @@
 """ACQ-1C Router v1 run execution: circuit gate, ordered static stages, quality gate,
-cumulative budget ledger, and leak-free decision traces (ADR-034 / docs/57).
-
-This module owns the routed run path; ``app.services.acquisition`` keeps the legacy
-single-backend path. Browser backends are never selected here: candidate stages come
-from the frozen static table while the browser tail stays disabled.
+cumulative budget ledger, leak-free decision traces, and the WP-5 I2 crawl wiring
+(ADR-034 / docs/57 / docs/61). The routed run path lives here; the legacy
+single-backend path stays in ``app.services.acquisition`` and Browser backends are
+never selected (the candidate table is static and the browser tail stays disabled).
 """
 
 from __future__ import annotations
@@ -25,10 +24,11 @@ from app.domains.acquisition_ports import (
 )
 from app.domains.acquisition_ports import (
     AcquisitionRunRepository,
+    CrawlTransport,
     RunClaim,
     SourceRuntimeFacts,
 )
-from app.models.entities import BackendName, DiscoveryMode, Source, SourceType
+from app.models.entities import BackendName, Source, SourceType
 from app.services.acquisition import (
     _publish_repository_event,
     _repository_heartbeat_loop,
@@ -60,7 +60,14 @@ from app.services.acquisition_types import (
     CollectionError,
     ParseResult,
 )
-from app.services.discovery_frontier import DiscoveryPlan, plan_discovery
+from app.services.discovery_crawl import (
+    CrawlOutcome,
+    crawl_context_for,
+    discovery_enabled,
+    execute_discovery_crawl,
+    plan_seed_page,
+)
+from app.services.discovery_frontier import DiscoveryPlan
 from app.services.extraction import attach_extraction_observations
 from app.services.extraction_quality import aggregate_quality
 from app.services.site_gate import SiteGate
@@ -96,6 +103,7 @@ class _RouteRun:
         publisher: Any | None,
         started: float,
         site_gate: SiteGate | None = None,
+        discovery_transport: CrawlTransport | None = None,
     ) -> None:
         self.repository = repository
         self.claimed = claimed
@@ -108,6 +116,7 @@ class _RouteRun:
         self.publisher = publisher
         self.started = started
         self.site_gate = site_gate if site_gate is not None else SiteGate()
+        self.discovery_transport = discovery_transport
         self.throttle_snapshot: dict[str, int] = {}
         self.router_started_at = datetime.now(UTC)
         self.stage_started_at = self.router_started_at
@@ -137,6 +146,7 @@ async def execute_route_run(
     raw_dispatch: Dispatch | None = None,
     publisher: Any | None = None,
     site_gate: SiteGate | None = None,
+    discovery_transport: CrawlTransport | None = None,
 ) -> bool:
     """Routed run entrypoint: claim, then execute the ordered static stage chain."""
     started = time.monotonic()
@@ -156,6 +166,7 @@ async def execute_route_run(
         publisher=publisher,
         started=started,
         site_gate=site_gate,
+        discovery_transport=discovery_transport,
     )
     return await _run_claimed(route)
 
@@ -438,6 +449,13 @@ async def _finalize_success(
     evaluation: _StageEvaluation,
 ) -> bool:
     plan = _plan_discovery(route, evaluation)
+    crawl = await _run_crawl(route, candidate, plan)
+    discovery_summary: dict[str, Any] | None = None
+    if plan is not None:
+        discovery_summary = dict(plan.summary)
+        discovery_summary["crawl"] = (
+            {"skipped_reason": "no_crawl_transport"} if crawl is None else crawl.summary
+        )
     completion = await route.repository.finish_success(
         route.claimed,
         backend_name=candidate.backend.value,
@@ -453,7 +471,7 @@ async def _finalize_success(
         budget_summary=route_summary(
             route.traces,
             accepted_backend=candidate.backend,
-            discovery=None if plan is None else plan.summary,
+            discovery=discovery_summary,
             throttle={
                 **route.throttle_snapshot,
                 "delays_applied_ms": tuple(route.site_gate.delays_applied_ms),
@@ -461,7 +479,10 @@ async def _finalize_success(
         ),
         decision_version=ROUTER_VERSION,
         attempt_budget_used={**evaluation.usage, "trace": evaluation.trace},
-        discovery_checkpoint=None if plan is None else plan.checkpoint,
+        discovery_checkpoint=(plan.checkpoint if plan is not None and crawl is None else None),
+        crawl_pages_fetched=0 if crawl is None else crawl.pages_fetched,
+        crawl_pages_failed=0 if crawl is None else crawl.pages_failed,
+        crawl_observed=(None if crawl is None or not crawl.started else crawl.observed_keys),
     )
     if completion is None:
         return False
@@ -487,34 +508,40 @@ async def _finalize_success(
     return True
 
 
-def discovery_enabled(source_type: SourceType, mode: DiscoveryMode) -> bool:
-    """Discovery planning applies to URL sources that opted into a scope beyond single page."""
-    return source_type == SourceType.URL and mode != DiscoveryMode.SINGLE_PAGE
-
-
 def _plan_discovery(route: _RouteRun, evaluation: _StageEvaluation) -> DiscoveryPlan | None:
-    """Plan+checkpoint for one accepted URL page; None when discovery is inactive."""
     if route.profile is None or not discovery_enabled(
         route.source.source_type, route.source.discovery_mode
     ):
         return None
-    if not evaluation.met:
+    if not evaluation.met:  # planning follows only accepted-quality pages
         return None
-    policy = effective_site_policy(route.profile, route.source.normalized_url)
-    budget = route.profile.resource_budget
-    response = evaluation.result.response
-    return plan_discovery(
-        seed_url=route.source.normalized_url,
-        body=response.body,
-        content_type=response.content_type,
-        final_url=response.final_url,
-        scope=route.source.discovery_mode,
-        approved_domains=frozenset(policy.approved_domains),
-        allow_paths=policy.allow_paths,
-        deny_paths=policy.deny_paths,
+    return plan_seed_page(
+        source=route.source,
+        profile=route.profile,
+        response=evaluation.result.response,
         checkpoint=route.discovery_checkpoint,
-        max_depth=int(budget.max_depth),
-        max_discovered_urls=max(0, int(budget.max_pages)) * 5,
+    )
+
+
+async def _run_crawl(
+    route: _RouteRun, candidate: RouteCandidate, plan: DiscoveryPlan | None
+) -> CrawlOutcome | None:
+    if plan is None or route.discovery_transport is None or route.profile is None:
+        return None  # I1 path: no crawl transport wired into this worker
+    return await execute_discovery_crawl(
+        crawl_context_for(
+            repository=route.repository,
+            claim=route.claimed,
+            source=route.source,
+            profile=route.profile,
+            plan=plan,
+            transport=route.discovery_transport,
+            site_gate=route.site_gate,
+            backend_name=candidate.backend,
+            base_ordinal=candidate.stage,
+            seed_started_monotonic=route.started,
+            ledger=route.ledger.totals,
+        )
     )
 
 

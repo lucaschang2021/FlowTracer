@@ -17,7 +17,14 @@ from app.services.extraction_types import ExtractionObservation
 
 
 class CollectionError(Exception):
-    def __init__(self, code: str, message: str, *, retryable: bool = False) -> None:
+    def __init__(
+        self,
+        code: str,
+        message: str,
+        *,
+        retryable: bool = False,
+        status_code: int | None = None,
+    ) -> None:
         super().__init__(message)
         self.code = code
         self.safe_message = message[:500]
@@ -25,6 +32,8 @@ class CollectionError(Exception):
         self.retry_count = 0
         # Real requests issued (hops + retries) when the failure carries transport evidence.
         self.requests_made: int | None = None
+        # Upstream HTTP status when the failure came from an HTTP response (robots fetch).
+        self.status_code: int | None = status_code
 
 
 @dataclass(frozen=True, slots=True)

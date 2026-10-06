@@ -1,16 +1,16 @@
 from __future__ import annotations
 
-import hashlib
 from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import or_, select, update
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.domains.acquisition_ports import (
     CrawlPageRecord,
+    CrawlStepResult,
     PublishedEvent,
     RunClaim,
     RunCompletion,
@@ -21,11 +21,10 @@ from app.models.entities import (
     BackendName,
     CollectionRun,
     CollectionRunStatus,
-    RawItem,
-    RawItemStatus,
     Source,
     SourceAcquisitionState,
 )
+from app.models.raw_item import RawItem
 from app.services.acquisition import (
     _claim_run,
     _collection_event,
@@ -40,6 +39,7 @@ from app.services.acquisition_attempts import (
     _discovery_checkpoint,
     _record_attempt,
     next_attempt_ordinal,
+    persist_snapshot_items,
     write_crawl_page,
 )
 from app.services.acquisition_types import (
@@ -51,46 +51,6 @@ from app.services.change_tracking import EvidenceResult, record_version_evidence
 from app.services.opportunity_ingest import record_opportunity_items
 
 CIRCUIT_PROBE_LEASE_SECONDS = 60
-
-
-async def _persist_candidates(
-    session: AsyncSession,
-    *,
-    source: Source,
-    run: CollectionRun,
-    parsed: ParseResult,
-) -> tuple[list[RawItem], int]:
-    created: list[RawItem] = []
-    duplicates = 0
-    for candidate in parsed.candidates:
-        content_hash = hashlib.sha256(candidate.raw_text.encode("utf-8")).hexdigest()
-        predicates = [RawItem.external_id == candidate.external_id]
-        if candidate.dedupe_by_canonical:
-            predicates.append(RawItem.canonical_url == candidate.canonical_url)
-        predicates.append(RawItem.content_hash == content_hash)
-        duplicate = await session.scalar(
-            select(RawItem.id).where(RawItem.source_id == source.id, or_(*predicates))
-        )
-        if duplicate is not None:
-            duplicates += 1
-            continue
-        item = RawItem(
-            source_id=source.id,
-            collection_run_id=run.id,
-            external_id=candidate.external_id,
-            canonical_url=candidate.canonical_url,
-            title=candidate.title,
-            published_at=candidate.published_at,
-            fetched_at=datetime.now(UTC),
-            content_type=candidate.content_type,
-            raw_text=candidate.raw_text,
-            content_hash=content_hash,
-            item_metadata=candidate.metadata,
-            status=RawItemStatus.FETCHED,
-        )
-        session.add(item)
-        created.append(item)
-    return created, duplicates
 
 
 def _fill_run_success(
@@ -184,8 +144,6 @@ async def _record_success(
     result: AcquisitionResult,
     parsed: ParseResult,
     quality_score: Decimal | None,
-    created: list[RawItem],
-    duplicates: int,
     quality_met: bool = True,
     fallback_count: int = 0,
     ordinal: int = 1,
@@ -198,8 +156,22 @@ async def _record_success(
     crawl_pages_fetched: int = 0,
     crawl_pages_failed: int = 0,
     crawl_observed: tuple[str, ...] | None = None,
-) -> None:
+) -> list[RawItem]:
+    """Version evidence first, then qualifying RawItems, then run/state bookkeeping.
+
+    The I2 writer creates a RawItem only for qualifying snapshots (created /
+    content_changed); the rest of the observation contributes to duplicate_count."""
     finished_at = datetime.now(UTC)
+    created, duplicates = await _write_evidence_and_items(
+        session,
+        source=source,
+        run=run,
+        parsed=parsed,
+        body=result.response.body,
+        quality_score=quality_score,
+        finished_at=finished_at,
+        crawl_observed=crawl_observed,
+    )
     duration_ms = _fill_run_success(
         run=run,
         source=source,
@@ -216,6 +188,47 @@ async def _record_success(
         run_started_at=run_started_at,
         finished_at=finished_at,
     )
+    await _record_success_bookkeeping(
+        session,
+        source=source,
+        run=run,
+        backend=backend,
+        attempt_started_at=attempt_started_at,
+        result=result,
+        quality_score=quality_score,
+        finished_at=finished_at,
+        duration_ms=duration_ms,
+        ordinal=ordinal,
+        fallback_reason=fallback_reason,
+        attempt_budget_used=attempt_budget_used,
+        decision_version=decision_version,
+        discovery_checkpoint=discovery_checkpoint,
+        crawl_pages_fetched=crawl_pages_fetched,
+        crawl_pages_failed=crawl_pages_failed,
+    )
+    return created
+
+
+async def _record_success_bookkeeping(
+    session: AsyncSession,
+    *,
+    source: Source,
+    run: CollectionRun,
+    backend: BackendName,
+    attempt_started_at: datetime,
+    result: AcquisitionResult,
+    quality_score: Decimal | None,
+    finished_at: datetime,
+    duration_ms: int,
+    ordinal: int,
+    fallback_reason: str | None,
+    attempt_budget_used: dict[str, Any] | None,
+    decision_version: str,
+    discovery_checkpoint: dict[str, Any] | None,
+    crawl_pages_fetched: int,
+    crawl_pages_failed: int,
+) -> None:
+    """Crawl totals, the accepted-stage attempt row, and the source state update."""
     if crawl_pages_fetched or crawl_pages_failed:
         # Crawl pages extend the run totals; any failed target makes the run partial.
         run.fetched_count += crawl_pages_fetched
@@ -237,36 +250,6 @@ async def _record_success(
         attempt_budget_used=attempt_budget_used,
         decision_version=decision_version,
     )
-    await _apply_success_effects(
-        session,
-        run=run,
-        source=source,
-        backend=backend,
-        body=result.response.body,
-        parsed=parsed,
-        quality_score=quality_score,
-        duration_ms=duration_ms,
-        discovery_checkpoint=discovery_checkpoint,
-        crawl_observed=crawl_observed,
-        now=finished_at,
-    )
-
-
-async def _apply_success_effects(
-    session: AsyncSession,
-    *,
-    run: CollectionRun,
-    source: Source,
-    backend: BackendName,
-    body: bytes,
-    parsed: ParseResult,
-    quality_score: Decimal | None,
-    duration_ms: int,
-    discovery_checkpoint: dict[str, Any] | None,
-    crawl_observed: tuple[str, ...] | None,
-    now: datetime,
-) -> None:
-    """Source state, version evidence and downstream opportunity ingest for a success."""
     await _update_source_state(
         session,
         source_id=source.id,
@@ -275,20 +258,42 @@ async def _apply_success_effects(
         duration_ms=duration_ms,
         error_code=None,
         quality_score=quality_score,
-        now=now,
+        now=finished_at,
         checkpoint_update=discovery_checkpoint,
     )
+
+
+async def _write_evidence_and_items(
+    session: AsyncSession,
+    *,
+    source: Source,
+    run: CollectionRun,
+    parsed: ParseResult,
+    body: bytes,
+    quality_score: Decimal | None,
+    finished_at: datetime,
+    crawl_observed: tuple[str, ...] | None,
+) -> tuple[list[RawItem], int]:
+    """Version evidence, qualifying RawItems, and opportunity ingest for one success."""
     evidence = await _write_run_evidence(
         session,
         run=run,
         parsed=parsed,
         body=body,
         quality_score=quality_score,
-        fetched_at=now,
+        fetched_at=finished_at,
         crawl_observed=crawl_observed,
+    )
+    created, duplicates = await persist_snapshot_items(
+        session,
+        source_id=source.id,
+        run_id=run.id,
+        writes=evidence.writes,
+        fetched_at=finished_at,
     )
     # Opportunity items exist only for opportunity-family sources; other sources untouched.
     await record_opportunity_items(session, source=source, evidence=evidence, body=body)
+    return created, duplicates
 
 
 async def _write_run_evidence(
@@ -372,10 +377,7 @@ class SqlAlchemyAcquisitionRunRepository:
             if source is None or run is None:
                 await session.rollback()
                 return None
-            created, duplicates = await _persist_candidates(
-                session, source=source, run=run, parsed=parsed
-            )
-            await _record_success(
+            created = await _record_success(
                 session,
                 source=source,
                 run=run,
@@ -384,8 +386,6 @@ class SqlAlchemyAcquisitionRunRepository:
                 result=result,
                 parsed=parsed,
                 quality_score=quality_score,
-                created=created,
-                duplicates=duplicates,
                 quality_met=quality_met,
                 fallback_count=fallback_count,
                 ordinal=attempt_ordinal,
@@ -517,7 +517,7 @@ class SqlAlchemyAcquisitionRunRepository:
         expected_version: int,
         checkpoint: dict[str, Any],
         page: CrawlPageRecord | None = None,
-    ) -> int | None:
+    ) -> CrawlStepResult | None:
         """Claim-guarded CAS write for one crawl step (reserve/release or page record).
 
         The state row lock serializes the version check; a claim that is no longer the
@@ -543,12 +543,15 @@ class SqlAlchemyAcquisitionRunRepository:
             if state is None or state.version != expected_version:
                 await session.rollback()
                 return None
+            raw_item_id = None
             if page is not None:
-                await write_crawl_page(session, run=run, source_id=claim.source.id, page=page)
+                raw_item_id = await write_crawl_page(
+                    session, run=run, source_id=claim.source.id, page=page
+                )
             state.checkpoint = checkpoint
             state.version += 1
             await session.commit()
-            return expected_version + 1
+            return CrawlStepResult(expected_version + 1, raw_item_id)
 
     async def claim_alive(self, claim: RunClaim[Source]) -> bool:
         async with self._factory() as session:

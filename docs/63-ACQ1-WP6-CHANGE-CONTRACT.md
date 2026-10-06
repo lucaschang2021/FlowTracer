@@ -6,7 +6,7 @@
 ## 0. 增量拆分（冻结）
 
 - **I1（本增量，已实现：shadow-write 版本证据）**：`source_artifacts` / `acquisition_snapshots` / `change_events` 三表、三类指纹（content/metadata/structure）、噪声规范化、materiality 与 change_type 分类、bounded field diff、removed 判定、legacy backfill、迁移循环与安全 downgrade guard。**RawItem 写路径不变**（无 `snapshot_id` 列、无 writer 切换、无公开 API）。
-- **I2（未准入）**：RawItem writer 切换（`snapshot_id` 列 + 部分唯一索引重建 + 仅 qualifying Snapshot 生成 RawItem）、读取 API（`GET /sources/{id}/changes`、`GET /sources/{id}/artifacts/{artifact_id}/changes`）、notification 资格化下游、`semantic-change-v1` 语义变化（复用既有 Analysis Provider，调用在事务外）。
+- **I2（已准入并实现，2026-10-06，收口 Phase 3 / ADR-040；注记见 §17）**：RawItem writer 切换（`snapshot_id` 列 + 部分唯一索引重建 + 仅 qualifying Snapshot 生成 RawItem）、读取 API（`GET /sources/{id}/changes`、`GET /sources/{id}/artifacts/{artifact_id}/changes`）、notification 资格化下游（新 RawItem 与既有管线同路）。**`semantic-change-v1` 语义变化不在收口验收范围，未启用**（docs/71 §Phase 3 验收为 3.1-3.5；避免为收口扩张外部 AI 调用路径）。
 
 ## 1. 实体与 schema（FROZEN，docs/23 §10/§13）
 
@@ -65,3 +65,13 @@
 - 测试矩阵 `tests/test_acquisition_change.py`：**12/12**（纯提取 5 + 版本序列/分类/并发/removed 4 + backfill/RawItem 兼容 2 + 迁移循环与守卫 1）。
 - 定向回归（change/acquisition/lease/router/discovery）：**56/56**；全量与覆盖率见 `docs/64-ACQ1-WP6-CHANGE-STAGE-REPORT.md`。
 - 架构门（跟踪后）`introduced=0`；`alembic check` 零漂移；ruff/format/mypy 全绿。
+
+## 17. 实现注记（2026-10-06，RawItem writer switch / I2 实值；ADR-040）
+
+1. **模块**：`models/raw_item.py`（RawItem + RawItemStatus；entities 重新导出，净减行）、`models/types.py`（TimestampMixin 上移）、`services/change_backfill.py`（legacy 回填与快照链接；`change_tracking.backfill_source_evidence` 保留为兼容入口）、`services/change_queries.py`（读取查询）、`schemas/changes.py`、`api/v1/routes/changes.py`。
+2. **合格定义**：`created` / `content_changed` 生成 RawItem（`snapshot_id` 唯一）；其余 change_type 计入 run 的 `duplicate_count`；同一快照已拥有 item 时不再新建（内容回退场景）。旧的三级去重（external_id/canonical/content_hash）由快照身份取代：entry 指向新 canonical URL → 新 artifact → 新 item（`test_acquisition.py` 的计数断言已按此语义更新并注明）。
+3. **迁移 0008**：`snapshot_id` 列 + FK `fk_raw_items_snapshot` + 部分唯一 `uq_raw_items_snapshot` + legacy 索引重建（WHERE 改为 `external_id IS NOT NULL AND snapshot_id IS NULL`）；**downgrade guard**：存在链接行即拒绝；空态循环（0008→0007→0006→0005→0004→head）与拒绝路径均有测试。
+4. **回填**：逐 item 建立 v1 链（origin=legacy_backfill）并设置 `raw_items.snapshot_id`；artifact 已存在但 item 未链接时，按 `content_fingerprint(normalize(raw_text))` 匹配既有快照链接；二次调用返回 0（幂等）；计数语义 = 本次获得链接的 item 数。
+5. **读取 API**：`GET /sources/{id}/changes`（artifact_id/change_type 过滤、分页）与 `GET /sources/{id}/artifacts/{artifact_id}/changes`；响应 `previous/current` 仅含 bounded `SnapshotRef`（id/version/title/content_hash/quality/fetched_at）；所有权经 `resources.get_source`；他源 404、非法 change_type 422；OpenAPI 冻结快照已更新（`export_openapi --check` 零漂移）。
+6. **下游**：合格 item 与既有 dispatch/清洗/分析/通知管线同路；crawl 页的 item 由 run 成功时统一 dispatch（`CrawlStepResult.raw_item_id` → `CrawlOutcome.raw_item_ids`），遗漏由既有 pending 扫描兜底。
+7. **兼容验证**：`test_acq1_final_e2e`/`test_acquisition`/`test_acquisition_change`/`test_models` 的 I1 断言按 I2 语义更新（列存在、计数、索引契约）；新增 `tests/test_acq1_closure_p3.py`（7 项：写路径/序列/读取 API/下游/回填）。

@@ -6,6 +6,8 @@ module budget and imports only allowed layers (models, domain ports, service typ
 
 from __future__ import annotations
 
+import hashlib
+from collections.abc import Sequence
 from datetime import datetime
 from decimal import Decimal
 from typing import Any
@@ -23,10 +25,12 @@ from app.models.entities import (
     CollectionRunStatus,
     SourceAcquisitionState,
 )
+from app.models.raw_item import RawItem, RawItemStatus
 from app.services.acquisition_types import CollectionError, RawCandidate
-from app.services.change_tracking import record_page_evidence
+from app.services.change_tracking import EvidenceWrite, record_page_evidence
 
 DECISION_VERSION = "acquisition-native-v1"
+QUALIFYING_CHANGE_TYPES = frozenset({"created", "content_changed"})
 
 
 async def next_attempt_ordinal(session: AsyncSession, run_id: UUID, requested: int) -> int:
@@ -192,6 +196,61 @@ async def _record_attempt(
         return True
 
 
+def raw_item_from_snapshot(
+    write: EvidenceWrite, *, source_id: UUID, run_id: UUID, fetched_at: datetime
+) -> RawItem:
+    """Build the RawItem identity for one qualifying snapshot (docs/23 §10/§13)."""
+    candidate = write.candidate
+    return RawItem(
+        source_id=source_id,
+        collection_run_id=run_id,
+        snapshot_id=write.snapshot_id,
+        external_id=candidate.external_id,
+        canonical_url=candidate.canonical_url,
+        title=candidate.title,
+        published_at=candidate.published_at,
+        fetched_at=fetched_at,
+        content_type=candidate.content_type,
+        raw_text=candidate.raw_text,
+        content_hash=hashlib.sha256(candidate.raw_text.encode("utf-8")).hexdigest(),
+        item_metadata=candidate.metadata,
+        status=RawItemStatus.FETCHED,
+    )
+
+
+async def persist_snapshot_items(
+    session: AsyncSession,
+    *,
+    source_id: UUID,
+    run_id: UUID,
+    writes: Sequence[EvidenceWrite],
+    fetched_at: datetime,
+) -> tuple[list[RawItem], int]:
+    """Create RawItems for qualifying snapshots; return (created, duplicates).
+
+    Qualifying = ``created`` / ``content_changed``. Everything else (``unchanged``,
+    metadata/structure-only changes, removed, or a reused snapshot that already has
+    its item) contributes to the run's duplicate count instead of a new item."""
+    created: list[RawItem] = []
+    duplicates = 0
+    for write in writes:
+        if write.change_type not in QUALIFYING_CHANGE_TYPES:
+            duplicates += 1
+            continue
+        existing = await session.scalar(
+            select(RawItem.id).where(RawItem.snapshot_id == write.snapshot_id)
+        )
+        if existing is not None:
+            duplicates += 1
+            continue
+        item = raw_item_from_snapshot(
+            write, source_id=source_id, run_id=run_id, fetched_at=fetched_at
+        )
+        session.add(item)
+        created.append(item)
+    return created, duplicates
+
+
 def _candidate_from_evidence(payload: dict[str, Any]) -> RawCandidate:
     return RawCandidate(
         external_id=str(payload.get("external_id") or ""),
@@ -210,8 +269,11 @@ async def write_crawl_page(
     run: CollectionRun,
     source_id: UUID,
     page: CrawlPageRecord,
-) -> None:
-    """Persist one crawled page: its attempt row, and (on success) version evidence."""
+) -> UUID | None:
+    """Persist one crawled page: attempt row, version evidence, qualifying RawItem.
+
+    Returns the RawItem id when the page observation qualified (created / content
+    change), else None."""
     ordinal = await next_attempt_ordinal(session, run.id, page.ordinal)
     error = (
         None
@@ -244,8 +306,8 @@ async def write_crawl_page(
         )
     )
     if page.status != "succeeded" or page.evidence is None:
-        return
-    await record_page_evidence(
+        return None
+    write = await record_page_evidence(
         session,
         run=run,
         candidate=_candidate_from_evidence(page.evidence),
@@ -253,3 +315,14 @@ async def write_crawl_page(
         quality_score=page.quality_score,
         fetched_at=page.finished_at,
     )
+    created, _duplicates = await persist_snapshot_items(
+        session,
+        source_id=source_id,
+        run_id=run.id,
+        writes=(write,),
+        fetched_at=page.finished_at,
+    )
+    if not created:
+        return None
+    await session.flush()
+    return created[0].id

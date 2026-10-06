@@ -84,7 +84,9 @@
 - **2.5 取消/恢复**：取消（claim 丢失即停）、检查点恢复（CAS）、崩溃恢复（stale worker 重入不重复消费、不丢失待处理目标）。
 - **2.6 并发去重证明**：双 worker 并发场景不重复抓取。
 
-## Phase 3 — WP-6 变更情报：完整写路径
+## Phase 3 — WP-6 变更情报：完整写路径 —— **已完成（2026-10-06）**
+
+> **状态：COMPLETE。** I2 写路径切换经 ADR-040 准入：合格快照（created/content_changed）生成新 RawItem（快照唯一身份 + 迁移 0008 + 回填链接 + downgrade guard）、变化→清洗→分析→通知整链、Change/Artifact 读取 API（OpenAPI 冻结更新）、removed/重现/回退/重复观测序列验证全部有证据；见 `docs/75-ACQ1-CLOSURE-P3-REPORT.md`。`semantic-change-v1` 明确不在收口范围（记录边界）。
 
 - **3.1 合格变化产生新下游输入**：改造去重规则（同源新版本产生新 RawItem），含迁移/回填/兼容验证。
 - **3.2 接入下游链路**：变化 → 清洗 → 分析 → 情报 → 适用通知（新版本 Document/Analysis 与通知资格）。

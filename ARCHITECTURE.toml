@@ -325,10 +325,11 @@ ag0_changes_ci = false
 
 [gate.compatibility]
 api_drift = "forbidden"
-# Re-frozen by WP-7 (docs/65 §7, ADR-037): contract-mandated opportunity endpoints,
-# RadarType enum value, and notification kind/opportunity_id. Previous blob:
+# Re-frozen by ACQ-1 closure Phase 3 (docs/75, ADR-040): contract-mandated
+# change-history read endpoints (docs/23 §14). Previous blobs:
+# 15446149558692d02729e63832de1a72f0df9f9f (WP-7),
 # 67d99e7ca912ce7e299346ec9efe0a53b32d485b (Alpha baseline).
-openapi_blob = "15446149558692d02729e63832de1a72f0df9f9f"
+openapi_blob = "faff18501e341a356aa0bb319a800b839ceccdfc"
 database_drift = "forbidden"
 alembic_head = "20260830_0004"
 migration_changes = "forbidden"

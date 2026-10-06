@@ -38,6 +38,8 @@ EXPECTED_PATHS = {
     "/api/v1/radars/{radar_id}/sources/{source_id}",
     "/api/v1/sources",
     "/api/v1/sources/{source_id}",
+    "/api/v1/sources/{source_id}/artifacts/{artifact_id}/changes",
+    "/api/v1/sources/{source_id}/changes",
     "/api/v1/sources/{source_id}/collect",
     "/api/v1/sources/{source_id}/pause",
     "/api/v1/sources/{source_id}/resume",

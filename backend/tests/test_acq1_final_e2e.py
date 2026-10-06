@@ -439,5 +439,6 @@ class TestDisabledCapabilitiesStayClosed:
         assert {candidate.backend for candidate in candidates}.isdisjoint(
             {BackendName.DYNAMIC_BROWSER, BackendName.ADVANCED_BROWSER}
         )
-        # Change I2 (RawItem writer switch) is not admitted: the column must not exist.
-        assert "snapshot_id" not in RawItem.__table__.columns
+        # Change I2 (RawItem writer switch) is admitted since closure Phase 3: the
+        # snapshot identity column exists and new items are linked to snapshots.
+        assert "snapshot_id" in RawItem.__table__.columns

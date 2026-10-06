@@ -323,3 +323,18 @@
   6. **证据**：每个被抓取页面产生 attempt 行（`decision_version=discovery-crawl-v1`、backend=接受的 stage）并写入版本证据（artifact/snapshot/change event）；**本增量不改变 RawItem 写入**（下游链路接线属收口 Phase 3/WP-6）；crawl run 暂停 miss-streak 移除判定（consume-once 不是全量重复观测周期，避免对已消费页面误报 removed）——该边界记录为后续 WP 的扩展点。
   7. **run 语义**：抓取页失败 → PARTIAL 且 `failed_count` 累计；预算/robots 停止 → SUCCEEDED（以 `budget_summary.discovery.crawl` 证据为准）；`fetched_count` 含抓取页。
 - 兼容与不变式：公开 API/Schema/OpenAPI/迁移**零变化**（checkpoint JSONB 复用，docs/61 §12.3）；SSRF/SitePolicy/预算/dispatch 边界只收紧不放宽；Browser 保持 disabled；自动投标/报价/沟通/付款/外部执行继续**永久禁止**。已知边界：跨 run 的全局 RPM 并行状态仍为实例级、robots 每 run 重取、逐目标 Circuit 升级延后（run 级 Circuit 语义不变）。
+
+
+## ADR-040：WP-6 I2 写路径切换准入（RawItem snapshot identity + 读取 API）
+
+- 状态：**Accepted**（2026-10-06，收口 Phase 3；实现与证据见 `docs/75-ACQ1-CLOSURE-P3-REPORT.md`）
+- 背景：`docs/63` §0 冻结 WP-6 两增量：I1（shadow-write 版本证据，已实现且 RawItem 写路径不变）与 I2（RawItem writer 切换、读取 API、notification 资格化下游、semantic-change-v1）。独立审核清单要求完成“完整 WP-6 写路径”：合格变化产生新下游输入（同源新版本产生新 RawItem）、变化→清洗→分析→情报→适用通知、Change/Artifact 读取 API、序列验证、写路径切换（迁移/回填/兼容/downgrade guard）。
+- 决策（I2 语义冻结）：
+  1. **RawItem 身份切换（docs/23 §10/§13）**：新增 nullable `raw_items.snapshot_id`（FK RESTRICT）+ `UNIQUE(snapshot_id) WHERE snapshot_id IS NOT NULL`；`uq_raw_items_source_external` 重建为 `(source_id, external_id) WHERE external_id IS NOT NULL AND snapshot_id IS NULL` 的 legacy 部分唯一索引。**合格快照 = `created`/`content_changed`** 才产生新 RawItem；`unchanged`、`metadata_changed`、`structure_changed` 仅保留 ChangeEvent（重复计数）；回退至既有快照（内容回退）复用旧快照且**不再重复生成** RawItem（快照已唯一拥有其 item）；`removed` 不产生 item。Profile 级“元数据/结构升级为 RawItem”开关不在本次启用（记录为未启用扩展点）。
+  2. **写路径**：evidence 先写、随后由合格 EvidenceWrite 生成 RawItem（同一事务）；repository 与 crawl 页提交共用 `persist_snapshot_items`；`.models/raw_item.py` 承接 RawItem 模型（entities 净减行，规避门禁基线模块增长规则），`TimestampMixin` 上移 `models/types.py`。
+  3. **迁移 0008**：expand + 索引重建；**downgrade guard**：存在 `snapshot_id IS NOT NULL` 行时拒绝降级（I2 writer 产物无法被 legacy 约束表达）。
+  4. **回填**：`change_backfill.backfill_source_evidence` 为 legacy item 建立 v1 链并**链接** `snapshot_id`；对已存在 artifact 的 item，按内容指纹匹配既有快照链接；幂等（二次调用 0）。
+  5. **读取 API（docs/23 §14）**：`GET /api/v1/sources/{id}/changes` 与 `GET /api/v1/sources/{id}/artifacts/{artifact_id}/changes`——所有权校验、分页（page/page_size ≤100）、`change_type`/`artifact_id` 过滤；响应仅含有界证据（field_diff 值 ≤200 字符、指纹、版本、标题），不含正文/Prompt/内部 trace。OpenAPI 冻结快照同步更新。
+  6. **下游链路**：合格变化产生的新 RawItem 与既有管线同路（dispatch → 清洗 → 分析 → 情报 → 通知资格）；crawl 页产生的 RawItem 随 run 成功一并 dispatch（未 dispatch 的 FETCHED 项由既有 pending 扫描兜底）。
+- 兼容与回滚：`snapshot_id` nullable 保持 legacy 行与约束语义；回滚 = 关闭 writer（回退代码）+ 0008 降级（空 writer 状态）。
+- 边界：`semantic-change-v1`（LLM 语义变化分类，docs/23 §10）**不在收口验收范围**，未在本 ADR 启用（避免为收口扩张外部 AI 调用路径）；documents 与 RawItem 的版本关联（前代 Document 链接）不在本次范围。

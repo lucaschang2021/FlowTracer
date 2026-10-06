@@ -18,6 +18,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from typing import Any
 from urllib.parse import urlsplit
+from uuid import UUID
 
 from app.domains.acquisition_ports import CrawlTransport, RunClaim
 from app.models.entities import BackendName, DiscoveryMode, Source, SourceType
@@ -61,6 +62,7 @@ class CrawlOutcome:
     started: bool
     summary: dict[str, Any]
     observed_keys: tuple[str, ...]
+    raw_item_ids: tuple[UUID, ...]
     pages_fetched: int
     pages_failed: int
     complete: bool
@@ -158,6 +160,7 @@ def _skipped(summary_reason: str) -> CrawlOutcome:
             "bytes_received": 0,
         },
         observed_keys=(),
+        raw_item_ids=(),
         pages_fetched=0,
         pages_failed=0,
         complete=False,
@@ -190,7 +193,7 @@ async def execute_discovery_crawl(ctx: CrawlContext) -> CrawlOutcome:
     state = CrawlState(
         ctx=ctx,
         checkpoint=document,
-        version=committed,
+        version=committed.version,
         ordinal_cursor=ctx.base_ordinal + 1,
     )
     await _crawl_loop(state)
@@ -203,7 +206,7 @@ async def execute_discovery_crawl(ctx: CrawlContext) -> CrawlOutcome:
             state.claim_lost = True
         else:
             state.checkpoint = released
-            state.version = cleared
+            state.version = cleared.version
     return _outcome(state)
 
 
@@ -314,6 +317,7 @@ def _outcome(state: CrawlState) -> CrawlOutcome:
         "claim_lost": state.claim_lost,
         "pages_fetched": state.pages_fetched,
         "pages_failed": state.pages_failed,
+        "raw_items_created": len(state.raw_item_ids),
         "robots_skipped": state.robots_skipped,
         "requests_used": state.requests_used,
         "bytes_received": state.bytes_used,
@@ -324,6 +328,7 @@ def _outcome(state: CrawlState) -> CrawlOutcome:
         started=True,
         summary=summary,
         observed_keys=tuple(state.observed),
+        raw_item_ids=tuple(state.raw_item_ids),
         pages_fetched=state.pages_fetched,
         pages_failed=state.pages_failed,
         complete=complete,

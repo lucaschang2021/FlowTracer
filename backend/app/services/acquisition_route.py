@@ -187,9 +187,18 @@ async def _route_attempts(route: _RouteRun) -> bool:
     route.profile = profile
     route.chain = _select_chain(route, profile)
     facts = await route.repository.circuit_facts(route.source.id)
-    blocked = circuit_blocks(facts, datetime.now(UTC))
+    now = datetime.now(UTC)
+    blocked = circuit_blocks(facts, now)
     if blocked is not None:
         raise CollectionError(blocked, "Source circuit is open", retryable=False)
+    if facts is not None and facts.circuit_open_until is not None:
+        # The window has expired (circuit_blocks admitted it): this is the half-open
+        # state. Exactly one probe may proceed — the atomic claim loses for every
+        # concurrent run, which refuses without transmitting.
+        if not await route.repository.claim_circuit_probe(route.source.id, now=now):
+            raise CollectionError(
+                "acquisition_circuit_open", "Source circuit is open", retryable=False
+            )
     await _apply_throttle(route, facts, profile)
     route.budget = effective_resource_budget(profile)
     if discovery_enabled(route.source.source_type, route.source.discovery_mode):
@@ -217,20 +226,33 @@ async def _route_attempts(route: _RouteRun) -> bool:
 
 
 def _select_chain(route: _RouteRun, profile: Any) -> list[tuple[RouteCandidate, RunBackend]]:
+    effective = effective_resource_budget(profile)
+    # The controlled static-retry stage exists only when the effective budget can fund
+    # a second page/request (ADR-038); the default profile stays single-stage.
+    allow_static_retry = effective.max_pages >= 2 and effective.max_requests >= 2
     candidates = select_candidates(
         source_type=route.source.source_type,
         mode=route.source.acquisition_mode,
         allow_browser=bool(profile.allow_browser),
+        allow_static_retry=allow_static_retry,
     )
     chain: list[tuple[RouteCandidate, RunBackend]] = []
     for candidate in candidates:
         implementation = route.backends.get(candidate.backend)
         if implementation is None:
+            if candidate.stage > 1:
+                # A fallback stage whose backend is not wired in this worker is simply
+                # unavailable; the primary stage must always resolve.
+                continue
             raise CollectionError(
                 "acquisition_no_backend",
                 "No acquisition backend is available for this source",
             )
         chain.append((candidate, implementation))
+    if not chain:  # pragma: no cover - the primary candidate is always present
+        raise CollectionError(
+            "acquisition_no_backend", "No acquisition backend is available for this source"
+        )
     return chain
 
 

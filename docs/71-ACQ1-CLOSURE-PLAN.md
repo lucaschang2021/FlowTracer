@@ -64,7 +64,9 @@
 - **文件**：`services/change_tracking.py`、`tests/`。
 - **验收/证据**：450 条记录两批全覆盖；重复调用为 no-op。
 
-## Phase 1 — WP-4 路由器收口
+## Phase 1 — WP-4 路由器收口 —— **已完成（2026-10-06）**
+
+> **状态：COMPLETE。** 契约变更 ADR-038（注册受控静态重试阶段，经 SafeFetcher）、生产路径降级/共享预算/Circuit 半开并发保护/节流恢复全部收口并有证据，见 `docs/73-ACQ1-CLOSURE-P1-REPORT.md`。
 
 - **1.1 生产路径有效选择与受控降级证明**：以**真实 `NativeAcquisitionBackend` + `SafeFetcher`**（仅传输层替换为离线确定性 transport；选择器/路由/账本/解析全部真实）跑出降级链；"测试替换选择器"不作为证据。
 - **1.2 降级/重试/重定向共享同一预算**：基于 Phase 0.1，在单 run 混合场景断言累计精确（含 fallback 与重定向）。

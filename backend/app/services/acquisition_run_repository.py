@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import hashlib
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from typing import Any
 from uuid import UUID
 
-from sqlalchemy import or_, select
+from sqlalchemy import or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.domains.acquisition_ports import (
@@ -23,6 +23,7 @@ from app.models.entities import (
     RawItem,
     RawItemStatus,
     Source,
+    SourceAcquisitionState,
 )
 from app.services.acquisition import (
     _claim_run,
@@ -45,6 +46,8 @@ from app.services.acquisition_types import (
 )
 from app.services.change_tracking import record_version_evidence
 from app.services.opportunity_ingest import record_opportunity_items
+
+CIRCUIT_PROBE_LEASE_SECONDS = 60
 
 
 async def _persist_candidates(
@@ -401,6 +404,25 @@ class SqlAlchemyAcquisitionRunRepository:
 
     async def circuit_facts(self, source_id: UUID) -> SourceRuntimeFacts | None:
         return await _circuit_facts(self._factory, source_id)
+
+    async def claim_circuit_probe(self, source_id: UUID, *, now: datetime) -> bool:
+        async with self._factory() as session:
+            result = await session.execute(
+                update(SourceAcquisitionState)
+                .where(
+                    SourceAcquisitionState.source_id == source_id,
+                    SourceAcquisitionState.circuit_open_until.is_not(None),
+                    SourceAcquisitionState.circuit_open_until <= now,
+                )
+                .values(
+                    circuit_open_until=now + timedelta(seconds=CIRCUIT_PROBE_LEASE_SECONDS),
+                    version=SourceAcquisitionState.version + 1,
+                )
+                .returning(SourceAcquisitionState.source_id)
+            )
+            claimed = result.scalar_one_or_none() is not None
+            await session.commit()
+            return claimed
 
     async def discovery_checkpoint(self, source_id: UUID) -> dict[str, Any]:
         return await _discovery_checkpoint(self._factory, source_id)

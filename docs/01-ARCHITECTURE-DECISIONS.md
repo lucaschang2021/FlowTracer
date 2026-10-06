@@ -300,3 +300,11 @@
 - 兼容：`entities.py` 为基线上限模块，Notification（连同两个枚举）移入 `app/models/notification.py`、enum 助手移入 `app/models/types.py` 并由 entities 重新导出（净减行）；新 API/schema 文件不新增 `models_persistence` 跨层导入指纹；WS 事件不扩张（ADR-026）。
 - 边界：本 ADR 不实现自动投标/报价/沟通/付款/外部执行（永久禁止），不批准任何平台自动访问；I2 与 WP-8 须各自独立准入。
 
+
+## ADR-038：WP-4 收口注册受控静态重试阶段（production static-retry）
+
+- 状态：**Accepted**（2026-10-06，收口 Phase 1；实现与证据见 `docs/73-ACQ1-CLOSURE-P1-REPORT.md`）
+- 背景：独立审核确认“测试替换选择器不能代替生产能力”——原冻结裁定（`docs/57` §15.1）因 `scrapling_http` 无独立安全网络路径而不注册为生产 stage，导致生产候选链仅 (`native_http`,)，生产路径不存在可执行的受控降级。
+- 决策：注册**受控静态重试阶段**（`BackendName.SCRAPLING_HTTP`，stage 2、`static_retry`），与主阶段同样**强制经 `SafeFetcher`**（NetworkPolicy/SitePolicy/预算/逐跳计费/站点限速全部复用），因此不存在旁路；候选表按**有效预算**门控：`effective.max_pages >= 2 且 effective.max_requests >= 2` 时 URL 链为 `(native_static, static_retry)`，默认 profile（`max_pages=1`）保持单阶段，`docs/57` §15.4 的预算 fail-closed 语义不变。worker 始终装配 stage 2 后端；链构建时缺失的非主阶段视为不可用（不静默降级主阶段），主阶段缺失仍 `acquisition_no_backend` 终态。
+- 安全：Browser 尾部保持 disabled；`allow_browser` 请求继续 fail-closed；重试阶段与主阶段共享 run 级账本（降级/重试/重定向逐跳累计）与站点门（crawl delay/RPM 间距、同主机串行）。
+- 兼容：默认 profile 行为零变化；`docs/57` 补充 §16 收口注记；`docs/71` Phase 1.1 由此闭环。

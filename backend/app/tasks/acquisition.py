@@ -40,6 +40,8 @@ def collect_source(self: Any, run_id: str, correlation_id: str | None = None) ->
 
         async def collect(factory: Any) -> bool:
             repository = SqlAlchemyAcquisitionRunRepository(factory)
+            # One controlled fetcher pipeline per worker; the static-retry fallback
+            # stage re-fetches through the same SafeFetcher class (ADR-038).
             native = NativeAcquisitionBackend(SafeFetcher())
             return bool(
                 await _with_events(
@@ -49,6 +51,7 @@ def collect_source(self: Any, run_id: str, correlation_id: str | None = None) ->
                         backends={
                             BackendName.RSS: native,
                             BackendName.NATIVE_HTTP: native,
+                            BackendName.SCRAPLING_HTTP: NativeAcquisitionBackend(SafeFetcher()),
                         },
                         correlation_id=resolved_correlation_id,
                         task_id=str(self.request.id),

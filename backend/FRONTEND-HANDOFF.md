@@ -60,6 +60,7 @@ unavailability. Stable client-visible codes include:
   `embedding_provider_unavailable`, `embedding_auth_failed`
 - `opportunity_not_found` (missing or cross-user opportunity), `action_payload_unavailable`
   (opportunity exists but has no scored, human-approved action payload yet)
+- `resource_not_found` for missing/cross-user sources or artifacts on the change-history endpoints
 - `internal_error` (show a generic retry/error UI and retain the request ID for diagnostics)
 
 ## Pagination and ordering
@@ -87,6 +88,7 @@ timestamps. Filters and exact request/response schemas are defined in OpenAPI.
 | Memory | `GET/POST /bookmarks`, `PATCH/DELETE /bookmarks/{bookmark_id}`, `POST /memory/search` |
 | Notification | `GET /notifications`, `POST /notifications/{notification_id}/read`, `POST /notifications/read-all` |
 | Opportunity | `GET /opportunities`, `GET /opportunities/{opportunity_id}`, `GET /opportunities/{opportunity_id}/action-payload` |
+| Change history | `GET /sources/{source_id}/changes`, `GET /sources/{source_id}/artifacts/{artifact_id}/changes` |
 
 Manual collection and retry return HTTP 202. Collection responses include `Location`; clients
 poll the referenced CollectionRun. `Idempotency-Key` on manual collection is optional, printable
@@ -209,6 +211,21 @@ After every reconnect, foreground resume, 1013, or suspected event gap, recover 
 - notifications: `GET /notifications?status=unread`
 - opportunities: `GET /opportunities` and `GET /opportunities/{opportunity_id}/action-payload`
 
+## Change history endpoints
+
+`GET /sources/{source_id}/changes` lists version-evidence change events for a source; the
+per-artifact variant `GET /sources/{source_id}/artifacts/{artifact_id}/changes` scopes the same
+event stream to one artifact. Both use the standard pagination envelope and accept
+`change_type` (`created`, `unchanged`, `content_changed`, `metadata_changed`,
+`structure_changed`, `removed`); the source-level endpoint also accepts `artifact_id`.
+
+Each item carries bounded display evidence only: the change `change_type`, `materiality`
+(0..1), `field_diff` (bounded old/new values, at most 200 characters per value), the artifact
+identity (`artifact_id`, `artifact_key`, `canonical_url`), `occurred_at`, `detector_version`,
+and `previous`/`current` snapshot references (`id`, `version`, `title`, `content_hash`,
+`quality_score`, `fetched_at`). Raw page content, prompts, and internal traces are never
+returned. `created` events have no `previous`; `removed` events have no `current`.
+
 ## Opportunity notifications and action payloads
 
 `NotificationResponse` carries `kind` and nullable fact targets: `analysis_id` is set only for
@@ -218,21 +235,29 @@ unchanged); recover them through `GET /notifications`.
 
 Opportunity list filters: `radar_id`, `status`, `recommendation`, `min_score`, `currency`
 (ISO-4217 uppercase), `deadline` (returns opportunities whose deadline is not after the value).
-The detail response embeds the latest score. The action payload endpoint returns the immutable,
+The detail response embeds the latest score; a changed observation re-enters the evaluator and produces a new scored version (latest by `scored_at` wins). Items flip to `expired` when their deadline passes and to `removed` when the source page disappears; a reappearing page reactivates the item. The action payload endpoint returns the immutable,
 non-executable projection (`payload`, `payload_version`, `payload_hash`, `generated_at`); the
 payload always contains `requires_human_approval=true` and never carries credentials, proposal
 text, or any execution capability. Treat the payload as read-only display data.
 
 ## Known Alpha limits
 
-- RSS and a single HTML page are supported; no authenticated browsing or deep crawl.
-- Dynamic/Advanced Browser is disabled and not admitted; sources must stay on the static paths.
-- Controlled Discovery plans a frontier but does not fetch discovered URLs yet (I2 not admitted).
-- Change Intelligence is shadow-written evidence; RawItem production conditions are unchanged.
-- Opportunity Radar v1 covers first-seen listings only: scores are produced by the background
-  evaluator (one deterministic pass per opportunity and radar), re-evaluation of changed versions,
-  platform-side access authorization workflows, and multi-currency FX are not part of this Alpha.
-  Action payloads are read-only and require a human to act outside this product.
+- RSS and HTML URL sources are supported; Dynamic/Advanced Browser stays disabled and is not
+  admitted (R3 BLOCKED) — sources must stay on the static paths.
+- Controlled Discovery consumes its frontier through the same SafeFetcher pipeline (robots policy,
+  per-hop scope/SSRF re-checks, cross-page budgets). Targets are consumed once per artifact:
+  completed pages are not re-crawled on later runs, and discovery-side removal detection is not
+  performed (feed/single-page sources keep the two-miss removal rule).
+- Change Intelligence drives the write path: qualifying snapshots (`created`, `content_changed`)
+  produce new RawItems (snapshot-identity linked); metadata/structure-only changes stay events.
+  Non-qualifying observations count as duplicates, so `duplicate_count` now means "already-covered
+  content", not "identical raw text".
+- Opportunity Radar covers first-seen and changed listings: changed pages refresh the item in
+  place, re-evaluation produces a new scored version (and a new notification when it qualifies),
+  and `expired`/`removed` transitions follow deadline and disappearance. Platform-side access
+  authorization workflows, semantic-change classification, and multi-currency FX are **not** part
+  of this Alpha (non-USD listings are rejected as `currency_unsupported`; no exchange-rate lookup
+  exists). Action payloads are read-only and require a human to act outside this product.
 - WebSocket is an online hint, not a durable queue. REST/PostgreSQL is the fact source.
 - One configured Analysis Provider and one Embedding Provider are used; there is no router/fallback.
 - Compose embeds Beat in one worker service. Do not scale that service above one replica.

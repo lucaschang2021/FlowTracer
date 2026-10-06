@@ -103,7 +103,9 @@
 - **4.3 契约收口**：Opportunity REST、通知/适用事件与人工确认边界（OpenAPI 冻结）。
 - **4.4 禁止项保持**：自动投标、报价、沟通、合同承诺与资金操作**永久禁止**；FX 与外部执行适配器不扩张。
 
-## Phase 5 — WP-8 整链验收与交接
+## Phase 5 — WP-8 整链验收与交接 —— **已完成（2026-10-06）**
+
+> **状态：COMPLETE（交付侧）。** 整链离线 E2E 与失败/取消/恢复/并发/幂等/预算路径、独立验收脚本（`backend/scripts/closure_acceptance.py`，产出与候选哈希绑定的报告）、前端契约冻结与交接补齐、文档口径修正全部就绪；§6 判定条件 1-5、7、8 满足，**第 6 项（审核方在精确候选提交上独立复核）待审核方执行**。见 `docs/77-ACQ1-CLOSURE-P5-REPORT.md`。
 
 - **5.1 真实整链 E2E**：配置 Radar/Source → Acquisition → Router → Discovery → Change → Opportunity → 持久化 → REST/适用事件。
 - **5.2 路径覆盖**：失败、取消、恢复、所有权、并发、幂等、预算耗尽。

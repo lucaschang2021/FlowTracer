@@ -4,7 +4,7 @@
 
 [当前闸门](docs/CURRENT-GATE.md) · [交付看板](docs/02-DELIVERY-BOARD.md) · [Backend 开发](backend/DEVELOPMENT.md) · [English](#english)
 
-> **Alpha 状态：** FlowTracer v0.1 正在开发，尚未发布（本地交付基线，无远端推送）。BE-1 至 BE-8 与 ACQ-1 WP-1、WP-2、WP-4 至 WP-8 已完成 **I1/实现范围**并合并（ACQ 部分为委托方确认）；独立审核确认的未完成清单已按 [收口计划](docs/71-ACQ1-CLOSURE-PLAN.md) **执行完毕（Phase 0-5：P1/P2 修复、WP-4 生产路径、完整 WP-5/WP-6、WP-7 生命周期、WP-8 整链验收）**，收口证据见 [Phase 0](docs/72-ACQ1-CLOSURE-P0-REPORT.md)～[Phase 5](docs/77-ACQ1-CLOSURE-P5-REPORT.md)；**READY_FOR_FRONTEND 待审核方在精确候选提交上独立复核后判定**（收口计划 §6 条件 6；“交付方报告”不作为独立证据，可复现流程见 `backend/scripts/closure_acceptance.py`）；Dynamic/Advanced Browser 保持 disabled（R3 BLOCKED）；PLUGIN-1、Frontend、Integration 与 Release 未准入。交付入口见 [交付包说明书](docs/70-ACQ1-DELIVERY-PACKAGE.md)。
+> **Alpha 状态：** FlowTracer v0.1 正在开发，尚未发布（本地交付基线，无远端推送）。BE-1 至 BE-8 与 ACQ-1 WP-1、WP-2、WP-4 至 WP-8 已完成 **I1/实现范围**并合并（ACQ 部分为委托方确认）；独立审核确认的未完成清单已按 [收口计划](docs/71-ACQ1-CLOSURE-PLAN.md) **执行完毕（Phase 0-5：P1/P2 修复、WP-4 生产路径、完整 WP-5/WP-6、WP-7 生命周期、WP-8 整链验收）**，收口证据见 [Phase 0](docs/72-ACQ1-CLOSURE-P0-REPORT.md)～[Phase 5](docs/77-ACQ1-CLOSURE-P5-REPORT.md)；**READY_FOR_FRONTEND 待审核方在精确候选提交上独立复核后判定**（收口计划 §6 条件 6；“交付方报告”不作为独立证据，可复现流程见 `backend/scripts/closure_acceptance.py`）；Dynamic/Advanced Browser 保持 disabled（R3 BLOCKED）；Frontend、Integration 与 Release 未准入。PLUGIN-1 为 POST-v0.1 / deferred，不在 Alpha v0.1 关键路径。交付入口见 [交付包说明书](docs/70-ACQ1-DELIVERY-PACKAGE.md)。
 
 ## 中文
 
@@ -31,11 +31,11 @@ Radar 是 FlowTracer 的核心领域对象，不是项目名称。项目正式�
 | ACQ-1 WP-1 | 已完成 | PR #33 已验收合并：Source Profile、采集状态/Attempt、lease/heartbeat/stale recovery 与安全策略内核 |
 | ACQ-1 WP-2 | 已完成 | PR #39 已验收合并：统一静态 Adapter、无网络 Scrapling parser、quality v1、通用 family extractor 与解析证据 |
 | ACQ-1 WP-3（Browser） | 未准入（fail-closed） | Dynamic/Advanced Browser 保持 disabled（`BROWSER_DYNAMIC_ENABLED=False`）；R3 真实执行 BLOCKED；R3 离线增量位于分支 `feat/acq1-r3-fail-closed-offline`（未合并） |
-| ACQ-1 WP-4..WP-8 | I1/实现完成；**收口已执行完毕（Phase 0-5）**，独立复核待审核方 | Router v1、完整 WP-5 抓取执行、完整 WP-6 写路径切换与 Change 读取 API、WP-7 生命周期与重评、WP-8 整链验收（500 tests / 92.2% coverage；见 [收口计划](docs/71-ACQ1-CLOSURE-PLAN.md) 与 [Phase 0](docs/72-ACQ1-CLOSURE-P0-REPORT.md)～[Phase 5](docs/77-ACQ1-CLOSURE-P5-REPORT.md) 报告）；**READY_FOR_FRONTEND 待独立复核判定** |
-| PLUGIN-1 | 待办、未准入 | 用户指定在 ACQ-1 完成验收后、Frontend 前处理；尚未实现，未形成正式准入或架构基线 |
+| ACQ-1 WP-4..WP-8 | I1/实现完成；**收口已执行完毕（Phase 0-5）**，独立复核待审核方 | Router v1、完整 WP-5 抓取执行、完整 WP-6 写路径切换与 Change 读取 API、WP-7 生命周期与重评、WP-8 整链验收（500 tests / 92.29% coverage；见 [收口计划](docs/71-ACQ1-CLOSURE-PLAN.md) 与 [Phase 0](docs/72-ACQ1-CLOSURE-P0-REPORT.md)～[Phase 5](docs/77-ACQ1-CLOSURE-P5-REPORT.md) 报告）；**READY_FOR_FRONTEND 待独立复核判定** |
+| PLUGIN-1 | POST-v0.1 / deferred | 不在 Alpha v0.1 关键路径，不构成 Frontend 前置依赖；尚未实现，未形成正式准入或架构基线 |
 | Frontend / Integration / Release | 未准入 | 桌面客户端、集成验收与 Alpha 发布尚未开始 |
 
-已实现能力仅以本地 `main` 已合并的事实为准（本交付为本地仓库，无远端推送）；阶段门禁见[当前闸门](docs/CURRENT-GATE.md)和[交付看板](docs/02-DELIVERY-BOARD.md)。开放中的 PR、准入许可和计划能力不视为已实现；PLUGIN-1 仅记录用户指定的待办顺序，不构成准入。
+已实现能力仅以本地 `main` 已合并的事实为准（本交付为本地仓库，无远端推送）；阶段门禁见[当前闸门](docs/CURRENT-GATE.md)和[交付看板](docs/02-DELIVERY-BOARD.md)。开放中的 PR、准入许可和计划能力不视为已实现；PLUGIN-1 为 POST-v0.1 / deferred，不参与 Alpha v0.1 准入顺序。
 
 ### 核心数据闭环
 
@@ -62,17 +62,17 @@ Radar 是 FlowTracer 的核心领域对象，不是项目名称。项目正式�
 - Notification 阈值/优先级判定、分页与已读接口、用户隔离的 WebSocket 在线事件，以及 CollectionRun retry、Analysis retry 和遗漏任务补偿。
 - BE-8 离线闭环验收、OpenAPI 快照冻结、运行文档与前端交接材料；交接材料完成不等于 Frontend 已准入。
 - ACQ-1 WP-1 的严格 `acq-source-v1` Source Profile、legacy config 秘密拒绝/脱敏、采集状态与 Attempt、CollectionRun 租约/心跳/过期恢复/旧 Worker 写入防护，以及 Network/Site/Resource 策略内核。
-- ACQ-1 WP-4..WP-8（收口后）：Router 生产路径含受控静态重试（逐跳计费/硬预算/执行限速）、完整抓取执行（frontier 消费/robots/逐跳复核/有界遍历/取消恢复/并发去重）、完整写路径（合格变化产生新 RawItem、Change 读取 API、迁移 0008 与回填）、Opportunity 生命周期与重评（版本化评分、移除/过期、Action Payload 只读且 `requires_human_approval=true`）、整链离线 E2E 与失败/恢复/并发/预算路径（500 tests / 92.2% coverage；Docker 全栈可从空环境按文档启动）。收口执行记录与可复现验收流程见 [收口计划](docs/71-ACQ1-CLOSURE-PLAN.md) 与 `backend/scripts/closure_acceptance.py`。
+- ACQ-1 WP-4..WP-8（收口后）：Router 生产路径含受控静态重试（逐跳计费/硬预算/执行限速）、完整抓取执行（frontier 消费/robots/逐跳复核/有界遍历/取消恢复/并发去重）、完整写路径（合格变化产生新 RawItem、Change 读取 API、迁移 0008 与回填）、Opportunity 生命周期与重评（版本化评分、移除/过期、Action Payload 只读且 `requires_human_approval=true`）、整链离线 E2E 与失败/恢复/并发/预算路径（500 tests / 92.29% coverage；Docker 全栈可从空环境按文档启动）。收口执行记录与可复现验收流程见 [收口计划](docs/71-ACQ1-CLOSURE-PLAN.md) 与 `backend/scripts/closure_acceptance.py`。
 
 ### 当前开发状态与验收证据
 
-本次同步基线为本地 `main`（ACQ-1 WP-4..WP-8 已按委托方确认完成 **I1 范围**并合并；此前 BE-1..BE-8、WP-1、WP-2 的验收记录保留于 [WP-2 验收记录](docs/36-ACQ1-WP2-ACCEPTANCE.md) 等归档）。I1 候选门禁：438 tests、92.16% coverage；ruff / mypy strict / 架构门（introduced=0、P0=0）/ `alembic check` 零漂移 / OpenAPI 冻结校验 / 秘密扫描全部通过；Docker 四服务全栈已实测从空环境按文档启动，并通过注册→登录→Radar 冒烟；空库 `upgrade → check → downgrade base → re-upgrade` 与 `scripts/verify_fresh_startup.py` 通过。
+本次同步基线为本地 `main@48c2e2260f303ef0b18470a4d31fb6cb8f73070d`。ACQ-1 收口 Phase 0-5 已形成完整本地候选；交付方候选门禁为 500 tests、92.29% coverage，ruff / mypy strict / 架构门（introduced=0、P0=0）/ `alembic check` 零漂移 / OpenAPI 冻结校验 / 秘密扫描全部通过。以上仍需审核方在精确候选提交上独立复核，不能直接视为 READY_FOR_FRONTEND。
 
 **收口状态（2026-10-06，执行完毕）**：独立审核清单（修 P1 → WP-4 收口 → 完整 WP-5 → 完整 WP-6 → WP-7 收口 → WP-8 整链验收）已按 [收口计划](docs/71-ACQ1-CLOSURE-PLAN.md) **全部执行**，每个 Phase 均有独立分支、门禁证据、阶段报告与溯源提交；**READY_FOR_FRONTEND 待审核方在精确候选提交上独立复核后判定**（判定条件见收口计划 §6；交付方报告不作为独立证据——复核可运行 `backend/scripts/closure_acceptance.py` 复现全部门禁并生成含候选哈希的 JSON 报告）。
 
-ACQ-1 已交付能力（WP-4..WP-8，I1 范围）与禁用能力清单见 [能力清单](docs/68-ACQ1-CAPABILITY-MANIFEST.md)；完整门禁矩阵、限制声明与接收指引见 [交付包说明书](docs/70-ACQ1-DELIVERY-PACKAGE.md) 与 [最终阶段报告](docs/69-ACQ1-FINAL-STAGE-REPORT.md)；收口未完成项与执行计划见 [收口计划](docs/71-ACQ1-CLOSURE-PLAN.md)。
+ACQ-1 Phase 0-5 本地候选能力与禁用能力清单见 [能力清单](docs/68-ACQ1-CAPABILITY-MANIFEST.md)；完整门禁矩阵、限制声明与接收指引见 [交付包说明书](docs/70-ACQ1-DELIVERY-PACKAGE.md)，I1 历史快照见 [最终阶段报告](docs/69-ACQ1-FINAL-STAGE-REPORT.md)，收口执行与独立验收条件见 [收口计划](docs/71-ACQ1-CLOSURE-PLAN.md) 及 `docs/72`–`docs/77`。
 
-**Browser 仍为 disabled**：WP-3 未准入，R3 真实执行 BLOCKED（需另签执行 lease）；R3 离线增量位于分支 `feat/acq1-r3-fail-closed-offline`（未合并）。各 I2 增量（crawl 执行、RawItem writer 切换、机会平台授权/版本重评）与 PLUGIN-1、Frontend、Integration、Release 均未准入；下游工作须按治理另行书面准入。历史阻塞记录保留于 [WP-3 Readiness Blocker](docs/37-ACQ1-WP3-READINESS-BLOCKER.md)。
+**Browser 仍为 disabled**：WP-3 未准入，R3 真实执行 BLOCKED（需另签执行 lease）；R3 离线增量位于分支 `feat/acq1-r3-fail-closed-offline`（未合并）。`semantic-change-v1`、机会平台授权、多币种 FX 与外部执行适配器仍未实现；Frontend、Integration、Release 均未准入。PLUGIN-1 为 POST-v0.1 / deferred，不阻塞 Frontend。下游工作须按治理另行书面准入。历史阻塞记录保留于 [WP-3 Readiness Blocker](docs/37-ACQ1-WP3-READINESS-BLOCKER.md)。
 
 ### 技术栈
 
@@ -160,12 +160,14 @@ FlowTracer 当前交付顺序（含未准入的待办阶段）：
 
 ```text
 架构冻结 → BE-1..BE-8 → ACQ-1 WP-1..WP-8
-  → PLUGIN-1（待办、未准入）→ Frontend → Integration → Alpha Release
+  → Frontend → Integration → Alpha Release
+
+POST-v0.1（deferred）：PLUGIN-1
 ```
 
-BE-1..BE-8、WP-1、WP-2 与 WP-4..WP-8 已完成 **I1/实现范围**并合并（ACQ-1 部分为委托方确认），独立审核清单已按 [收口计划](docs/71-ACQ1-CLOSURE-PLAN.md) 执行完毕（Phase 0-5，证据见 `docs/72`–`docs/77`）。WP-3 Browser 保持 disabled 且未准入；**READY_FOR_FRONTEND 待审核方独立复核判定**；PLUGIN-1、Frontend、Integration 与 Release 尚未准入。验收模式、证据边界与移交方式见 [交付包说明书](docs/70-ACQ1-DELIVERY-PACKAGE.md)。
+BE-1..BE-8、WP-1、WP-2 与 WP-4..WP-8 已完成 **I1/实现范围**并合并（ACQ-1 部分为委托方确认），独立审核清单已按 [收口计划](docs/71-ACQ1-CLOSURE-PLAN.md) 执行完毕（Phase 0-5，证据见 `docs/72`–`docs/77`）。WP-3 Browser 保持 disabled 且未准入；**READY_FOR_FRONTEND 待审核方独立复核判定**；Frontend、Integration 与 Release 尚未准入。PLUGIN-1 为 POST-v0.1 / deferred，不构成 Frontend 前置条件。验收模式、证据边界与移交方式见 [交付包说明书](docs/70-ACQ1-DELIVERY-PACKAGE.md)。
 
-PLUGIN-1 仅为用户指定的后续待办：排在 ACQ-1 全部完成验收之后、Frontend 之前，尚未准入或实现。本文不为其补写架构、接口或仓库文档链接。
+PLUGIN-1 已明确移至 POST-v0.1 / deferred：不在 Alpha v0.1 关键路径，不阻塞 Frontend，尚未准入或实现。本文不为其补写架构、接口或仓库文档链接。
 
 ### 安全与范围边界
 
@@ -181,7 +183,7 @@ PLUGIN-1 仅为用户指定的后续待办：排在 ACQ-1 全部完成验收之�
 
 **A personal desktop AI intelligence system for continuous acquisition, traceable analysis, and long-term Memory—designed to surface and preserve high-value information.**
 
-> **Alpha status:** FlowTracer v0.1 is in development and has not been released (local delivery baseline; no remote push). BE-1 through BE-8 and ACQ-1 WP-1, WP-2, WP-4..WP-8 are complete and merged at **I1/implementation scope** (ACQ-1 parts owner-confirmed); the independent review's unfinished list has been **executed in full** per the [closure plan](docs/71-ACQ1-CLOSURE-PLAN.md) (Phase 0-5: P1/P2 fixes, WP-4 production path, full WP-5/WP-6, WP-7 lifecycle, WP-8 full-chain acceptance), with evidence in the [Phase 0](docs/72-ACQ1-CLOSURE-P0-REPORT.md) through [Phase 5](docs/77-ACQ1-CLOSURE-P5-REPORT.md) reports; **READY_FOR_FRONTEND awaits the reviewer's independent pass on the exact candidate commit** (closure plan §6 item 6; provider-side reports are not independent evidence — rerun `backend/scripts/closure_acceptance.py` to reproduce every gate and produce a JSON report bound to the candidate hash); Dynamic/Advanced Browser stays disabled (R3 BLOCKED); PLUGIN-1, Frontend, Integration, and Release are not admitted. Delivery entry point: [delivery package](docs/70-ACQ1-DELIVERY-PACKAGE.md).
+> **Alpha status:** FlowTracer v0.1 is in development and has not been released (local delivery baseline; no remote push). BE-1 through BE-8 and ACQ-1 WP-1, WP-2, WP-4..WP-8 are complete and merged at **I1/implementation scope** (ACQ-1 parts owner-confirmed); the independent review's unfinished list has been **executed in full** per the [closure plan](docs/71-ACQ1-CLOSURE-PLAN.md) (Phase 0-5: P1/P2 fixes, WP-4 production path, full WP-5/WP-6, WP-7 lifecycle, WP-8 full-chain acceptance), with evidence in the [Phase 0](docs/72-ACQ1-CLOSURE-P0-REPORT.md) through [Phase 5](docs/77-ACQ1-CLOSURE-P5-REPORT.md) reports; **READY_FOR_FRONTEND awaits the reviewer's independent pass on the exact candidate commit** (closure plan §6 item 6; provider-side reports are not independent evidence — rerun `backend/scripts/closure_acceptance.py` to reproduce every gate and produce a JSON report bound to the candidate hash); Dynamic/Advanced Browser stays disabled (R3 BLOCKED); Frontend, Integration, and Release are not admitted. PLUGIN-1 is POST-v0.1 / deferred and is not on the Alpha v0.1 critical path. Delivery entry point: [delivery package](docs/70-ACQ1-DELIVERY-PACKAGE.md).
 
 ### Product Positioning
 
@@ -206,11 +208,11 @@ Radar is FlowTracer's core domain object, not the project name. The official pro
 | ACQ-1 WP-1 | Completed | PR #33 accepted and merged: Source Profile, acquisition state/Attempt, lease/heartbeat/stale recovery, and safety-policy core |
 | ACQ-1 WP-2 | Completed | PR #39 accepted and merged: unified static adapters, a network-free Scrapling parser, quality v1, common family extractors, and parsing evidence |
 | ACQ-1 WP-3 (Browser) | Not admitted (fail-closed) | Dynamic/Advanced Browser stays disabled (`BROWSER_DYNAMIC_ENABLED=False`); R3 real execution BLOCKED; R3 offline increment lives on branch `feat/acq1-r3-fail-closed-offline` (unmerged) |
-| ACQ-1 WP-4..WP-8 | I1/implementation complete; **closure executed in full (Phase 0-5)**, awaiting independent review | Router v1, full WP-5 fetch execution, full WP-6 writer switch with Change read APIs, WP-7 lifecycle and re-evaluation, WP-8 full-chain acceptance (500 tests / 92.2% coverage; see the [closure plan](docs/71-ACQ1-CLOSURE-PLAN.md) and the [Phase 0](docs/72-ACQ1-CLOSURE-P0-REPORT.md)..[Phase 5](docs/77-ACQ1-CLOSURE-P5-REPORT.md) reports); **READY_FOR_FRONTEND pending the independent pass** |
-| PLUGIN-1 | Backlog, not admitted | User-requested stage after full ACQ-1 acceptance and before Frontend; not implemented, with no formal admission or architecture baseline |
+| ACQ-1 WP-4..WP-8 | I1/implementation complete; **closure executed in full (Phase 0-5)**, awaiting independent review | Router v1, full WP-5 fetch execution, full WP-6 writer switch with Change read APIs, WP-7 lifecycle and re-evaluation, WP-8 full-chain acceptance (500 tests / 92.29% coverage; see the [closure plan](docs/71-ACQ1-CLOSURE-PLAN.md) and the [Phase 0](docs/72-ACQ1-CLOSURE-P0-REPORT.md)..[Phase 5](docs/77-ACQ1-CLOSURE-P5-REPORT.md) reports); **READY_FOR_FRONTEND pending the independent pass** |
+| PLUGIN-1 | POST-v0.1 / deferred | Outside the Alpha v0.1 critical path and not a Frontend prerequisite; not implemented, with no formal admission or architecture baseline |
 | Frontend / Integration / Release | Not admitted | Desktop development, integration acceptance, and the Alpha release have not started |
 
-Implemented capabilities are determined only by facts merged into the local `main` (this delivery is a local repository with no remote push); phase gates are recorded in the [current gate](docs/CURRENT-GATE.md) and [delivery board](docs/02-DELIVERY-BOARD.md). Open pull requests, admission approvals, and planned capabilities are not treated as implemented. PLUGIN-1 records only a user-requested backlog order, not admission.
+Implemented capabilities are determined only by facts merged into the local `main` (this delivery is a local repository with no remote push); phase gates are recorded in the [current gate](docs/CURRENT-GATE.md) and [delivery board](docs/02-DELIVERY-BOARD.md). Open pull requests, admission approvals, and planned capabilities are not treated as implemented. PLUGIN-1 is POST-v0.1 / deferred and is not part of the Alpha v0.1 admission order.
 
 ### Core Data Loop
 
@@ -237,17 +239,17 @@ User registration/sign-in                    ✅ BE-2 completed
 - Notification threshold/priority evaluation, pagination and read-state APIs, user-isolated WebSocket online events, CollectionRun retry, Analysis retry, and missed-task recovery.
 - BE-8 offline closure acceptance, OpenAPI snapshot freeze, operations documentation, and Frontend handoff materials; completing handoff materials does not admit Frontend.
 - ACQ-1 WP-1 strict `acq-source-v1` Source Profiles, legacy config secret rejection/redaction, acquisition state and Attempts, CollectionRun leases/heartbeats/stale recovery/old-worker fencing, and the Network/Site/Resource policy core.
-- ACQ-1 WP-4..WP-8 (post-closure): a production Router with a controlled static-retry stage (per-hop billing, hard budgets, executed rate limits), full fetch execution (frontier consumption, robots policy, per-hop re-checks, bounded traversal, cancel/resume, concurrency dedupe), the complete write path (qualifying changes produce new RawItems, Change read APIs, migration 0008 with backfill), opportunity lifecycle and re-evaluation (versioned scores, removed/expired transitions, read-only action payloads with `requires_human_approval=true`), and offline full-chain acceptance including failure/recovery/concurrency/budget paths (500 tests / 92.2% coverage; the four-service Docker stack starts from an empty environment per the documented quick start). Execution records and the reproducible acceptance runner live in the [closure plan](docs/71-ACQ1-CLOSURE-PLAN.md) and `backend/scripts/closure_acceptance.py`.
+- ACQ-1 WP-4..WP-8 (post-closure): a production Router with a controlled static-retry stage (per-hop billing, hard budgets, executed rate limits), full fetch execution (frontier consumption, robots policy, per-hop re-checks, bounded traversal, cancel/resume, concurrency dedupe), the complete write path (qualifying changes produce new RawItems, Change read APIs, migration 0008 with backfill), opportunity lifecycle and re-evaluation (versioned scores, removed/expired transitions, read-only action payloads with `requires_human_approval=true`), and offline full-chain acceptance including failure/recovery/concurrency/budget paths (500 tests / 92.29% coverage; the four-service Docker stack starts from an empty environment per the documented quick start). Execution records and the reproducible acceptance runner live in the [closure plan](docs/71-ACQ1-CLOSURE-PLAN.md) and `backend/scripts/closure_acceptance.py`.
 
 ### Current Development and Acceptance Evidence
 
-The sync baseline is the local `main` (ACQ-1 WP-4..WP-8 complete and merged at **I1 scope** under owner-confirmed acceptance; the independent review's closure list has since been executed in full — Phase 0-5; earlier BE-1..BE-8, WP-1, and WP-2 acceptance records remain archived, e.g. the [WP-2 acceptance record](docs/36-ACQ1-WP2-ACCEPTANCE.md)). Closure candidate gates: 500 tests at 92.2% coverage; ruff, mypy strict, the architecture gate (introduced=0, P0=0), zero-drift `alembic check` (head 20261006_0009), the frozen OpenAPI snapshot check, and the secret scan all pass; `scripts/closure_acceptance.py` reproduces this and writes a report bound to the candidate commit. The four-service Docker stack was verified from an empty environment per the documented quick start, including a live register → sign-in → radar smoke; the empty-database `upgrade → check → downgrade base → re-upgrade` cycle and `scripts/verify_fresh_startup.py` pass.
+The sync baseline is local `main@48c2e2260f303ef0b18470a4d31fb6cb8f73070d` (ACQ-1 WP-4..WP-8 closure Phase 0-5 complete in the provider-side candidate; earlier BE-1..BE-8, WP-1, and WP-2 acceptance records remain archived, e.g. the [WP-2 acceptance record](docs/36-ACQ1-WP2-ACCEPTANCE.md)). Closure candidate gates: 500 tests at 92.29% coverage; ruff, mypy strict, the architecture gate (introduced=0, P0=0), zero-drift `alembic check` (head 20261006_0009), the frozen OpenAPI snapshot check, and the secret scan all pass; `scripts/closure_acceptance.py` reproduces this and writes a report bound to the candidate commit. These provider-side results still require the reviewer's independent exact-candidate run. The four-service Docker stack was verified from an empty environment per the documented quick start, including a live register → sign-in → radar smoke; the empty-database `upgrade → check → downgrade base → re-upgrade` cycle and `scripts/verify_fresh_startup.py` pass.
 
-**Closure status (2026-10-06, confirmed by independent review):** WP-4..WP-8 closure is unfinished — the remaining-items list and its phase-by-phase execution mapping are in the [closure plan](docs/71-ACQ1-CLOSURE-PLAN.md) (priority: fix P1 → WP-4 closure → full WP-5 → full WP-6 → WP-7 closure → WP-8 full-chain acceptance); **READY_FOR_FRONTEND is not reached** (criteria in the closure plan §6). "438 passed" is the deliverer's report; independent acceptance must run on the exact candidate commit separately.
+**Closure status (2026-10-07):** the Phase 0-5 implementation sequence is complete in the local delivery candidate, with phase evidence in `docs/72`–`docs/77`. **READY_FOR_FRONTEND remains undecided** because the reviewer has not yet completed the independent exact-candidate pass required by the [closure plan](docs/71-ACQ1-CLOSURE-PLAN.md). The provider-side 500-test / 92.29% report is reproducible evidence, not an independent approval.
 
-The delivered ACQ-1 capabilities (WP-4..WP-8, I1 scope) and the disabled-capability list are in the [capability manifest](docs/68-ACQ1-CAPABILITY-MANIFEST.md); the full gate matrix, limitations, and receiver guide are in the [delivery package](docs/70-ACQ1-DELIVERY-PACKAGE.md) and [final stage report](docs/69-ACQ1-FINAL-STAGE-REPORT.md); the unfinished closure items and their execution plan are in the [closure plan](docs/71-ACQ1-CLOSURE-PLAN.md).
+The Phase 0-5 local-candidate capabilities and disabled-capability list are in the [capability manifest](docs/68-ACQ1-CAPABILITY-MANIFEST.md); the full gate matrix, limitations, and receiver guide are in the [delivery package](docs/70-ACQ1-DELIVERY-PACKAGE.md). The [final stage report](docs/69-ACQ1-FINAL-STAGE-REPORT.md) is the historical I1 snapshot; closure execution and independent-acceptance criteria are in the [closure plan](docs/71-ACQ1-CLOSURE-PLAN.md) and `docs/72`–`docs/77`.
 
-**Browser remains disabled:** WP-3 is not admitted and R3 real execution is BLOCKED pending a separate execution lease; the R3 offline increment sits on the branch `feat/acq1-r3-fail-closed-offline` (unmerged). The I2 increments (crawl execution, RawItem writer switch, opportunity platform authorization/version re-evaluation) and PLUGIN-1, Frontend, Integration, and Release are not admitted; downstream work requires separate written admission under the governance rules. Historical blocker records remain at the [WP-3 readiness blocker](docs/37-ACQ1-WP3-READINESS-BLOCKER.md).
+**Browser remains disabled:** WP-3 is not admitted and R3 real execution is BLOCKED pending a separate execution lease; the R3 offline increment sits on the branch `feat/acq1-r3-fail-closed-offline` (unmerged). `semantic-change-v1`, opportunity platform authorization, multi-currency FX, and external execution adapters remain unimplemented. Frontend, Integration, and Release are not admitted. PLUGIN-1 is POST-v0.1 / deferred and does not block Frontend; downstream work requires separate written admission under the governance rules. Historical blocker records remain at the [WP-3 readiness blocker](docs/37-ACQ1-WP3-READINESS-BLOCKER.md).
 
 ### Technology Stack
 
@@ -335,12 +337,14 @@ FlowTracer's current delivery order (including unadmitted backlog stages):
 
 ```text
 Architecture freeze → BE-1..BE-8 → ACQ-1 WP-1..WP-8
-  → PLUGIN-1 (backlog, not admitted) → Frontend → Integration → Alpha Release
+  → Frontend → Integration → Alpha Release
+
+POST-v0.1 (deferred): PLUGIN-1
 ```
 
-BE-1..BE-8, WP-1, WP-2, and WP-4..WP-8 are complete and merged at **I1/implementation scope** (ACQ-1 parts owner-confirmed). WP-3 Browser remains disabled and not admitted; the **closure is unfinished (see the [closure plan](docs/71-ACQ1-CLOSURE-PLAN.md)) and READY_FOR_FRONTEND is not reached**; PLUGIN-1, Frontend, Integration, and Release are not yet admitted. Acceptance mode, evidence boundaries, and handover steps are in the [delivery package](docs/70-ACQ1-DELIVERY-PACKAGE.md).
+BE-1..BE-8, WP-1, and WP-2 are complete; ACQ-1 closure Phase 0-5 is complete in the local delivery candidate. WP-3 Browser remains disabled and not admitted; **READY_FOR_FRONTEND awaits the independent exact-candidate acceptance required by the [closure plan](docs/71-ACQ1-CLOSURE-PLAN.md)**. Frontend, Integration, and Release are not admitted. PLUGIN-1 is POST-v0.1 / deferred and is not a Frontend prerequisite. Acceptance mode, evidence boundaries, and handover steps are in the [delivery package](docs/70-ACQ1-DELIVERY-PACKAGE.md).
 
-PLUGIN-1 is only a user-requested backlog stage after full ACQ-1 acceptance and before Frontend. It is neither admitted nor implemented. This README does not define its architecture, interfaces, or repository document links.
+PLUGIN-1 is explicitly POST-v0.1 / deferred. It is outside the Alpha v0.1 critical path, does not block Frontend, and is neither admitted nor implemented. This README does not define its architecture, interfaces, or repository document links.
 
 ### Security and Scope Boundaries
 

@@ -242,8 +242,11 @@ text, or any execution capability. Treat the payload as read-only display data.
 
 ## Known Alpha limits
 
-- RSS and HTML URL sources are supported; Dynamic/Advanced Browser stays disabled and is not
-  admitted (R3 BLOCKED) — sources must stay on the static paths.
+- RSS and HTML URL sources are supported; Dynamic/Advanced Browser stays deferred/disabled and is
+  not admitted. R3 is historically BLOCKED and has no current execution authority, so sources must
+  stay on the static paths; Browser is not a Frontend dependency.
+- PLUGIN-1 is POST-v0.1 / deferred. It is outside the Alpha v0.1 critical path and does not block
+  Frontend implementation.
 - Controlled Discovery consumes its frontier through the same SafeFetcher pipeline (robots policy,
   per-hop scope/SSRF re-checks, cross-page budgets). Targets are consumed once per artifact:
   completed pages are not re-crawled on later runs, and discovery-side removal detection is not

@@ -1,19 +1,19 @@
 # FlowTracer ACQ-1 交付包说明书
 
-> **修订声明（2026-10-06，独立审核后）**：本交付为 **I1 / 阶段性交付**——可接收、可运行、证据完整，但 **ACQ-1 整体收口未完成**：未完成清单（P1/P2 缺陷修复、WP-4 生产路径收口、完整 WP-5 抓取、完整 WP-6 写路径切换、WP-7 生命周期收口、WP-8 整链验收）与逐阶段执行映射见 [`docs/71-ACQ1-CLOSURE-PLAN.md`](71-ACQ1-CLOSURE-PLAN.md)；**READY_FOR_FRONTEND 未达成**。下文中的能力声明一律以 I1 边界为准。
+> **修订声明（2026-10-07，交付候选文档收口）**：独立审核确认的未完成清单已按 [`docs/71`](71-ACQ1-CLOSURE-PLAN.md) 完成 Phase 0-5 本地候选，证据见 `docs/72`–`docs/77`。**READY_FOR_FRONTEND 尚未判定**：仍缺审核方在精确候选提交上的独立复核（`docs/71` §6 条件 6）。
 
-状态：**I1 STAGE DELIVERY（交付说明，documentation only）**。本文件不新增能力、不改变任何冻结契约与安全边界。
-交付代码基线：本地 `main`（本说明书随文档提交追加；最新的收口相关修正见 `docs/71` §9 溯源；本地 Git 仓库，**无远端**）。
-日期：2026-10-05（初稿）/ 2026-10-06（I1 边界修订）。
-验收模式：**委托方确认（owner-confirmed）**——无独立第三方验收角色；收口阶段的独立验收由审核方在精确候选提交上执行（"438 passed"仅为交付方报告）。
+状态：**CLOSURE CANDIDATE DELIVERY（交付说明，documentation only）**。本文件不新增能力、不改变任何冻结契约与安全边界。
+交付代码基线：本地 `main@48c2e2260f303ef0b18470a4d31fb6cb8f73070d`（本说明书随文档提交追加；收口溯源见 `docs/71` §9；本地 Git 仓库，**无远端**）。
+日期：2026-10-05（初稿）/ 2026-10-06（收口实现）/ 2026-10-07（候选文档收口）。
+验收模式：交付侧候选为 owner-confirmed；审核方须在精确候选提交上独立复核。500 passed / 92.29% 是交付方可复现报告，不构成独立批准。
 
 ## 三十秒摘要
 
-- **交付物（I1 范围）**：FlowTracer Alpha v0.1 后端 —— BE-1..BE-8 基线 + ACQ-1 工作包 WP-1、WP-2、WP-4、WP-5(I1 规划)、WP-6(I1 影子证据)、WP-7(I1 首见与评分)、WP-8 初版。
-- **不包含**：Dynamic/Advanced Browser（未准入，disabled；R3 BLOCKED）、收口计划列出的全部未完成项（`docs/71`）、前端/集成/发布。
-- **质量证据**：438 项测试全过 / 覆盖率 92.16%（阈值 87.61%）；全部静态门禁与迁移门禁通过；**Docker 全栈已实测可从零启动**（§4.2）。
+- **交付物（Phase 0-5 本地候选）**：FlowTracer Alpha v0.1 后端 —— BE-1..BE-8 基线 + ACQ-1 WP-1/WP-2、WP-4 生产路径、WP-5 I2 受控抓取、WP-6 I2 写路径与读取 API、WP-7 生命周期/重评、WP-8 整链验收与交接。
+- **不包含**：Dynamic/Advanced Browser（未准入，disabled；R3 BLOCKED）、`semantic-change-v1`、平台授权工作流、多币种 FX、外部执行适配器、前端/集成/发布；PLUGIN-1 为 POST-v0.1 / deferred。
+- **质量证据（交付方本地候选）**：500 项测试全过 / 覆盖率 92.29%（阈值 87.61%）；全部静态门禁与迁移门禁通过；**Docker 全栈已实测可从零启动**（§4.2）。审核方仍须在精确候选提交上独立复核。
 - **启动方式**：六条 `docker compose` 命令（§6.2），完成后 `health/ready` 返回 database/redis 双 ok。
-- **硬性禁区（禁止虚报）**：Browser 不可用、无 crawl 执行、RawItem writer 未切换、无自动投标/报价/付款；收口未完成项不得表述为已完成——能力清单见 `docs/68`，收口清单见 `docs/71`。
+- **硬性禁区（禁止虚报）**：Dynamic/Advanced Browser 不可用；`semantic-change-v1`、平台授权工作流、多币种 FX 与外部执行适配器未启用；无自动投标/报价/付款；Frontend/Integration/Release 未准入。PLUGIN-1 为 POST-v0.1 / deferred，不在 Alpha v0.1 关键路径。能力清单见 `docs/68`，收口证据见 `docs/71`–`docs/77`。
 - **证据入口**：`docs/68`（能力清单）、`docs/69`（阶段报告）、`docs/71`（收口计划）、本文件 §4（门禁矩阵）、`docs/02`（看板）。
 
 ---
@@ -26,7 +26,7 @@
 | 交付形态 | 完整 Git 仓库（含全部提交历史与分支）；**无 GitHub 远端**，接收方需自建远端或通过 `git bundle` 接收（§9） |
 | 运行形态 | Docker Compose 四服务：`api` / `worker`（内嵌 Beat，勿扩多副本）/ `postgres`（pgvector）/ `redis` |
 | 技术栈 | Python 3.13、FastAPI、Pydantic、Celery、PostgreSQL 16 + pgvector、Redis 7、SQLAlchemy 2 Async、Alembic、Pytest |
-| 迁移头 | `20261005_0006`（共 6 个迁移，空库全链已验证） |
+| 迁移头 | `20261006_0009`（`0001`..`0009`；收口候选零漂移） |
 | 依赖锁定 | `pyproject.toml` + `uv.lock`；容器内 `uv sync --locked` 已验证（§4.2） |
 
 ## 2. 交付内容清单
@@ -125,10 +125,11 @@
 | Dynamic / Advanced Browser | **disabled**（`BROWSER_DYNAMIC_ENABLED=False`；`allow_browser=True` → `acquisition_browser_not_admitted`）；R3 真实执行 **BLOCKED**，需另签 lease |
 | R3 离线增量（A1 设计/A2 DenialLatch/F1-F6 取证/就绪报告）| 位于分支 `feat/acq1-r3-fail-closed-offline`（`docs/54/55/56/59` 在该分支），**未合并** |
 | R4 回收/资源、R5 双 worker 隔离 | 未准入 |
-| WP-5 I2（crawl 执行）、WP-6 I2（writer 切换/读取 API/语义变化）、WP-7 I2（平台授权工作流/版本驱动重评/多币种 FX）| 未实现 |
+| `semantic-change-v1`、WP-7 平台授权工作流、多币种 FX、外部执行适配器 | 未实现 / 明确延期；WP-5 I2、WP-6 I2 与 WP-7 生命周期/重评已在 Phase 2-4 本地候选完成 |
 | 机会通知的 WS 事件扩张 | 禁止（ADR-026：ACQ-1 不扩张 WS）|
 | 自动投标/报价/工期/合同/沟通/付款/外部 Agent | **永久禁止**（ACQ-1 边界）|
-| Frontend（FE-001）、Integration（INT-001）、Release（REL-001）、PLUGIN-1 | 未准入；`frontend/` 仅为占位目录 |
+| Frontend（FE-001）、Integration（INT-001）、Release（REL-001） | 未准入；`frontend/` 仅为占位目录 |
+| PLUGIN-1 | POST-v0.1 / deferred；不阻塞 Frontend，不得视为已实现 |
 
 ## 6. 接收与验收指引
 
@@ -187,19 +188,19 @@ python scripts/benchmark_offline.py      # 预期末行: BENCHMARK COMPLETE（JS
 
 - [ ] 六条启动命令全部成功，`ready` 双 ok；worker ping 有 pong。
 - [ ] 冒烟：注册 → 登录 → 创建 Radar → 列表返回 1 条。
-- [ ] 全量测试 ≥ 438 项通过、覆盖率 ≥ 87.61%。
+- [ ] 在精确候选提交上运行 `backend/scripts/closure_acceptance.py`，全部门禁通过；测试不少于 500 项、覆盖率 ≥ 87.61%。
 - [ ] `alembic check` 零漂移；OpenAPI `--check` 通过。
 - [ ] `verify_fresh_startup.py` 与 `secret_scan.py` 输出预期末行。
-- [ ] 对照 `docs/68` 确认交付内容中**没有** Browser/I2/前端等禁用能力被虚报。
+- [ ] 对照 `docs/68` 确认交付内容中**没有** Browser、延期能力或前端被虚报；WP-5/WP-6/WP-7 的已完成 I2 边界与阶段证据一致。
 - [ ] 记录本次验收使用的提交哈希（`git rev-parse HEAD`）与执行日期。
 
 ## 7. 已知限制（交付边界，如实声明）
 
-1. **验收模式**：委托方确认（owner-confirmed），无独立第三方复核；如需第三方复核属新增治理决定，需另行安排。
+1. **验收模式**：当前材料是交付侧 owner-confirmed 候选；READY_FOR_FRONTEND 必须由审核方在精确候选提交上执行独立复核并确认 P0/P1=0。`closure_acceptance.py --no-tests` 仅生成 static-only 证据，不构成完整验收；完整判定必须实际执行全量测试与全部静态门禁。
 2. **Browser**：不可用（§5.2 全部条目）；性能基线中 Browser 相关一律 NOT MEASURED（无估算值）。
-3. **发现不抓取**：Discovery 仅规划 frontier 与写 checkpoint；不存在 unrestricted crawl 入口。
-4. **版本证据为影子写入**：RawItem 产生条件未切换（`raw_items` 无 `snapshot_id` 列）。
-5. **机会雷达**：仅首见快照建条目；并发调度同一 (opportunity, radar) 可能重复 AI 调用但有界、结果幂等；单币种 USD（无 FX）。
+3. **发现抓取是受控、有界路径**：I2 仅消费冻结 scope/frontier，并执行 robots、逐跳 SitePolicy/SSRF 复核、跨页预算、取消/恢复与并发去重；不存在 unrestricted crawl 入口。
+4. **版本写路径已切换**：合格快照可生成带 `snapshot_id` 的 RawItem，并提供 Change/Artifact 读取 API；`semantic-change-v1` 仍未启用。
+5. **机会雷达**：已支持版本变化驱动重评与 removed/expired/重现生命周期；仍为单币种 USD（无 FX），且不含平台授权或外部执行工作流。
 6. **性能数据**：单机、隔离 fixture、确定性 stub 的复现参考，非 SLA/容量结论（`PERFORMANCE-BASELINE.md`）。
 7. **仓库形态**：无远端；全部历史在本地 Git。构建产物镜像 `flowtracer-backend:be6` 为本地验证产物，非交付必需。
 8. **宿主机 `uv sync`**：本机曾无 uv 环境；该缺口已由 §4.2 容器内 `uv sync --locked` 实测覆盖。

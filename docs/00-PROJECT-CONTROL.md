@@ -3,7 +3,7 @@
 ## 1. 文档地位
 
 - 输入基线：用户提供的《FlowTracer 技术设计文档 Alpha v0.1》。
-- 当前状态（2026-10-06，独立审核后）：BE-1..BE-8、AG-0..AG-6 与 ACQ WP-1/WP-2/WP-4..WP-8 已完成 **I1/实现范围**（ACQ 部分为委托方确认）；**独立审核确认收口未完成**——未完成清单（P1/P2 缺陷、WP-4 生产路径收口、完整 WP-5/WP-6、WP-7 生命周期收口、WP-8 整链验收）与执行映射见 [收口计划](71-ACQ1-CLOSURE-PLAN.md)；**READY_FOR_FRONTEND 未达成**。Dynamic/Advanced Browser 保持 disabled，R3 真实执行 BLOCKED。当前事实以 [当前闸门](CURRENT-GATE.md)、[交付看板](02-DELIVERY-BOARD.md) 与 [收口计划](71-ACQ1-CLOSURE-PLAN.md) 为准；能力清单与阶段报告见 [68](68-ACQ1-CAPABILITY-MANIFEST.md) / [69](69-ACQ1-FINAL-STAGE-REPORT.md) / [70](70-ACQ1-DELIVERY-PACKAGE.md)。
+- 当前状态（2026-10-07，交付候选文档收口）：BE-1..BE-8、AG-0..AG-6、ACQ WP-1/WP-2 与收口 Phase 0-5 已在本地候选 `main@48c2e2260f303ef0b18470a4d31fb6cb8f73070d` 完成；Phase 0-5 覆盖 WP-4 生产路径、WP-5 I2 受控抓取、WP-6 I2 写路径与读取 API、WP-7 生命周期/重评、WP-8 整链验收与交接。**READY_FOR_FRONTEND 尚未判定**：仍缺审核方在精确候选提交上的独立复核（[收口计划](71-ACQ1-CLOSURE-PLAN.md) §6 条件 6）。Dynamic/Advanced Browser 保持 disabled，R3 真实执行 BLOCKED；Frontend、Integration、Release 未准入。PLUGIN-1 为 **POST-v0.1 / deferred**，已移出 Alpha v0.1 关键路径且不构成 Frontend 前置条件。当前事实以 [当前闸门](CURRENT-GATE.md)、[交付看板](02-DELIVERY-BOARD.md) 与 [收口计划](71-ACQ1-CLOSURE-PLAN.md) 为准；能力清单与阶段报告见 [68](68-ACQ1-CAPABILITY-MANIFEST.md) / [69](69-ACQ1-FINAL-STAGE-REPORT.md) / [70](70-ACQ1-DELIVERY-PACKAGE.md) / [72](72-ACQ1-CLOSURE-P0-REPORT.md)–[77](77-ACQ1-CLOSURE-P5-REPORT.md)。
 - 历史说明：此前 FT-GOV-V2.1（governance-only）修订期的阶段/结论描述已由上述状态取代；治理仍以 [GOVERNANCE-V2](GOVERNANCE-V2.md) 为准，本文件不构成任何下游准入。
 - 项目正式名称：FlowTracer。
 - Radar 是 FlowTracer 的核心领域对象，不再作为项目名称使用。
@@ -108,10 +108,10 @@
 
 ## 7. 当前状态
 
-- 已完成：Backend Alpha Core、Architecture Governance Pass、ACQ Contract Freeze、WP-1 Source/Safety 与 WP-2 Static；R1/R1C/R1D/R1E/R2C 证据保留。
-- 进行中：FT-GOV-V2.1 治理修订与 FT-GOV-002 记录；R3 保持 BLOCKED，Browser dynamic disabled；旧 Backend/GitHub 已 STOPPED，工程 Execution Authority=NONE。
-- 尚未准入：R4/R5、正式 WP-3、WP-4..WP-8、PLUGIN-1、Frontend、Integration、Release。
-- 当前来源：`main@335c6a2da418b2d3b2c4c70b59ee3d20d08c08cb`；PR #80/#81/#82 已合并。PR #79 DO NOT MERGE，须另签重评；本修订合并后 STOP，不自动恢复旧任务或签发工程下一步。
+- 已完成（本地候选）：Backend Alpha Core、Architecture Governance Pass、ACQ Contract Freeze、WP-1/WP-2，以及收口 Phase 0-5（WP-4..WP-8 收口实现与交接）；溯源见 `docs/71` §9 与 `docs/72`–`docs/77`。
+- 待独立验收：审核方须在精确候选提交上复跑 `backend/scripts/closure_acceptance.py` 并确认 P0/P1=0；通过前不得宣告 READY_FOR_FRONTEND。
+- 保持阻塞/未准入：R3 BLOCKED、Browser dynamic disabled；R4/R5、正式 WP-3、Frontend、Integration、Release 未准入。PLUGIN-1 为 POST-v0.1 / deferred，不参与 Alpha v0.1 准入链。
+- 当前来源：本地 `main@48c2e2260f303ef0b18470a4d31fb6cb8f73070d`；历史 GOV-2.1/R3 记录不构成当前工程续权。
 
 ## 8. Memory 演进边界（接任总控必须遵守）
 

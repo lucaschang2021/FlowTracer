@@ -1,12 +1,12 @@
 # ACQ-1 收口计划（独立审核确认版）
 
-状态：**ACTIVE CLOSURE PLAN（计划冻结，2026-10-06）**。本文件不声明任何已完成能力；它是**独立审核确认的未完成清单**的执行映射与验收口径。
+状态：**CLOSURE IMPLEMENTATION COMPLETE / INDEPENDENT ACCEPTANCE PENDING（2026-10-07）**。本文件保留独立审核未完成清单及执行映射；Phase 0-5 的本地候选完成事实见各阶段状态与 `docs/72`–`docs/77`，最终 READY_FOR_FRONTEND 仍受 §6 条件 6 约束。
 
 判定基线（本文件生效后的统一口径）：
 
-- 当前交付状态 = **I1 / 阶段性交付**（可接收、可运行、证据完整），**不是 ACQ-1 整体收口**。
-- **READY_FOR_FRONTEND 未达成**（判定条件见 §6）。
-- 不在本计划内（已明确延期）：Dynamic/Advanced Browser（WP-3 及 R3/R4/R5）、PLUGIN-1、Frontend（前端侧负责）。
+- 当前交付状态 = **Phase 0-5 本地候选实现完成**；这是交付侧完成状态，不等于独立验收通过。
+- **READY_FOR_FRONTEND 尚未判定**：§6 条件 6 待审核方在精确候选提交上执行。
+- 不在本计划内：Dynamic/Advanced Browser（WP-3 及 R3/R4/R5，deferred/disabled）、Frontend（前端侧负责）；PLUGIN-1 为 **POST-v0.1 / deferred**，不在 Alpha v0.1 关键路径且不阻塞 Frontend。
 - 范围纪律：**多币种 FX 与外部平台执行适配器不因收口而扩张**（机会域仅保持"非 USD 拒绝"语义）。
 
 **优先级（固定）**：修 P1 → WP-4 收口 → 完整 WP-5 → 完整 WP-6 → WP-7 收口 → WP-8 整链验收与交接。
@@ -135,7 +135,7 @@
 
 ## 8. 文档口径修正记录（本次同步完成）
 
-- `README.md`（中/英）、`docs/00-PROJECT-CONTROL.md`、`docs/02-DELIVERY-BOARD.md`、`docs/CURRENT-GATE.md`、`docs/70-ACQ1-DELIVERY-PACKAGE.md` 已统一改为：**WP-4..WP-8 = I1/实现完成 + 收口未完成（本计划）**；新增 **READY_FOR_FRONTEND 未达成**声明；WP-5/WP-6 的局部 I1 不再表述为整体收口。
+- `README.md`（中/英）、`docs/00-PROJECT-CONTROL.md`、`docs/02-DELIVERY-BOARD.md`、`docs/CURRENT-GATE.md`、`docs/68-ACQ1-CAPABILITY-MANIFEST.md`、`docs/70-ACQ1-DELIVERY-PACKAGE.md` 已统一为：**Phase 0-5 本地候选实现完成；READY_FOR_FRONTEND 待独立精确候选验收**。Browser/R3 保持 deferred/disabled；Frontend、Integration 与 Release 未准入；PLUGIN-1 为 POST-v0.1 / deferred 且不阻塞 Frontend。
 - 修正提交与合并哈希见紧随本分支的 traceability 提交（§9）。
 
 ## 9. 溯源

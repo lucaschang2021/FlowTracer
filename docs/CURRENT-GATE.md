@@ -1,14 +1,14 @@
 # FlowTracer 当前阶段闸门
 
-更新时间：2026-10-06（独立审核后修订；此前版本为 2026-10-05 WP-8 收尾稿）。
+更新时间：2026-10-07（交付候选文档收口；此前版本为 2026-10-06 独立审核后修订稿）。
 
-## 当前状态：I1/阶段性交付；收口未完成（独立审核确认）；Browser 分支保持 disabled
+## 当前状态：Phase 0-5 本地候选已完成；READY_FOR_FRONTEND 待独立精确候选验收；Browser 分支保持 disabled
 
-- 事实基准：本地 `main` 的提交序列（WP-1..WP-8 已合并）见 `docs/69` §Commit 与看板。验收模式：**委托方确认（owner-confirmed，无独立第三方角色）**；收口阶段的独立验收由审核方在精确候选提交上执行（"438 passed"仅为交付方报告）。
-- 已完成 **I1/实现范围**：WP-1（Source 契约/健康/lease）、WP-2（静态 adapter/quality）、WP-4（Router v1）、WP-5 I1（Discovery 规划与 Frontier）、WP-6 I1（版本证据 shadow-write）、WP-7 I1（Opportunity Radar）、WP-8 初版（价值闭环 E2E、可重复启动、性能基线、秘密扫描、能力清单、交接文档）。
-- **收口未完成（2026-10-06，独立审核确认）**：未完成清单与逐阶段执行映射见 [`docs/71-ACQ1-CLOSURE-PLAN.md`](71-ACQ1-CLOSURE-PLAN.md)——修 P1（逐跳预算/时间字节硬执行/版本回退/真实限速并行）→ WP-4 生产路径收口 → 完整 WP-5（抓取执行/robots/有界遍历/取消恢复）→ 完整 WP-6（写路径切换/读取 API/序列验证）→ WP-7 生命周期收口 → WP-8 整链验收与交接；**READY_FOR_FRONTEND 未达成**（判定条件见收口计划 §6）。
+- 事实基准：本地 `main@48c2e2260f303ef0b18470a4d31fb6cb8f73070d`；Phase 0-5 的实现、no-ff 合并与溯源提交见 [`docs/71`](71-ACQ1-CLOSURE-PLAN.md) §9、[`docs/72`](72-ACQ1-CLOSURE-P0-REPORT.md)–[`docs/77`](77-ACQ1-CLOSURE-P5-REPORT.md)。这些是交付侧本地候选证据，不替代审核方在精确候选提交上的独立验收。
+- 已完成 **本地候选实现范围**：WP-1/WP-2；WP-4 生产路由收口；WP-5 I2 受控抓取执行；WP-6 I2 写路径切换与 Change/Artifact 读取 API；WP-7 生命周期与重评；WP-8 整链验收与交接。Phase 0-5 均有阶段报告，交付方报告为 500 passed / 92.29%。
+- **READY_FOR_FRONTEND 仍待独立判定**：`docs/71` §6 条件 1-5、7、8 已由本地候选材料声明满足；条件 6（审核方在精确候选提交上独立复核且 P0/P1=0）尚未执行，因此本文件不宣告 READY_FOR_FRONTEND。
 - 仍禁用/阻塞：Dynamic/Advanced Browser **disabled**（`BROWSER_DYNAMIC_ENABLED=False`，`allow_browser=True` fail-closed）；R3 真实执行为 **BLOCKED**，须另签 B 阶段 lease；R4/R5 未准入。R3 离线增量位于分支 `feat/acq1-r3-fail-closed-offline`（docs/54/55/56/59 在该分支，**未合并**）。
-- 未准入：PLUGIN-1、Frontend（FE-001）、Integration（INT-001）、Release（REL-001）。
+- 未准入：Frontend（FE-001）、Integration（INT-001）、Release（REL-001）。PLUGIN-1 已移出 Alpha v0.1 关键路径，状态为 **POST-v0.1 / deferred**，不构成 Frontend 前置条件。
 - 执行权：当前无任何未决 lease/授权；任何新工作（含收口各阶段、R3 真实执行、Frontend 准入）须按 `GOVERNANCE-V2 §12` 另签完整 NEW TASK AUTHORITY。
 - 能力与证据指针：`docs/68-ACQ1-CAPABILITY-MANIFEST.md`（I1 能力清单）、`docs/69`（阶段报告）、`docs/70`（交付包说明书）、`docs/71`（收口计划）。
 

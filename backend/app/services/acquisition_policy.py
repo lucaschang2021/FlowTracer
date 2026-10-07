@@ -159,6 +159,11 @@ def _intersect_path_prefixes(source: tuple[str, ...], operator: tuple[str, ...])
     return tuple(sorted(intersections))
 
 
+def robots_deny_when_unavailable(policy: EffectiveSitePolicy) -> bool:
+    """True when the effective policy refuses crawling without a usable robots.txt."""
+    return policy.robots_mode == RobotsMode.DENY_IF_UNAVAILABLE
+
+
 def effective_site_policy(
     profile: AcquisitionProfileV1,
     target_url: str,

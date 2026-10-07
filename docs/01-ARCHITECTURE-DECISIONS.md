@@ -264,3 +264,92 @@
 - 验证：R1E 必须重新执行两次独立 no-cache 构建，生成完整逐路径 manifests 与新 authority；重复 Browser 619、Debian 206、SBOM 231、license 206/206、UID 10001、DynamicFetcher、Crashpad、runtime/audit 边界、历史资产保护与精确清理门禁。
 - 顺序：R1E 独立复审并合并后，R2C 才能以新 authority 开启全新会话。R3-R5 与正式 WP-3 继续阻塞。
 
+## ADR-034：WP-4 Router 降级、Circuit 与 Throttle 规则冻结
+
+- 状态：**Accepted**（2026-10-05 由总控签发 WP-4 准入并在本控制面生效；实现与验收见 `docs/60-ACQ1-WP4-ROUTER-STAGE-REPORT.md`，冻结规则以 `docs/57-ACQ1-WP4-ROUTER-CONTRACT-ADDENDUM.md` 含实现注记为准）
+- 背景：`docs/29` WP-4 的开工前置要求"已验收 Static/Native Router 与 SitePolicy/预算"，但仓库尚缺降级/预算/Circuit/Throttle 的精确规则；WP-1/WP-2 已提供 `EffectiveSitePolicy`、`EffectiveResourceBudget`、quality v1 与 `SourceAcquisitionState`，规则可在其上冻结而不引入 Browser。
+- 决策：WP-4 Router 的后端选择、顺序降级、质量阈值、Circuit 状态机、AutoThrottle、预算账本、decision trace、新增安全错误码与指标，以 `docs/57-ACQ1-WP4-ROUTER-CONTRACT-ADDENDUM.md` 为准。`dynamic_browser`/`advanced_browser` 在 Router 中**永不选择**；`allow_browser=true` 时整次以 `acquisition_browser_not_admitted` fail-closed，不静默降级。
+- 安全：降级与重试不得作用于 `network_policy_denied`、`site_policy_denied`、`acquisition_budget_exhausted`、`ssrf_blocked`、`unsupported_port`、`acquisition_circuit_open`、`acquisition_browser_not_admitted`、`acquisition_no_backend` 等安全终态；预算跨 attempt/fallback/redirect **逐跳累计**、不重置；AutoThrottle 只能在既有 `EffectiveSitePolicy` 保守交集内调整，不得放宽 crawl delay、RPM、并行度或绕过访问控制。
+- 兼容：只使用既有 `BackendName`、`SourceHealthStatus`、`SourceAcquisitionState`、`CollectionRun`/`AcquisitionAttempt` 冻结字段；无新表、无公开 API/Schema 变化；既有单后端 `execute_run` 路径保持不变，Router 走独立 `execute_route_run` 入口与独立模块。
+- 边界：本 ADR 不放宽 WP-1/WP-2 安全契约、不引入 Browser/Discovery/Change/Opportunity。实现完成后须独立复审并合并；WP-5 仍须另行准入。
+
+## ADR-035：WP-5 Controlled Discovery 采用规划优先的 fail-closed 契约
+
+- 状态：**Accepted**（2026-10-05 冻结并实现 I1；实现与验收见 `docs/62-ACQ1-WP5-DISCOVERY-STAGE-REPORT.md`，规则与实现注记以 `docs/61-ACQ1-WP5-DISCOVERY-CONTRACT.md` 为准）
+- 背景：WP-5 涉及新 frontier 状态、scope 扩散与预算风险；仓库纪律要求先冻结规则再实现，且 Browser-dependent discovery 持续暂停（`browser_dynamic=disabled`）。
+- 决策：WP-5 拆为两个增量。**I1（本次）**只做发现**规划与 Frontier 状态**：四种 scope（`single_page`/`same_path`/`same_domain`/`approved_domains`）的精确边界、确定性 link scoring、站点 `allow_paths`/`deny_paths` 门、三硬上限（`max_depth`/`max_frontier_size`/`max_discovered_urls`）、URL 哈希并发去重、`SourceAcquisitionState.checkpoint` 持久化与幂等恢复；**不向发现的 URL 发起任何请求**。**I2（未准入）**才实现 crawl 执行、robots.txt 获取与逐跳计费。
+- 安全：全部判定 fail-closed——无法解析、越 scope、命中 deny、超上限一律拒绝；I1 无网络副作用；预算与既有 WP-1/WP-4 语义不变；不新增公开 API（证据落 `budget_summary["discovery"]` 与 checkpoint 内部字段）。
+- 兼容：复用既有 `DiscoveryMode` 枚举、`Source.discovery_mode` 列与 `SourceAcquisitionState.checkpoint` JSONB；无迁移；RSS 与非达标页不触发发现。
+- 边界：本 ADR 不放宽访问控制/CAPTCHA/robots 相关不变量，不引入 Browser/Change/Opportunity；I2 与 WP-6 仍须各自独立准入。
+
+## ADR-036：WP-6 Change Intelligence 采用 shadow-write 版本证据优先契约
+
+- 状态：**Accepted**（2026-10-05 冻结并实现 I1；实现与验收见 `docs/64-ACQ1-WP6-CHANGE-STAGE-REPORT.md`，规则与实现注记以 `docs/63-ACQ1-WP6-CHANGE-CONTRACT.md` 为准）
+- 背景：ADR-024 已冻结 Artifact/Snapshot/ChangeEvent 版本证据方向；`docs/23` §10/§13 已给出模型与 schema。切换 RawItem 生成条件属于破坏性步骤，必须先积累可复现的快照/变更证据。
+- 决策：WP-6 拆为两个增量。**I1（本次）**只做 **shadow-write 版本证据**：三表 expand 迁移、三类指纹（content/metadata/structure）、噪声规范化、确定性分类与 materiality、bounded field diff、removed（两次成功观测缺失）、legacy backfill、迁移循环与**安全 downgrade guard**；**RawItem 写路径与公开 API 完全不变**（不新增 `raw_items.snapshot_id`）。**I2（未准入）**才做 writer 切换（仅 qualifying Snapshot 生成 RawItem、索引重建）、读取 API 与语义变化。
+- 安全：证据写入与 run 成功同事务，失败不落半成品；fingerprint/structure 不含凭据与完整 DOM；change_type 为闭集并由 named CHECK 约束；downgrade 在有证据行时 fail-closed 拒绝。
+- 兼容：复用既有 `RawItem`/`CollectionRun`/`Source` 结构；新模型置于独立 `app/models/evidence.py`，不修改 `entities.py`（避免基线模块增长）；无 OpenAPI 变化。
+- 边界：本 ADR 不引入 Browser/Discovery 执行/Opportunity，不改动 Notification/Document 下游；I2 与 WP-7 仍须各自独立准入。
+
+## ADR-037：WP-7 Opportunity 采用独立事实表与 XOR 通知兼容扩展
+
+- 状态：**Accepted**（2026-10-05 冻结并实现 I1；实现与验收见 `docs/66-ACQ1-WP7-OPPORTUNITY-STAGE-REPORT.md`，规则与实现注记以 `docs/65-ACQ1-WP7-OPPORTUNITY-CONTRACT.md` 为准）
+- 背景：ADR-025 已冻结 Opportunity 独立事实/评分/Action Payload 契约与 `docs/24` 精确规则；`radar_type` 是仓库中唯一需要真实 PostgreSQL enum 迁移的枚举（`docs/23` §39），Notification 需要在不改变既有 Analysis 通知语义的前提下容纳机会通知。
+- 决策：WP-7 拆为两个增量。**I1（本次）**实现：`radar_type=opportunity` enum 重建迁移与三重 downgrade guard；`opportunities`/`opportunity_scores`/`opportunity_action_payloads` 三表；Freelance v1 Hard Filter 与 opportunity-score-v1（服务端 Decimal）；确定性 JSON-LD JobPosting 提取（仅显式字段，无猜测）；`OpportunityEvaluationProvider`（fake + OpenAI-compatible，硬过滤先于远程调用，≤3 次调用、2/4s 退避、一次 repair、调用在事务外、逐调用 AIUsageRecord）；不可执行 Action Payload（`requires_human_approval=true` + SHA-256 + 32 KiB 守卫）；Notification XOR 兼容扩展（部分唯一索引 + exactly-one named CHECK + RESTRICT FK）；REST 三端点与本地 job 管线。**I2（未准入）**：平台逐站点访问授权工作流、版本变化驱动的 item 生命周期与重评、多币种固定 FX Profile。
+- 安全：评估失败不写半成品（分数插入冲突即 no-op）；通知资格（≥85 与 threshold、risk≤30、ambiguity≤40、active 且 deadline 未过、Radar 所有权）在事务内复验；Action Payload 无凭据、无 Proposal 文本、无执行能力；公开响应不含 raw HTML/Prompt/向量/内部 trace。
+- 兼容：`entities.py` 为基线上限模块，Notification（连同两个枚举）移入 `app/models/notification.py`、enum 助手移入 `app/models/types.py` 并由 entities 重新导出（净减行）；新 API/schema 文件不新增 `models_persistence` 跨层导入指纹；WS 事件不扩张（ADR-026）。
+- 边界：本 ADR 不实现自动投标/报价/沟通/付款/外部执行（永久禁止），不批准任何平台自动访问；I2 与 WP-8 须各自独立准入。
+
+
+## ADR-038：WP-4 收口注册受控静态重试阶段（production static-retry）
+
+- 状态：**Accepted**（2026-10-06，收口 Phase 1；实现与证据见 `docs/73-ACQ1-CLOSURE-P1-REPORT.md`）
+- 背景：独立审核确认“测试替换选择器不能代替生产能力”——原冻结裁定（`docs/57` §15.1）因 `scrapling_http` 无独立安全网络路径而不注册为生产 stage，导致生产候选链仅 (`native_http`,)，生产路径不存在可执行的受控降级。
+- 决策：注册**受控静态重试阶段**（`BackendName.SCRAPLING_HTTP`，stage 2、`static_retry`），与主阶段同样**强制经 `SafeFetcher`**（NetworkPolicy/SitePolicy/预算/逐跳计费/站点限速全部复用），因此不存在旁路；候选表按**有效预算**门控：`effective.max_pages >= 2 且 effective.max_requests >= 2` 时 URL 链为 `(native_static, static_retry)`，默认 profile（`max_pages=1`）保持单阶段，`docs/57` §15.4 的预算 fail-closed 语义不变。worker 始终装配 stage 2 后端；链构建时缺失的非主阶段视为不可用（不静默降级主阶段），主阶段缺失仍 `acquisition_no_backend` 终态。
+- 安全：Browser 尾部保持 disabled；`allow_browser` 请求继续 fail-closed；重试阶段与主阶段共享 run 级账本（降级/重试/重定向逐跳累计）与站点门（crawl delay/RPM 间距、同主机串行）。
+- 兼容：默认 profile 行为零变化；`docs/57` 补充 §16 收口注记；`docs/71` Phase 1.1 由此闭环。
+
+
+## ADR-039：WP-5 I2 完整抓取执行准入（crawl execution）
+
+- 状态：**Accepted**（2026-10-06，收口 Phase 2；实现与证据见 `docs/74-ACQ1-CLOSURE-P2-REPORT.md`）
+- 背景：`docs/61` §0 冻结了 WP-5 两增量：I1（规划与 Frontier 状态，已实现）与 I2（crawl 执行，未准入）。独立审核清单要求完成“完整 WP-5 抓取执行”（frontier 消费、robots/domain policy、逐跳复核、有界遍历、取消/恢复、并发去重）。本 ADR 即 §0 要求的 I2 自身准入与 robots 契约。
+- 决策（I2 语义冻结）：
+  1. **生产路径**：仅当 worker 注入 `discovery_transport`（`execute_route_run(discovery_transport=SafeCrawlTransport(SafeFetcher()))`）时消费 frontier；未注入即保持 I1 规划语义（现有测试与 final-e2e 不变）。抓取请求 100% 经 `SafeFetcher`（NetworkPolicy + EffectiveSitePolicy + **scope 逐跳复核** + FetchSession 硬预算），**无旁路**。
+  2. **robots（§5 义务生效）**：每 origin 一次，同一 transport 抓取（仅 `text/plain`、≤512 KiB、≤2 请求）；`fetched` → 遵守（disallow=跳过该目标且保留 frontier，`Crawl-delay` 作为站点间距下限被执行）；`missing`（404/410）或 `unavailable`：`respect` → 视为无规则继续，`deny_if_unavailable` → 整个 crawl 拒绝（`stopped_reason=robots_unavailable`，frontier 保留）。
+  3. **有界遍历（§6 逐跳口径）**：pages/requests/bytes/time 四账跨页累计，**每次请求前**检查（含 robots 消耗后的再检查），超限前停止并记 `stopped_reason`；`max_depth=min(profile,3)` 以 `base_depth` 跨 crawl 层生效；`max_frontier_size`/`max_discovered_urls` 沿用 I1 冻结值。
+  4. **消费语义（§7 原文“已抓取 URL 不重复抓取”）**：成功 → `seen` + `crawled`；失败 → 原位 attempts+1（后续 run 重试，连续 3 次失败退休为 `abandoned`）；robots 拒绝 → 仅本 run 跳过（下一 run 以新 robots 重判）。不产生任何无界扩散路径。
+  5. **取消/恢复（CAS）**：checkpoint v2 增加 `crawl` 租约（run_id、300s、逐步续期）；每步以 `commit_crawl_step` 做 claim 守卫的版本 CAS（`source_acquisition_states.version`）；无关写者造成的版本前进在租约仍属本 run 时重试（`cas_crawl_step`）；claim 丢失在下一步边界停止；崩溃恢复 = 同 run 重新 claim 后接管自己的租约，已提交页不重抓、pending 目标不丢失；attempt ordinal 按 `requested-if-free-else-max+1` 分配（重入唯一）。
+  6. **证据**：每个被抓取页面产生 attempt 行（`decision_version=discovery-crawl-v1`、backend=接受的 stage）并写入版本证据（artifact/snapshot/change event）；**本增量不改变 RawItem 写入**（下游链路接线属收口 Phase 3/WP-6）；crawl run 暂停 miss-streak 移除判定（consume-once 不是全量重复观测周期，避免对已消费页面误报 removed）——该边界记录为后续 WP 的扩展点。
+  7. **run 语义**：抓取页失败 → PARTIAL 且 `failed_count` 累计；预算/robots 停止 → SUCCEEDED（以 `budget_summary.discovery.crawl` 证据为准）；`fetched_count` 含抓取页。
+- 兼容与不变式：公开 API/Schema/OpenAPI/迁移**零变化**（checkpoint JSONB 复用，docs/61 §12.3）；SSRF/SitePolicy/预算/dispatch 边界只收紧不放宽；Browser 保持 disabled；自动投标/报价/沟通/付款/外部执行继续**永久禁止**。已知边界：跨 run 的全局 RPM 并行状态仍为实例级、robots 每 run 重取、逐目标 Circuit 升级延后（run 级 Circuit 语义不变）。
+
+
+## ADR-040：WP-6 I2 写路径切换准入（RawItem snapshot identity + 读取 API）
+
+- 状态：**Accepted**（2026-10-06，收口 Phase 3；实现与证据见 `docs/75-ACQ1-CLOSURE-P3-REPORT.md`）
+- 背景：`docs/63` §0 冻结 WP-6 两增量：I1（shadow-write 版本证据，已实现且 RawItem 写路径不变）与 I2（RawItem writer 切换、读取 API、notification 资格化下游、semantic-change-v1）。独立审核清单要求完成“完整 WP-6 写路径”：合格变化产生新下游输入（同源新版本产生新 RawItem）、变化→清洗→分析→情报→适用通知、Change/Artifact 读取 API、序列验证、写路径切换（迁移/回填/兼容/downgrade guard）。
+- 决策（I2 语义冻结）：
+  1. **RawItem 身份切换（docs/23 §10/§13）**：新增 nullable `raw_items.snapshot_id`（FK RESTRICT）+ `UNIQUE(snapshot_id) WHERE snapshot_id IS NOT NULL`；`uq_raw_items_source_external` 重建为 `(source_id, external_id) WHERE external_id IS NOT NULL AND snapshot_id IS NULL` 的 legacy 部分唯一索引。**合格快照 = `created`/`content_changed`** 才产生新 RawItem；`unchanged`、`metadata_changed`、`structure_changed` 仅保留 ChangeEvent（重复计数）；回退至既有快照（内容回退）复用旧快照且**不再重复生成** RawItem（快照已唯一拥有其 item）；`removed` 不产生 item。Profile 级“元数据/结构升级为 RawItem”开关不在本次启用（记录为未启用扩展点）。
+  2. **写路径**：evidence 先写、随后由合格 EvidenceWrite 生成 RawItem（同一事务）；repository 与 crawl 页提交共用 `persist_snapshot_items`；`.models/raw_item.py` 承接 RawItem 模型（entities 净减行，规避门禁基线模块增长规则），`TimestampMixin` 上移 `models/types.py`。
+  3. **迁移 0008**：expand + 索引重建；**downgrade guard**：存在 `snapshot_id IS NOT NULL` 行时拒绝降级（I2 writer 产物无法被 legacy 约束表达）。
+  4. **回填**：`change_backfill.backfill_source_evidence` 为 legacy item 建立 v1 链并**链接** `snapshot_id`；对已存在 artifact 的 item，按内容指纹匹配既有快照链接；幂等（二次调用 0）。
+  5. **读取 API（docs/23 §14）**：`GET /api/v1/sources/{id}/changes` 与 `GET /api/v1/sources/{id}/artifacts/{artifact_id}/changes`——所有权校验、分页（page/page_size ≤100）、`change_type`/`artifact_id` 过滤；响应仅含有界证据（field_diff 值 ≤200 字符、指纹、版本、标题），不含正文/Prompt/内部 trace。OpenAPI 冻结快照同步更新。
+  6. **下游链路**：合格变化产生的新 RawItem 与既有管线同路（dispatch → 清洗 → 分析 → 情报 → 通知资格）；crawl 页产生的 RawItem 随 run 成功一并 dispatch（未 dispatch 的 FETCHED 项由既有 pending 扫描兜底）。
+- 兼容与回滚：`snapshot_id` nullable 保持 legacy 行与约束语义；回滚 = 关闭 writer（回退代码）+ 0008 降级（空 writer 状态）。
+- 边界：`semantic-change-v1`（LLM 语义变化分类，docs/23 §10）**不在收口验收范围**，未在本 ADR 启用（避免为收口扩张外部 AI 调用路径）；documents 与 RawItem 的版本关联（前代 Document 链接）不在本次范围。
+
+
+## ADR-041：WP-7 I2 生命周期与重评准入（ChangeEvent 驱动）
+
+- 状态：**Accepted**（2026-10-06，收口 Phase 4；实现与证据见 `docs/76-ACQ1-CLOSURE-P4-REPORT.md`）
+- 背景：`docs/65` §0 冻结 WP-7 两增量：I1（首见建 item、评分/载荷/通知、REST 三端点）与 I2（版本变化驱动的 item 生命周期与重评等）。独立审核清单要求完成“WP-7 收口”：Discovery/Change 真实输出接入 Opportunity、内容变化/移除/过期的状态与评分生命周期一致（评分版本化、唯一约束按需修订）、契约收口（OpenAPI 冻结）、禁止项保持（**FX 与外部执行适配器不扩张**）。
+- 决策：
+  1. **真实输入**：`record_opportunity_items` 升级为 ChangeEvent 驱动——`created` 建档、`content_changed` **原位刷新**该 artifact 的 item（facts + 快照身份，重新激活 removed）、`removed` 置 `status=removed`；crawl 页提交（`write_crawl_page`）同样执行该 ingest，因此 Discovery 输出（含被爬页面）与 Change 输出都进入 Opportunity。
+  2. **观察时钟**：item 的 `created_at/updated_at` 取快照 `fetched_at`（观测时间），使“重评新鲜度”由观测驱动而非 DB 即时时钟。
+  3. **评分版本化（唯一约束按需修订）**：`opportunity_scores` 新增 `evaluation_version`（默认 1）；唯一约束由 `(opportunity_id, radar_id, score_version)` 改为 `(opportunity_id, radar_id, score_version, evaluation_version)`；重评产生新行（version = max+1），同 rubric 的历史评分并存，评分三元组的重放幂等语义保留。payload 仍按 score 唯一（`opportunity_score_id`），通知按 `(user, opportunity_score_id)` 部分唯一。
+  4. **重评触发**：待评集合 = “最新观测新于最新评分”（`latest(scored_at) IS NULL OR < item.updated_at`），`_claim_target` 同判据；未变化 item 保持已评（不重评、不重发通知）。
+  5. **生命周期转换**：`expired` 由派发前扫描（`expire_due_opportunities`，beat 60s 路径）将 `active 且 deadline < now` 置为；`removed` 由移除事件置位；重现/内容变化置回 `active`（过期扫描再按 deadline 复判）；`rejected` 保留在闭集但无自动转换（用户动作面不在本次范围）。
+  6. **禁止项保持（4.4）**：非 USD 一律 `currency_unsupported` 拒绝（零 AI 调用、零 usage、零汇率查询）；不引入 `fx_table`/`fx_version` 或任何外部执行适配器；payload 键集与 `requires_human_approval=true` 冻结不变。
+- 迁移：`20261006_0009`（加列 + 约束替换）；**downgrade guard**：存在 `evaluation_version > 1` 行时拒绝降级。
+- 兼容：无 API/Schema/OpenAPI 变化（冻结快照与 blob pin 不变，`--check` 零漂移）；I1 行为对未变化 item 完全一致（首评语义、通知资格、人工确认边界均不变）。

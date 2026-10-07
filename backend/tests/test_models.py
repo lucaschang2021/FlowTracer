@@ -28,6 +28,12 @@ EXPECTED_TABLES = {
     "bookmarks",
     "notifications",
     "ai_usage_records",
+    "source_artifacts",
+    "acquisition_snapshots",
+    "change_events",
+    "opportunities",
+    "opportunity_scores",
+    "opportunity_action_payloads",
 }
 
 EXPECTED_ENUMS = {
@@ -39,6 +45,7 @@ EXPECTED_ENUMS = {
         "policy",
         "competitive",
         "custom",
+        "opportunity",
     },
     "resource_status": {"active", "paused", "archived"},
     "source_type": {"rss", "url", "api"},
@@ -90,6 +97,7 @@ EXPECTED_INDEXES = {
         "ix_raw_items_collection_run_id",
         "ix_raw_items_content_hash",
         "ix_raw_items_source_id",
+        "uq_raw_items_snapshot",
         "uq_raw_items_source_external",
     },
     "documents": {"ix_documents_raw_item_id", "ix_documents_status_created_at"},
@@ -105,14 +113,24 @@ EXPECTED_INDEXES = {
     "bookmarks": {"ix_bookmarks_document_id", "ix_bookmarks_user_id"},
     "notifications": {
         "ix_notifications_analysis_id",
+        "ix_notifications_opportunity_score_id",
         "ix_notifications_user_id",
         "ix_notifications_user_status_created_at",
+        "uq_notifications_user_analysis",
+        "uq_notifications_user_opportunity_score",
     },
     "ai_usage_records": {
         "ix_ai_usage_records_analysis_id",
         "ix_ai_usage_records_user_created_at",
         "ix_ai_usage_records_user_id",
     },
+    "opportunities": {
+        "ix_opportunities_user_status_created",
+        "ix_opportunities_source_published",
+        "ix_opportunities_deadline",
+    },
+    "opportunity_scores": {"ix_opportunity_scores_radar"},
+    "opportunity_action_payloads": set(),
 }
 
 EXPECTED_UNIQUES = {
@@ -121,8 +139,19 @@ EXPECTED_UNIQUES = {
     "analyses": {("document_id", "radar_id", "pipeline_version")},
     "document_chunks": {("document_id", "chunk_index", "embedding_model")},
     "bookmarks": {("user_id", "document_id")},
-    "notifications": {("user_id", "analysis_id")},
     "acquisition_attempts": {("run_id", "ordinal")},
+    "source_artifacts": {("source_id", "artifact_key")},
+    "acquisition_snapshots": {
+        ("artifact_id", "version"),
+        ("artifact_id", "content_hash", "metadata_hash", "structure_hash"),
+    },
+    "change_events": {("collection_run_id", "artifact_id")},
+    "opportunities": {("snapshot_id",)},
+    "opportunity_scores": {("opportunity_id", "radar_id", "score_version", "evaluation_version")},
+    "opportunity_action_payloads": {
+        ("opportunity_score_id", "payload_version"),
+        ("payload_hash",),
+    },
 }
 
 EXPECTED_PARTIAL_INDEXES = {
@@ -130,7 +159,10 @@ EXPECTED_PARTIAL_INDEXES = {
     "uq_radars_active_user_name": "deleted_at IS NULL",
     "uq_sources_active_user_url": "deleted_at IS NULL",
     "uq_collection_runs_source_idempotency": "idempotency_key IS NOT NULL",
-    "uq_raw_items_source_external": "external_id IS NOT NULL",
+    "uq_raw_items_snapshot": "snapshot_id IS NOT NULL",
+    "uq_raw_items_source_external": "(external_id IS NOT NULL) AND (snapshot_id IS NULL)",
+    "uq_notifications_user_analysis": "analysis_id IS NOT NULL",
+    "uq_notifications_user_opportunity_score": "opportunity_score_id IS NOT NULL",
 }
 
 EXPECTED_CHECKS = {
@@ -170,6 +202,26 @@ EXPECTED_CHECKS = {
     "analyses": ("relevance", "importance", "novelty", "impact", "radar_score"),
     "document_chunks": ("chunk_index",),
     "ai_usage_records": ("input_tokens", "total_tokens", "estimated_cost", "duration_ms"),
+    "acquisition_snapshots": ("version", "quality_score"),
+    "change_events": ("materiality", "change_type"),
+    "notifications": ("analysis_id IS NULL", "opportunity_score_id"),
+    "opportunities": (
+        "budget_min",
+        "budget_max",
+        "budget_min <= budget_max",
+        "currency",
+        "jsonb_typeof(skills)",
+        "jsonb_typeof(client_metadata)",
+        "estimated_effort_hours",
+        "status",
+    ),
+    "opportunity_scores": (
+        "fit",
+        "hard_filter_passed",
+        "overall_score",
+        "recommendation",
+    ),
+    "opportunity_action_payloads": ("jsonb_typeof(payload)", "pg_column_size(payload)"),
 }
 
 EXPECTED_FOREIGN_KEYS = {
@@ -195,6 +247,7 @@ EXPECTED_FOREIGN_KEYS = {
     "raw_items": {
         (("source_id",), "sources", ("id",), "RESTRICT"),
         (("collection_run_id",), "collection_runs", ("id",), "CASCADE"),
+        (("snapshot_id",), "acquisition_snapshots", ("id",), "RESTRICT"),
     },
     "documents": {(("raw_item_id",), "raw_items", ("id",), "RESTRICT")},
     "analyses": {
@@ -209,10 +262,38 @@ EXPECTED_FOREIGN_KEYS = {
     "notifications": {
         (("user_id",), "users", ("id",), "CASCADE"),
         (("analysis_id",), "analyses", ("id",), "CASCADE"),
+        (("opportunity_score_id",), "opportunity_scores", ("id",), "RESTRICT"),
     },
     "ai_usage_records": {
         (("user_id",), "users", ("id",), "CASCADE"),
         (("analysis_id",), "analyses", ("id",), "SET NULL"),
+    },
+    "source_artifacts": {
+        (("source_id",), "sources", ("id",), "RESTRICT"),
+        (("current_snapshot_id",), "acquisition_snapshots", ("id",), "RESTRICT"),
+    },
+    "acquisition_snapshots": {
+        (("artifact_id",), "source_artifacts", ("id",), "RESTRICT"),
+        (("collection_run_id",), "collection_runs", ("id",), "RESTRICT"),
+    },
+    "change_events": {
+        (("artifact_id",), "source_artifacts", ("id",), "RESTRICT"),
+        (("collection_run_id",), "collection_runs", ("id",), "RESTRICT"),
+        (("previous_snapshot_id",), "acquisition_snapshots", ("id",), "RESTRICT"),
+        (("current_snapshot_id",), "acquisition_snapshots", ("id",), "RESTRICT"),
+    },
+    "opportunities": {
+        (("user_id",), "users", ("id",), "CASCADE"),
+        (("source_id",), "sources", ("id",), "RESTRICT"),
+        (("artifact_id",), "source_artifacts", ("id",), "RESTRICT"),
+        (("snapshot_id",), "acquisition_snapshots", ("id",), "RESTRICT"),
+    },
+    "opportunity_scores": {
+        (("opportunity_id",), "opportunities", ("id",), "CASCADE"),
+        (("radar_id",), "radars", ("id",), "RESTRICT"),
+    },
+    "opportunity_action_payloads": {
+        (("opportunity_score_id",), "opportunity_scores", ("id",), "CASCADE"),
     },
 }
 

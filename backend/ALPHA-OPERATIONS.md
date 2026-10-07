@@ -66,19 +66,19 @@ The application is fail-fast and does not load `.env` implicitly. Values shown i
 
 ## Migrations and test isolation
 
-Development migration:
+Development migration (current ACQ-1 head: `20261006_0009`):
 
 ```powershell
 uv run alembic upgrade head
 uv run alembic check
 ```
 
-BE-8 acceptance uses a uniquely named temporary PostgreSQL database, never the development
+Backend acceptance uses a uniquely named temporary PostgreSQL database, never the development
 `flowtracer` database:
 
 ```powershell
 # Set DATABASE_URL to an isolated PostgreSQL asyncpg URL whose database is:
-# flowtracer_be8_<unique>_test
+# flowtracer_acq1_<unique>_test
 uv run alembic upgrade head
 uv run alembic downgrade base
 uv run alembic upgrade head
@@ -101,9 +101,29 @@ uv run pytest
 uv run python scripts/export_openapi.py --check
 ```
 
-The complete offline closure is `tests/test_alpha_e2e.py`. It uses local RSS/HTML fixtures, Fake
-Analysis/Embedding Providers, an isolated PostgreSQL database, and isolated Redis logical databases.
-It must never access public networks.
+The complete offline closure includes `tests/test_alpha_e2e.py` (BE-8 loop),
+`tests/test_acq1_final_e2e.py` (ACQ-1 value loops), and `tests/test_acq1_closure_p5.py`
+(Static/Native Router → Discovery → Change → Opportunity integration). They use local fixtures,
+Fake Providers, an isolated PostgreSQL database, and isolated Redis logical databases. They must
+never access public networks.
+
+## Verification scripts
+
+```powershell
+# Repeatable fresh startup: isolated *_test database, empty-db
+# upgrade -> check -> downgrade base -> re-upgrade, API boot + liveness,
+# frozen OpenAPI comparison, exact cleanup.
+uv run python scripts/verify_fresh_startup.py
+
+# Secret scan over git-tracked files (private keys, provider tokens,
+# non-placeholder credentialed URLs).
+uv run python scripts/secret_scan.py
+
+# Offline performance baseline (component percentiles + routed-run sample).
+uv run python scripts/benchmark_offline.py
+```
+
+All three refuse non-`*_test` databases where applicable and never touch public networks.
 
 To intentionally regenerate the reviewed schema:
 
@@ -120,7 +140,9 @@ Any diff is a contract change and requires Backend/controller review.
 - Beat schedule is ephemeral and owned by UID 10001. A normal restart can reuse it; recreating the
   worker removes it without leaving a volume.
 - Beat dispatches due-source scheduling and queued-run, fetched-item, pending-analysis,
-  stale-analysis, embedding, and notification compensation every 60 seconds.
+  stale-analysis, embedding, notification, and opportunity-evaluation compensation every 60
+  seconds. Opportunity evaluation only runs for opportunity-family sources paired with an
+  opportunity radar; it is deterministic and idempotent per (opportunity, radar, score version).
 - Queue publication failures do not erase committed facts. Dispatchers recover queued/pending facts.
 - WebSocket/Redis failure does not roll back database facts. Clients recover through REST.
 - A failed/partial CollectionRun can create one idempotent retry child; a failed Analysis can return

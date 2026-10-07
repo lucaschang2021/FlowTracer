@@ -17,12 +17,23 @@ from app.services.extraction_types import ExtractionObservation
 
 
 class CollectionError(Exception):
-    def __init__(self, code: str, message: str, *, retryable: bool = False) -> None:
+    def __init__(
+        self,
+        code: str,
+        message: str,
+        *,
+        retryable: bool = False,
+        status_code: int | None = None,
+    ) -> None:
         super().__init__(message)
         self.code = code
         self.safe_message = message[:500]
         self.retryable = retryable
         self.retry_count = 0
+        # Real requests issued (hops + retries) when the failure carries transport evidence.
+        self.requests_made: int | None = None
+        # Upstream HTTP status when the failure came from an HTTP response (robots fetch).
+        self.status_code: int | None = status_code
 
 
 @dataclass(frozen=True, slots=True)
@@ -31,9 +42,24 @@ class FetchResponse:
     content_type: str
     body: bytes
     status_code: int = 200
+    redirects: int = 0
 
 
 type AcquisitionFetcher = ContentFetcher[SourceType, FetchResponse]
+
+
+@dataclass(frozen=True, slots=True)
+class AttemptBudget:
+    """Remaining effective budget granted to one backend attempt.
+
+    ``max_requests`` counts every real request (initial + redirect hops + retries);
+    ``max_bytes`` is the remaining content-byte allowance; ``deadline_monotonic`` is an
+    absolute monotonic deadline shared by the whole run.
+    """
+
+    max_requests: int
+    max_bytes: int
+    deadline_monotonic: float | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -47,6 +73,7 @@ class AcquisitionRequest:
     discovery_mode: DiscoveryMode
     profile: AcquisitionProfileV1
     correlation_id: str | None
+    remaining_budget: AttemptBudget | None = None
 
 
 @dataclass(frozen=True, slots=True)

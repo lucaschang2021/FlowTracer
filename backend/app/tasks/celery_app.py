@@ -15,6 +15,7 @@ celery_app = Celery(
         "app.tasks.acquisition",
         "app.tasks.intelligence",
         "app.tasks.notifications",
+        "app.tasks.opportunity",
     ],
 )
 celery_app.conf.update(
@@ -53,6 +54,10 @@ celery_app.conf.update(
         },
         "dispatch-notifications": {
             "task": "flowtracer.tasks.notifications.dispatch_notifications",
+            "schedule": 60.0,
+        },
+        "dispatch-opportunity-evaluations": {
+            "task": "flowtracer.tasks.opportunity.dispatch_opportunity_evaluations",
             "schedule": 60.0,
         },
     },

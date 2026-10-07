@@ -15,21 +15,33 @@ from app.models.entities import (
     SourceAcquisitionState,
     User,
 )
+from app.models.evidence import AcquisitionSnapshot, ChangeEvent, SourceArtifact
+from app.models.opportunity import (
+    OpportunityActionPayload,
+    OpportunityItem,
+    OpportunityScore,
+)
 
 __all__ = [
     "AIUsageRecord",
     "AcquisitionAttempt",
+    "AcquisitionSnapshot",
     "Analysis",
     "Bookmark",
+    "ChangeEvent",
     "CollectionRun",
     "Document",
     "DocumentChunk",
     "Notification",
+    "OpportunityActionPayload",
+    "OpportunityItem",
+    "OpportunityScore",
     "Radar",
     "RadarSource",
     "RawItem",
     "RefreshToken",
     "Source",
     "SourceAcquisitionState",
+    "SourceArtifact",
     "User",
 ]

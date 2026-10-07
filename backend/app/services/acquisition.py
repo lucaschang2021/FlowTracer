@@ -25,7 +25,6 @@ from app.domains.acquisition_ports import (
     RunClaim,
 )
 from app.models.entities import (
-    AcquisitionAttempt,
     AcquisitionAttemptStatus,
     BackendName,
     CollectionRun,
@@ -40,7 +39,9 @@ from app.models.entities import (
     SourceType,
 )
 from app.schemas.resources import AcquisitionProfileV1
+from app.services.acquisition_attempts import _attempt
 from app.services.acquisition_parsers import parse_feed, parse_html
+from app.services.acquisition_router import circuit_open_until, counts_toward_circuit
 from app.services.acquisition_types import (
     AcquisitionRequest,
     AcquisitionResult,
@@ -55,9 +56,28 @@ from app.services.resources import get_source, resource_not_found
 Dispatch = Callable[[str, str], None]
 LEASE_DURATION = timedelta(minutes=10)
 MAX_CLAIMS = 3
-DECISION_VERSION = "acquisition-native-v1"
 RunRepository = AcquisitionRunRepository[Source, AcquisitionResult, ParseResult, Any]
 RunBackend = AcquisitionBackendPort[AcquisitionRequest, AcquisitionResult]
+
+# Refusal codes that never produce an attempt row or touch source state.
+_ATTEMPT_SKIPPED_CODES = frozenset(
+    {
+        "acquisition_mode_unsupported",
+        "source_profile_invalid",
+        "acquisition_browser_not_admitted",
+        "acquisition_no_backend",
+        "acquisition_circuit_open",
+    }
+)
+_BLOCKED_ATTEMPT_CODES = frozenset(
+    {
+        "network_policy_denied",
+        "site_policy_denied",
+        "acquisition_budget_exhausted",
+        "ssrf_blocked",
+        "unsupported_port",
+    }
+)
 
 
 async def _collection_event(
@@ -522,6 +542,8 @@ async def _update_source_state(
     error_code: str | None,
     quality_score: Decimal | None = None,
     now: datetime,
+    counts_toward_circuit_failures: bool = True,
+    checkpoint_update: dict[str, Any] | None = None,
 ) -> None:
     state = await session.scalar(
         select(SourceAcquisitionState)
@@ -551,72 +573,30 @@ async def _update_source_state(
     if succeeded:
         state.success_count += 1
         state.consecutive_failures = 0
+        state.circuit_open_until = None
         state.last_success_at = now
         state.last_error_code = None
-        state.health_status = (
-            SourceHealthStatus.CIRCUIT_OPEN
-            if state.circuit_open_until is not None and state.circuit_open_until > now
-            else SourceHealthStatus.HEALTHY
-        )
+        state.health_status = SourceHealthStatus.HEALTHY
+        if checkpoint_update is not None:
+            # Discovery owns the whole checkpoint document (versioned, self-contained).
+            state.checkpoint = checkpoint_update
     else:
         state.failure_count += 1
-        state.consecutive_failures += 1
+        if counts_toward_circuit_failures:
+            state.consecutive_failures += 1
         state.last_failure_at = now
         state.last_error_code = error_code
-        state.health_status = (
-            SourceHealthStatus.CIRCUIT_OPEN
-            if state.circuit_open_until is not None and state.circuit_open_until > now
-            else (
+        if state.consecutive_failures >= 5:
+            # Circuit opens with an exponential cool-down window; a half-open probe is a
+            # single normal run after expiry, so success above clears it unconditionally.
+            state.circuit_open_until = circuit_open_until(now, state.consecutive_failures)
+            state.health_status = SourceHealthStatus.CIRCUIT_OPEN
+        else:
+            state.health_status = (
                 SourceHealthStatus.UNHEALTHY
-                if state.consecutive_failures >= 5
+                if state.consecutive_failures >= 4
                 else SourceHealthStatus.DEGRADED
             )
-        )
-
-
-def _attempt(
-    *,
-    run_id: UUID,
-    source_id: UUID,
-    backend: BackendName,
-    started_at: datetime,
-    finished_at: datetime,
-    status: AcquisitionAttemptStatus,
-    requested_url: str,
-    response_url: str | None = None,
-    status_code: int | None = None,
-    content_type: str | None = None,
-    retry_count: int = 0,
-    bytes_received: int = 0,
-    error: CollectionError | None = None,
-    quality_score: Decimal | None = None,
-) -> AcquisitionAttempt:
-    return AcquisitionAttempt(
-        run_id=run_id,
-        source_id=source_id,
-        ordinal=1,
-        backend=backend,
-        started_at=started_at,
-        finished_at=finished_at,
-        status=status,
-        requested_url=requested_url,
-        final_url=response_url,
-        status_code=status_code,
-        content_type=content_type,
-        duration_ms=max(0, round((finished_at - started_at).total_seconds() * 1000)),
-        retry_count=retry_count,
-        pages=1 if status == AcquisitionAttemptStatus.SUCCEEDED else 0,
-        bytes_received=bytes_received,
-        budget_used={
-            "requests": retry_count + 1,
-            "pages": 1 if status == AcquisitionAttemptStatus.SUCCEEDED else 0,
-            "bytes_received": bytes_received,
-        },
-        error_code=None if error is None else error.code,
-        safe_error=None if error is None else error.safe_message,
-        decision_version=DECISION_VERSION,
-        quality_score=quality_score,
-    )
 
 
 async def _finish_failure(
@@ -628,6 +608,11 @@ async def _finish_failure(
     attempt_started_at: datetime,
     retries: int,
     error: CollectionError,
+    *,
+    run_started_at: datetime | None = None,
+    attempt_ordinal: int = 1,
+    fallback_count: int = 0,
+    record_attempt: bool = True,
 ) -> bool:
     async with factory() as session:
         run = await session.scalar(
@@ -642,26 +627,18 @@ async def _finish_failure(
         if run is None:
             return False
         finished_at = datetime.now(UTC)
+        duration_from = run_started_at or attempt_started_at
         run.status = CollectionRunStatus.FAILED
         run.finished_at = finished_at
         run.failed_count = 1
         run.error_code = error.code
         run.error_message = error.safe_message
-        run.duration_ms = max(0, round((finished_at - attempt_started_at).total_seconds() * 1000))
-        backend_selected = error.code not in {
-            "acquisition_mode_unsupported",
-            "source_profile_invalid",
-        }
+        run.duration_ms = max(0, round((finished_at - duration_from).total_seconds() * 1000))
+        run.fallback_count = fallback_count
+        backend_selected = error.code not in _ATTEMPT_SKIPPED_CODES
         if backend_selected:
             run.backend = backend.value
-        blocked_codes = {
-            "network_policy_denied",
-            "site_policy_denied",
-            "acquisition_budget_exhausted",
-            "ssrf_blocked",
-            "unsupported_port",
-        }
-        if backend_selected:
+        if backend_selected and record_attempt:
             session.add(
                 _attempt(
                     run_id=run.id,
@@ -671,12 +648,13 @@ async def _finish_failure(
                     finished_at=finished_at,
                     status=(
                         AcquisitionAttemptStatus.BLOCKED
-                        if error.code in blocked_codes
+                        if error.code in _BLOCKED_ATTEMPT_CODES
                         else AcquisitionAttemptStatus.FAILED
                     ),
                     requested_url=source.normalized_url,
                     retry_count=retries,
                     error=error,
+                    ordinal=attempt_ordinal,
                 )
             )
         if backend_selected:
@@ -688,9 +666,15 @@ async def _finish_failure(
                 duration_ms=run.duration_ms,
                 error_code=error.code,
                 now=finished_at,
+                counts_toward_circuit_failures=counts_toward_circuit(error.code),
             )
         await session.commit()
         return True
+
+
+def validate_source_profile(raw: dict[str, Any]) -> AcquisitionProfileV1:
+    """Closed profile loader shared by the legacy and routed run paths."""
+    return AcquisitionProfileV1.model_validate(raw)
 
 
 async def _repository_heartbeat_loop(repository: RunRepository, claim: RunClaim[Source]) -> None:

@@ -16,6 +16,25 @@ schema disagree, stop integration and report a contract defect.
 OpenAPI is serialized as UTF-8 JSON with sorted keys and a trailing newline. CI or integration
 checks should use `--check`; a changed snapshot requires Backend contract review.
 
+## Start, health, and offline demo
+
+From the repository root, follow the migration-first [Alpha operations Quick Start](ALPHA-OPERATIONS.md#quick-start):
+validate Compose, build the API image, start PostgreSQL/Redis, run `alembic upgrade head` in a
+one-off API container, then start API/Worker. Do not start Worker/Beat before migration. The
+frontend base URL is the local URL above; no frontend server is supplied by this backend package.
+
+`GET /api/v1/health/live` reports process liveness (`status=ok`).
+`GET /api/v1/health/ready` reports readiness (`status=ready`) only when PostgreSQL and Redis are
+ready; use readiness, not liveness, before enabling data screens. The worker's Celery pong is an
+independent background-processing check in the operations guide. Do not treat a WebSocket event
+as a durable status source; refresh the relevant REST resource after reconnect.
+
+There is no public seed/demo endpoint. For repeatable local examples use the offline fixture-driven
+`tests/test_alpha_e2e.py`, `tests/test_acq1_final_e2e.py`, and
+`tests/test_acq1_closure_p5.py` with an isolated database whose name contains `_test`, Fake AI/
+Embedding providers, and local RSS/HTML fixtures. See [operations](ALPHA-OPERATIONS.md#migrations-and-test-isolation)
+for the test isolation procedure. Never point destructive test setup at the development database.
+
 ## Authentication and request conventions
 
 - Registration and login return an HS256 Access Token and an opaque Refresh Token.
@@ -58,6 +77,9 @@ unavailability. Stable client-visible codes include:
   `ai_auth_failed`
 - `embedding_invalid_output`, `embedding_timeout`, `embedding_rate_limited`,
   `embedding_provider_unavailable`, `embedding_auth_failed`
+- `opportunity_not_found` (missing or cross-user opportunity), `action_payload_unavailable`
+  (opportunity exists but has no scored, human-approved action payload yet)
+- `resource_not_found` for missing/cross-user sources or artifacts on the change-history endpoints
 - `internal_error` (show a generic retry/error UI and retain the request ID for diagnostics)
 
 ## Pagination and ordering
@@ -84,6 +106,8 @@ timestamps. Filters and exact request/response schemas are defined in OpenAPI.
 | Intelligence | `GET /intelligence`, `GET /intelligence/{analysis_id}`, `POST /analyses/{analysis_id}/retry` |
 | Memory | `GET/POST /bookmarks`, `PATCH/DELETE /bookmarks/{bookmark_id}`, `POST /memory/search` |
 | Notification | `GET /notifications`, `POST /notifications/{notification_id}/read`, `POST /notifications/read-all` |
+| Opportunity | `GET /opportunities`, `GET /opportunities/{opportunity_id}`, `GET /opportunities/{opportunity_id}/action-payload` |
+| Change history | `GET /sources/{source_id}/changes`, `GET /sources/{source_id}/artifacts/{artifact_id}/changes` |
 
 Manual collection and retry return HTTP 202. Collection responses include `Location`; clients
 poll the referenced CollectionRun. `Idempotency-Key` on manual collection is optional, printable
@@ -93,7 +117,7 @@ ASCII after trimming, and at most 128 characters.
 
 | Enum | Values |
 | --- | --- |
-| `RadarType` | `academic`, `business`, `technology`, `market`, `policy`, `competitive`, `custom` |
+| `RadarType` | `academic`, `business`, `technology`, `market`, `policy`, `competitive`, `custom`, `opportunity` |
 | `ResourceStatus` | `active`, `paused`, `archived` |
 | `SourceType` | `rss`, `url`, `api` (Alpha create accepts only `rss` and `url`) |
 | `CollectionRunStatus` | `queued`, `running`, `succeeded`, `partial`, `failed` |
@@ -103,6 +127,13 @@ ASCII after trimming, and at most 128 characters.
 | `Recommendation` | `must_read`, `read`, `monitor`, `archive` |
 | `NotificationPriority` | `normal`, `high`, `critical` |
 | `NotificationStatus` | `unread`, `read` |
+| `NotificationKind` | `intelligence`, `opportunity` |
+| `OpportunityStatus` | `active`, `expired`, `removed`, `rejected` |
+| `OpportunityRecommendation` | `act_now`, `review`, `watch`, `dismiss` |
+
+`RadarType.opportunity` is the ACQ-1 compatibility change for generated clients: regenerate client
+types. Creating an opportunity radar pairs with opportunity-family sources; its notifications use
+`kind=opportunity`.
 
 ## Representative payloads
 
@@ -197,10 +228,58 @@ After every reconnect, foreground resume, 1013, or suspected event gap, recover 
 - collection: `GET /sources/{source_id}/runs` and `GET /collection-runs/{run_id}`
 - analysis: `GET /intelligence` or `GET /intelligence/{analysis_id}`
 - notifications: `GET /notifications?status=unread`
+- opportunities: `GET /opportunities` and `GET /opportunities/{opportunity_id}/action-payload`
+
+## Change history endpoints
+
+`GET /sources/{source_id}/changes` lists version-evidence change events for a source; the
+per-artifact variant `GET /sources/{source_id}/artifacts/{artifact_id}/changes` scopes the same
+event stream to one artifact. Both use the standard pagination envelope and accept
+`change_type` (`created`, `unchanged`, `content_changed`, `metadata_changed`,
+`structure_changed`, `removed`); the source-level endpoint also accepts `artifact_id`.
+
+Each item carries bounded display evidence only: the change `change_type`, `materiality`
+(0..1), `field_diff` (bounded old/new values, at most 200 characters per value), the artifact
+identity (`artifact_id`, `artifact_key`, `canonical_url`), `occurred_at`, `detector_version`,
+and `previous`/`current` snapshot references (`id`, `version`, `title`, `content_hash`,
+`quality_score`, `fetched_at`). Raw page content, prompts, and internal traces are never
+returned. `created` events have no `previous`; `removed` events have no `current`.
+
+## Opportunity notifications and action payloads
+
+`NotificationResponse` carries `kind` and nullable fact targets: `analysis_id` is set only for
+`kind=intelligence`, `opportunity_id` is set only for `kind=opportunity` (exactly one is non-null).
+Opportunity notifications do **not** produce WebSocket events (the three frozen events above are
+unchanged); recover them through `GET /notifications`.
+
+Opportunity list filters: `radar_id`, `status`, `recommendation`, `min_score`, `currency`
+(ISO-4217 uppercase), `deadline` (returns opportunities whose deadline is not after the value).
+The detail response embeds the latest score; a changed observation re-enters the evaluator and produces a new scored version (latest by `scored_at` wins). Items flip to `expired` when their deadline passes and to `removed` when the source page disappears; a reappearing page reactivates the item. The action payload endpoint returns the immutable,
+non-executable projection (`payload`, `payload_version`, `payload_hash`, `generated_at`); the
+payload always contains `requires_human_approval=true` and never carries credentials, proposal
+text, or any execution capability. Treat the payload as read-only display data.
 
 ## Known Alpha limits
 
-- RSS and a single HTML page are supported; no authenticated browsing or deep crawl.
+- RSS and HTML URL sources are supported; Dynamic/Advanced Browser stays deferred/disabled and is
+  not admitted. R3 is historically BLOCKED and has no current execution authority, so sources must
+  stay on the static paths; Browser is not a Frontend dependency.
+- PLUGIN-1 is POST-v0.1 / deferred. It is outside the Alpha v0.1 critical path and does not block
+  Frontend implementation.
+- Controlled Discovery consumes its frontier through the same SafeFetcher pipeline (robots policy,
+  per-hop scope/SSRF re-checks, cross-page budgets). Targets are consumed once per artifact:
+  completed pages are not re-crawled on later runs, and discovery-side removal detection is not
+  performed (feed/single-page sources keep the two-miss removal rule).
+- Change Intelligence drives the write path: qualifying snapshots (`created`, `content_changed`)
+  produce new RawItems (snapshot-identity linked); metadata/structure-only changes stay events.
+  Non-qualifying observations count as duplicates, so `duplicate_count` now means "already-covered
+  content", not "identical raw text".
+- Opportunity Radar covers first-seen and changed listings: changed pages refresh the item in
+  place, re-evaluation produces a new scored version (and a new notification when it qualifies),
+  and `expired`/`removed` transitions follow deadline and disappearance. Platform-side access
+  authorization workflows, semantic-change classification, and multi-currency FX are **not** part
+  of this Alpha (non-USD listings are rejected as `currency_unsupported`; no exchange-rate lookup
+  exists). Action payloads are read-only and require a human to act outside this product.
 - WebSocket is an online hint, not a durable queue. REST/PostgreSQL is the fact source.
 - One configured Analysis Provider and one Embedding Provider are used; there is no router/fallback.
 - Compose embeds Beat in one worker service. Do not scale that service above one replica.

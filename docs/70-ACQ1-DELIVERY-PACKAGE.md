@@ -3,7 +3,7 @@
 > **独立验收更新（2026-10-07）**：独立审核确认的未完成清单已按 [`docs/71`](71-ACQ1-CLOSURE-PLAN.md) 完成 Phase 0-5；审核方在精确代码提交 `01155294f151cb1c453ddbaf8af6ed34ef3228c1` 上复核通过，见 [`docs/78`](78-ACQ1-INDEPENDENT-ACCEPTANCE.md)。**READY_FOR_FRONTEND（后端交接就绪）**；不代表 Frontend 已准入或实现。下方 500/92.29% 数字为原交付方候选的历史证据，独立结果为 504/89.49%。
 
 状态：**INDEPENDENTLY ACCEPTED BACKEND DELIVERY（交付说明，documentation only）**。本文件不新增能力、不改变任何冻结契约与安全边界。
-交付代码基线：本地 `main@48c2e2260f303ef0b18470a4d31fb6cb8f73070d`（本说明书随文档提交追加；收口溯源见 `docs/71` §9；本地 Git 仓库，**无远端**）。
+交付代码基线：原本地候选 `48c2e2260f303ef0b18470a4d31fb6cb8f73070d`（本说明书随文档提交追加；收口溯源见 `docs/71` §9）。下文“无远端”仅描述原交付包形态，不代表后续 GitHub 接入状态；后者以对应 PR 精确 SHA 为准。
 日期：2026-10-05（初稿）/ 2026-10-06（收口实现）/ 2026-10-07（候选文档收口）。
 验收模式：交付侧候选为 owner-confirmed；审核方须在精确候选提交上独立复核。500 passed / 92.29% 是交付方可复现报告，不构成独立批准。
 
@@ -23,7 +23,7 @@
 | 项 | 内容 |
 | --- | --- |
 | 交付对象 | 面向个人的桌面 AI 情报系统的后端：持续采集 → 清洗/去重 → AI 分析/评分 → 记忆检索 → 通知；以及 ACQ-1 采集增强（路由、发现、版本证据、机会雷达） |
-| 交付形态 | 完整 Git 仓库（含全部提交历史与分支）；**无 GitHub 远端**，接收方需自建远端或通过 `git bundle` 接收（§9） |
+| 原交付形态 | 完整 Git 仓库（含提交历史与分支）；原包无 GitHub 远端，可通过 `git bundle` 接收（§9）；后续接入以 PR 为准 |
 | 运行形态 | Docker Compose 四服务：`api` / `worker`（内嵌 Beat，勿扩多副本）/ `postgres`（pgvector）/ `redis` |
 | 技术栈 | Python 3.13、FastAPI、Pydantic、Celery、PostgreSQL 16 + pgvector、Redis 7、SQLAlchemy 2 Async、Alembic、Pytest |
 | 迁移头 | `20261006_0009`（`0001`..`0009`；收口候选零漂移） |
@@ -202,7 +202,7 @@ python scripts/benchmark_offline.py      # 预期末行: BENCHMARK COMPLETE（JS
 4. **版本写路径已切换**：合格快照可生成带 `snapshot_id` 的 RawItem，并提供 Change/Artifact 读取 API；`semantic-change-v1` 仍未启用。
 5. **机会雷达**：已支持版本变化驱动重评与 removed/expired/重现生命周期；仍为单币种 USD（无 FX），且不含平台授权或外部执行工作流。
 6. **性能数据**：单机、隔离 fixture、确定性 stub 的复现参考，非 SLA/容量结论（`PERFORMANCE-BASELINE.md`）。
-7. **仓库形态**：无远端；全部历史在本地 Git。构建产物镜像 `flowtracer-backend:be6` 为本地验证产物，非交付必需。
+7. **原包仓库形态**：当时无远端，全部历史在本地 Git；这不是后续主仓库拓扑声明。构建产物镜像 `flowtracer-backend:be6` 为本地验证产物，非交付必需。
 8. **宿主机 `uv sync`**：本机曾无 uv 环境；该缺口已由 §4.2 容器内 `uv sync --locked` 实测覆盖。
 
 ## 8. 文档一致性处置记录（已闭环，2026-10-05）

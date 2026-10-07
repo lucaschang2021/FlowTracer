@@ -4,7 +4,7 @@
 
 ## 当前状态：READY_FOR_FRONTEND（后端交接就绪）；Browser 分支保持 disabled
 
-- 事实基准：Phase 0-5 交付候选本地 `main@48c2e2260f303ef0b18470a4d31fb6cb8f73070d`；独立复核代码提交 `01155294f151cb1c453ddbaf8af6ed34ef3228c1`。验收命令、结果与限制见 [独立验收记录](78-ACQ1-INDEPENDENT-ACCEPTANCE.md)；历史实现溯源见 [`docs/71`](71-ACQ1-CLOSURE-PLAN.md) §9、[`docs/72`](72-ACQ1-CLOSURE-P0-REPORT.md)–[`docs/77`](77-ACQ1-CLOSURE-P5-REPORT.md)。本地仓库尚未 push/merge 到 GitHub。
+- 事实基准：Phase 0-5 原交付候选 `48c2e2260f303ef0b18470a4d31fb6cb8f73070d`；独立复核代码提交 `01155294f151cb1c453ddbaf8af6ed34ef3228c1`。验收命令、结果与限制见 [独立验收记录](78-ACQ1-INDEPENDENT-ACCEPTANCE.md)；历史实现溯源见 [`docs/71`](71-ACQ1-CLOSURE-PLAN.md) §9、[`docs/72`](72-ACQ1-CLOSURE-P0-REPORT.md)–[`docs/77`](77-ACQ1-CLOSURE-P5-REPORT.md)。GitHub 接入/合并事实以对应 PR 的精确 SHA 为准，不由本地包推断。
 - 已完成 **本地候选实现范围**：WP-1/WP-2；WP-4 生产路由收口；WP-5 I2 受控抓取执行；WP-6 I2 写路径切换与 Change/Artifact 读取 API；WP-7 生命周期与重评；WP-8 整链验收与交接。Phase 0-5 均有阶段报告，交付方报告为 500 passed / 92.29%。
 - **READY_FOR_FRONTEND 已判定**：`docs/71` §6 条件 1-8 的交付与独立验收证据成立；审核方在精确代码提交上复核，P0/P1=0。该状态只表示 Static/Native Alpha v0.1 后端交接就绪，不自动准入 Frontend。
 - 仍禁用/阻塞：Dynamic/Advanced Browser **disabled**（`BROWSER_DYNAMIC_ENABLED=False`，`allow_browser=True` fail-closed）；R3 真实执行为 **BLOCKED**，须另签 B 阶段 lease；R4/R5 未准入。R3 离线增量位于分支 `feat/acq1-r3-fail-closed-offline`（docs/54/55/56/59 在该分支，**未合并**）。

@@ -3,7 +3,7 @@
 ## 1. 文档地位
 
 - 输入基线：用户提供的《FlowTracer 技术设计文档 Alpha v0.1》。
-- 当前状态（2026-10-07）：BE-1..BE-8、AG-0..AG-6、ACQ WP-1/WP-2 与收口 Phase 0-5 已完成本地候选；审核方在精确代码提交 `01155294f151cb1c453ddbaf8af6ed34ef3228c1` 上完成独立验收，**READY_FOR_FRONTEND（后端交接就绪）**。证据见 [独立验收记录](78-ACQ1-INDEPENDENT-ACCEPTANCE.md) 与 [收口计划](71-ACQ1-CLOSURE-PLAN.md)。Dynamic/Advanced Browser 保持 disabled、R3 真实执行 BLOCKED；Frontend、Integration、Release 仍未准入或实现。PLUGIN-1 为 **POST-v0.1 / deferred**，不构成 Frontend 前置条件。本地交付尚未 push/merge 到 GitHub。
+- 当前状态（2026-10-07）：BE-1..BE-8、AG-0..AG-6、ACQ WP-1/WP-2 与收口 Phase 0-5 已完成；审核方在精确代码提交 `01155294f151cb1c453ddbaf8af6ed34ef3228c1` 上完成独立验收，**READY_FOR_FRONTEND（后端交接就绪）**。证据见 [独立验收记录](78-ACQ1-INDEPENDENT-ACCEPTANCE.md) 与 [收口计划](71-ACQ1-CLOSURE-PLAN.md)。Dynamic/Advanced Browser 保持 disabled、R3 真实执行 BLOCKED；Frontend、Integration、Release 仍未准入或实现。PLUGIN-1 为 **POST-v0.1 / deferred**，不构成 Frontend 前置条件。GitHub 接入事实以精确 PR/merge SHA 为准。
 - 历史说明：此前 FT-GOV-V2.1（governance-only）修订期的阶段/结论描述已由上述状态取代；治理仍以 [GOVERNANCE-V2](GOVERNANCE-V2.md) 为准，本文件不构成任何下游准入。
 - 项目正式名称：FlowTracer。
 - Radar 是 FlowTracer 的核心领域对象，不再作为项目名称使用。

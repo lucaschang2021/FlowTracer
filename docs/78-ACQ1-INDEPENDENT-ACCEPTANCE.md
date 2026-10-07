@@ -7,7 +7,8 @@
 - 交付候选来源：本地 `main@48c2e2260f303ef0b18470a4d31fb6cb8f73070d`，Phase 0–5 的历史证据见 [收口计划](71-ACQ1-CLOSURE-PLAN.md)及 `docs/72`–`docs/77`。
 - 独立复核代码提交：`01155294f151cb1c453ddbaf8af6ed34ef3228c1`，本地分支 `fix/acq1-delivery-closure`。其上一提交 `4af0df2e233c7a915f4bcea56ae6b9cdda6c05ad` 只修订交付文档与验收器；`0115529` 仅修复 `change_tracking.py` 的类型返回，无业务语义变更。
 - 本记录及状态同步为后续纯文档提交。完整测试、迁移和运行证据绑定上述精确代码提交；不声称文档提交另行执行全量门禁。
-- 仓库包无可用于本次发布的远端；未 push、创建 PR、merge 或启动 Frontend。
+- 主仓库接入准备提交 `2aa5adc4377120ae11f1005ebfbba178f2d19880` 仅将四个已跟踪源码/基线文件的 Git blob 行尾由 CRLF 规范为 LF；`git diff --ignore-space-at-eol` 对该提交为零。它不改变本次代码行为验收的适用性；GitHub PR 的最终 CI 仍须独立通过。
+- 本次独立验收发生于 GitHub 接入前的本地包；验收过程未 push、创建 PR、merge 或启动 Frontend。后续接入事实须以对应 PR 的精确 SHA 单独核对。
 
 ## 独立门禁
 

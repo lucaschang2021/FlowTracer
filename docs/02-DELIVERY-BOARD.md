@@ -6,7 +6,7 @@
 
 **当前阶段：ACQ-1 收口独立验收通过；READY_FOR_FRONTEND（后端交接就绪）**
 
-Backend Alpha Core、Architecture Governance Pass、WP1/WP2 与 ACQ-1 收口 Phase 0-5 已在本地候选完成；精确代码提交 `01155294f151cb1c453ddbaf8af6ed34ef3228c1` 的[独立验收](78-ACQ1-INDEPENDENT-ACCEPTANCE.md)通过，`docs/71` §6 条件 1-8 成立，P0/P1=0。R3 BLOCKED、Browser dynamic disabled；R4/R5、正式 Browser、Frontend、Integration、Release 未准入。PLUGIN-1 为 POST-v0.1 / deferred，不构成 Frontend 前置依赖。无远端 push/merge。
+Backend Alpha Core、Architecture Governance Pass、WP1/WP2 与 ACQ-1 收口 Phase 0-5 已完成；精确代码提交 `01155294f151cb1c453ddbaf8af6ed34ef3228c1` 的[独立验收](78-ACQ1-INDEPENDENT-ACCEPTANCE.md)通过，`docs/71` §6 条件 1-8 成立，P0/P1=0。R3 BLOCKED、Browser dynamic disabled；R4/R5、正式 Browser、Frontend、Integration、Release 未准入。PLUGIN-1 为 POST-v0.1 / deferred，不构成 Frontend 前置依赖。GitHub 接入事实以精确 PR/merge SHA 为准。
 
 本次来源基准：`main@1c7b15a7a285cd183a94ddca460f023163700a4c`（PR #85 merge）；新控制 PR 合并后 main 是其后代。现行合同 [GOVERNANCE-V2 §12](GOVERNANCE-V2.md#12-governance-v21--live-authority--in-flight-task-control)、§11.6/§11.7 与 [CURRENT-GATE](CURRENT-GATE.md) 优先，历史行不提供执行权。PR #79 DO NOT MERGE；本修订不处理其共享状态。
 

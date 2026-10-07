@@ -4,7 +4,7 @@
 
 [当前闸门](docs/CURRENT-GATE.md) · [交付看板](docs/02-DELIVERY-BOARD.md) · [Backend 开发](backend/DEVELOPMENT.md) · [English](#english)
 
-> **Alpha 状态：** FlowTracer v0.1 后端 Static/Native 主链已完成独立验收，达到 **READY_FOR_FRONTEND（后端交接就绪）**；尚未发布，也未推送远端。精确代码提交 `01155294f151cb1c453ddbaf8af6ed34ef3228c1` 的 504 项测试、89.49% 覆盖率及运行/迁移证据见 [独立验收记录](docs/78-ACQ1-INDEPENDENT-ACCEPTANCE.md)。WP-3 Browser 仍 disabled/deferred（R3 BLOCKED）；PLUGIN-1 为 POST-v0.1/deferred。Frontend、Integration 与 Release 尚未准入或实现。交付入口见 [交付包说明书](docs/70-ACQ1-DELIVERY-PACKAGE.md)。
+> **Alpha 状态：** FlowTracer v0.1 后端 Static/Native 主链已完成独立验收，达到 **READY_FOR_FRONTEND（后端交接就绪）**；产品尚未发布。精确代码提交 `01155294f151cb1c453ddbaf8af6ed34ef3228c1` 的 504 项测试、89.49% 覆盖率及运行/迁移证据见 [独立验收记录](docs/78-ACQ1-INDEPENDENT-ACCEPTANCE.md)。WP-3 Browser 仍 disabled/deferred（R3 BLOCKED）；PLUGIN-1 为 POST-v0.1/deferred。Frontend、Integration 与 Release 尚未准入或实现。交付入口见 [交付包说明书](docs/70-ACQ1-DELIVERY-PACKAGE.md)。
 
 ## 中文
 
@@ -35,7 +35,7 @@ Radar 是 FlowTracer 的核心领域对象，不是项目名称。项目正式�
 | PLUGIN-1 | POST-v0.1 / deferred | 不在 Alpha v0.1 关键路径，不构成 Frontend 前置依赖；尚未实现，未形成正式准入或架构基线 |
 | Frontend / Integration / Release | 未准入 | 桌面客户端、集成验收与 Alpha 发布尚未开始 |
 
-已实现能力仅以本地 `main` 已合并的事实为准（本交付为本地仓库，无远端推送）；阶段门禁见[当前闸门](docs/CURRENT-GATE.md)和[交付看板](docs/02-DELIVERY-BOARD.md)。开放中的 PR、准入许可和计划能力不视为已实现；PLUGIN-1 为 POST-v0.1 / deferred，不参与 Alpha v0.1 准入顺序。
+已实现能力以已合并代码和精确验收证据为准；阶段门禁见[当前闸门](docs/CURRENT-GATE.md)和[交付看板](docs/02-DELIVERY-BOARD.md)。开放中的 PR、准入许可和计划能力不视为已实现；PLUGIN-1 为 POST-v0.1 / deferred，不参与 Alpha v0.1 准入顺序。
 
 ### 核心数据闭环
 
@@ -183,7 +183,7 @@ PLUGIN-1 已明确移至 POST-v0.1 / deferred：不在 Alpha v0.1 关键路径�
 
 **A personal desktop AI intelligence system for continuous acquisition, traceable analysis, and long-term Memory—designed to surface and preserve high-value information.**
 
-> **Alpha status:** FlowTracer v0.1's Static/Native backend path has passed independent acceptance and is **READY_FOR_FRONTEND** (backend handoff ready); the product is not released and this local delivery has not been pushed remotely. The exact code commit `01155294f151cb1c453ddbaf8af6ed34ef3228c1` passed 504 tests with 89.49% coverage, plus migration and runtime checks; see the [independent acceptance record](docs/78-ACQ1-INDEPENDENT-ACCEPTANCE.md). WP-3 Browser remains disabled/deferred (R3 BLOCKED), and PLUGIN-1 remains POST-v0.1/deferred. Frontend, Integration, and Release are not yet admitted or implemented. See the [delivery package](docs/70-ACQ1-DELIVERY-PACKAGE.md).
+> **Alpha status:** FlowTracer v0.1's Static/Native backend path has passed independent acceptance and is **READY_FOR_FRONTEND** (backend handoff ready); the product is not released. The exact code commit `01155294f151cb1c453ddbaf8af6ed34ef3228c1` passed 504 tests with 89.49% coverage, plus migration and runtime checks; see the [independent acceptance record](docs/78-ACQ1-INDEPENDENT-ACCEPTANCE.md). WP-3 Browser remains disabled/deferred (R3 BLOCKED), and PLUGIN-1 remains POST-v0.1/deferred. Frontend, Integration, and Release are not yet admitted or implemented. See the [delivery package](docs/70-ACQ1-DELIVERY-PACKAGE.md).
 
 ### Product Positioning
 
@@ -212,7 +212,7 @@ Radar is FlowTracer's core domain object, not the project name. The official pro
 | PLUGIN-1 | POST-v0.1 / deferred | Outside the Alpha v0.1 critical path and not a Frontend prerequisite; not implemented, with no formal admission or architecture baseline |
 | Frontend / Integration / Release | Not admitted | Desktop development, integration acceptance, and the Alpha release have not started |
 
-Implemented capabilities are determined only by facts merged into the local `main` (this delivery is a local repository with no remote push); phase gates are recorded in the [current gate](docs/CURRENT-GATE.md) and [delivery board](docs/02-DELIVERY-BOARD.md). Open pull requests, admission approvals, and planned capabilities are not treated as implemented. PLUGIN-1 is POST-v0.1 / deferred and is not part of the Alpha v0.1 admission order.
+Implemented capabilities are determined by merged code and exact acceptance evidence; phase gates are recorded in the [current gate](docs/CURRENT-GATE.md) and [delivery board](docs/02-DELIVERY-BOARD.md). Open pull requests, admission approvals, and planned capabilities are not treated as implemented. PLUGIN-1 is POST-v0.1 / deferred and is not part of the Alpha v0.1 admission order.
 
 ### Core Data Loop
 

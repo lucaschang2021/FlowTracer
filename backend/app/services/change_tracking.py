@@ -121,12 +121,13 @@ async def _current_snapshot(
 
 
 async def _latest_snapshot(session: AsyncSession, artifact_id: UUID) -> AcquisitionSnapshot | None:
-    return await session.scalar(
+    snapshot: AcquisitionSnapshot | None = await session.scalar(
         select(AcquisitionSnapshot)
         .where(AcquisitionSnapshot.artifact_id == artifact_id)
         .order_by(AcquisitionSnapshot.version.desc())
         .limit(1)
     )
+    return snapshot
 
 
 async def _snapshot_by_trio(
@@ -136,7 +137,7 @@ async def _snapshot_by_trio(
     metadata_hash: str,
     structure_hash: str,
 ) -> AcquisitionSnapshot | None:
-    return await session.scalar(
+    snapshot: AcquisitionSnapshot | None = await session.scalar(
         select(AcquisitionSnapshot).where(
             AcquisitionSnapshot.artifact_id == artifact_id,
             AcquisitionSnapshot.content_hash == content_hash,
@@ -144,6 +145,7 @@ async def _snapshot_by_trio(
             AcquisitionSnapshot.structure_hash == structure_hash,
         )
     )
+    return snapshot
 
 
 def build_snapshot(

@@ -16,6 +16,25 @@ schema disagree, stop integration and report a contract defect.
 OpenAPI is serialized as UTF-8 JSON with sorted keys and a trailing newline. CI or integration
 checks should use `--check`; a changed snapshot requires Backend contract review.
 
+## Start, health, and offline demo
+
+From the repository root, follow the migration-first [Alpha operations Quick Start](ALPHA-OPERATIONS.md#quick-start):
+validate Compose, build the API image, start PostgreSQL/Redis, run `alembic upgrade head` in a
+one-off API container, then start API/Worker. Do not start Worker/Beat before migration. The
+frontend base URL is the local URL above; no frontend server is supplied by this backend package.
+
+`GET /api/v1/health/live` reports process liveness (`status=ok`).
+`GET /api/v1/health/ready` reports readiness (`status=ready`) only when PostgreSQL and Redis are
+ready; use readiness, not liveness, before enabling data screens. The worker's Celery pong is an
+independent background-processing check in the operations guide. Do not treat a WebSocket event
+as a durable status source; refresh the relevant REST resource after reconnect.
+
+There is no public seed/demo endpoint. For repeatable local examples use the offline fixture-driven
+`tests/test_alpha_e2e.py`, `tests/test_acq1_final_e2e.py`, and
+`tests/test_acq1_closure_p5.py` with an isolated database whose name contains `_test`, Fake AI/
+Embedding providers, and local RSS/HTML fixtures. See [operations](ALPHA-OPERATIONS.md#migrations-and-test-isolation)
+for the test isolation procedure. Never point destructive test setup at the development database.
+
 ## Authentication and request conventions
 
 - Registration and login return an HS256 Access Token and an opaque Refresh Token.

@@ -66,19 +66,19 @@ The application is fail-fast and does not load `.env` implicitly. Values shown i
 
 ## Migrations and test isolation
 
-Development migration (current ACQ-1 head: `20261005_0006`):
+Development migration (current ACQ-1 head: `20261006_0009`):
 
 ```powershell
 uv run alembic upgrade head
 uv run alembic check
 ```
 
-BE-8 acceptance uses a uniquely named temporary PostgreSQL database, never the development
+Backend acceptance uses a uniquely named temporary PostgreSQL database, never the development
 `flowtracer` database:
 
 ```powershell
 # Set DATABASE_URL to an isolated PostgreSQL asyncpg URL whose database is:
-# flowtracer_be8_<unique>_test
+# flowtracer_acq1_<unique>_test
 uv run alembic upgrade head
 uv run alembic downgrade base
 uv run alembic upgrade head
@@ -101,10 +101,11 @@ uv run pytest
 uv run python scripts/export_openapi.py --check
 ```
 
-The complete offline closure is `tests/test_alpha_e2e.py` (BE-8 loop) plus
-`tests/test_acq1_final_e2e.py` (ACQ-1 value loops: routed intelligence, opportunity, disabled
-capabilities). Both use local fixtures, Fake Providers, an isolated PostgreSQL database, and
-isolated Redis logical databases. They must never access public networks.
+The complete offline closure includes `tests/test_alpha_e2e.py` (BE-8 loop),
+`tests/test_acq1_final_e2e.py` (ACQ-1 value loops), and `tests/test_acq1_closure_p5.py`
+(Static/Native Router → Discovery → Change → Opportunity integration). They use local fixtures,
+Fake Providers, an isolated PostgreSQL database, and isolated Redis logical databases. They must
+never access public networks.
 
 ## Verification scripts
 

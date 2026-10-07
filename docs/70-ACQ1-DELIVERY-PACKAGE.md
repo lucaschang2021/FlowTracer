@@ -1,8 +1,8 @@
 # FlowTracer ACQ-1 交付包说明书
 
-> **修订声明（2026-10-07，交付候选文档收口）**：独立审核确认的未完成清单已按 [`docs/71`](71-ACQ1-CLOSURE-PLAN.md) 完成 Phase 0-5 本地候选，证据见 `docs/72`–`docs/77`。**READY_FOR_FRONTEND 尚未判定**：仍缺审核方在精确候选提交上的独立复核（`docs/71` §6 条件 6）。
+> **独立验收更新（2026-10-07）**：独立审核确认的未完成清单已按 [`docs/71`](71-ACQ1-CLOSURE-PLAN.md) 完成 Phase 0-5；审核方在精确代码提交 `01155294f151cb1c453ddbaf8af6ed34ef3228c1` 上复核通过，见 [`docs/78`](78-ACQ1-INDEPENDENT-ACCEPTANCE.md)。**READY_FOR_FRONTEND（后端交接就绪）**；不代表 Frontend 已准入或实现。下方 500/92.29% 数字为原交付方候选的历史证据，独立结果为 504/89.49%。
 
-状态：**CLOSURE CANDIDATE DELIVERY（交付说明，documentation only）**。本文件不新增能力、不改变任何冻结契约与安全边界。
+状态：**INDEPENDENTLY ACCEPTED BACKEND DELIVERY（交付说明，documentation only）**。本文件不新增能力、不改变任何冻结契约与安全边界。
 交付代码基线：本地 `main@48c2e2260f303ef0b18470a4d31fb6cb8f73070d`（本说明书随文档提交追加；收口溯源见 `docs/71` §9；本地 Git 仓库，**无远端**）。
 日期：2026-10-05（初稿）/ 2026-10-06（收口实现）/ 2026-10-07（候选文档收口）。
 验收模式：交付侧候选为 owner-confirmed；审核方须在精确候选提交上独立复核。500 passed / 92.29% 是交付方可复现报告，不构成独立批准。
@@ -216,7 +216,7 @@ python scripts/benchmark_offline.py      # 预期末行: BENCHMARK COMPLETE（JS
 
 3. **2026-10-06 独立审核（收口确认）**：审核方确认 ACQ-1 收口未完成并给出未完成清单；清单的执行映射见 `docs/71-ACQ1-CLOSURE-PLAN.md`。
 
-4. **2026-10-06 收口执行（Phase 0-5 全部完成）**：未完成清单已按优先级逐阶段执行完毕（Phase 0 P1/P2 六项修复 → Phase 1 WP-4 生产路径 → Phase 2 完整 WP-5 → Phase 3 完整 WP-6 → Phase 4 WP-7 → Phase 5 WP-8 整链验收与交接），每阶段含独立分支、门禁证据、阶段报告（`docs/72`–`docs/77`）与 no-ff 合并 + 溯源提交（§3）。对外口径更新为：**收口执行完毕；READY_FOR_FRONTEND 待审核方在精确候选提交上独立复核后判定**（可复现验收：`backend/scripts/closure_acceptance.py`，产出与候选哈希绑定的 JSON 报告）。`docs/00`、`docs/02`、`docs/CURRENT-GATE.md`、README（中/英）与本文件已按此口径修订。
+4. **2026-10-06 收口执行（历史交付侧记录）**：未完成清单已按优先级逐阶段执行完毕，证据见 `docs/72`–`docs/77`。当时的“待独立验收”口径已由 2026-10-07 的 `docs/78` 独立结果取代：**READY_FOR_FRONTEND（后端交接就绪）**。本地包未推送/合并远端；Frontend 仍须独立准入。
 
 ## 9. 移交操作指引
 

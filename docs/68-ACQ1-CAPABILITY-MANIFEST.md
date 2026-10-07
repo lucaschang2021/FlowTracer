@@ -1,7 +1,7 @@
 # ACQ-1 能力清单（已验收 vs 禁用）
 
-状态：**CLOSURE CANDIDATE（Phase 0-5 交付侧完成，待独立精确候选验收）**。日期：2026-10-07。依据：`docs/25` §16、`docs/29` WP-8、`docs/67`、`docs/71`–`docs/77`。
-验收模式：本地候选由交付侧形成；READY_FOR_FRONTEND 仅能由审核方在精确候选提交上独立复核并确认 P0/P1=0 后判定。未验收能力一律如实标注 disabled，不得虚报。
+状态：**READY_FOR_FRONTEND（Static/Native 后端交接就绪）**。日期：2026-10-07。依据：`docs/25` §16、`docs/29` WP-8、`docs/67`、`docs/71`–`docs/78`。
+验收模式：本地候选由交付侧形成；审核方已在精确代码提交 `01155294f151cb1c453ddbaf8af6ed34ef3228c1` 独立复核并确认 P0/P1=0，见 [独立验收记录](78-ACQ1-INDEPENDENT-ACCEPTANCE.md)。未验收能力一律如实标注 disabled，不得虚报。
 
 ## 1. 已验收能力（Backend，owner-confirmed）
 
@@ -14,11 +14,11 @@
 | WP-5：Controlled Discovery I1 + I2 受控抓取（frontier 消费、robots、逐跳复核、有界遍历、取消/恢复、并发去重） | 本地候选完成 | ADR-035/039、`docs/61/62/74`、`tests/test_acq1_closure_p2.py` |
 | WP-6：版本证据 I1 + I2 写路径（快照身份 RawItem、Change/Artifact 读取 API、回填与序列验证） | 本地候选完成；`semantic-change-v1` 仍未启用 | ADR-036/040、`docs/63/64/75`、`tests/test_acq1_closure_p3.py` |
 | WP-7：Opportunity Radar I1 + 生命周期与版本化重评（created/content_changed/removed/expired） | 本地候选完成；平台授权工作流与 FX 不扩张 | ADR-037/041、`docs/65/66/76`、`tests/test_acq1_closure_p4.py` |
-| WP-8：价值闭环与收口整链离线 E2E、失败/恢复/并发/预算路径、可复现验收器、前端契约冻结与交接 | 本地候选完成；待独立复核 | `docs/67/69/70/77`、`tests/test_acq1_final_e2e.py`、`tests/test_acq1_closure_p5.py`、`scripts/closure_acceptance.py` |
+| WP-8：价值闭环与收口整链离线 E2E、失败/恢复/并发/预算路径、可复现验收器、前端契约冻结与交接 | 完成；独立验收通过 | `docs/67/69/70/77/78`、`tests/test_acq1_final_e2e.py`、`tests/test_acq1_closure_p5.py`、`scripts/closure_acceptance.py` |
 
-I1 历史闭环由 `tests/test_acq1_final_e2e.py` 保留；当前收口候选另由 `tests/test_acq1_closure_p5.py` 验证完整链路：
+I1 历史闭环由 `tests/test_acq1_final_e2e.py` 保留；当前收口实现另由 `tests/test_acq1_closure_p5.py` 验证完整链路：
 配置 Radar/Source → Router → seed 抓取 → Discovery 消费 frontier → 版本证据/Change → RawItem → Opportunity 生命周期/评分 → REST/通知；
-失败、取消、恢复、所有权、并发、幂等与预算耗尽路径由 Phase 0-5 测试矩阵覆盖。上述均为交付侧候选证据，独立验收状态不变。
+失败、取消、恢复、所有权、并发、幂等与预算耗尽路径由 Phase 0-5 测试矩阵覆盖；独立全量复核结果见 `docs/78`。
 
 ## 2. 禁用能力（未准入，fail-closed）
 

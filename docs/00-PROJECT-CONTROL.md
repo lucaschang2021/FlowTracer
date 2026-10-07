@@ -3,7 +3,7 @@
 ## 1. 文档地位
 
 - 输入基线：用户提供的《FlowTracer 技术设计文档 Alpha v0.1》。
-- 当前状态（2026-10-07，交付候选文档收口）：BE-1..BE-8、AG-0..AG-6、ACQ WP-1/WP-2 与收口 Phase 0-5 已在本地候选 `main@48c2e2260f303ef0b18470a4d31fb6cb8f73070d` 完成；Phase 0-5 覆盖 WP-4 生产路径、WP-5 I2 受控抓取、WP-6 I2 写路径与读取 API、WP-7 生命周期/重评、WP-8 整链验收与交接。**READY_FOR_FRONTEND 尚未判定**：仍缺审核方在精确候选提交上的独立复核（[收口计划](71-ACQ1-CLOSURE-PLAN.md) §6 条件 6）。Dynamic/Advanced Browser 保持 disabled，R3 真实执行 BLOCKED；Frontend、Integration、Release 未准入。PLUGIN-1 为 **POST-v0.1 / deferred**，已移出 Alpha v0.1 关键路径且不构成 Frontend 前置条件。当前事实以 [当前闸门](CURRENT-GATE.md)、[交付看板](02-DELIVERY-BOARD.md) 与 [收口计划](71-ACQ1-CLOSURE-PLAN.md) 为准；能力清单与阶段报告见 [68](68-ACQ1-CAPABILITY-MANIFEST.md) / [69](69-ACQ1-FINAL-STAGE-REPORT.md) / [70](70-ACQ1-DELIVERY-PACKAGE.md) / [72](72-ACQ1-CLOSURE-P0-REPORT.md)–[77](77-ACQ1-CLOSURE-P5-REPORT.md)。
+- 当前状态（2026-10-07）：BE-1..BE-8、AG-0..AG-6、ACQ WP-1/WP-2 与收口 Phase 0-5 已完成本地候选；审核方在精确代码提交 `01155294f151cb1c453ddbaf8af6ed34ef3228c1` 上完成独立验收，**READY_FOR_FRONTEND（后端交接就绪）**。证据见 [独立验收记录](78-ACQ1-INDEPENDENT-ACCEPTANCE.md) 与 [收口计划](71-ACQ1-CLOSURE-PLAN.md)。Dynamic/Advanced Browser 保持 disabled、R3 真实执行 BLOCKED；Frontend、Integration、Release 仍未准入或实现。PLUGIN-1 为 **POST-v0.1 / deferred**，不构成 Frontend 前置条件。本地交付尚未 push/merge 到 GitHub。
 - 历史说明：此前 FT-GOV-V2.1（governance-only）修订期的阶段/结论描述已由上述状态取代；治理仍以 [GOVERNANCE-V2](GOVERNANCE-V2.md) 为准，本文件不构成任何下游准入。
 - 项目正式名称：FlowTracer。
 - Radar 是 FlowTracer 的核心领域对象，不再作为项目名称使用。
@@ -109,9 +109,9 @@
 ## 7. 当前状态
 
 - 已完成（本地候选）：Backend Alpha Core、Architecture Governance Pass、ACQ Contract Freeze、WP-1/WP-2，以及收口 Phase 0-5（WP-4..WP-8 收口实现与交接）；溯源见 `docs/71` §9 与 `docs/72`–`docs/77`。
-- 待独立验收：审核方须在精确候选提交上复跑 `backend/scripts/closure_acceptance.py` 并确认 P0/P1=0；通过前不得宣告 READY_FOR_FRONTEND。
+- 独立验收已完成：精确代码提交 `01155294f151cb1c453ddbaf8af6ed34ef3228c1` 上 504 tests / 89.49% coverage、静态/迁移/运行门禁通过且 P0/P1=0；详见 `docs/78`。此后仅文档状态同步，不重复未变代码的全量测试。
 - 保持阻塞/未准入：R3 BLOCKED、Browser dynamic disabled；R4/R5、正式 WP-3、Frontend、Integration、Release 未准入。PLUGIN-1 为 POST-v0.1 / deferred，不参与 Alpha v0.1 准入链。
-- 当前来源：本地 `main@48c2e2260f303ef0b18470a4d31fb6cb8f73070d`；历史 GOV-2.1/R3 记录不构成当前工程续权。
+- 当前来源：交付候选本地 `main@48c2e2260f303ef0b18470a4d31fb6cb8f73070d`，复核代码 `01155294f151cb1c453ddbaf8af6ed34ef3228c1`；历史 GOV-2.1/R3 记录不构成当前工程续权。
 
 ## 8. Memory 演进边界（接任总控必须遵守）
 

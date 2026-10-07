@@ -1,11 +1,11 @@
 # ACQ-1 收口计划（独立审核确认版）
 
-状态：**CLOSURE IMPLEMENTATION COMPLETE / INDEPENDENT ACCEPTANCE PENDING（2026-10-07）**。本文件保留独立审核未完成清单及执行映射；Phase 0-5 的本地候选完成事实见各阶段状态与 `docs/72`–`docs/77`，最终 READY_FOR_FRONTEND 仍受 §6 条件 6 约束。
+状态：**CLOSURE IMPLEMENTATION COMPLETE / INDEPENDENT ACCEPTANCE PASSED（2026-10-07）**。本文件保留独立审核未完成清单及执行映射；Phase 0-5 的本地候选完成事实见 `docs/72`–`docs/77`，条件 §6.6 的独立结果见 [验收记录](78-ACQ1-INDEPENDENT-ACCEPTANCE.md)。
 
 判定基线（本文件生效后的统一口径）：
 
 - 当前交付状态 = **Phase 0-5 本地候选实现完成**；这是交付侧完成状态，不等于独立验收通过。
-- **READY_FOR_FRONTEND 尚未判定**：§6 条件 6 待审核方在精确候选提交上执行。
+- **READY_FOR_FRONTEND 已判定**：审核方在精确代码提交 `01155294f151cb1c453ddbaf8af6ed34ef3228c1` 上独立复核，P0/P1=0；仅表示后端交接就绪，不自动准入 Frontend。
 - 不在本计划内：Dynamic/Advanced Browser（WP-3 及 R3/R4/R5，deferred/disabled）、Frontend（前端侧负责）；PLUGIN-1 为 **POST-v0.1 / deferred**，不在 Alpha v0.1 关键路径且不阻塞 Frontend。
 - 范围纪律：**多币种 FX 与外部平台执行适配器不因收口而扩张**（机会域仅保持"非 USD 拒绝"语义）。
 
@@ -105,7 +105,7 @@
 
 ## Phase 5 — WP-8 整链验收与交接 —— **已完成（2026-10-06）**
 
-> **状态：COMPLETE（交付侧）。** 整链离线 E2E 与失败/取消/恢复/并发/幂等/预算路径、独立验收脚本（`backend/scripts/closure_acceptance.py`，产出与候选哈希绑定的报告）、前端契约冻结与交接补齐、文档口径修正全部就绪；§6 判定条件 1-5、7、8 满足，**第 6 项（审核方在精确候选提交上独立复核）待审核方执行**。见 `docs/77-ACQ1-CLOSURE-P5-REPORT.md`。
+> **状态：COMPLETE（交付侧）。** 整链离线 E2E 与失败/取消/恢复/并发/幂等/预算路径、独立验收脚本、前端契约冻结与交接补齐均就绪；交付侧证据见 `docs/77-ACQ1-CLOSURE-P5-REPORT.md`，§6 第 6 项的后续独立复核已通过，见 `docs/78`。
 
 - **5.1 真实整链 E2E**：配置 Radar/Source → Acquisition → Router → Discovery → Change → Opportunity → 持久化 → REST/适用事件。
 - **5.2 路径覆盖**：失败、取消、恢复、所有权、并发、幂等、预算耗尽。
@@ -135,7 +135,7 @@
 
 ## 8. 文档口径修正记录（本次同步完成）
 
-- `README.md`（中/英）、`docs/00-PROJECT-CONTROL.md`、`docs/02-DELIVERY-BOARD.md`、`docs/CURRENT-GATE.md`、`docs/68-ACQ1-CAPABILITY-MANIFEST.md`、`docs/70-ACQ1-DELIVERY-PACKAGE.md` 已统一为：**Phase 0-5 本地候选实现完成；READY_FOR_FRONTEND 待独立精确候选验收**。Browser/R3 保持 deferred/disabled；Frontend、Integration 与 Release 未准入；PLUGIN-1 为 POST-v0.1 / deferred 且不阻塞 Frontend。
+- 2026-10-06 的交付侧口径为“Phase 0-5 本地候选实现完成，待独立验收”；2026-10-07 由 `docs/78` 记录独立复核通过后，README（中/英）、总控、看板、当前闸门、能力清单与交付包已同步为 **READY_FOR_FRONTEND（仅后端交接就绪）**。Browser/R3 仍 deferred/disabled；Frontend、Integration 与 Release 未准入；PLUGIN-1 不阻塞 Frontend。
 - 修正提交与合并哈希见紧随本分支的 traceability 提交（§9）。
 
 ## 9. 溯源

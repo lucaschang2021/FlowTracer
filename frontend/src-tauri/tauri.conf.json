@@ -1,0 +1,24 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "FlowTracer",
+  "version": "0.1.0",
+  "identifier": "com.flowtracer.alpha",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://127.0.0.1:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [{
+      "label": "main", "title": "FlowTracer · Offline UX Demo",
+      "width": 1600, "height": 900, "minWidth": 960, "minHeight": 640,
+      "backgroundColor": "#050c17", "center": true
+    }],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-src 'none'",
+      "devCsp": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' ws://127.0.0.1:1420; object-src 'none'; base-uri 'none'"
+    }
+  },
+  "bundle": { "active": false, "icon": ["icons/icon.ico", "icons/icon.png"] }
+}

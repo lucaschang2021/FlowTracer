@@ -1,0 +1,41 @@
+/* A brief projection, not a loading screen: no strobing or indefinite scan loop. */
+:root { --holo-ease:cubic-bezier(.22,.72,.18,1); --holo-line:#9edbe64d; }
+.stage-scene { min-height:100dvh; background:#030b12; }
+.stage-scene .intro-art,.stage-scene .intro-start,.stage-scene .entry-skip,.stage-scene .demo-login,.stage-scene .app-shell { transition:opacity 340ms var(--holo-ease),filter 340ms var(--holo-ease); }
+.stage-scene[data-motion="out"] .intro-art,.stage-scene[data-motion="out"] .intro-start,.stage-scene[data-motion="out"] .entry-skip,.stage-scene[data-motion="out"] .demo-login,.stage-scene[data-motion="out"] .app-shell { opacity:0; filter:blur(2px); transition-duration:180ms; }
+.stage-scene[data-motion="in"] .intro-art,.stage-scene[data-motion="in"] .intro-start,.stage-scene[data-motion="in"] .entry-skip,.stage-scene[data-motion="in"] .demo-login,.stage-scene[data-motion="in"] .app-shell { opacity:0; filter:blur(2px); transition:none; }
+.page-scene { height:100%; position:relative; opacity:1; transform:none; transition:opacity 340ms var(--holo-ease),transform 340ms var(--holo-ease); }
+.page-scene[data-motion="out"] { opacity:0; transform:translateY(-7px) scale(.992); transition-duration:180ms; }
+.page-scene[data-motion="in"] { opacity:0; transform:translateY(10px) scale(.988); transition:none; }
+.projection-field { position:absolute; inset:0; pointer-events:none; transform-origin:50% 50%; }
+.projection-field button { pointer-events:auto; }
+.is-projecting .projection-field { animation:holo-unfold 1500ms var(--holo-ease) both; }
+.is-projecting .projection-field button { pointer-events:none; }
+.is-projecting .radar-node { animation:holo-world 800ms var(--holo-ease) both; }
+.is-projecting .radar-node:nth-of-type(2) { animation-delay:220ms; }
+.is-projecting .radar-node:nth-of-type(3) { animation-delay:340ms; }
+.is-projecting .radar-node:nth-of-type(4) { animation-delay:460ms; }
+.is-projecting .radar-node:nth-of-type(5) { animation-delay:580ms; }
+.is-projecting .radar-node:nth-of-type(6) { animation-delay:700ms; }
+.is-projecting .radar-node:nth-of-type(7) { animation-delay:820ms; }
+.is-projecting .galaxy-outline { animation:holo-orbit 1150ms var(--holo-ease) both; }
+.holo-projection { position:absolute; inset:0; pointer-events:none; z-index:2; overflow:hidden; visibility:hidden; }
+.is-projecting .holo-projection { visibility:visible; }
+.holo-projection i { position:absolute; left:50%; top:50%; width:65vmax; height:65vmax; border:1px solid var(--holo-line); border-radius:50%; opacity:0; }
+.is-projecting .holo-projection i { animation:holo-wave 1600ms var(--holo-ease) both; }
+.is-projecting .holo-projection i:nth-child(2) { animation-delay:120ms; border-style:dashed; }
+.holo-projection span { position:absolute; inset:0; opacity:0; background:linear-gradient(180deg,transparent 43%,#97dce409 49.5%,#c3f1ff40 50%,transparent 50.3%); }
+.is-projecting .holo-projection span { animation:holo-scan 1400ms 100ms ease-out both; }
+.detail-panel { transform-origin:right center; animation:holo-panel 300ms var(--holo-ease) both; border-top-color:#a9dae288; box-shadow:inset 0 1px #b3e3ec18,0 12px 45px #0006; }
+.detail-panel::after,.demo-login::after { content:""; position:absolute; pointer-events:none; inset:0; background:repeating-linear-gradient(0deg,transparent 0 5px,#ace2ef04 5px 6px); }
+.demo-login { animation:holo-panel 400ms var(--holo-ease) backwards; }
+.main-nav button,.text-button,.login-enter,.icon-button { transition:color 180ms ease,background-color 180ms ease,border-color 180ms ease,box-shadow 180ms ease; }
+.main-nav button:hover,.text-button:hover { text-shadow:0 0 14px #b7eff538; }
+@keyframes holo-unfold { 0% { transform:perspective(1200px) rotateX(18deg) scale(.18); opacity:0; } 28% { opacity:.7; } 100% { transform:perspective(1200px) rotateX(0) scale(1); opacity:1; } }
+@keyframes holo-world { from { opacity:0; filter:blur(4px) brightness(1.4); } to { opacity:1; filter:blur(0) brightness(1); } }
+@keyframes holo-orbit { from { opacity:0; } 35% { opacity:.7; } to { opacity:1; } }
+@keyframes holo-wave { 0% { transform:translate(-50%,-50%) scale(.05); opacity:0; } 16% { opacity:.65; } 100% { transform:translate(-50%,-50%) scale(1.7); opacity:0; } }
+@keyframes holo-scan { 0% { transform:translateY(-42%); opacity:0; } 20% { opacity:.65; } 100% { transform:translateY(48%); opacity:0; } }
+@keyframes holo-panel { from { opacity:0; transform:translateY(8px) scale(.985); } to { opacity:1; transform:none; } }
+@media(prefers-reduced-motion:reduce) { .holo-projection { display:none; } }
+.quiet-mode .holo-projection { display:none; }

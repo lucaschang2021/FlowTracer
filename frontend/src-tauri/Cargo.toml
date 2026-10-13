@@ -1,0 +1,12 @@
+[package]
+name = "flowtracer-desktop"
+version = "0.1.0"
+description = "FlowTracer G1 offline universe demo"
+edition = "2021"
+publish = false
+
+[build-dependencies]
+tauri-build = { version = "=2.7.2", features = [] }
+
+[dependencies]
+tauri = { version = "=2.12.3", features = [] }

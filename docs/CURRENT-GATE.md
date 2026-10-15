@@ -1,15 +1,15 @@
 # FlowTracer 当前阶段闸门
 
-更新时间：2026-10-07（独立收口验收）。
+更新时间：2026-10-15（FE-001-G2 AUTH-01 候选证据同步）。
 
-## 当前状态：READY_FOR_FRONTEND（后端交接就绪）；Browser 分支保持 disabled
+## 当前状态：Backend READY_FOR_FRONTEND；FE-G2 AUTH-01 定向证据已取得，仍待产品验收
 
-- 事实基准：Phase 0-5 原交付候选 `48c2e2260f303ef0b18470a4d31fb6cb8f73070d`；独立复核代码提交 `01155294f151cb1c453ddbaf8af6ed34ef3228c1`。验收命令、结果与限制见 [独立验收记录](78-ACQ1-INDEPENDENT-ACCEPTANCE.md)；历史实现溯源见 [`docs/71`](71-ACQ1-CLOSURE-PLAN.md) §9、[`docs/72`](72-ACQ1-CLOSURE-P0-REPORT.md)–[`docs/77`](77-ACQ1-CLOSURE-P5-REPORT.md)。GitHub 接入/合并事实以对应 PR 的精确 SHA 为准，不由本地包推断。
-- 已完成 **本地候选实现范围**：WP-1/WP-2；WP-4 生产路由收口；WP-5 I2 受控抓取执行；WP-6 I2 写路径切换与 Change/Artifact 读取 API；WP-7 生命周期与重评；WP-8 整链验收与交接。Phase 0-5 均有阶段报告，交付方报告为 500 passed / 92.29%。
-- **READY_FOR_FRONTEND 已判定**：`docs/71` §6 条件 1-8 的交付与独立验收证据成立；审核方在精确代码提交上复核，P0/P1=0。该状态只表示 Static/Native Alpha v0.1 后端交接就绪，不自动准入 Frontend。
+- 已合并 Backend/main 与本地 `origin/main`：`fc180a1d2eba32935fba6ee6c128f9b2d7015574`。本地 Frontend 候选 `24e2ebd14ac559ae9251424f30a4295f3006e0a0` 的父提交即该 Backend 基线，tree 为 `e867861769f29d3a88c27b6dd45b9d2163fe95fd`；该 Frontend 候选未 push、未 merge。
+- Backend **READY_FOR_FRONTEND** 只表示 Static/Native Alpha v0.1 后端交接就绪。FE-G1 骨架已独立验收；总控在 2026-10-13 对 `24e2...` 完成 source/scope、typecheck、13 unit、web build 与 13 UI E2E 检查。后续 G2 原生链路证据与新版视觉验收分别记录，不回填为 G1 基线的独立原生复跑。
+- [FE-001-G2 准入](FE-001-G2-ADMISSION.md)冻结真实接口接入范围、安全边界和验证门槛。`AUTH-01` 仍是 branch-local 候选：隔离 `_test` 环境已有原生注册、登录、`users/me`、真实空 Radar、退出与重开证据，临时账号和资源已清理；视觉候选的 typecheck、Web build、15 unit、7 targeted UI E2E 与 Windows debug build 通过，但新版视觉尚无原生截图验收。会话代次写回 P1 已最小修复，开发侧 Rust `api::tests` 7/7 通过，总控独立源码复核关闭该路径。Radar CRUD、Source、collect、Signals 与 G3 仍未实现；FE-G2 产品验收未完成。
 - 仍禁用/阻塞：Dynamic/Advanced Browser **disabled**（`BROWSER_DYNAMIC_ENABLED=False`，`allow_browser=True` fail-closed）；R3 真实执行为 **BLOCKED**，须另签 B 阶段 lease；R4/R5 未准入。R3 离线增量位于分支 `feat/acq1-r3-fail-closed-offline`（docs/54/55/56/59 在该分支，**未合并**）。
-- 未准入：Frontend（FE-001）、Integration（INT-001）、Release（REL-001）。PLUGIN-1 已移出 Alpha v0.1 关键路径，状态为 **POST-v0.1 / deferred**，不构成 Frontend 前置条件。
-- 执行权：当前无任何未决 lease/授权；任何新工作（含收口各阶段、R3 真实执行、Frontend 准入）须按 `GOVERNANCE-V2 §12` 另签完整 NEW TASK AUTHORITY。
+- 阶段分离：FE-G2 operation admission 不等于 FE-001 产品验收。Integration（INT-001）与 Release（REL-001）仍未准入；PLUGIN-1 为 **POST-v0.1 / deferred**，不构成 Frontend 前置条件。
+- 执行权：`FE-001-G2-AUTH-01` 及其已完成的定向验证/会话修复 lease 均已停点；本状态记录不授权 Radar CRUD、Source、采集、Signals、commit/push/PR/merge 或下一阶段。下一操作须按 `GOVERNANCE-V2 §12` 另签。
 - 能力与证据指针：`docs/68-ACQ1-CAPABILITY-MANIFEST.md`（I1 能力清单）、`docs/69`（阶段报告）、`docs/70`（交付包说明书）、`docs/71`（收口计划）。
 
 ## 历史操作记录（以下不提供 live authority）

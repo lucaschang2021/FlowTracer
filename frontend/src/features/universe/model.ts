@@ -2,9 +2,10 @@ export type Point = { x: number; y: number };
 export type View = Point & { zoom: number };
 export type Size = { width: number; height: number };
 export type RadarType = 'academic' | 'business' | 'technology' | 'market' | 'policy' | 'competitive' | 'custom' | 'opportunity';
-export type DemoRadar = Point & {
+export type UniverseRadar = Point & {
   id: string; name: string; type: RadarType;
-  status: 'active' | 'paused'; signals: number; description: string; color: string;
+  status: 'active' | 'paused' | 'archived'; signals: number | null; description: string; color: string;
+  dataSource: 'demo' | 'live';
 };
 export const MIN_ZOOM = 0.35;
 export const MAX_ZOOM = 2.4;

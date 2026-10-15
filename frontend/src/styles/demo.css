@@ -77,3 +77,30 @@ select:focus-visible { outline:2px solid #e4d4ae; outline-offset:4px; }
 @media(max-width:1200px) { .radar-node { width:210px; } .radar-name { font-size:10px; letter-spacing:.13em; } .app-header { gap:16px; } .main-nav { gap:18px; } .header-actions { gap:8px; } .utility-page { padding:35px 55px; } .setting-row { gap:20px; } }
 @media(max-height:760px) { .radar-node .planet { width:calc(var(--planet-size)*.8); height:calc(var(--planet-size)*.8); } .radar-node { height:176px; } .intro-emblem { width:170px; height:170px; } .demo-login { padding:27px 36px; } }
 @media(prefers-reduced-motion:reduce) { .celestial-grid,.stellar-flow,.nebula-cloud { animation:none; } }
+
+.auth-panel { width:min(470px,calc(100vw - 80px)); padding:31px 38px 28px; }
+.auth-panel h1 { margin-bottom:6px; }
+.auth-panel>p { margin-bottom:16px; }
+.auth-tabs { display:grid; grid-template-columns:1fr 1fr; border-bottom:1px solid #53627580; margin:18px 0; }
+.auth-tabs button { min-height:38px; color:#91a7bb; border-bottom:2px solid transparent; }
+.auth-tabs button[aria-selected="true"] { color:#f0e7d2; border-bottom-color:#d8c9a8; }
+.auth-form { display:grid; gap:12px; }
+.auth-form label { display:grid; gap:6px; color:#aebdca; font-size:11px; letter-spacing:.06em; }
+.auth-form input { width:100%; min-height:42px; padding:9px 12px; color:#f2eee4; background:#07111f; border:1px solid #526276; border-radius:2px; }
+.auth-form .login-enter { margin-top:4px; }
+.login-enter:disabled { opacity:.45; cursor:not-allowed; }
+.connection-state { display:grid; grid-template-columns:auto 1fr; align-items:center; gap:8px; margin:13px 0; color:#a8b8c7; font-size:11px; }
+.connection-state small { grid-column:2; color:#71869b; overflow-wrap:anywhere; }
+.status-dot { width:7px; height:7px; border-radius:50%; background:#8a7d62; box-shadow:0 0 8px #8a7d6280; }
+.status-dot.ready { background:#70b89b; box-shadow:0 0 8px #70b89b99; }
+.status-dot.down { background:#b66b65; box-shadow:0 0 8px #b66b6599; }
+.auth-error { color:#e6a39d!important; font-size:11px!important; overflow-wrap:anywhere; }
+.auth-error small { display:block; margin-top:5px; color:#b98985; }
+.demo-divider { display:flex; align-items:center; gap:10px; color:#788da0; font-size:9px; letter-spacing:.13em; margin:15px 0 10px; }
+.demo-divider::before,.demo-divider::after { content:""; height:1px; flex:1; background:#42506478; }
+.demo-enter { width:100%; min-height:40px; display:flex; align-items:center; justify-content:center; gap:12px; border:1px solid #56687a; color:#c6d2dc; }
+.demo-enter svg { width:16px; }
+.live-badge { border-color:#5a9c8566; color:#9bd2bd; background:#4a9a790d; }
+.live-status { color:#8fc7ad; }
+.radar-meta i.archived { background:#778491; box-shadow:none; }
+@media(max-height:760px) { .auth-panel { padding:20px 34px 18px; } .auth-panel>p,.auth-panel .demo-login-note { display:none; } .auth-tabs { margin:10px 0; } .auth-form { gap:8px; } }

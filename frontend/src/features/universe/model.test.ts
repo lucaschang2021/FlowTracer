@@ -52,6 +52,6 @@ describe('camera geometry', () => {
     const copy = freshDemo(); copy[0].x = 999;
     expect(DEMO_RADARS[0].x).toBe(-450);
     expect(copy.every(r => r.id.startsWith('demo-'))).toBe(true);
-    expect(copy.reduce((sum, r) => sum + r.signals, 0)).toBe(24);
+    expect(copy.reduce((sum, r) => sum + (r.signals ?? 0), 0)).toBe(24);
   });
 });

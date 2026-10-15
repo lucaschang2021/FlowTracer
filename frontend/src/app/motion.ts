@@ -17,7 +17,7 @@ export function useReducedMotion() {
 export function useScene<T extends string>(initial: T) {
   const reduced = useReducedMotion();
   const [value, setValue] = useState(initial);
-  const [phase, setPhase] = useState<'idle' | 'out' | 'in' | 'enter'>('idle');
+  const [phase, setPhase] = useState<'idle' | 'out' | 'ink-out' | 'in' | 'enter'>('idle');
   const current = useRef(initial);
   const target = useRef(initial);
   const status = useRef(phase);
@@ -32,11 +32,11 @@ export function useScene<T extends string>(initial: T) {
     document.addEventListener('visibilitychange', visibility);
     return () => document.removeEventListener('visibilitychange', visibility);
   }, [settle]);
-  const change = useCallback((next: T) => {
+  const change = useCallback((next: T, transition: 'standard' | 'ink' = 'standard') => {
     target.current = next;
     if (reduced || document.hidden) { settle(); return; }
-    if (status.current === 'out' || (current.current === next && status.current === 'idle')) return;
-    clear(); mark('out');
+    if (status.current === 'out' || status.current === 'ink-out' || (current.current === next && status.current === 'idle')) return;
+    clear(); mark(transition === 'ink' ? 'ink-out' : 'out');
     timer.current = setTimeout(() => {
       current.current = target.current; setValue(target.current); mark('in');
       frame.current = requestAnimationFrame(() => {
@@ -44,7 +44,7 @@ export function useScene<T extends string>(initial: T) {
           mark('enter'); timer.current = setTimeout(() => mark('idle'), 340);
         });
       });
-    }, 180);
+    }, transition === 'ink' ? 1050 : 180);
   }, [reduced, settle, clear, mark]);
   return { value, phase, change, busy: phase !== 'idle' };
 }

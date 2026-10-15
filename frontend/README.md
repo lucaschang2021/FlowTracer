@@ -1,10 +1,15 @@
-# FlowTracer · G1 offline universe
+# FlowTracer desktop · G2 AUTH-01
 
-Tauri 2 + React 19 + TypeScript desktop skeleton. **This is an isolated UX demo,
-not the Alpha product or a connected backend client.** All fixture IDs start with
-`demo-`; counts, node states and the example Galaxy are explicitly marked Demo.
-No authentication, API requests, collectors, native commands or filesystem/network
-plugins are implemented. No backend code or frozen contracts are changed.
+Tauri 2 + React 19 + TypeScript desktop client. AUTH-01 adds a restricted native
+HTTP bridge for local readiness, register/login/logout/refresh, `users/me` and
+read-only Radar listing. Access and Refresh Tokens remain in native process memory
+and are never returned to the WebView. The default path is real local mode; the G1
+fixture universe remains available only through an explicit, continuously labeled
+Demo entry. Backend code and frozen contracts are unchanged.
+
+This increment does **not** implement Radar writes, Sources, collection, Signals,
+Memory, Opportunity features or Galaxy persistence. Browser preview cannot use the
+native bridge and never substitutes a dev proxy or CORS change.
 
 ## Start on Windows
 
@@ -12,7 +17,7 @@ Prerequisites: Node 24 / npm 11, Rust MSVC toolchain, Visual Studio C++ Build To
 Windows SDK and WebView2. The task environment has these prerequisites installed.
 Open a fresh PowerShell terminal if Cargo is not on PATH.
 
-Run commands from `D:\FlowTracer-wt\frontend\frontend`:
+Run commands from this worktree's `frontend` directory:
 
 ```powershell
 npm ci
@@ -20,9 +25,10 @@ npm run dev                 # local browser development at 127.0.0.1:1420
 npm run dev:desktop         # native Tauri development window
 ```
 
-Dependencies are pinned exactly in `package.json` / `package-lock.json`, and
-`src-tauri/Cargo.lock` freezes Rust dependencies. Only esbuild's pinned install
-script is allowed by the npm project policy. No global installs are needed.
+Dependencies are pinned in `package.json` / `package-lock.json`, and
+`src-tauri/Cargo.lock` freezes Rust dependencies. The only AUTH-01 npm addition is
+`@tauri-apps/api`; direct Rust additions are the approved minimal reqwest/serde/
+serde_json/tokio set. No global installs are needed.
 
 ## G1 interactions
 
@@ -54,8 +60,10 @@ with no external images/fonts or copied game artwork. The main canvas is DOM/SVG
 and remains sharp at desktop display scaling. Native icons derive from
 `src/assets/app-icon.svg` using the installed Tauri icon command.
 
-The production CSP denies network connections. No native capabilities or plugin
-permissions are granted. The development CSP permits only the local Vite server.
+The WebView production CSP still denies network connections. API traffic exists
+only inside typed native commands; no filesystem/network plugin permission or
+arbitrary URL command is exposed. The configured origin must be explicit loopback
+HTTP on `/api/v1`; redirects and proxy use are disabled.
 
 ## Targeted verification
 
@@ -63,12 +71,18 @@ permissions are granted. The development CSP permits only the local Vite server.
 npm run typecheck
 npm run test:unit
 npm run build
+$env:CARGO_HOME = "$PWD\.cache\cargo"
+cargo test --manifest-path src-tauri/Cargo.toml --locked
 $env:PLAYWRIGHT_BROWSERS_PATH = "$PWD\.cache\ms-playwright"
 npx playwright install chromium
 npm run test:e2e
-$env:CARGO_HOME = "$PWD\.cache\cargo"
 npm run build:desktop:debug -- -- --locked
 ```
+
+Native tests use owned loopback fixture servers to cover the origin/path boundary,
+redirect and size refusal, safe error envelopes, rotating-refresh single flight,
+logout fencing, and the ready/auth/user/Radar/logout transport path. Fixture proof
+is not evidence that a real Backend and isolated `_test` database were available.
 
 E2E tests run serially with no retries and stop on the first failure. They cover
 1366×768, 1600×900 and 1920×1080, node selection/dragging, zoom anchoring and limits,

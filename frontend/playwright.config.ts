@@ -5,6 +5,6 @@ export default defineConfig({
   outputDir: './test-results/demo-v2-final',
   timeout: 30000, expect: { timeout: 5000 },
   reporter: [['list'], ['html', { open: 'never' }]],
-  use: { baseURL: 'http://127.0.0.1:1420', browserName: 'chromium', viewport: { width: 1600, height: 900 }, trace: 'retain-on-failure', screenshot: 'only-on-failure' },
+  use: { baseURL: 'http://127.0.0.1:1420', browserName: 'chromium', channel: process.env.FLOWTRACER_TEST_EDGE === '1' ? 'msedge' : undefined, viewport: { width: 1600, height: 900 }, trace: 'retain-on-failure', screenshot: 'only-on-failure' },
   webServer: { command: 'npm run preview', url: 'http://127.0.0.1:1420', reuseExistingServer: false, timeout: 30000 },
 });

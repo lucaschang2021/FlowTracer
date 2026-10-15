@@ -4,9 +4,9 @@
 
 **M0：架构初步冻结 — 已完成**
 
-**当前阶段：ACQ-1 收口独立验收通过；READY_FOR_FRONTEND（后端交接就绪）**
+**当前阶段：Backend READY_FOR_FRONTEND；FE-G2 AUTH-01 已取得定向证据，仍是本地候选**
 
-Backend Alpha Core、Architecture Governance Pass、WP1/WP2 与 ACQ-1 收口 Phase 0-5 已完成；精确代码提交 `01155294f151cb1c453ddbaf8af6ed34ef3228c1` 的[独立验收](78-ACQ1-INDEPENDENT-ACCEPTANCE.md)通过，`docs/71` §6 条件 1-8 成立，P0/P1=0。R3 BLOCKED、Browser dynamic disabled；R4/R5、正式 Browser、Frontend、Integration、Release 未准入。PLUGIN-1 为 POST-v0.1 / deferred，不构成 Frontend 前置依赖。GitHub 接入事实以精确 PR/merge SHA 为准。
+Backend Alpha Core、Architecture Governance Pass、WP1/WP2 与 ACQ-1 收口 Phase 0-5 已完成；已合并 Backend/main 为 `fc180a1d2eba32935fba6ee6c128f9b2d7015574`。本地 Frontend 基线 `24e2ebd14ac559ae9251424f30a4295f3006e0a0` 以该 Backend 为父提交，未 push、未 merge；其上 `AUTH-01` 为 branch-local 真实接口候选，已有隔离原生链路与开发侧定向测试证据，但尚未完成 FE-G2 产品验收。R3 BLOCKED、Browser dynamic disabled；R4/R5、正式 Browser、INT-001、REL-001 未准入。PLUGIN-1 为 POST-v0.1 / deferred，不构成 Frontend 前置依赖。
 
 本次来源基准：`main@1c7b15a7a285cd183a94ddca460f023163700a4c`（PR #85 merge）；新控制 PR 合并后 main 是其后代。现行合同 [GOVERNANCE-V2 §12](GOVERNANCE-V2.md#12-governance-v21--live-authority--in-flight-task-control)、§11.6/§11.7 与 [CURRENT-GATE](CURRENT-GATE.md) 优先，历史行不提供执行权。PR #79 DO NOT MERGE；本修订不处理其共享状态。
 
@@ -86,7 +86,9 @@ Backend Alpha Core、Architecture Governance Pass、WP1/WP2 与 ACQ-1 收口 Pha
 | ACQ-1-WP8 | ACQ-1 Final（价值闭环 E2E、可重复启动、性能基线、秘密扫描、能力清单与交接文档） | Backend / Architecture | 完成；独立验收通过；**READY_FOR_FRONTEND** | Browser 分支保持 disabled；Frontend 未自动准入 | `docs/67`–`docs/78`；交付侧 500/92.29% 为历史证据；独立 504 passed/89.49% 见 `docs/78` |
 | ACQ-1-WP3-B | R3 真实执行证据（B 阶段） | Backend | 未准入；离线增量就绪 | 需真实执行 lease + 锁定环境 | R3 离线增量与 `docs/54/55/56/59` 位于分支 `feat/acq1-r3-fail-closed-offline`（未合并）；R3 仍 BLOCKED |
 | PLUGIN-1 | 后续插件工作包 | 待定 | **POST-v0.1 / deferred** | 不在 Alpha v0.1 关键路径；不阻塞 FE-001 | 尚无正式准入或架构基线；不得视为已实现 |
-| FE-001 | 前端实现 | Frontend | 未准入 | ACQ-1 经总控验收并冻结 Acquisition Contract | 桌面端与前端测试 |
+| FE-001 | 前端产品阶段 | Frontend | 进行中；未完成产品验收 | Backend `fc180a1` READY_FOR_FRONTEND；G1/G2 分阶段授权 | G1/G2 证据汇总后另行产品验收；不自动进入 INT-001 |
+| FE-001-G1 | 桌面 UI 骨架与用户确认视觉 | Frontend | 本地候选已独立验收；未 push/未 merge | Backend `fc180a1` | local `24e2ebd`；source/scope、typecheck、13 unit、web build、13 UI E2E；后续 G2 原生证据不回填为 G1 独立复跑 |
+| FE-001-G2 | 真实 API 接入 | Frontend | AUTH-01 branch-local 候选；定向证据已取得，产品验收未完成 | `24e2ebd` + 冻结 Handoff/OpenAPI | 隔离 `_test` 原生注册/登录/`users/me`/真实空 Radar/退出/重开已验证并清理；视觉候选 typecheck、Web build、15 unit、7 targeted UI E2E、Windows debug build 通过，新版视觉尚无原生截图验收；会话代次写回 P1 最小修复，Rust `api::tests` 7/7、总控独立源码复核关闭该路径；Radar CRUD/Source/collect/Signals/G3 未实现；[准入边界](FE-001-G2-ADMISSION.md) |
 | INT-001 | 集成与缺陷修复 | Integration | 未准入 | ACQ-1、FE-001 | E2E 报告与缺陷闭环 |
 | REL-001 | GitHub Alpha 发布 | Release | 未准入 | INT-001 | 仓库、CI、Tag、Release |
 

@@ -11,7 +11,7 @@
   },
   "app": {
     "windows": [{
-      "label": "main", "title": "FlowTracer · Offline UX Demo",
+      "label": "main", "title": "FlowTracer · Local Intelligence Universe",
       "width": 1600, "height": 900, "minWidth": 960, "minHeight": 640,
       "backgroundColor": "#050c17", "center": true
     }],

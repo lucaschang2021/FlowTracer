@@ -14,6 +14,7 @@
     "preview": "vite preview --host 127.0.0.1 --port 1420"
   },
   "dependencies": {
+    "@tauri-apps/api": "2.12.3",
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },

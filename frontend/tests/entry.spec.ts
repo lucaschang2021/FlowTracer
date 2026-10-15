@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-test('approved original background is preserved only on entry screens', async ({ page }, info) => {
+test('approved startup canvas stays mounted across entry, star map and utility pages', async ({ page }, info) => {
   await page.goto('/');
   const backdrop = page.getByTestId('original-backdrop');
   await expect(backdrop).toHaveCount(1);
@@ -25,9 +25,17 @@ test('approved original background is preserved only on entry screens', async ({
   await expect(backdrop).toHaveCount(1);
   await page.screenshot({ path: info.outputPath('restored-original-login.png') });
   await page.getByRole('button', { name: '进入演示星图' }).click();
-  await expect(backdrop).toHaveCount(0);
-  await expect(page.locator('.celestial-background')).toHaveCount(1);
+  await expect(page.locator('.stage-scene')).toHaveAttribute('data-motion', 'idle');
+  await expect(backdrop).toHaveCount(1);
+  await expect(page.locator('.celestial-background')).toHaveCount(0);
+  await expect(page.locator('.stage-scene .app-shell')).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
   await expect(page.locator('[data-radar]')).toHaveCount(6);
+  await page.screenshot({ path: info.outputPath('shared-canvas-workspace.png') });
+  await page.getByRole('button', { name: '设置', exact: true }).click();
+  await expect(page.locator('.page-scene')).toHaveAttribute('data-motion', 'idle');
+  await expect(backdrop).toHaveCount(1);
+  await expect(page.locator('.original-flowing-stars')).toHaveCount(1);
+  await page.screenshot({ path: info.outputPath('shared-canvas-settings.png') });
 });
 
 test('intro, demo sign-in, bilingual settings and persisted preferences', async ({ page }, info) => {
@@ -48,7 +56,7 @@ test('intro, demo sign-in, bilingual settings and persisted preferences', async 
   await page.screenshot({ path: info.outputPath('intro-en.png') });
   await page.getByRole('main').focus(); await page.keyboard.press('Enter');
   await expect(page.getByRole('heading', { name: 'Welcome back.' })).toBeVisible();
-  await expect(page.locator('input')).toHaveCount(0);
+  await expect(page.locator('input')).toHaveCount(2);
   await page.screenshot({ path: info.outputPath('login-en.png') });
   await page.getByRole('button', { name: 'Enter demo universe' }).click();
   await expect(page.locator('[data-radar]')).toHaveCount(6);

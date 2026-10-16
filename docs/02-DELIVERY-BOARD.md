@@ -88,7 +88,7 @@ Backend Alpha Core、Architecture Governance Pass、WP1/WP2 与 ACQ-1 收口 Pha
 | PLUGIN-1 | 后续插件工作包 | 待定 | **POST-v0.1 / deferred** | 不在 Alpha v0.1 关键路径；不阻塞 FE-001 | 尚无正式准入或架构基线；不得视为已实现 |
 | FE-001 | 前端产品阶段 | Frontend | 进行中；未完成产品验收 | Backend `fc180a1` READY_FOR_FRONTEND；G1/G2 分阶段授权 | G1/G2 证据汇总后另行产品验收；不自动进入 INT-001 |
 | FE-001-G1 | 桌面 UI 骨架与用户确认视觉 | Frontend | 本地候选已独立验收；未 push/未 merge | Backend `fc180a1` | local `24e2ebd`；source/scope、typecheck、13 unit、web build、13 UI E2E；后续 G2 原生证据不回填为 G1 独立复跑 |
-| FE-001-G2 | 真实 API 接入 | Frontend | AUTH-01 branch-local 候选；定向证据已取得，产品验收未完成 | `24e2ebd` + 冻结 Handoff/OpenAPI | 隔离 `_test` 原生注册/登录/`users/me`/真实空 Radar/退出/重开已验证并清理；视觉候选 typecheck、Web build、15 unit、7 targeted UI E2E、Windows debug build 通过，新版视觉尚无原生截图验收；会话代次写回 P1 最小修复，Rust `api::tests` 7/7、总控独立源码复核关闭该路径；Radar CRUD/Source/collect/Signals/G3 未实现；[准入边界](FE-001-G2-ADMISSION.md) |
+| FE-001-G2 | 真实 API 接入 | Frontend | `551d29f` 本地 AUTH/视觉 checkpoint + dirty Radar 创建候选；创建/重登定向 PASS，产品验收未完成 | `24e2ebd` + 冻结 Handoff/OpenAPI | typed native `POST /radars`；Rust 9/9、Web 4/4；隔离 `_test` 单次创建 201、DB owner 一致、退出重登仍可见且资源已清理。编辑/删除/暂停恢复、Source/collect/Signals/G3 未完成；墨水消散中间帧仍缺，非完整视觉 PASS。P2：`aria-modal` 创建面板未限制背景键盘焦点，待收口且 session-race 测试不得依赖该泄漏；INT-001/REL-001 未准入；[准入边界](FE-001-G2-ADMISSION.md) |
 | INT-001 | 集成与缺陷修复 | Integration | 未准入 | ACQ-1、FE-001 | E2E 报告与缺陷闭环 |
 | REL-001 | GitHub Alpha 发布 | Release | 未准入 | INT-001 | 仓库、CI、Tag、Release |
 

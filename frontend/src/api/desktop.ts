@@ -25,6 +25,7 @@ export type RadarRecord = {
   notificationThreshold: number;
 };
 export type RadarPage = { items: RadarRecord[]; page: number; pageSize: number; total: number };
+export type RadarCreateInput = { name: string; goal: string; radarType: RadarType; description?: string };
 
 export const isDesktopBridge = () => typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window;
 
@@ -53,6 +54,7 @@ export const desktopApi = {
   logout: () => call<void>('auth_logout'),
   me: () => call<User>('users_me'),
   radars: () => call<RadarPage>('radars_list'),
+  createRadar: (input: RadarCreateInput) => call<RadarRecord>('radars_create', { input }),
 };
 
 export const errorMessage = (error: unknown) => normalizeError(error);

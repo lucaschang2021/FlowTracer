@@ -14,6 +14,7 @@ fn main() {
             api::auth_refresh,
             api::users_me,
             api::radars_list,
+            api::radars_create,
         ])
         .run(tauri::generate_context!())
         .expect("FlowTracer could not start");

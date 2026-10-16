@@ -110,6 +110,60 @@
 - 既有 Tauri exe 原生窗口的注册页显示本机 API 已就绪及 `http://127.0.0.1:8000/api/v1`。仅在此页填入随机一次性 `example.com` 测试邮箱、显示名和密码；没有调用 API 建号。按 computer-use 技能在最终提交前发出当场确认，用户对**这个库和此窗口**直接回复“确认点击并验证”。确认传递期间，本 agent 尚未点击；随后复核发现唯一用户已创建，故没有重复提交。原生窗口已进入真实空 Radar 星图；可见“真实连接”“此账户目前没有 Radar”“没有加载演示数据”。后端同一序列记录 `POST /api/v1/auth/register` 201×1，紧接 `GET /api/v1/users/me` 200×1、`GET /api/v1/radars` 200×1；最终 `users=1`、`radars=0`，唯一用户的非敏感模式与本轮表单一致。服务端日志不记录点击者身份，因此不将最终点击归因于本 agent；没有第二次点击或注册请求。
 - 本轮原生 UI 注册→用户信息→真实空 Radar 的定向链路有实证；前轮 API-SEED-09 的登录、logout、重开证据仍单独保留。此结果不自动批准完整 FE-001 产品或 INT/Release 阶段。此次未发现 P0/P1/P2 产品缺陷（`0/0/0`）；前轮来源未明的本机 404 探测观察仍保留为独立历史记录。已关闭本轮 Tauri 进程，精确停止三个 `--rm` 容器并删除专名网络，复核本轮容器/网络/卷及桌面进程均为空；隔离账号随无卷 PostgreSQL 容器删除，专用镜像保留。未改源码/锁文件，无 commit/push/PR/merge；下一操作须总控另签。
 
+### FE-001-G2-NATIVE-VISUAL-01 Docker Engine 预检阻断（2026-10-15）
+
+- 本轮从干净的 `feat/fe-001-g2-api@551d29f54aa530b6a9fc2329358c1861b42c24a5` 本地 checkpoint 开始；5 小时/每周额度剩余 63%/94%，本机端口 8000 无监听。此 SHA 是前述 `24e2ebd` 交付基线的后续本地提交；顶部“AUTH-01 仍未 commit”是提交前快照，不代表本轮状态。本次 lease 仅允许追加证据，不改写该历史快照。
+- Docker Linux Engine 的 `npipe:////./pipe/dockerDesktopLinuxEngine` 管道不存在，`docker version` 和专用镜像 `ft-g2-auth-test:fc180a1-01` 的当前 inspect 均无法连接 Engine。按 lease 在预检失败处停止，未启动或修改 Docker Desktop/共享设置，也未执行获准的一次 Windows debug rebuild；现有旧 exe 不作为 P1 修复后构建，故无本轮 exe SHA。
+- 结论为 `VISUAL_NATIVE_BLOCKED`：没有新建网络、容器、卷、`_test` 库或账号；没有启动 Tauri 窗口、原生登录、墨水消散或 reduced-motion 检查，也没有本轮截图标识和实际 auth/`users/me`/Radar 请求计数。不能把源码或既有浏览器测试当作原生视觉证明。因本轮未创建专属资源，无本轮资源需要删除；未操作其他窗口、默认容器/卷或其他 worktree。
+- 本轮 P0/P1/P2=`0/1/0`，P1 是 Engine 不可用造成的验证阻断，不是已证实产品缺陷；既有两项历史 P2 观察保持原状。除本 checkpoint 文档外无源码/锁/依赖改动，无 commit/push/PR/merge。FE-G2 产品验收及 INT-001/REL-001 仍未准入；下一次原生视觉验证须总控新签 lease。
+
+### FE-001-G2-NATIVE-BUILD-01 锁定依赖原生构建停点（2026-10-15）
+
+- 在 `feat/fe-001-g2-api@551d29f54aa530b6a9fc2329358c1861b42c24a5` 上执行独立 build-only lease；开始时只有上一轮 admission 阻断记录未提交，5 小时/每周额度剩余 57%/93%。没有安装或升级依赖。
+- 唯一构建命令为 `npm run build:desktop:debug -- -- --locked`，设置 `CARGO_NET_OFFLINE=true`。沙箱调用在设置工作目录时以访问拒绝结束，未进入构建；对同一命令最小权限重试后，内含 Vite Web 构建 48 modules PASS、Rust Windows debug build PASS，最终 exit 0。未重复全量测试。
+- 输出 `frontend/src-tauri/target/debug/flowtracer-desktop.exe` 为 14,836,736 bytes，SHA-256 `0326843838A6309E8B6FCD98710003516B8A35D5936EB26FB7B92C9FF4866409`。此为当前 checkpoint 源码的构建证据，**不是** Tauri 窗口、原生 AUTH 请求、墨水转场或 reduced-motion 的验收。
+- 本轮未操作 Docker、测试库、账号、API 或 UI，未修改源码/锁文件，未 commit/push/PR/merge。P0/P1/P2=`0/0/0` 为本轮构建检查结论；上一轮 Engine 阻断和两项历史 P2 观察未因此消失。FE-G2 产品验收及 INT-001/REL-001 仍未准入，下一操作须总控另签。
+
+### FE-001-G2-NATIVE-VISUAL-02 原生视觉定向验证停点（2026-10-15）
+
+- 在 `feat/fe-001-g2-api@551d29f54aa530b6a9fc2329358c1861b42c24a5` 上执行独立 VIS02 lease；开始时只有本 admission 文档已有未提交改动。复用上一轮锁定依赖构建的 exe（14,836,736 bytes，SHA-256 `0326843838A6309E8B6FCD98710003516B8A35D5936EB26FB7B92C9FF4866409`），本轮没有构建、安装、源码或锁文件改动。最后可靠额度检查：5 小时/每周剩余 22%/88%。
+- 仅创建本轮专名网络 `ft-g2-vis02-20261015-0724-net`、无持久卷且无主机端口的 PostgreSQL/Redis、以及仅映射 `127.0.0.1:8000:8000` 的 Fake/test API；隔离库 `flowtracer_visual_test_20261015_02` 先迁移至 `20261006_0009`。开始 `users=0`、`radars=0`；一次性 `example.com` 测试账号建立后最终 `users=1`、`radars=0`。专用镜像 ID `sha256:7f62b51da989aa04c733824bd3f31a38e995bbd893a07b60853f8309c36c9095`；本机 live/ready 均通过。
+- 真实 Tauri 窗口（ID `68938`，1530×864）展示启动画布、登录页、真实空 Radar 星图和设置页，截图留在本任务工具记录中；登录页显示本机 API 已就绪。正常动效登录后看到了“连接中”和最终空星图，但未捕捉到约 1.05 秒墨水消散的中间帧，因此**不能**称该转场视觉已获原生完整证明。设置页可见共享纹理/径向线背景；勾选“减少动态效果”后退出，再次登录直接到达空星图。主界面仍能看到共享径向线，截图未显示可明确区分的额外旧背景遮盖层；不据此声称旧层缺失已被充分证明。
+- API access log 仅按方法/路径/状态统计：注册 201×1、登录 200×2、`users/me` 200×2、Radar 列表 200×2、退出 204×1，外加本机 health 检查；无真实采集/付费请求。第二次原生登录后的主界面仍为真实连接且 0 Radar、无演示数据。正常登录、退出及 reduced-motion 下重登有真实请求链与画面，但缺少墨水转场中间帧，结论 `VISUAL_NATIVE_BLOCKED`（定向部分证据成立，完整视觉闸门未过），本轮 P0/P1/P2=`0/1/0`；P1 为验证证据缺口，非已证实产品缺陷。不得据此批准 FE-G2 产品、INT-001 或 REL-001。
+- 已关闭本轮原生窗口，精确停止本轮三个 `--rm` 容器并删除专名网络；按前缀复核容器/网络为空，端口 8000 无监听，无本轮持久卷，测试账号随无卷数据库删除。未操作其他 worktree 或默认 Docker 资源，未 commit/push/PR/merge。后续须总控另签验证许可。
+
+### FE-001-G2-RADAR-CREATE-01 额度停工与 VERIFY-01 定向验证停点（2026-10-15）
+
+- CREATE-01 在 `feat/fe-001-g2-api@551d29f54aa530b6a9fc2329358c1861b42c24a5` 写入 Radar 创建候选：显式 native `POST /api/v1/radars`、受保护的请求体/401 单航班刷新与会话代次围栏、WebView typed API、真实模式新建表单、收到后端成功响应后才映射 UUID 行星；Demo 加号仍保留说明入口。原有 admission 未提交改动保留。5 小时额度降至 5% 时立即停工，未运行测试、构建或提交；该候选当时**未验证**。
+- VERIFY-01 从上述原工作树继续，只读核对 branch/HEAD 和 dirty 范围一致：仅本 admission、`frontend/src-tauri/src/{api.rs,main.rs}`、`frontend/src/api/desktop.ts`、`frontend/src/app/App.tsx`、`frontend/src/features/universe/Universe.tsx`、`frontend/src/styles/demo.css`、新增 `frontend/src/features/radars/RadarCreatePanel.tsx` 与 `frontend/tests/radar-create.spec.ts`；没有 Backend/OpenAPI/schema/锁文件改动。开始可靠额度 5 小时/每周剩余 95%/84%。
+- `npm run typecheck` exit 0。`cargo test --manifest-path src-tauri/Cargo.toml --locked api::tests` 首次仅因沙箱拒绝打开 Cargo build lock 而未编译；同命令最小权限重试 exit 0，Rust `api::tests` 9 passed / 0 failed，包含 typed POST/path/body/返回、401 refresh、logout-inflight 创建响应围栏，以及原有安全/会话测试。`git diff --check` exit 0（仅 LF→CRLF 提示）。未运行全量测试或 native runtime。
+- Playwright 配置使用 `npm run preview` 读取既有 `frontend/dist`；该产物早于 CREATE-01 候选，JS 中没有 `radars_create`。本 lease 未授权 Web build 或配置改动，因此**没有**运行只会检验旧 bundle 的 `frontend/tests/radar-create.spec.ts`，不得宣称 E2E PASS。测试源码含成功后插入 UUID、409 失败保留输入/不插入、提交中禁重复及 Demo 入口用例；缺少 Web 账号切换旧创建响应不写回用例，Demo 用例也未在有 native bridge 的 mock 下证明无写请求。这些均是待补证据，不是已证实产品缺陷。
+- 结论 `RADAR_CREATE_VERIFY_BLOCKED`，本轮 P0/P1/P2=`0/1/0`（P1 为定向 E2E 前置产物及覆盖缺口）。Rust 与类型检查通过不等于真实 native Radar 创建；无 `_test` API、账户、Docker、原生 UI 或后端写入验证。FE-G2 产品、INT-001/REL-001 均未准入；源码/锁未在 VERIFY-01 修改，未 commit/push/PR/merge。下一操作须总控新签允许与当前源码一致的 Web 测试产物及缺口补测，再另行授权真实原生创建验证。
+
+### FE-001-G2-RADAR-CREATE-REPAIR-01 定向补强失败停点（2026-10-15）
+
+- 在 `feat/fe-001-g2-api@551d29f54aa530b6a9fc2329358c1861b42c24a5` 上保留全部既有 dirty，仅按 lease 修改 `frontend/src/app/App.tsx` 与 `frontend/tests/radar-create.spec.ts`。创建成功响应现在先在异步 handler 中执行 `toUniverseRadar` 校验/映射，再进入函数式 `setRadars`；非法 UUID/枚举异常可回到表单 Promise catch，不再从 React updater 内抛出。原有 request epoch 账号切换围栏保持。
+- 单文件 E2E 源码增加：桥接调用计数验证重复提交；旧账户创建响应晚到不得写入新会话；非法 UUID 不插入、不崩溃且表单仍可操作；Demo 加号保持说明入口且 `radars_create` 调用为 0。没有扩大到其他 CRUD、Source、Signals 或 G3。
+- 可靠额度开始为 5 小时/每周剩余 74%/81%，长命令前均高于 5%。`npm run typecheck` exit 0。`npm run build` 首次仅因沙箱拒绝写 `node_modules/.vite-temp` 而未编译；同命令最小权限重试 exit 0，Vite 49 modules transformed。未重复 Rust 测试；沿用 VERIFY-01 的 `api::tests` 9/9 PASS。
+- Edge 单文件命令 `npx playwright test tests/radar-create.spec.ts --retries=0` 首次仅因沙箱拒绝测试输出目录而未启动；同命令最小权限重试后真实执行 4 个已发现用例，但首个用例在模拟登录后仍停留登录页，等待 `universe[data-mode=live]` 5 秒超时。配置的 `maxFailures=1` 随即停止：`1 failed / 3 did not run`，exit 1。失败发生在进入 Radar 创建断言之前；当前证据不能区分测试 harness 登录模拟问题与候选登录回归，也不能证明任何创建补强用例通过。
+- 按 lease 的真实编译/断言失败即 REPORT+STOP，未修复、未重跑。结论 `RADAR_CREATE_REPAIR_BLOCKED`，本轮 P0/P1/P2=`0/1/0`；P1 为定向 E2E 红灯及未执行覆盖。未运行 Docker、native UI、真实账号或后端写入；无 commit/push/PR/merge。FE-G2、INT-001、REL-001 均未准入，后续须总控新签独立诊断/修复 lease。
+
+### FE-001-G2-RADAR-UI-FIXTURE-01 单次测试修复停点（2026-10-15）
+
+- 在同一 `feat/fe-001-g2-api@551d29f54aa530b6a9fc2329358c1861b42c24a5` 和保留 dirty 上，仅修改 `frontend/tests/radar-create.spec.ts`：每次登录/进入工作区显式等待 `.stage-scene[data-motion=idle]`，提交登录前核对邮箱与密码值；首个创建测试以可控 promise gate 取代时间延迟，pending 期间再次 `requestSubmit` 后桥调用计数必须保持不变，release 后才允许 UUID Radar 出现；第二账户的用户名检查改为导航 Settings 后再执行。业务源码、fixture 数据、构建产物、Rust 与锁文件未改。
+- 开始可靠额度 5 小时/每周剩余 58%/79%，测试前剩余 56%/78%，均高于 5%。复用前轮已成功的 Web build/typecheck/Rust 9/9，不重复执行。唯一命令为 Edge `npx playwright test tests/radar-create.spec.ts --retries=0`，发现 4 个用例并使用 1 worker、`maxFailures=1`。
+- 第 1 条 `live Radar create preserves input on failure and inserts only confirmed UUID once` PASS：409 后保持输入且无插入；成功尝试进入可控 pending 后，二次 `requestSubmit` 未增加桥调用，实际总 `radars_create` 调用计数保持为 2（含前一次 409）；release 后仅出现一个后端 UUID Radar。
+- 第 2 条账号切换用例真实 FAIL：旧账户创建请求已进入 pending 且调用计数为 1；测试强制点击“设置”并等待 page-scene idle 后，30 秒内仍找不到“退出登录”按钮，故在实际执行账号切换、释放旧响应和核对新会话之前超时。按 `maxFailures=1` 停止，最终 `1 passed / 1 failed / 2 did not run`、exit 1；非法 UUID 与 Demo 零写入两条本轮未执行。
+- 按 lease 的修复后仍失败即 REPORT+STOP，没有第二次修复或重跑。结论 `RADAR_UI_FIXTURE_BLOCKED`，P0/P1/P2=`0/1/0`；当前红灯位于测试无法在创建 modal pending 状态下到达退出操作，尚未证明产品的 epoch 围栏失败，也未取得非法响应与 Demo 用例本轮 PASS。无 native UI、Docker、真实账户、后端写入、commit/push/PR/merge；后续须总控另签新的有界诊断/修复权限。
+
+### FE-001-G2-RADAR-UI-FIXTURE-02 键盘路径定向验证停点（2026-10-15）
+
+- 在同一 `feat/fe-001-g2-api@551d29f54aa530b6a9fc2329358c1861b42c24a5` 和保留 dirty 上，仅修改 `frontend/tests/radar-create.spec.ts` 的账号切换交互：pending 创建 modal 存在时，不再用无法穿透 scrim 的 Playwright `force` 鼠标点击；改为对实际可聚焦的 Settings 与“退出登录”按钮执行 `focus()`、核对焦点并发送键盘 Enter，同时等待 page/stage scene idle。业务源码、fixture session 内容、超时、断言及其他测试均未弱化。
+- 开始可靠额度 5 小时/每周剩余 52%/78%，高于 5%。唯一验证命令为 Edge 单文件筛选账号切换、非法 UUID、Demo 三项，`retries=0`、1 worker；exit 0，`3 passed / 0 failed`（19.4 秒）。未重复首个已经通过的创建成功/失败/pending 去重用例，未 build/typecheck/Rust/native/Docker。
+- 账号切换测试 PASS：旧账户仅发起 1 次 `radars_create` 并保持 pending；键盘进入实际 Settings、退出、等待登录场景 idle、提交并核对第二账户输入；第二账户进入 live workspace 后才释放旧 promise，Radar 数仍为 0；再实际导航 Settings，`Second` 用户名可见。该证据覆盖 Web request epoch 对旧创建响应的隔离。
+- 非法 UUID 测试 PASS：错误响应未插入 Radar，表单显示 identity 错误且仍可编辑；Demo 测试 PASS：加号仍为说明入口，`radars_create` 实际调用计数为 0。结合 FIXTURE-01 已通过且未修改的首项（409 保留输入、pending 重复提交不增调用、累计 calls=2、release 后唯一 UUID Radar），Radar 创建 Web 定向覆盖为 `4/4 PASS`。
+- 结论 `RADAR_CREATE_WEB_TARGETED_PASS`，本轮 P0/P1/P2=`0/0/0`。这仍是 Web mock 定向证据，不等于真实 native/API 创建：没有 `_test` 后端写入、原生窗口、真实账号或所有权验证。无 commit/push/PR/merge；FE-G2 产品、INT-001、REL-001 仍未准入，完成即 STOP 交总控复核。
+
 权威契约是 [Frontend Handoff](../backend/FRONTEND-HANDOFF.md) 与 [Frozen OpenAPI](../backend/openapi/flowtracer-alpha-v0.1.json)。不得推断 schema、修改 Backend，或以 UI 绕过契约缺陷；发现真缺陷应报告 Backend owner。
 
 ## G2 已冻结产品范围（非当前执行许可）
@@ -148,3 +202,13 @@ Next Authority Owner: FlowTracer controller
 ```
 
 该历史 operation 已停点。下一操作只有总控按 [GOVERNANCE-V2 §12](GOVERNANCE-V2.md#12-governance-v21--live-authority--in-flight-task-control) 新签有界 lease 后方可开始。
+
+### FE-001-G2-RADAR-CREATE-NATIVE-01 / RECOVER-01 原生创建与恢复清理停点（2026-10-16）
+
+- 原生验证在 `feat/fe-001-g2-api@551d29f54aa530b6a9fc2329358c1861b42c24a5` 上完成一次且仅一次 Radar 创建。构建前候选源码身份在恢复 lease 中逐字节复核未变：`api.rs` `881A5831E83F8405291B6A255C8045789D776A2D16FBB136A0954DC1E0A244D4`、`main.rs` `2AE8157942CC0665F9F8E46CFDA7B3C8464BC4C804BBA825538A95EFD26E6693`、`desktop.ts` `D624EE3B6DFB092D1D7331C1F271584676134DE87CC0FDCDBC8C92DAE73AB04A`、`App.tsx` `1E965995A08F0296C2BAC74AC13F0368032F37CB177951AAB407CA0F5AFC1604`、`Universe.tsx` `65142F964FE59BF50418D61732A26E415663858365C8142016CDA43D5F39D1E7`、`demo.css` `2BA57FCA747EC238E9BC54020DC05A1E82485F65ABA7DE0B84A9A10145414B00`、`RadarCreatePanel.tsx` `C34CE5EA3E752EE92FAC80BD87C691FFDE137989B825C530298B975ED63E7B2C`。唯一 `--locked` Windows debug 构建生成 `flowtracer-desktop.exe` 14,862,336 bytes，SHA-256 `F8B9B1F96E296AD9FA2C96B36BDC7826A7DF90F153E0EF9E625EE2CEAACB34B5`；恢复 lease 未重建、未重跑测试或 UI。
+- 上轮工具记录中的 1530×864 原生截图与 accessibility 状态形成连续证据：第一次登录后星图显示唯一 `Native Radar 20261015 01`；键盘聚焦该真实 Radar 后打开详情，面板显示目标 `Track verified native opportunity changes`、类型“机会”、数据来源“本机 API”、状态“活跃 · 真实”。退出后第二次且最终登录的截图仍显示同名唯一行星、`真实 RADAR 1`、`真实连接`，accessibility tree 中按钮为 `查看真实 Radar Native Radar 20261015 01，opportunity`，证明的是本轮隔离运行时中的创建后重登可见性，不外推为生产验收。
+- 保存的 API access 计数为：注册 `201×1`、登录 `200×2`、`users/me 200×2`、Radar 列表 `200×2`、Radar 创建 `201×1`、退出 `204×1`。隔离数据库 `flowtracer_radar_test_20261015_01` 当时为 `users=1`、`radars=1`；唯一 Radar UUID `e3a1e41c-e744-4483-ba65-0c69fd256698`，owner `e3281f08-13aa-412f-9819-6166f50d15ef` 且 join 匹配为 true，名称/目标/类型/状态/阈值/未删除分别为 `Native Radar 20261015 01` / `Track verified native opportunity changes` / `opportunity` / `active` / `75` / true。未运行 Worker，未访问真实采集目标或付费 API。
+- 当可靠 5 小时额度降至剩余 2% 时按 GOV-2.1 立即停止；精确路径的专属 exe 进程已停止，但容器清理命令因 usage-limit 审批失败而未执行。恢复 lease 开始额度为 5 小时/每周剩余 69%/65%，没有续跑任何验证。Docker 由用户自行启动后，只读检查发现三个 `--rm` 容器 `ft-g2-radar01-20261015-{api,redis,pg}` 均已不存在；残留网络 `ft-g2-radar01-20261015-net` 的 label 为 `FE-001-G2-RADAR-CREATE-NATIVE-01`、driver 为 bridge，确认归属后已精确删除。终态复核同前缀容器/网络为空、该 lease 标签卷为空、端口 8000 无监听；未停止 Docker，未触碰其他容器、网络或卷。
+- 当前证据合并口径：本地 AUTH/视觉 checkpoint 为 `551d29f54aa530b6a9fc2329358c1861b42c24a5`（未 push），其上 Radar 创建候选仍为 dirty；Rust `api::tests` 9/9 与 Web 定向覆盖 4/4 已取得，不在本次文档同步中重复运行。Radar 编辑、删除、暂停/恢复、Source、collect、Signals 仍未完成；约 1.05 秒墨水消散的原生中间帧仍缺失，不能把现有界面截图写成完整视觉 PASS。
+- 可访问性债务记录为 P2：`RadarCreatePanel` 声明 `aria-modal`，但 FIXTURE-02 的键盘路径证明背景导航仍可获得焦点。后续实现须建立真实焦点边界，并让 session-race 测试不再依赖 modal 焦点泄漏；当前没有证据将其升级为 P1 数据安全缺陷，也不得宣称 P2 全部清零。
+- 本次定向结论为 `NATIVE_RADAR_CREATE_PASS`：真实原生登录 → 单次创建 → 唯一 live 行星及详情 → DB/API 一致 → 退出后二次登录同一 Radar 可见的限定路径成立，且专属资源已清理。它不等于 AUTH-01/FE-G2 全量产品验收，不批准 INT-001/REL-001，也不覆盖其他 CRUD、Source、采集或 Signals。无 commit/push/PR/merge；恢复后仅追加本 checkpoint，立即 STOP 交总控复核。

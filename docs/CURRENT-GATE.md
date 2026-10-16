@@ -1,12 +1,12 @@
 # FlowTracer 当前阶段闸门
 
-更新时间：2026-10-15（FE-001-G2 AUTH-01 候选证据同步）。
+更新时间：2026-10-16（FE-001-G2 Radar 创建候选证据同步）。
 
 ## 当前状态：Backend READY_FOR_FRONTEND；FE-G2 AUTH-01 定向证据已取得，仍待产品验收
 
-- 已合并 Backend/main 与本地 `origin/main`：`fc180a1d2eba32935fba6ee6c128f9b2d7015574`。本地 Frontend 候选 `24e2ebd14ac559ae9251424f30a4295f3006e0a0` 的父提交即该 Backend 基线，tree 为 `e867861769f29d3a88c27b6dd45b9d2163fe95fd`；该 Frontend 候选未 push、未 merge。
+- 已合并 Backend/main 与本地 `origin/main`：`fc180a1d2eba32935fba6ee6c128f9b2d7015574`。Frontend 基线 `24e2ebd14ac559ae9251424f30a4295f3006e0a0` 的父提交即该 Backend 基线，tree 为 `e867861769f29d3a88c27b6dd45b9d2163fe95fd`；其上的本地 AUTH/视觉 checkpoint 为 `551d29f54aa530b6a9fc2329358c1861b42c24a5`，未 push、未 merge，当前另叠加未提交 Radar 创建候选。
 - Backend **READY_FOR_FRONTEND** 只表示 Static/Native Alpha v0.1 后端交接就绪。FE-G1 骨架已独立验收；总控在 2026-10-13 对 `24e2...` 完成 source/scope、typecheck、13 unit、web build 与 13 UI E2E 检查。后续 G2 原生链路证据与新版视觉验收分别记录，不回填为 G1 基线的独立原生复跑。
-- [FE-001-G2 准入](FE-001-G2-ADMISSION.md)冻结真实接口接入范围、安全边界和验证门槛。`AUTH-01` 仍是 branch-local 候选：隔离 `_test` 环境已有原生注册、登录、`users/me`、真实空 Radar、退出与重开证据，临时账号和资源已清理；视觉候选的 typecheck、Web build、15 unit、7 targeted UI E2E 与 Windows debug build 通过，但新版视觉尚无原生截图验收。会话代次写回 P1 已最小修复，开发侧 Rust `api::tests` 7/7 通过，总控独立源码复核关闭该路径。Radar CRUD、Source、collect、Signals 与 G3 仍未实现；FE-G2 产品验收未完成。
+- [FE-001-G2 准入](FE-001-G2-ADMISSION.md)冻结真实接口接入范围、安全边界和验证门槛。当前 dirty Radar 创建候选以 typed native `POST /api/v1/radars` 接入：Rust `api::tests` 9/9 与 Web 定向创建覆盖 4/4 已通过；隔离 `_test` 原生路径仅创建一次并取得 201，DB owner 一致，退出后二次登录仍可见同一 Radar，专属资源已清理。该 `NATIVE_RADAR_CREATE_PASS` 只覆盖创建/重登路径；Radar 编辑、删除、暂停/恢复、Source、collect、Signals 与 G3 均未完成。新版视觉已有原生界面证据，但约 1.05 秒墨水消散的中间帧仍未捕捉，不能写为完整视觉 PASS。另保留 P2 可访问性债务：`RadarCreatePanel` 声明 `aria-modal`，但背景导航仍可经键盘聚焦；后续须实现焦点边界，并使 session-race 测试不依赖该泄漏。此项不是 P1 数据安全缺陷，FE-G2 产品验收仍未完成。
 - 仍禁用/阻塞：Dynamic/Advanced Browser **disabled**（`BROWSER_DYNAMIC_ENABLED=False`，`allow_browser=True` fail-closed）；R3 真实执行为 **BLOCKED**，须另签 B 阶段 lease；R4/R5 未准入。R3 离线增量位于分支 `feat/acq1-r3-fail-closed-offline`（docs/54/55/56/59 在该分支，**未合并**）。
 - 阶段分离：FE-G2 operation admission 不等于 FE-001 产品验收。Integration（INT-001）与 Release（REL-001）仍未准入；PLUGIN-1 为 **POST-v0.1 / deferred**，不构成 Frontend 前置条件。
 - 执行权：`FE-001-G2-AUTH-01` 及其已完成的定向验证/会话修复 lease 均已停点；本状态记录不授权 Radar CRUD、Source、采集、Signals、commit/push/PR/merge 或下一阶段。下一操作须按 `GOVERNANCE-V2 §12` 另签。

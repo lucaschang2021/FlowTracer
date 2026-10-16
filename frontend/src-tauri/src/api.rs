@@ -145,6 +145,31 @@ struct RadarPage {
     total: i64,
 }
 
+#[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct RadarCreateInput {
+    name: String,
+    goal: String,
+    radar_type: RadarType,
+    description: Option<String>,
+}
+
+impl RadarCreateInput {
+    fn payload(mut self) -> Result<Vec<u8>, BridgeError> {
+        self.name = self.name.trim().to_string();
+        self.goal = self.goal.trim().to_string();
+        if !(1..=120).contains(&self.name.chars().count()) || !(1..=4000).contains(&self.goal.chars().count()) {
+            return Err(BridgeError::local("invalid_input", "Radar name or goal is outside the allowed length"));
+        }
+        self.description = self.description.and_then(|value| {
+            let value = value.trim().to_string();
+            if value.is_empty() { None } else { Some(value) }
+        });
+        let value = json!({ "name": self.name, "goal": self.goal, "radar_type": self.radar_type, "description": self.description });
+        serde_json::to_vec(&value).map_err(|_| BridgeError::local("invalid_input", "Radar request could not be encoded"))
+    }
+}
+
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RadarView {
@@ -224,12 +249,13 @@ enum Operation {
     Me,
     Ready,
     Radars,
+    RadarCreate,
 }
 
 impl Operation {
     fn method(self) -> Method {
         match self {
-            Self::Register | Self::Login | Self::Refresh | Self::Logout => Method::POST,
+            Self::Register | Self::Login | Self::Refresh | Self::Logout | Self::RadarCreate => Method::POST,
             Self::Me | Self::Ready | Self::Radars => Method::GET,
         }
     }
@@ -243,6 +269,7 @@ impl Operation {
             Self::Me => "users/me",
             Self::Ready => "health/ready",
             Self::Radars => "radars?page=1&page_size=100",
+            Self::RadarCreate => "radars",
         }
     }
 }
@@ -372,15 +399,15 @@ impl ApiClient {
         Ok(refreshed.tokens.access_token)
     }
 
-    async fn protected_with_generation<T: DeserializeOwned>(&self, operation: Operation) -> Result<(T, u64), BridgeError> {
+    async fn protected_with_body_and_generation<T: DeserializeOwned>(&self, operation: Operation, body: Option<Vec<u8>>) -> Result<(T, u64), BridgeError> {
         let (generation, access) = {
             let session = self.session.lock().await;
             (session.generation, session.access_token.clone().ok_or_else(|| BridgeError::local("authentication_required", "Sign in is required"))?)
         };
-        let first = self.send(operation, None, Some(&access)).await?;
+        let first = self.send(operation, body.clone(), Some(&access)).await?;
         let response = if first.status == StatusCode::UNAUTHORIZED {
             let refreshed = self.refresh_locked(generation, Some(&access)).await?;
-            self.send(operation, None, Some(&refreshed)).await?
+            self.send(operation, body, Some(&refreshed)).await?
         } else {
             first
         };
@@ -390,6 +417,10 @@ impl ApiClient {
             return Err(BridgeError::local("stale_session", "Session changed while request was in flight"));
         }
         Ok((result, generation))
+    }
+
+    async fn protected_with_generation<T: DeserializeOwned>(&self, operation: Operation) -> Result<(T, u64), BridgeError> {
+        self.protected_with_body_and_generation(operation, None).await
     }
 
     async fn protected<T: DeserializeOwned>(&self, operation: Operation) -> Result<T, BridgeError> {
@@ -408,6 +439,12 @@ impl ApiClient {
     async fn current_user(&self) -> Result<UserView, BridgeError> {
         let (user, generation): (UserResponse, u64) = self.protected_with_generation(Operation::Me).await?;
         self.remember_user(generation, user.into()).await
+    }
+
+    async fn create_radar(&self, input: RadarCreateInput) -> Result<RadarView, BridgeError> {
+        let body = input.payload()?;
+        let (radar, _): (RadarResponse, u64) = self.protected_with_body_and_generation(Operation::RadarCreate, Some(body)).await?;
+        Ok(radar.into())
     }
 
     async fn refresh_session(&self) -> Result<SessionView, BridgeError> {
@@ -534,6 +571,11 @@ pub async fn radars_list(bridge: State<'_, Bridge>) -> Result<RadarPageView, Bri
     Ok(RadarPageView { items: page.items.into_iter().map(Into::into).collect(), page: page.page, page_size: page.page_size, total: page.total })
 }
 
+#[tauri::command]
+pub async fn radars_create(bridge: State<'_, Bridge>, input: RadarCreateInput) -> Result<RadarView, BridgeError> {
+    bridge.client()?.create_radar(input).await
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -541,7 +583,7 @@ mod tests {
     use tokio::{io::{AsyncReadExt, AsyncWriteExt}, net::TcpListener, task::JoinHandle, time::sleep};
 
     #[derive(Clone)]
-    struct Request { path: String, authorization: Option<String> }
+    struct Request { method: String, path: String, body: String, authorization: Option<String> }
     struct Response { status: u16, body: String, headers: Vec<(String, String)>, delay_ms: u64 }
 
     async fn fake_server(handler: Arc<dyn Fn(Request) -> Response + Send + Sync>) -> (String, JoinHandle<()>) {
@@ -565,11 +607,13 @@ mod tests {
                         }
                     }
                     let text = String::from_utf8_lossy(&data);
+                    let method = text.lines().next().and_then(|line| line.split_whitespace().next()).unwrap_or("").to_string();
                     let path = text.lines().next().and_then(|line| line.split_whitespace().nth(1)).unwrap_or("/").to_string();
+                    let body = text.split_once("\r\n\r\n").map(|(_, body)| body.to_string()).unwrap_or_default();
                     let headers: HashMap<_, _> = text.lines().skip(1).take_while(|line| !line.is_empty()).filter_map(|line| line.split_once(':')).map(|(key, value)| (key.to_ascii_lowercase(), value.trim().to_string())).collect();
-                    let response = handler(Request { path, authorization: headers.get("authorization").cloned() });
+                    let response = handler(Request { method, path, body, authorization: headers.get("authorization").cloned() });
                     if response.delay_ms > 0 { sleep(Duration::from_millis(response.delay_ms)).await; }
-                    let reason = match response.status { 200 => "OK", 204 => "No Content", 302 => "Found", 401 => "Unauthorized", _ => "Error" };
+                    let reason = match response.status { 200 => "OK", 201 => "Created", 204 => "No Content", 302 => "Found", 401 => "Unauthorized", _ => "Error" };
                     let mut extra = String::new();
                     for (key, value) in response.headers { extra.push_str(&format!("{key}: {value}\r\n")); }
                     let wire = format!("HTTP/1.1 {} {}\r\nContent-Length: {}\r\nContent-Type: application/json\r\nConnection: close\r\n{}\r\n{}", response.status, reason, response.body.len(), extra, response.body);
@@ -758,6 +802,56 @@ mod tests {
             assert!(paths.iter().any(|path| path == expected), "missing {expected}");
         }
         assert!(paths.iter().any(|path| path.starts_with("/api/v1/radars?")));
+        task.abort();
+    }
+
+    fn radar_input() -> RadarCreateInput {
+        RadarCreateInput { name: " New Radar ".into(), goal: " Track change ".into(), radar_type: RadarType::Technology, description: None }
+    }
+
+    fn created_radar() -> Value {
+        json!({"id":"00000000-0000-4000-8000-000000000011","name":"New Radar","description":null,"goal":"Track change","radar_type":"technology","categories":[],"keywords":[],"status":"active","notification_threshold":75,"created_at":"2026-01-01T00:00:00Z","updated_at":"2026-01-01T00:00:00Z"})
+    }
+
+    #[tokio::test]
+    async fn create_radar_uses_typed_post_body_and_single_refresh() {
+        let refreshes = Arc::new(AtomicUsize::new(0));
+        let seen = refreshes.clone();
+        let (origin, task) = fake_server(Arc::new(move |request| match request.path.as_str() {
+            "/api/v1/auth/login" => json_response(200, auth("old", "refresh-1")),
+            "/api/v1/auth/refresh" => { seen.fetch_add(1, Ordering::SeqCst); json_response(200, json!({"tokens":{"access_token":"new","refresh_token":"refresh-2"}})) },
+            "/api/v1/radars" => {
+                assert_eq!(request.method, "POST");
+                assert_eq!(serde_json::from_str::<Value>(&request.body).unwrap(), json!({"name":"New Radar","goal":"Track change","radar_type":"technology","description":null}));
+                if request.authorization.as_deref() == Some("Bearer new") { json_response(201, created_radar()) }
+                else { json_response(401, json!({"error":{"code":"invalid_access_token","message":"Invalid","request_id":"00000000-0000-4000-8000-000000000099"}})) }
+            }
+            _ => json_response(404, json!({})),
+        })).await;
+        let client = ApiClient::new(&origin).unwrap();
+        client.authenticate(Operation::Login, "a@example.com".into(), "long-password".into(), None).await.unwrap();
+        let radar = client.create_radar(radar_input()).await.unwrap();
+        assert_eq!(radar.id, "00000000-0000-4000-8000-000000000011");
+        assert_eq!(refreshes.load(Ordering::SeqCst), 1);
+        task.abort();
+    }
+
+    #[tokio::test]
+    async fn logout_fences_in_flight_created_radar() {
+        let started = Arc::new(AtomicBool::new(false));
+        let flag = started.clone();
+        let (origin, task) = fake_server(Arc::new(move |request| match request.path.as_str() {
+            "/api/v1/auth/login" => json_response(200, auth("access", "refresh")),
+            "/api/v1/auth/logout" => Response { status: 204, body: String::new(), headers: vec![], delay_ms: 0 },
+            "/api/v1/radars" => { flag.store(true, Ordering::SeqCst); Response { status: 201, body: created_radar().to_string(), headers: vec![], delay_ms: 120 } },
+            _ => json_response(404, json!({})),
+        })).await;
+        let client = ApiClient::new(&origin).unwrap();
+        client.authenticate(Operation::Login, "a@example.com".into(), "long-password".into(), None).await.unwrap();
+        let pending = tokio::spawn({ let client = client.clone(); async move { client.create_radar(radar_input()).await } });
+        while !started.load(Ordering::SeqCst) { sleep(Duration::from_millis(5)).await; }
+        client.logout().await.unwrap();
+        assert_eq!(pending.await.unwrap().err().unwrap().kind, "stale_session");
         task.abort();
     }
 }

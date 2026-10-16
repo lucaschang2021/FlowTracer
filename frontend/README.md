@@ -1,15 +1,30 @@
 # FlowTracer desktop · G2 AUTH-01
 
 Tauri 2 + React 19 + TypeScript desktop client. AUTH-01 adds a restricted native
-HTTP bridge for local readiness, register/login/logout/refresh, `users/me` and
-read-only Radar listing. Access and Refresh Tokens remain in native process memory
-and are never returned to the WebView. The default path is real local mode; the G1
-fixture universe remains available only through an explicit, continuously labeled
-Demo entry. Backend code and frozen contracts are unchanged.
+HTTP bridge for local readiness, register/login/logout/refresh, `users/me`, Radar
+listing and the current branch-local Radar-create candidate. Access and Refresh
+Tokens remain in native process memory and are never returned to the WebView. The
+default path is real local mode; the G1 fixture universe remains available only
+through an explicit, continuously labeled Demo entry. Backend code and frozen
+contracts are unchanged.
 
-This increment does **not** implement Radar writes, Sources, collection, Signals,
-Memory, Opportunity features or Galaxy persistence. Browser preview cannot use the
-native bridge and never substitutes a dev proxy or CORS change.
+The local AUTH/visual checkpoint is
+`551d29f54aa530b6a9fc2329358c1861b42c24a5` (not pushed), with the current dirty
+Radar-create candidate layered above it. Its typed native `POST /api/v1/radars`
+path has Rust `api::tests` 9/9 and targeted Web coverage 4/4. One isolated native
+creation returned 201, matched its database owner, and remained visible after
+logout and a second login; its dedicated resources were cleaned up. This is a
+bounded create/re-login result, not FE-G2 product acceptance.
+
+Radar edit/delete/pause/resume, Sources, collection and Signals remain
+unimplemented. Memory, Opportunity features and Galaxy persistence remain G3.
+Native visual evidence still lacks the ink-dissolve intermediate frame, so the
+visual path is not a full PASS. Accessibility debt remains P2: RadarCreatePanel
+declares `aria-modal`, but background navigation can still receive keyboard focus;
+future work must enforce a focus boundary and remove that dependency from the
+session-race test. This is not classified as a P1 data-security defect. Browser
+preview cannot use the native bridge and never substitutes a dev proxy or CORS
+change. INT-001 and Release remain unadmitted.
 
 ## Start on Windows
 

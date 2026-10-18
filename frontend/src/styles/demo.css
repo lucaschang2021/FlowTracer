@@ -44,6 +44,23 @@
 .status-bar { background:#080f1a; border-top-color:#a1a18b45; }
 .utility-page { background:radial-gradient(ellipse at 75% 30%,#2f403e38,transparent 50%),radial-gradient(ellipse at 25% 0%,#29314a,#080f1b 65%); }
 .utility-page h1 { font-size:32px; }
+.signals-page { height:100%; overflow:auto; padding:42px 70px 70px; background:radial-gradient(ellipse at 75% 30%,#2f403e38,transparent 50%),radial-gradient(ellipse at 25% 0%,#29314a,#080f1b 65%); color:#e8e5dc; }
+.signals-page h1 { font:32px var(--serif); margin:10px 0; }
+.signal-filters { display:grid; grid-template-columns:repeat(4,minmax(130px,1fr)) auto; gap:12px; align-items:end; margin:28px 0; padding:18px; border:1px solid #53627580; background:#081321cc; }
+.signal-filters label { display:grid; gap:7px; color:#aebdca; font-size:11px; letter-spacing:.06em; }
+.signal-filters select,.signal-filters input { min-height:40px; padding:8px 10px; color:#f2eee4; background:#07111f; border:1px solid #526276; font:inherit; }
+.signal-list { display:grid; gap:12px; max-width:1100px; padding:0; list-style:none; }
+.signal-list button { width:100%; display:grid; grid-template-columns:1fr auto; gap:8px 22px; text-align:left; padding:18px 20px; color:#dce4e8; background:#0a1727d9; border:1px solid #53627580; }
+.signal-list button:hover,.signal-list button:focus-visible { border-color:#d8c9a8; background:#102136; }
+.signal-list strong { grid-column:1; font:18px var(--serif); color:#f0e8d7; }
+.signal-list button>span:not(:first-child),.signal-list small { grid-column:1; color:#aabaca; overflow-wrap:anywhere; }
+.signal-list b { grid-column:2; grid-row:2/5; align-self:center; color:#d8c9a8; font:24px var(--serif); }
+.signal-status,.signal-recommendation { display:inline-block; margin-right:8px; padding:3px 7px; border:1px solid #637285; color:#b8c8d5; font-size:9px; letter-spacing:.1em; text-transform:uppercase; }
+.signal-status.completed { border-color:#5a9c8566; color:#9bd2bd; }.signal-status.failed { border-color:#a75f5f88; color:#e6a39d; }
+.signal-pagination { display:flex; align-items:center; gap:18px; margin-top:22px; }
+.signal-state { max-width:760px; padding:22px; border:1px solid #53627580; background:#0a1727d9; }.signal-state h2 { font:20px var(--serif); }
+.signal-detail { max-width:960px; margin-top:24px; padding:28px; border:1px solid #53627580; background:#0a1727e8; }.signal-detail h2 { font:28px var(--serif); margin:14px 0 8px; }.signal-detail h3 { margin-top:28px; color:#e8dcc0; font:17px var(--serif); }
+.signal-url { color:#91a7bb; overflow-wrap:anywhere; }.signal-facts { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:24px 0; }.signal-facts div { padding:12px; border:1px solid #46576a; }.signal-facts dt { color:#8498aa; font-size:10px; text-transform:uppercase; }.signal-facts dd { margin:6px 0 0; }.signal-content { white-space:pre-wrap; line-height:1.8; overflow-wrap:anywhere; }
 .settings-list { max-width:1000px; }
 .language-select { display:inline-flex; align-items:center; gap:14px; color:#b7c5d3; font-size:12px; }
 .language-select select { font:inherit; color:#ece9dc; min-width:140px; min-height:40px; border:1px solid #647080; border-radius:2px; padding:8px 12px; background:#101c2c; }
@@ -74,7 +91,7 @@ select:focus-visible { outline:2px solid #e4d4ae; outline-offset:4px; }
 .login-enter:hover { color:#101a26; background:#eee3c9; }
 .login-enter svg { width:18px; }
 .login-back { display:block; margin:20px auto 0; font-size:12px; color:#b2c3d3; min-height:32px; }
-@media(max-width:1200px) { .radar-node { width:210px; } .radar-name { font-size:10px; letter-spacing:.13em; } .app-header { gap:16px; } .main-nav { gap:18px; } .header-actions { gap:8px; } .utility-page { padding:35px 55px; } .setting-row { gap:20px; } }
+@media(max-width:1200px) { .radar-node { width:210px; } .radar-name { font-size:10px; letter-spacing:.13em; } .app-header { gap:16px; } .main-nav { gap:18px; } .header-actions { gap:8px; } .utility-page,.signals-page { padding:35px 55px; } .setting-row { gap:20px; } .signal-filters { grid-template-columns:repeat(2,1fr); } }
 @media(max-height:760px) { .radar-node .planet { width:calc(var(--planet-size)*.8); height:calc(var(--planet-size)*.8); } .radar-node { height:176px; } .intro-emblem { width:170px; height:170px; } .demo-login { padding:27px 36px; } }
 @media(prefers-reduced-motion:reduce) { .celestial-grid,.stellar-flow,.nebula-cloud { animation:none; } }
 

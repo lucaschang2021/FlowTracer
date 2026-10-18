@@ -15,6 +15,20 @@ fn main() {
             api::users_me,
             api::radars_list,
             api::radars_create,
+            api::radars_get,
+            api::radars_update,
+            api::radars_pause,
+            api::radars_resume,
+            api::radars_delete,
+            api::sources_list,
+            api::radar_sources_list,
+            api::sources_create,
+            api::radar_sources_bind,
+            api::radar_sources_unbind,
+            api::sources_collect,
+            api::collection_runs_get,
+            api::intelligence_list,
+            api::intelligence_get,
         ])
         .run(tauri::generate_context!())
         .expect("FlowTracer could not start");

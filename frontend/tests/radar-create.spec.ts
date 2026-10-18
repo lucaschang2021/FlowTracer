@@ -18,6 +18,53 @@ const signIn = async (page: Page, email: string) => {
   await waitForStageIdle(page);
 };
 
+const installEmptyLiveBridge = async (page: Page) => {
+  await page.addInitScript(() => {
+    const user = { id: '00000000-0000-4000-8000-000000000001', email: 'person@example.com', displayName: 'Explorer', isActive: true };
+    Object.defineProperty(window, '__TAURI_INTERNALS__', { value: { invoke: async (command: string) => {
+      if (command === 'bridge_status') return { available: true, origin: 'http://127.0.0.1:8000/api/v1' };
+      if (command === 'health_ready') return { ready: true };
+      if (command === 'auth_login') return { authenticated: true, user };
+      if (command === 'users_me') return user;
+      if (command === 'radars_list') return { items: [], page: 1, pageSize: 100, total: 0 };
+      if (command === 'auth_logout') return;
+      throw Error(`Unexpected command: ${command}`);
+    } } });
+  });
+};
+
+test('create dialog traps keyboard focus and restores its trigger', async ({ page }) => {
+  await installEmptyLiveBridge(page);
+  await page.goto('/');
+  await page.getByRole('button', { name: '跳过动画' }).click();
+  await signIn(page, 'person@example.com');
+  const trigger = page.getByRole('button', { name: '新建 Radar' });
+  await trigger.click();
+  const dialog = page.getByRole('dialog', { name: '新建 Radar' });
+  const name = dialog.getByLabel('名称');
+  const close = dialog.getByRole('button', { name: '关闭新建 Radar' });
+  const submit = dialog.getByRole('button', { name: '创建 Radar' });
+  await expect(name).toBeFocused();
+  await expect(page.locator('header.app-header')).toHaveAttribute('inert', '');
+  await expect(page.locator('main.app-main')).toHaveAttribute('inert', '');
+  await expect(page.locator('footer.status-bar')).toHaveAttribute('inert', '');
+  await close.focus();
+  await page.keyboard.press('Shift+Tab');
+  await expect(submit).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(close).toBeFocused();
+  const settings = page.locator('.main-nav button').filter({ hasText: /^设置$/ });
+  await settings.focus();
+  await expect(close).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(dialog).toHaveCount(0);
+  await expect(trigger).toBeFocused();
+  await trigger.click();
+  await page.getByRole('dialog', { name: '新建 Radar' }).getByRole('button', { name: '取消' }).click();
+  await expect(trigger).toBeFocused();
+  await expect(page.locator('.page-scene')).toHaveAttribute('data-page', 'Canvas');
+});
+
 test('live Radar create preserves input on failure and inserts only confirmed UUID once', async ({ page }) => {
   await page.addInitScript(record => {
     let attempts = 0;
@@ -56,6 +103,15 @@ test('live Radar create preserves input on failure and inserts only confirmed UU
   await page.getByRole('button', { name: '创建 Radar' }).click();
   await expect.poll(() => page.evaluate(() => (window as typeof window & { __radarCreateCalls?: number }).__radarCreateCalls)).toBe(2);
   await expect(page.getByRole('button', { name: '正在创建…' })).toBeDisabled();
+  const pendingDialog = page.getByRole('dialog', { name: '新建 Radar' });
+  await page.keyboard.press('Escape');
+  await expect(pendingDialog).toBeVisible();
+  const description = pendingDialog.getByLabel('补充说明（可选）');
+  await description.focus();
+  await page.keyboard.press('Tab');
+  await expect(pendingDialog.getByLabel('名称')).toBeFocused();
+  await page.locator('.main-nav button').filter({ hasText: /^设置$/ }).focus();
+  await expect(pendingDialog.getByLabel('名称')).toBeFocused();
   await page.getByRole('dialog', { name: '新建 Radar' }).locator('form').evaluate(form => { (form as HTMLFormElement).requestSubmit(); });
   await expect.poll(() => page.evaluate(() => (window as typeof window & { __radarCreateCalls?: number }).__radarCreateCalls)).toBe(2);
   await page.evaluate(() => (window as typeof window & { __releaseRadarCreate?: () => void }).__releaseRadarCreate?.());
@@ -97,16 +153,13 @@ test('account switch fences a late create response from the new session', async 
   await page.getByRole('dialog', { name: '新建 Radar' }).getByLabel('目标').fill('Must remain in old session');
   await page.getByRole('button', { name: '创建 Radar' }).click();
   await expect.poll(() => page.evaluate(() => (window as typeof window & { __radarCreateCalls?: number }).__radarCreateCalls)).toBe(1);
-  const settings = page.getByRole('button', { name: '设置' });
-  await settings.focus();
-  await expect(settings).toBeFocused();
-  await page.keyboard.press('Enter');
+  // Test-only lifecycle fault injection: dispatch React's existing navigation and
+  // sign-out handlers without treating inert background UI as a user-operable path.
+  await page.locator('.main-nav button').filter({ hasText: /^设置$/ }).dispatchEvent('click');
   await expect(page.locator('.page-scene')).toHaveAttribute('data-page', 'Settings');
   await expect(page.locator('.page-scene')).toHaveAttribute('data-motion', 'idle');
-  const signOut = page.getByRole('button', { name: '退出登录' }).first();
-  await signOut.focus();
-  await expect(signOut).toBeFocused();
-  await page.keyboard.press('Enter');
+  const signOut = page.locator('.settings-list button').filter({ hasText: /^退出登录$/ }).first();
+  await signOut.dispatchEvent('click');
   await expect(page.getByRole('heading', { name: '欢迎回来。' })).toBeVisible();
   await signIn(page, 'second@example.com');
   await page.evaluate(() => (window as typeof window & { __releaseRadarCreate?: () => void }).__releaseRadarCreate?.());

@@ -7,8 +7,9 @@ import { DEMO_GALAXY } from './demo';
 import { Planet } from './Planet';
 import { fitView, keepInView, movePoint, normalizedWheel, zoomAt } from './model';
 import type { Point, Size, UniverseRadar, View } from './model';
+import type { RadarLifecycleAction } from '../radars/RadarActionPanel';
 
-type Props = { mode: 'live' | 'demo'; radars: UniverseRadar[]; onChange: (radars: UniverseRadar[]) => void; onLoadDemo?: () => void };
+type Props = { mode: 'live' | 'demo'; radars: UniverseRadar[]; onChange: (radars: UniverseRadar[]) => void; onLoadDemo?: () => void; onEditRadar?: (id: string, trigger: HTMLButtonElement) => void; onLifecycleRadar?: (id: string, name: string, action: RadarLifecycleAction, trigger: HTMLButtonElement) => void; onSourcesRadar?: (id: string, name: string, trigger: HTMLButtonElement) => void };
 type Gesture = { pointerId: number; start: Point; view: View; radar?: UniverseRadar; moved: boolean; element?: HTMLButtonElement };
 const PANEL_WIDTH = 370;
 const typeLabels = { academic: '学术', business: '商业', technology: '技术', policy: '政策', market: '市场', custom: '自定义', opportunity: '机会', competitive: '竞争' };
@@ -22,7 +23,7 @@ const descriptions: Record<string, string> = {
 };
 const interactive = (target: EventTarget | null) => target instanceof Element && !!target.closest('button, input, a, select, textarea, [data-ui]');
 
-export function Universe({ mode, radars, onChange, onLoadDemo }: Props) {
+export function Universe({ mode, radars, onChange, onLoadDemo, onEditRadar, onLifecycleRadar, onSourcesRadar }: Props) {
   const { t } = usePreferences();
   const reduced = useReducedMotion();
   const [projecting, setProjecting] = useState(!reduced);
@@ -46,6 +47,7 @@ export function Universe({ mode, radars, onChange, onLoadDemo }: Props) {
   const [announcement, setAnnouncement] = useState(mode === 'demo' ? t('离线演示已载入。', 'Offline demo loaded.') : t('真实 Radar 星图已载入。', 'Live Radar map loaded.'));
   const selectedRadar = radars.find(r => r.id === selected);
   const galaxySelected = mode === 'demo' && selected === DEMO_GALAXY.id;
+  useEffect(() => { if (selected && !galaxySelected && !selectedRadar) setSelected(null); }, [galaxySelected, selected, selectedRadar]);
   const latest = useRef({ radars, selected, onChange });
   latest.current = { radars, selected, onChange };
 
@@ -195,6 +197,11 @@ export function Universe({ mode, radars, onChange, onLoadDemo }: Props) {
       {galaxySelected ? <section className="galaxy-members"><h3>{t('星系结构', 'GALAXY STRUCTURE')}</h3>{radars.filter(r => DEMO_GALAXY.members.some(id => id === r.id)).map(radar => <button key={radar.id} onClick={() => select(radar.id)}><span>✧ {radar.name}</span><small>{t(typeLabels[radar.type], radar.type.toUpperCase())} · RADAR</small><Icon name="arrow"/></button>)}</section> : selectedRadar && <div className="radar-detail-art"><Planet id={`detail-${selectedRadar.id}`} color={selectedRadar.color}/><span className="status-label">{t(selectedRadar.status === 'active' ? '活跃' : selectedRadar.status === 'paused' ? '已暂停' : '已归档', selectedRadar.status.toUpperCase())} · {mode === 'demo' ? t('演示', 'DEMO') : t('真实', 'LIVE')}</span></div>}
       <p className="scope-note">{galaxySelected ? t('仅展示分组结构；重命名、解散与持久化尚未接入。', 'Structure preview only. Rename, disband and persistence are not connected.') : mode === 'demo' ? t('示例状态，不代表真实采集任务。可拖动行星；键盘聚焦行星后按 Alt + 方向键移动。', 'Demo status, not a real collection task. Drag planets or focus one and use Alt + arrows.') : t('Radar 来自真实本机 API；除创建外的 CRUD、Source、采集和 Signals 将由后续 lease 接入。', 'Radar data comes from the local API. CRUD beyond creation, Sources, collection and Signals require later leases.')}<br/>{t('所有布局变动仅保留于当前会话。', 'Layout changes last only for this session.')}</p>
       <button className="text-button panel-fit" onClick={fit}><Icon name="fit"/>{t('适配全部行星', 'Fit all planets')}</button>
+      {mode === 'live' && selectedRadar && <button className="text-button" onClick={event => onSourcesRadar?.(selectedRadar.id, selectedRadar.name, event.currentTarget)}>{t('来源与采集', 'Sources and collection')}</button>}
+      {mode === 'live' && selectedRadar && <button className="text-button" onClick={event => onEditRadar?.(selectedRadar.id, event.currentTarget)}>{t('编辑 Radar', 'Edit Radar')}</button>}
+      {mode === 'live' && selectedRadar?.status === 'active' && <button data-lifecycle-action="pause" className="text-button" onClick={event => onLifecycleRadar?.(selectedRadar.id, selectedRadar.name, 'pause', event.currentTarget)}>{t('暂停 Radar', 'Pause Radar')}</button>}
+      {mode === 'live' && selectedRadar?.status === 'paused' && <button data-lifecycle-action="resume" className="text-button" onClick={event => onLifecycleRadar?.(selectedRadar.id, selectedRadar.name, 'resume', event.currentTarget)}>{t('恢复 Radar', 'Resume Radar')}</button>}
+      {mode === 'live' && selectedRadar && <button data-lifecycle-action="delete" className="text-button" onClick={event => onLifecycleRadar?.(selectedRadar.id, selectedRadar.name, 'delete', event.currentTarget)}>{t('移除 Radar', 'Remove Radar')}</button>}
     </aside>}
     <div className="canvas-help" data-ui><p>{t('拖动行星 · 滚轮缩放 · 空格 + 拖动平移', 'Drag planets · Scroll to zoom · Space + drag to pan')}</p><p>{t('Tab / Enter 查看 · Alt + 方向键移动行星 · F 适配', 'Tab / Enter to inspect · Alt + arrows to move · F to fit')}</p></div>
     <div className="zoom-controls" data-ui aria-label={t('画布缩放', 'Canvas zoom')}><button aria-label={t('缩小星图', 'Zoom out')} onClick={() => updateView(zoomAt(view.current, { x: size.current.width / 2, y: size.current.height / 2 }, 1 / 1.2))}><Icon name="minus"/></button><output ref={zoomLabel} aria-label={t('当前缩放', 'Current zoom')}>100%</output><button aria-label={t('放大星图', 'Zoom in')} onClick={() => updateView(zoomAt(view.current, { x: size.current.width / 2, y: size.current.height / 2 }, 1.2))}><Icon name="plus"/></button><button aria-label={t('适配全部行星', 'Fit all planets')} title={t('适配全部行星（F）', 'Fit all planets (F)')} onClick={fit}><Icon name="fit"/></button></div>

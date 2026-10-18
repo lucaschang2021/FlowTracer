@@ -6,7 +6,7 @@
 
 **当前阶段：Backend READY_FOR_FRONTEND；FE-G2 AUTH-01 已取得定向证据，仍是本地候选**
 
-Backend Alpha Core、Architecture Governance Pass、WP1/WP2 与 ACQ-1 收口 Phase 0-5 已完成；已合并 Backend/main 为 `fc180a1d2eba32935fba6ee6c128f9b2d7015574`。本地 Frontend 基线 `24e2ebd14ac559ae9251424f30a4295f3006e0a0` 以该 Backend 为父提交，未 push、未 merge；其上 `AUTH-01` 为 branch-local 真实接口候选，已有隔离原生链路与开发侧定向测试证据，但尚未完成 FE-G2 产品验收。R3 BLOCKED、Browser dynamic disabled；R4/R5、正式 Browser、INT-001、REL-001 未准入。PLUGIN-1 为 POST-v0.1 / deferred，不构成 Frontend 前置依赖。
+Backend Alpha Core、Architecture Governance Pass、WP1/WP2 与 ACQ-1 收口 Phase 0-5 已完成；Backend/main 产品基线为 `fc180a1d2eba32935fba6ee6c128f9b2d7015574`。Frontend 的 Radar 创建已形成 branch-local commit `9930cb806cbf6923e53212659d1c661d3945f011`，其上 focus/edit/lifecycle/Source/Signals 候选已定向验证但未提交；均未 push、未 merge，不代表 main。只有创建具有隔离真实 native 证据，edit/lifecycle/Source/Signals 尚无本轮 native 证据，FE-G2 产品验收未完成。R3 BLOCKED、Browser dynamic disabled；R4/R5、正式 Browser、INT-001、REL-001 未准入。PLUGIN-1 为 POST-v0.1 / deferred，不构成 Frontend 前置依赖。
 
 本次来源基准：`main@1c7b15a7a285cd183a94ddca460f023163700a4c`（PR #85 merge）；新控制 PR 合并后 main 是其后代。现行合同 [GOVERNANCE-V2 §12](GOVERNANCE-V2.md#12-governance-v21--live-authority--in-flight-task-control)、§11.6/§11.7 与 [CURRENT-GATE](CURRENT-GATE.md) 优先，历史行不提供执行权。PR #79 DO NOT MERGE；本修订不处理其共享状态。
 
@@ -88,7 +88,7 @@ Backend Alpha Core、Architecture Governance Pass、WP1/WP2 与 ACQ-1 收口 Pha
 | PLUGIN-1 | 后续插件工作包 | 待定 | **POST-v0.1 / deferred** | 不在 Alpha v0.1 关键路径；不阻塞 FE-001 | 尚无正式准入或架构基线；不得视为已实现 |
 | FE-001 | 前端产品阶段 | Frontend | 进行中；未完成产品验收 | Backend `fc180a1` READY_FOR_FRONTEND；G1/G2 分阶段授权 | G1/G2 证据汇总后另行产品验收；不自动进入 INT-001 |
 | FE-001-G1 | 桌面 UI 骨架与用户确认视觉 | Frontend | 本地候选已独立验收；未 push/未 merge | Backend `fc180a1` | local `24e2ebd`；source/scope、typecheck、13 unit、web build、13 UI E2E；后续 G2 原生证据不回填为 G1 独立复跑 |
-| FE-001-G2 | 真实 API 接入 | Frontend | `551d29f` 本地 AUTH/视觉 checkpoint + dirty Radar 创建候选；创建/重登定向 PASS，产品验收未完成 | `24e2ebd` + 冻结 Handoff/OpenAPI | typed native `POST /radars`；Rust 9/9、Web 4/4；隔离 `_test` 单次创建 201、DB owner 一致、退出重登仍可见且资源已清理。编辑/删除/暂停恢复、Source/collect/Signals/G3 未完成；墨水消散中间帧仍缺，非完整视觉 PASS。P2：`aria-modal` 创建面板未限制背景键盘焦点，待收口且 session-race 测试不得依赖该泄漏；INT-001/REL-001 未准入；[准入边界](FE-001-G2-ADMISSION.md) |
+| FE-001-G2 | 真实 API 接入 | Frontend | `9930cb8` branch-local 创建 checkpoint + 未提交 focus/edit/lifecycle/Source/Signals 候选；定向通过，产品验收未完成 | `24e2ebd` + 冻结 Handoff/OpenAPI | 已实现 Radar CRUD、RSS/URL Source create/bind/unbind/pagination/collect+run poll、Signals list/detail/filter/page/reset。分批证据：Rust 20/20、Signals Edge 4 项、Radar Edge 8/8、既有 focus 5/5、Source 5/5、typecheck/build；非单次全套 suite。仅创建有隔离 native 201/owner/重登；edit/lifecycle/Source/Signals 无本轮 native 证据。edit P2 与 poll/intent 风险定向关闭；HTTP 不可 true abort，但 generation 阻止迟到回写/续 timer。G3 与墨水中间帧仍缺；INT-001/REL-001 未准入；[准入边界](FE-001-G2-ADMISSION.md) |
 | INT-001 | 集成与缺陷修复 | Integration | 未准入 | ACQ-1、FE-001 | E2E 报告与缺陷闭环 |
 | REL-001 | GitHub Alpha 发布 | Release | 未准入 | INT-001 | 仓库、CI、Tag、Release |
 

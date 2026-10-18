@@ -2,27 +2,34 @@
 
 Tauri 2 + React 19 + TypeScript desktop client. AUTH-01 adds a restricted native
 HTTP bridge for local readiness, register/login/logout/refresh, `users/me`, Radar
-listing and the current branch-local Radar-create candidate. Access and Refresh
+create/read/edit/pause/resume/delete, and RSS/URL Source create/bind/unbind,
+pagination, collect and CollectionRun polling. Radar creation is checkpointed;
+focus/edit/lifecycle/Source remain verified but uncommitted candidates. Access and Refresh
 Tokens remain in native process memory and are never returned to the WebView. The
 default path is real local mode; the G1 fixture universe remains available only
 through an explicit, continuously labeled Demo entry. Backend code and frozen
 contracts are unchanged.
 
-The local AUTH/visual checkpoint is
-`551d29f54aa530b6a9fc2329358c1861b42c24a5` (not pushed), with the current dirty
-Radar-create candidate layered above it. Its typed native `POST /api/v1/radars`
-path has Rust `api::tests` 9/9 and targeted Web coverage 4/4. One isolated native
+The local Radar-create checkpoint is
+`9930cb806cbf6923e53212659d1c661d3945f011` (not pushed or merged), with verified
+but uncommitted focus-boundary, Radar-edit/lifecycle and Source candidates layered above it. The
+typed native `POST /api/v1/radars` path has Rust `api::tests` 9/9 and targeted Web
+coverage 4/4. One isolated native
 creation returned 201, matched its database owner, and remained visible after
 logout and a second login; its dedicated resources were cleaned up. This is a
 bounded create/re-login result, not FE-G2 product acceptance.
 
-Radar edit/delete/pause/resume, Sources, collection and Signals remain
-unimplemented. Memory, Opportunity features and Galaxy persistence remain G3.
+Current evidence was collected in distinct targeted sets rather than one full-suite run:
+Rust `api::tests` 20/20, Signals Edge 4 cases, Radar lifecycle+edit Edge 8/8,
+existing focus Edge 5/5, Source repair Edge 5/5, and corresponding typecheck/Web
+builds. Radar edit/lifecycle, Source and Signals have no real native/API evidence and
+are not native PASSes. The two edit P2s and the poll overwrite/revival and intent-key
+risks are closed in targeted Web scope. Underlying HTTP requests cannot be truly
+aborted, but disposal/session generation prevents late writeback and timer revival.
+Memory, Opportunity features and Galaxy persistence remain G3.
 Native visual evidence still lacks the ink-dissolve intermediate frame, so the
-visual path is not a full PASS. Accessibility debt remains P2: RadarCreatePanel
-declares `aria-modal`, but background navigation can still receive keyboard focus;
-future work must enforce a focus boundary and remove that dependency from the
-session-race test. This is not classified as a P1 data-security defect. Browser
+visual path is not a full PASS. The create dialog focus-boundary candidate passed
+Edge 5/5 and closes its previously recorded focus-leak P2. Browser
 preview cannot use the native bridge and never substitutes a dev proxy or CORS
 change. INT-001 and Release remain unadmitted.
 
@@ -59,8 +66,9 @@ serde_json/tokio set. No global installs are needed.
 - System reduced-motion preferences are respected. No perpetual animation loop.
 - Header reset restores the demo. Changes are session-only and disappear on reload.
 
-G2 authentication / real Radar data and G3 grouping / persistence are deliberately
-not implemented. The empty demo loads fixtures; it does not create backend records.
+G2 authentication and partial real Radar data are branch-local candidates, not a
+completed product stage. G3 grouping / persistence are deliberately not implemented.
+The empty demo loads fixtures; it does not create backend records.
 
 ## Architecture and original assets
 

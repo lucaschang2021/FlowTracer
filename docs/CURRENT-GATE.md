@@ -1,15 +1,15 @@
 # FlowTracer 当前阶段闸门
 
-更新时间：2026-10-16（FE-001-G2 Radar 创建候选证据同步）。
+更新时间：2026-10-16（FE-001-G2 Radar/Source 当前候选证据同步）。
 
 ## 当前状态：Backend READY_FOR_FRONTEND；FE-G2 AUTH-01 定向证据已取得，仍待产品验收
 
-- 已合并 Backend/main 与本地 `origin/main`：`fc180a1d2eba32935fba6ee6c128f9b2d7015574`。Frontend 基线 `24e2ebd14ac559ae9251424f30a4295f3006e0a0` 的父提交即该 Backend 基线，tree 为 `e867861769f29d3a88c27b6dd45b9d2163fe95fd`；其上的本地 AUTH/视觉 checkpoint 为 `551d29f54aa530b6a9fc2329358c1861b42c24a5`，未 push、未 merge，当前另叠加未提交 Radar 创建候选。
+- 已合并 Backend/main 产品基线：`fc180a1d2eba32935fba6ee6c128f9b2d7015574`。Frontend 基线 `24e2ebd14ac559ae9251424f30a4295f3006e0a0` 的父提交即该 Backend 基线，tree 为 `e867861769f29d3a88c27b6dd45b9d2163fe95fd`；本地 AUTH/视觉 checkpoint 为 `551d29f54aa530b6a9fc2329358c1861b42c24a5`，其上的 Radar 创建已形成 branch-local commit `9930cb806cbf6923e53212659d1c661d3945f011`。该提交未 push、未 merge；当前另叠加已验证但未提交的焦点、编辑、生命周期与 Source/collect 候选，不得冒充 main 状态。
 - Backend **READY_FOR_FRONTEND** 只表示 Static/Native Alpha v0.1 后端交接就绪。FE-G1 骨架已独立验收；总控在 2026-10-13 对 `24e2...` 完成 source/scope、typecheck、13 unit、web build 与 13 UI E2E 检查。后续 G2 原生链路证据与新版视觉验收分别记录，不回填为 G1 基线的独立原生复跑。
-- [FE-001-G2 准入](FE-001-G2-ADMISSION.md)冻结真实接口接入范围、安全边界和验证门槛。当前 dirty Radar 创建候选以 typed native `POST /api/v1/radars` 接入：Rust `api::tests` 9/9 与 Web 定向创建覆盖 4/4 已通过；隔离 `_test` 原生路径仅创建一次并取得 201，DB owner 一致，退出后二次登录仍可见同一 Radar，专属资源已清理。该 `NATIVE_RADAR_CREATE_PASS` 只覆盖创建/重登路径；Radar 编辑、删除、暂停/恢复、Source、collect、Signals 与 G3 均未完成。新版视觉已有原生界面证据，但约 1.05 秒墨水消散的中间帧仍未捕捉，不能写为完整视觉 PASS。另保留 P2 可访问性债务：`RadarCreatePanel` 声明 `aria-modal`，但背景导航仍可经键盘聚焦；后续须实现焦点边界，并使 session-race 测试不依赖该泄漏。此项不是 P1 数据安全缺陷，FE-G2 产品验收仍未完成。
+- [FE-001-G2 准入](FE-001-G2-ADMISSION.md)冻结真实接口接入范围、安全边界和验证门槛。当前本地候选已实现 Radar CRUD、Source 绑定/分页/collect poll、Signals 列表/详情；分批定向证据为 Rust `api::tests` 20/20、Signals Edge 4 项、Radar lifecycle+edit Edge 8/8、既有 focus Edge 5/5、Source Edge 5/5，以及 typecheck/Web build，不能写成一次全套 suite。创建具有隔离 `_test` 原生单次创建/owner/重登证据；edit/lifecycle/Source/Signals 尚无本轮真实 native/API 证据。两个 edit P2、poll generation/intent 风险已在定向范围关闭；底层 HTTP 仍不能 true abort，但 disposed/generation 围栏阻止迟到回写和续 timer。G3 未开始，约 1.05 秒墨水消散中间帧仍缺；完整 FE-G2 产品验收尚未完成。
 - 仍禁用/阻塞：Dynamic/Advanced Browser **disabled**（`BROWSER_DYNAMIC_ENABLED=False`，`allow_browser=True` fail-closed）；R3 真实执行为 **BLOCKED**，须另签 B 阶段 lease；R4/R5 未准入。R3 离线增量位于分支 `feat/acq1-r3-fail-closed-offline`（docs/54/55/56/59 在该分支，**未合并**）。
 - 阶段分离：FE-G2 operation admission 不等于 FE-001 产品验收。Integration（INT-001）与 Release（REL-001）仍未准入；PLUGIN-1 为 **POST-v0.1 / deferred**，不构成 Frontend 前置条件。
-- 执行权：`FE-001-G2-AUTH-01` 及其已完成的定向验证/会话修复 lease 均已停点；本状态记录不授权 Radar CRUD、Source、采集、Signals、commit/push/PR/merge 或下一阶段。下一操作须按 `GOVERNANCE-V2 §12` 另签。
+- 执行权：AUTH、Radar、Source/collect 与轮询修复 lease 均已停点；本状态记录不授权继续修改、原生验证、Signals、commit/push/PR/merge 或下一阶段。下一操作须按 `GOVERNANCE-V2 §12` 另签。
 - 能力与证据指针：`docs/68-ACQ1-CAPABILITY-MANIFEST.md`（I1 能力清单）、`docs/69`（阶段报告）、`docs/70`（交付包说明书）、`docs/71`（收口计划）。
 
 ## 历史操作记录（以下不提供 live authority）

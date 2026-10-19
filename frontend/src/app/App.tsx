@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { desktopApi, errorMessage, isDesktopBridge } from '../api/desktop';
 import type { BridgeError, CollectionRun, CollectionQueued, IntelligenceDetail, IntelligencePage, IntelligenceQuery, RadarCreateInput, RadarRecord, RadarUpdateInput, SourceCreateInput, SourcePage, SourceRecord, User } from '../api/desktop';
 import { mapRadarPage, toUniverseRadar } from '../api/models';
@@ -139,20 +139,36 @@ function Workspace({ mode, radars, setRadars, user, bridge, onLeave, onReplay, o
   const [editId, setEditId] = useState<string | null>(null);
   const [radarAction, setRadarAction] = useState<{ id: string; name: string; action: RadarLifecycleAction } | null>(null);
   const [sourceRadar, setSourceRadar] = useState<{id:string;name:string}|null>(null);
+  const workspace = useRef<HTMLDivElement>(null);
   const guideButton = useRef<HTMLButtonElement>(null);
   const editTrigger = useRef<HTMLButtonElement | null>(null);
   const actionTrigger = useRef<HTMLButtonElement | null>(null);
+  const pendingActionFocus = useRef<{ action: RadarLifecycleAction | null; completed: boolean; trigger: HTMLButtonElement | null } | null>(null);
   const sourceTrigger = useRef<HTMLButtonElement | null>(null);
   const closeGuide = () => { setShowGuide(false); requestAnimationFrame(() => guideButton.current?.focus()); };
   const closeCreate = () => { setShowCreate(false); requestAnimationFrame(() => guideButton.current?.focus()); };
   const closeEdit = () => { setEditId(null); requestAnimationFrame(() => editTrigger.current?.focus()); };
   const openEdit = (id: string, trigger: HTMLButtonElement) => { editTrigger.current = trigger; setEditId(id); };
-  const closeAction = (completed = false) => { const action = radarAction?.action; setRadarAction(null); requestAnimationFrame(() => { if (completed && action === 'delete') document.querySelector<HTMLElement>('[data-testid="universe"]')?.focus(); else if (completed && action) document.querySelector<HTMLElement>(`[data-lifecycle-action="${action === 'pause' ? 'resume' : 'pause'}"]`)?.focus(); else actionTrigger.current?.focus(); }); };
+  const closeAction = (completed = false) => { pendingActionFocus.current = { action: radarAction?.action ?? null, completed, trigger: actionTrigger.current }; setRadarAction(null); };
   const openAction = (id: string, name: string, action: RadarLifecycleAction, trigger: HTMLButtonElement) => { actionTrigger.current = trigger; setRadarAction({ id, name, action }); };
+  useLayoutEffect(() => {
+    const pending = pendingActionFocus.current;
+    const root = workspace.current;
+    if (radarAction || !pending || !root) return;
+    const target = pending.completed && pending.action === 'delete'
+      ? root.querySelector<HTMLElement>('[data-testid="universe"]')
+      : pending.completed && pending.action
+        ? root.querySelector<HTMLElement>(`[data-lifecycle-action="${pending.action === 'pause' ? 'resume' : 'pause'}"]`)
+        : pending.trigger;
+    if (!target || target.closest('[inert]')) return;
+    pendingActionFocus.current = null;
+    target.focus({ preventScroll: true });
+  }, [radarAction, radars]);
+  useLayoutEffect(() => () => { pendingActionFocus.current = null; }, []);
   const openSources=(id:string,name:string,trigger:HTMLButtonElement)=>{sourceTrigger.current=trigger;setSourceRadar({id,name});}; const closeSources=()=>{setSourceRadar(null);requestAnimationFrame(()=>sourceTrigger.current?.focus());};
   const reset = () => { setRadars(freshDemo()); setResetKey(n => n + 1); setPage('Canvas'); };
   const demo = mode === 'demo';
-  return <div className="app-shell" data-mode={mode}>
+  return <div ref={workspace} className="app-shell" data-mode={mode}>
     <header className="app-header" inert={showGuide || showCreate || !!editId || !!radarAction || !!sourceRadar}>
       <a className="brand" href="#canvas" onClick={e => { e.preventDefault(); setPage('Canvas'); }} aria-label={t('FlowTracer，返回星图', 'FlowTracer, return to star map')}>
         <span className="brand-mark" aria-hidden="true"><svg viewBox="0 0 56 56"><circle cx="28" cy="28" r="21"/><circle cx="28" cy="28" r="26" opacity=".2"/><path d="M28 0v56M0 28h56" opacity=".35"/><path className="brand-star" d="M28 15Q30 26 40 28Q30 30 28 41Q26 30 16 28Q26 26 28 15"/></svg></span>

@@ -1,37 +1,60 @@
-# FlowTracer desktop · G2 AUTH-01
+# FlowTracer Alpha v0.1 desktop · G2 candidate
 
 Tauri 2 + React 19 + TypeScript desktop client. AUTH-01 adds a restricted native
 HTTP bridge for local readiness, register/login/logout/refresh, `users/me`, Radar
 create/read/edit/pause/resume/delete, and RSS/URL Source create/bind/unbind,
-pagination, collect and CollectionRun polling. Radar creation is checkpointed;
-focus/edit/lifecycle/Source remain verified but uncommitted candidates. Access and Refresh
+pagination, collect and CollectionRun polling, plus Signals list/detail/filtering.
+Access and Refresh
 Tokens remain in native process memory and are never returned to the WebView. The
 default path is real local mode; the G1 fixture universe remains available only
 through an explicit, continuously labeled Demo entry. Backend code and frozen
 contracts are unchanged.
 
-The local Radar-create checkpoint is
-`9930cb806cbf6923e53212659d1c661d3945f011` (not pushed or merged), with verified
-but uncommitted focus-boundary, Radar-edit/lifecycle and Source candidates layered above it. The
-typed native `POST /api/v1/radars` path has Rust `api::tests` 9/9 and targeted Web
-coverage 4/4. One isolated native
-creation returned 201, matched its database owner, and remained visible after
-logout and a second login; its dedicated resources were cleaned up. This is a
-bounded create/re-login result, not FE-G2 product acceptance.
+Current local branch: `feat/fe-001-g2-api`. Exact code candidate:
+`74059db8d9c5f2e62e027f89c6b5b8f4d9cf49bb` (status documentation may follow in a
+separate commit). CollectionRun wire, background motion/pointer and CAMERA53 are
+committed locally. No push or merge.
+The exact current scope and named evidence are in
+[G2 admission](../docs/FE-001-G2-ADMISSION.md) and
+[Current Gate](../docs/CURRENT-GATE.md); historical records below do not grant authority.
 
-Current evidence was collected in distinct targeted sets rather than one full-suite run:
-Rust `api::tests` 20/20, Signals Edge 4 cases, Radar lifecycle+edit Edge 8/8,
-existing focus Edge 5/5, Source repair Edge 5/5, and corresponding typecheck/Web
-builds. Radar edit/lifecycle, Source and Signals have no real native/API evidence and
-are not native PASSes. The two edit P2s and the poll overwrite/revival and intent-key
-risks are closed in targeted Web scope. Underlying HTTP requests cannot be truly
-aborted, but disposal/session generation prevents late writeback and timer revival.
-Memory, Opportunity features and Galaxy persistence remain G3.
-Native visual evidence still lacks the ink-dissolve intermediate frame, so the
-visual path is not a full PASS. The create dialog focus-boundary candidate passed
-Edge 5/5 and closes its previously recorded focus-leak P2. Browser
-preview cannot use the native bridge and never substitutes a dev proxy or CORS
-change. INT-001 and Release remain unadmitted.
+VERIFY62 on `755ba90205a1b13f8215e32c620efe941535bffb` passed all 45 Web UI
+tests in one run (4.1m, zero retries). VERIFY59 on its parent had 10 passed,
+1 failed and 34 not run because one older entry test expected 230s instead of the
+approved 120s rotation; the single expectation fix passed before VERIFY62.
+TypeScript, 15 unit tests, 20 native-bridge Rust tests and locked/offline desktop
+build passed on `670c61d`. The final code candidate changes only Vitest and its dev
+lock chain from `755ba90`; VERIFY67 passed 15 unit tests on Vitest 4.1.11,
+typecheck/build, and full plus production-only npm audits (both zero findings).
+Production dependency versions/integrities are unchanged; tinypool was removed.
+No automatic audit-fix/force or install scripts were used. Real native
+evidence separately includes isolated authentication and Radar operations plus FLOW31's
+Source binding → collect → successful run polling → Signals list/detail path.
+It uses a guarded offline fetcher and Fake AI, not live Internet collection or
+proof of every worker, ownership, failure and lifecycle branch.
+
+The latest locked/offline debug package includes background-pointer and CAMERA53;
+SHA-256: `AC2A2361B02A7BBFC053C27F0AA647F26E9EFBAC809A013FE74BDB41103ACD14`.
+It was built in VERIFY59, not launched for another native/auth test. Older
+PACKAGE42 was used for the native pause/resume/keyboard evidence. Web tests quantify
+pointer offsets and camera behavior; neither is claimed as new full native
+acceptance. No test database or credentials are required to view explicit Demo.
+
+Underlying HTTP requests cannot be truly aborted, but disposal/session generation
+prevents late writeback and timer revival. Native51 has verified pause/resume,
+keyboard selection/cancellation and logical focus restoration against the isolated
+Backend and database; its temporary resources have been cleaned up. A small
+first-Radar camera visibility fix (CAMERA53) is now included in the package and
+VERIFY62. REVIEW57 closed its regression-precondition finding. SECURITY-CLOSURE69
+independently confirmed the dependency P1 closed and accepted the unchanged
+UI/Rust/native evidence. DOC70 identity/reference checks passed. The code candidate
+is READY_FOR_G2_PRODUCT_REVIEW, not G2 product acceptance.
+Memory, Opportunity pages and Galaxy
+persistence remain unimplemented G3 scope. Browser acquisition stays disabled;
+PLUGIN-1 is deferred and does not block frontend. Browser preview cannot use the
+native bridge and never substitutes a dev proxy or CORS change. G2 product
+acceptance, G3, INT-001 and Release remain unadmitted. Tutorials follow software
+completion; no new onboarding flow is implemented here.
 
 ## Start on Windows
 
@@ -52,7 +75,7 @@ Dependencies are pinned in `package.json` / `package-lock.json`, and
 `@tauri-apps/api`; direct Rust additions are the approved minimal reqwest/serde/
 serde_json/tokio set. No global installs are needed.
 
-## G1 interactions
+## Current interactions
 
 - Click a planet to open its detail panel; Escape / close returns focus to it.
 - Drag a planet; a 5-pixel threshold prevents accidental click selection.
@@ -61,12 +84,16 @@ serde_json/tokio set. No global installs are needed.
 - Focus the canvas and hold Space + drag to pan; arrow keys also pan; F fits all.
 - Tab + Enter selects a planet; Alt + arrow keys moves the focused planet.
 - The dashed Galaxy is a **static example structure**, not saved user grouping.
-- Navigation switches between the Canvas and clearly labeled G1 placeholder
-  pages. Settings exposes reduced motion and empty-canvas demonstration.
-- System reduced-motion preferences are respected. No perpetual animation loop.
+- Signals reads the live account's list/detail in real mode; Memory and
+  Opportunity remain explicit placeholders. Demo never substitutes real data.
+- The shared startup/login/workspace background retains slow grid rotation and
+  subtle mouse-follow parallax. Foreground controls and Radar coordinates do not
+  follow the pointer. Quiet/system reduced motion disables decorative movement;
+  leaving the window, blur and dragging reset pointer offsets. Hidden-window
+  canvas work is paused and listeners/animation frames are cleaned up.
 - Header reset restores the demo. Changes are session-only and disappear on reload.
 
-G2 authentication and partial real Radar data are branch-local candidates, not a
+G2 authentication, Radar, Source/collection and Signals are branch-local candidates, not a
 completed product stage. G3 grouping / persistence are deliberately not implemented.
 The empty demo loads fixtures; it does not create backend records.
 
@@ -78,8 +105,8 @@ with requestAnimationFrame; dragging does not re-render the whole React app ever
 frame. React receives node positions at the end of a drag. ResizeObserver fits
 the viewport. Listeners and animation frames are cleaned up on unmount.
 
-Planet textures, stars and the compass mark are original lightweight SVG/CSS,
-with no external images/fonts or copied game artwork. The main canvas is DOM/SVG
+Planet textures, stars and the compass mark use lightweight SVG/CSS; the approved
+background artwork is packaged locally. The main canvas is DOM/SVG
 and remains sharp at desktop display scaling. Native icons derive from
 `src/assets/app-icon.svg` using the installed Tauri icon command.
 
@@ -117,6 +144,12 @@ traces are generated under ignored `test-results/`; report under
 Passing web tests alone does not prove native startup. The desktop executable
 must additionally be launched and checked in WebView2. No installer/signing,
 release, real-backend integration or full Alpha acceptance is claimed by G1.
+
+## Historical verification checkpoints
+
+The following entries preserve their original scope, failures and at-the-time
+status. Use the current overview and named G2 admission checkpoints above for
+the latest candidate; do not interpret historical pending statements as live gates.
 
 ## G1 verification checkpoint
 

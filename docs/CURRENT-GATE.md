@@ -1,15 +1,24 @@
 # FlowTracer 当前阶段闸门
 
-更新时间：2026-10-19（FE-001-G2 本地 checkpoint 与 lifecycle focus 修复证据同步）。
+更新时间：2026-10-20（FE-001-G2 当前本地候选、真实原生证据与桌面包摘要同步）。
 
-## 当前状态：Backend READY_FOR_FRONTEND；FE-G2 本地候选已形成 checkpoint，仍待产品验收
+## 当前状态：Backend READY_FOR_FRONTEND；FE-G2 代码 READY_FOR_G2_PRODUCT_REVIEW（未产品验收）
 
-- 已合并 Backend/main 产品基线：`fc180a1d2eba32935fba6ee6c128f9b2d7015574`。Frontend 基线 `24e2ebd14ac559ae9251424f30a4295f3006e0a0` 的父提交即该 Backend 基线，tree 为 `e867861769f29d3a88c27b6dd45b9d2163fe95fd`；本地 AUTH/视觉 checkpoint 为 `551d29f54aa530b6a9fc2329358c1861b42c24a5`，Radar 创建 checkpoint 为 `9930cb806cbf6923e53212659d1c661d3945f011`。当前 branch-local commit `50a14f52932fabd108cd6b2d81933f562773507f` 已承载 Radar CRUD、Source/collect 与 Signals 候选；其后仅叠加已定向验证但尚未提交的 lifecycle close-focus 最小修复。以上均未 push、未 merge，不得冒充 main 状态。
+- 已核实合并的 Backend 产品基线为 `fc180a1d2eba32935fba6ee6c128f9b2d7015574`；本轮未核验或声明当前远端 SHA。G1 基线为 `24e2ebd14ac559ae9251424f30a4295f3006e0a0`。当前本地代码候选 `feat/fe-001-g2-api@74059db8d9c5f2e62e027f89c6b5b8f4d9cf49bb`，已包含 wire27、motion30、pointer39、CAMERA53/56 与测试工具安全修复；现状文档可作后续独立提交，不混作代码验证 SHA。未 push、未 merge，不得冒充 main/远端。
 - Backend **READY_FOR_FRONTEND** 只表示 Static/Native Alpha v0.1 后端交接就绪。FE-G1 骨架已独立验收；总控在 2026-10-13 对 `24e2...` 完成 source/scope、typecheck、13 unit、web build 与 13 UI E2E 检查。后续 G2 原生链路证据与新版视觉验收分别记录，不回填为 G1 基线的独立原生复跑。
-- [FE-001-G2 准入](FE-001-G2-ADMISSION.md)冻结真实接口接入范围、安全边界和验证门槛。当前本地候选已实现 Radar CRUD、Source 绑定/分页/collect poll、Signals 列表/详情；分批定向证据为 Rust `api::tests` 20/20、Signals Edge 4 项、Radar lifecycle+edit Edge 8/8、既有 focus Edge 5/5、Source Edge 5/5，以及 typecheck/Web build，不能写成一次全套 suite。`50a14f5` 上的顺序 full frontend 验证中 unit 15/15 与 locked/offline desktop compile 通过，但 Edge full suite 为 20 passed / 1 failed / 18 did not run；失败的 lifecycle close-focus 已在其后最小修复中以原断言定向 1/1 PASS，未重跑新 head 全套，因此失败历史不能改写为 full-suite PASS。创建具有隔离 `_test` 原生单次创建/owner/重登证据；edit/lifecycle/Source/Signals 尚无本轮真实 native/API 证据。两个 edit P2、poll generation/intent 风险已在定向范围关闭；底层 HTTP 仍不能 true abort，但 disposed/generation 围栏阻止迟到回写和续 timer。G3 未开始，约 1.05 秒墨水消散中间帧仍缺；完整 FE-G2 产品验收尚未完成。
+- [FE-001-G2 准入](FE-001-G2-ADMISSION.md)冻结真实接口范围。Radar CRUD、Source create/bind/分页/单次 collect poll、Signals 列表/详情及 lifecycle/focus 已实现。VERIFY62 在 `755ba90205a1b13f8215e32c620efe941535bffb` 上唯一 full UI `45/45 passed`（4.1m，0 retries）。670的 typecheck/15 unit/20 Rust/locked-offline desktop build PASS；740只改Vitest开发依赖，VERIFY67重新取得15 unit/typecheck/build及全依赖/生产依赖audit均0。按独立安全65引用未变产品/生产依赖的UI、Rust、native证据，不混称同一次全量。
+- 真实原生 FLOW31 已通过 1 个 Radar、1 个 RSS Source 绑定、唯一 collect queued、guarded 离线生产处理、UI 自动 `queued → succeeded` 且计数 `1/1/0/0`、Signals 真实列表/详情（77.6、正文）及返回 Canvas；这关闭指定原生链路缺口，但不是 Worker/Router/WS/notification、完整安全矩阵或全面 native E2E。PACKAGE32（SHA-256 `BB2B948AF880F0DF4C0878CCBE47C4385F4DCEEBDD8EC042628251369B30280D`）随后在 NATIVE35/36 中真实启动并通过离线 Demo 旋转/前景分离/详情面板观察；初始静止由应用“减少动态效果”开启造成，仅关闭该应用偏好，未改系统设置。原生未独立计时完整 120s 周期，精确周期依据 CSS 与此前 Edge 定向证据。
+- POINTER39 根据用户明确要求增加共享背景的小幅鼠标视差（水平最大 12px、垂直最大 9px、180ms 平滑），不移动 Radar/导航/面板，不改变拖动缩放或 Backend；quiet/system reduced-motion 关闭跟随，失焦/离开/拖动复位。typecheck/web build 通过；一次 Edge 定向集取得 4 PASS、1 测试解析 FAIL、1 未运行，失败是 CSS 将零位移序列化为单值 `0px`。ASSERTION40 只规范化测试读取，针对未完成两项取得 2/2 PASS；不冒充一次六项全绿。PACKAGE42 离线桌面构建通过，新 exe SHA-256 `8B2A0D1D5E641BB0366BCF10691E7C313F9C960C17BF2A447C4BBAFA6B8384C6`，PREVIEW43 已打开到离线 Demo；精确指针位移断言来自 Edge，不声明全面 native/E2E。resume/keyboard 后由 NATIVE51 定向关闭，见下文；FE-G2 仍未产品验收。
 - 仍禁用/阻塞：Dynamic/Advanced Browser **disabled**（`BROWSER_DYNAMIC_ENABLED=False`，`allow_browser=True` fail-closed）；R3 真实执行为 **BLOCKED**，须另签 B 阶段 lease；R4/R5 未准入。R3 离线增量位于分支 `feat/acq1-r3-fail-closed-offline`（docs/54/55/56/59 在该分支，**未合并**）。
 - 阶段分离：FE-G2 operation admission 不等于 FE-001 产品验收。Integration（INT-001）与 Release（REL-001）仍未准入；PLUGIN-1 为 **POST-v0.1 / deferred**，不构成 Frontend 前置条件。
-- 执行权：AUTH、Radar、Source/collect、Signals 与 lifecycle focus 修复 lease 均已停点；本状态记录不授权继续修改、原生验证、commit/push/PR/merge 或下一阶段。下一操作须按 `GOVERNANCE-V2 §12` 另签。
+- NATIVE-LIFECYCLE51 已在隔离原生环境验证同一 Radar `active → paused → active`，对应 pause/resume 各一次成功 POST；Tab/Enter、取消确认、确认后焦点恢复及 Escape 返回节点均通过。CLEANUP52 已精确清理本轮测试窗口、账号、tmpfs 数据与专属容器/网络，其他资源未动。不代表完整 FE-G2 产品验收。
+- CAMERA53 只在节点数0→非0时自动fit，修正首个Radar不可见和详情过时说明。除早期13项定向外，现已进入755的45项full与最新desktop包；新exe SHA256 `AC2A2361B02A7BBFC053C27F0AA647F26E9EFBAC809A013FE74BDB41103ACD14`，未重新启动原生认证。当前候选已本地提交，产品Stage Gate仍须单独裁定。
+- CAMERA-REVIEW54 两文件 SHA 匹配，源码复核 P0/P1/P2=`0/0/1`，无源码 BLOCK；P2 为 viewport 回归未显式构造旧 camera 必定离屏的前置条件，后续需补强确定性，不把 13 项通过写成该缺陷修复前必定失败的证明。未因此重跑认证或完整原生流程；源码复核不替代最终提交的 Stage Gate。
+- CAMERA-REGRESSION56 已加强 REVIEW54 的离屏前置：聚焦空画布并右移超过一屏，以真实 worldX 确认旧相机坐标 < -500px，再断言不按 F 新节点完整可见；typecheck/build 与唯一 create 目标 1 PASS。RECORD55 的 README 标识检查失败保留；本轮补齐 CAMERA53 标识重新定向检查。REVIEW57 只读裁定后停点，不提供 full regression、原生包更新或提交许可。
+- REVIEW57 已裁定该测试前置P2关闭，P0/P1/P2=0/0/0。VERIFY59曾因旧entry断言230s而10PASS/1FAIL/34未运行；REPAIR60仅对齐已批准120s并目标PASS，755随后45项全绿。失败证据保留，不将未运行项改写为通过。
+- AUDIT64归因开发链Vitest/mocker/tinypool的moderate1/critical2；独立安全65裁定P1、非已证实桌面运行漏洞。SECURITY66仅pin Vitest4.1.11+lock，禁用安装scripts、无audit-fix/force；生产依赖变化0、tinypool移除。首个PS审计包装失败保留；VERIFY67显式审计全依赖及omit-dev均0、15unit/typecheck/build PASS，独立69复核关闭状态。Browser仍disabled，Backend/API/schema/生产依赖未变。
+- SECURITY-CLOSURE69 已独立核SHA/锁图，确认安全P1关闭、源码/依赖P0/P1/P2=0/0/0，认可未变UI/Rust/native证据继承。DOC70 四份现状文档身份/必要引用/代码未变/diffcheck PASS。代码 `74059db...` 为 READY_FOR_G2_PRODUCT_REVIEW；仍保留 REVIEW46 附加pointer断言P2，不准入G3/INT/Release。总控 DOC71 仅记录该结果并定向检查；COMMIT72 仅允许四文档本地提交，截止23:18+08、MaxIterations=1，无push/PR/merge，完成即STOP。
+- 执行权：上述实施/验证/预览 lease 均在各自 checkpoint 停点；EVIDENCE37/38 因原 FE 执行端 Git 权限失败，未写文档，不能追认成功。50/51/52/53 已停点；CAMERA-REVIEW54 为单独有界只读源码复核，NATIVE-CAMERA-RECORD55 仅同步四份现状文档并定向检查后停点。记录不授权后续修改、原生验证、commit/push/PR/merge 或下一阶段。G2 尚未产品验收，G3、INT-001 与 REL-001 仍未准入；下一操作须按 `GOVERNANCE-V2 §12` 另签。
 - 能力与证据指针：`docs/68-ACQ1-CAPABILITY-MANIFEST.md`（I1 能力清单）、`docs/69`（阶段报告）、`docs/70`（交付包说明书）、`docs/71`（收口计划）。
 
 ## 历史操作记录（以下不提供 live authority）

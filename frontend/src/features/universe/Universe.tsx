@@ -83,6 +83,13 @@ export function Universe({ mode, radars, onChange, onLoadDemo, onEditRadar, onLi
     return () => { observer.disconnect(); if (frame.current !== null) cancelAnimationFrame(frame.current); };
   }, [paint]);
 
+  const previousRadarCount = useRef(radars.length);
+  useLayoutEffect(() => {
+    const wasEmpty = previousRadarCount.current === 0;
+    previousRadarCount.current = radars.length;
+    if (wasEmpty && radars.length > 0) fit();
+  }, [radars.length, fit]);
+
   useEffect(() => {
     const element = root.current;
     if (!element) return;
@@ -195,7 +202,7 @@ export function Universe({ mode, radars, onChange, onLoadDemo, onEditRadar, onLi
       <h2 id="detail-title">{selectedRadar?.name ?? DEMO_GALAXY.name}</h2><p className="panel-summary">{selectedRadar ? t(selectedRadar.description, descriptions[selectedRadar.id] ?? selectedRadar.description) : t('由两个演示 Radar 构成的星系结构。', 'A Galaxy composed of two demo Radars.')}</p>
       <dl className="detail-facts"><div><dt>{galaxySelected ? t('组内行星', 'Member worlds') : t('Radar 类型', 'Radar type')}</dt><dd>{galaxySelected ? 2 : selectedRadar && t(typeLabels[selectedRadar.type], selectedRadar.type)}</dd></div><div><dt>{mode === 'demo' ? t('演示新信号', 'Demo signals') : t('新信号', 'New signals')}</dt><dd>{galaxySelected ? 9 : selectedRadar?.signals ?? t('未获取', 'Not fetched')}</dd></div><div><dt>{t('数据来源', 'Data source')}</dt><dd>{mode === 'demo' ? t('本地演示', 'LOCAL DEMO') : t('本机 API', 'LOCAL API')}</dd></div></dl>
       {galaxySelected ? <section className="galaxy-members"><h3>{t('星系结构', 'GALAXY STRUCTURE')}</h3>{radars.filter(r => DEMO_GALAXY.members.some(id => id === r.id)).map(radar => <button key={radar.id} onClick={() => select(radar.id)}><span>✧ {radar.name}</span><small>{t(typeLabels[radar.type], radar.type.toUpperCase())} · RADAR</small><Icon name="arrow"/></button>)}</section> : selectedRadar && <div className="radar-detail-art"><Planet id={`detail-${selectedRadar.id}`} color={selectedRadar.color}/><span className="status-label">{t(selectedRadar.status === 'active' ? '活跃' : selectedRadar.status === 'paused' ? '已暂停' : '已归档', selectedRadar.status.toUpperCase())} · {mode === 'demo' ? t('演示', 'DEMO') : t('真实', 'LIVE')}</span></div>}
-      <p className="scope-note">{galaxySelected ? t('仅展示分组结构；重命名、解散与持久化尚未接入。', 'Structure preview only. Rename, disband and persistence are not connected.') : mode === 'demo' ? t('示例状态，不代表真实采集任务。可拖动行星；键盘聚焦行星后按 Alt + 方向键移动。', 'Demo status, not a real collection task. Drag planets or focus one and use Alt + arrows.') : t('Radar 来自真实本机 API；除创建外的 CRUD、Source、采集和 Signals 将由后续 lease 接入。', 'Radar data comes from the local API. CRUD beyond creation, Sources, collection and Signals require later leases.')}<br/>{t('所有布局变动仅保留于当前会话。', 'Layout changes last only for this session.')}</p>
+      <p className="scope-note">{galaxySelected ? t('仅展示分组结构；重命名、解散与持久化尚未接入。', 'Structure preview only. Rename, disband and persistence are not connected.') : mode === 'demo' ? t('示例状态，不代表真实采集任务。可拖动行星；键盘聚焦行星后按 Alt + 方向键移动。', 'Demo status, not a real collection task. Drag planets or focus one and use Alt + arrows.') : t('Radar 来自真实本机 API；可编辑、暂停或恢复，并管理来源与采集。', 'This Radar comes from the local API. Edit it, pause or resume it, or manage Sources and collection.')}<br/>{t('所有布局变动仅保留于当前会话。', 'Layout changes last only for this session.')}</p>
       <button className="text-button panel-fit" onClick={fit}><Icon name="fit"/>{t('适配全部行星', 'Fit all planets')}</button>
       {mode === 'live' && selectedRadar && <button className="text-button" onClick={event => onSourcesRadar?.(selectedRadar.id, selectedRadar.name, event.currentTarget)}>{t('来源与采集', 'Sources and collection')}</button>}
       {mode === 'live' && selectedRadar && <button className="text-button" onClick={event => onEditRadar?.(selectedRadar.id, event.currentTarget)}>{t('编辑 Radar', 'Edit Radar')}</button>}

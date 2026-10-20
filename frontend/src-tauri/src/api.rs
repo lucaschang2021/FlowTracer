@@ -198,9 +198,18 @@ enum CollectionRunStatus { Queued, Running, Succeeded, Partial, Failed }
 #[derive(Deserialize)]
 struct CollectionQueuedResponse { run_id: String, status: CollectionRunStatus }
 
-#[derive(Clone, Deserialize, Serialize)]
+#[derive(Clone, Deserialize)]
+struct CollectionRunResponse { id: String, source_id: String, status: CollectionRunStatus, fetched_count: i64, created_count: i64, duplicate_count: i64, failed_count: i64, error_code: Option<String>, error_message: Option<String> }
+
+#[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CollectionRunView { id: String, source_id: String, status: CollectionRunStatus, fetched_count: i64, created_count: i64, duplicate_count: i64, failed_count: i64, error_code: Option<String>, error_message: Option<String> }
+
+impl From<CollectionRunResponse> for CollectionRunView {
+    fn from(value: CollectionRunResponse) -> Self {
+        Self { id:value.id, source_id:value.source_id, status:value.status, fetched_count:value.fetched_count, created_count:value.created_count, duplicate_count:value.duplicate_count, failed_count:value.failed_count, error_code:value.error_code, error_message:value.error_message }
+    }
+}
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -705,8 +714,8 @@ impl ApiClient {
     }
 
     async fn collection_run(&self, run_id: String, source_id: String) -> Result<CollectionRunView, BridgeError> {
-        let run=canonical_radar_id(&run_id)?; let source=canonical_radar_id(&source_id)?; let value:CollectionRunView=self.protected_json_status(Operation::CollectionRun(run.clone()),StatusCode::OK).await?;
-        if value.id!=run || value.source_id!=source {return Err(BridgeError::local("invalid_response","Backend returned a mismatched CollectionRun identity"));} Ok(value)
+        let run=canonical_radar_id(&run_id)?; let source=canonical_radar_id(&source_id)?; let response:CollectionRunResponse=self.protected_json_status(Operation::CollectionRun(run.clone()),StatusCode::OK).await?;
+        if response.id!=run || response.source_id!=source {return Err(BridgeError::local("invalid_response","Backend returned a mismatched CollectionRun identity"));} Ok(response.into())
     }
 
     fn intelligence_item(value:IntelligenceResponse)->Result<IntelligenceView,BridgeError>{
@@ -1303,13 +1312,13 @@ mod tests {
             "/api/v1/sources"=>{assert_eq!(request.method,"POST");assert_eq!(serde_json::from_str::<Value>(&request.body).unwrap(),json!({"name":"Primary feed","source_type":"rss","url":"https://example.com/feed","poll_interval_minutes":60}));json_response(201,created.clone())},
             "/api/v1/radars/00000000-0000-4000-8000-000000000011/sources/00000000-0000-4000-8000-000000000021"=>{assert!(matches!(request.method.as_str(),"POST"|"DELETE"));Response{status:204,body:String::new(),headers:vec![],delay_ms:0}},
             "/api/v1/sources/00000000-0000-4000-8000-000000000021/collect"=>{assert_eq!(request.method,"POST");assert_eq!(request.idempotency_key.as_deref(),Some("00000000-0000-4000-8000-000000000041"));Response{status:202,body:json!({"run_id":"00000000-0000-4000-8000-000000000031","status":"succeeded"}).to_string(),headers:vec![("Location".into(),"/api/v1/collection-runs/00000000-0000-4000-8000-000000000031".into())],delay_ms:0}},
-            "/api/v1/collection-runs/00000000-0000-4000-8000-000000000031"=>json_response(200,json!({"id":"00000000-0000-4000-8000-000000000031","sourceId":"00000000-0000-4000-8000-000000000021","status":"succeeded","fetchedCount":3,"createdCount":2,"duplicateCount":1,"failedCount":0,"errorCode":null,"errorMessage":null})),
+            "/api/v1/collection-runs/00000000-0000-4000-8000-000000000031"=>json_response(200,json!({"id":"00000000-0000-4000-8000-000000000031","source_id":"00000000-0000-4000-8000-000000000021","trigger_type":"manual","status":"succeeded","started_at":"2026-10-20T00:00:00Z","finished_at":"2026-10-20T00:00:01Z","fetched_count":3,"created_count":2,"duplicate_count":1,"failed_count":0,"error_code":null,"error_message":null,"created_at":"2026-10-20T00:00:00Z","updated_at":"2026-10-20T00:00:01Z"})),
             _=>json_response(404,json!({})),
         })).await;
         let client=ApiClient::new(&origin).unwrap();client.authenticate(Operation::Login,"a@example.com".into(),"long-password".into(),None).await.unwrap();
         assert_eq!(client.list_sources(2,20).await.unwrap().total,21);assert_eq!(client.list_radar_sources(radar.into(),1,20).await.unwrap().total,1);assert_eq!(client.create_source(source_input()).await.unwrap().id,source_id);
         client.bind_source(radar.into(),source_id.into(),true).await.unwrap();client.bind_source(radar.into(),source_id.into(),false).await.unwrap();
-        assert_eq!(client.collect_source(source_id.into(),key.into()).await.unwrap().status,CollectionRunStatus::Succeeded);assert_eq!(client.collection_run(run.into(),source_id.into()).await.unwrap().created_count,2);task.abort();
+        assert_eq!(client.collect_source(source_id.into(),key.into()).await.unwrap().status,CollectionRunStatus::Succeeded);let view=client.collection_run(run.into(),source_id.into()).await.unwrap();assert_eq!(view.created_count,2);let bridge=serde_json::to_value(&view).unwrap();assert_eq!(bridge["sourceId"],source_id);assert_eq!(bridge["fetchedCount"],3);assert!(bridge.get("source_id").is_none());task.abort();
     }
 
     #[tokio::test]
@@ -1321,7 +1330,7 @@ mod tests {
         let (origin,task)=fake_server(Arc::new(move |request| match request.path.as_str(){
             "/api/v1/auth/login"=>json_response(200,auth("access","refresh")),
             path if path.ends_with("/collect")=>{let call=count.fetch_add(1,Ordering::SeqCst);if call==0 {Response{status:200,body:json!({"run_id":"00000000-0000-4000-8000-000000000031","status":"queued"}).to_string(),headers:vec![],delay_ms:0}} else if call==1 {Response{status:202,body:json!({"run_id":"00000000-0000-4000-8000-000000000031","status":"queued"}).to_string(),headers:vec![("Location".into(),"https://evil.example/run".into())],delay_ms:0}} else {Response{status:202,body:json!({"run_id":"00000000-0000-4000-8000-000000000031","status":"mystery"}).to_string(),headers:vec![("Location".into(),"/api/v1/collection-runs/00000000-0000-4000-8000-000000000031".into())],delay_ms:0}}},
-            path if path.contains("collection-runs")=>json_response(200,json!({"id":"00000000-0000-4000-8000-000000000099","sourceId":"00000000-0000-4000-8000-000000000021","status":"failed","fetchedCount":0,"createdCount":0,"duplicateCount":0,"failedCount":1,"errorCode":"failed","errorMessage":"failed"})),
+            path if path.contains("collection-runs")=>json_response(200,json!({"id":"00000000-0000-4000-8000-000000000099","source_id":"00000000-0000-4000-8000-000000000021","status":"failed","fetched_count":0,"created_count":0,"duplicate_count":0,"failed_count":1,"error_code":"failed","error_message":"failed"})),
             _=>json_response(404,json!({})),
         })).await;
         let client=ApiClient::new(&origin).unwrap();client.authenticate(Operation::Login,"a@example.com".into(),"long-password".into(),None).await.unwrap();let source_id="00000000-0000-4000-8000-000000000021";let key="00000000-0000-4000-8000-000000000041";

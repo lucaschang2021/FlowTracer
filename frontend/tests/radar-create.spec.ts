@@ -92,6 +92,15 @@ test('live Radar create preserves input on failure and inserts only confirmed UU
   await page.goto('/');
   await page.getByRole('button', { name: '跳过动画' }).click();
   await signIn(page, 'person@example.com');
+  const canvas = page.getByTestId('universe');
+  await expect(page.locator('[data-radar]')).toHaveCount(0);
+  await expect(canvas).toHaveAttribute('data-projection', 'ready');
+  const bounds = await canvas.boundingBox();
+  if (!bounds) throw Error('Empty live canvas has no bounds');
+  const panSteps = Math.ceil(bounds.width / 40) + 20;
+  await canvas.focus();
+  await expect(canvas).toBeFocused();
+  for (let step = 0; step < panSteps; step += 1) await page.keyboard.press('ArrowRight');
   await page.getByRole('button', { name: '新建 Radar' }).click();
   await page.getByRole('dialog', { name: '新建 Radar' }).getByLabel('名称').fill(' New Radar ');
   await page.getByRole('dialog', { name: '新建 Radar' }).getByLabel('目标').fill(' Track change ');
@@ -117,6 +126,11 @@ test('live Radar create preserves input on failure and inserts only confirmed UU
   await page.evaluate(() => (window as typeof window & { __releaseRadarCreate?: () => void }).__releaseRadarCreate?.());
   await expect(page.locator('[data-radar]')).toHaveCount(1);
   await expect(page.locator('[data-radar]')).toHaveAttribute('data-radar', created.id);
+  const worldX = await page.locator('[data-radar]').evaluate(node => Number.parseFloat((node as HTMLElement).style.left));
+  // Before automatic fit, the empty camera is width/2 at zoom 1; each right key pans -40px.
+  // This deterministic counterfactual places the new node well beyond the canvas edge.
+  expect(worldX + bounds.width / 2 - panSteps * 40).toBeLessThan(-500);
+  await expect(page.locator('[data-radar]')).toBeInViewport({ ratio: 1 });
 });
 
 test('account switch fences a late create response from the new session', async ({ page }) => {

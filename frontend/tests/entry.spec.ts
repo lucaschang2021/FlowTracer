@@ -15,7 +15,7 @@ test('approved startup canvas stays mounted across entry, star map and utility p
     expect(loaded).toBe(true);
   }
   expect(await page.locator('.original-orbit-system').evaluate(el => getComputedStyle(el).animationDuration)).toBe('280s');
-  expect(await page.locator('.original-polar-grid svg').evaluate(el => getComputedStyle(el).animationDuration)).toBe('230s');
+  expect(await page.locator('.original-polar-grid svg').evaluate(el => getComputedStyle(el).animationDuration)).toBe('120s');
   const first = await page.locator('.original-flowing-stars').evaluate(el => (el as HTMLCanvasElement).toDataURL());
   await expect.poll(() => page.locator('.original-flowing-stars').evaluate(el => (el as HTMLCanvasElement).toDataURL())).not.toBe(first);
   await expect(page.locator('.intro-wordmark')).toHaveAttribute('data-complete', 'true', { timeout: 10000 });

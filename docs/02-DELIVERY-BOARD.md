@@ -91,6 +91,8 @@ Backend Alpha Core、Architecture Governance Pass、WP1/WP2 与 ACQ-1 收口 Pha
 | FE-001-G2 | 真实 API 接入 | Frontend | 本地代码 `74059db8d9c5f2e62e027f89c6b5b8f4d9cf49bb`；产品StageGate待裁定，未push/merge | G1 + 冻结Handoff/OpenAPI | Radar CRUD、Source/collect/poll、Signals 已实现。755候选full UI45/45（4.1m，0retry）；670的20Rust/15unit/locked-offline desktop build PASS。740仅升级Vitest4.1.11开发链，生产依赖变化0，VERIFY67全依赖/生产audit0、15unit/typecheck/build PASS，独立安全69复核。FLOW31原生Source→collect→Signals、NATIVE51暂停/恢复/键盘已具名通过且专属资源清理；新desktop已含CAMERA53，不混作新全面native验收。59旧230s断言失败与66审计包装失败均保留。G3 Memory/Opportunity/布局持久化、INT/Release仍未准入；[证据与身份](FE-001-G2-ADMISSION.md) |
 | FE-G2-CAMERA56 | 首个 Radar 可见性回归补强 | Frontend | REVIEW57 P0/P1/P2=0/0/0 | CAMERA53 / REVIEW54 | 空画布右移超过一屏、旧camera坐标<-500px，创建后不按F完整可见；目标PASS且进入755 full45，新包已包含；不替代G2产品门 |
 | FE-G2-CLOSURE69 | 当前代码候选安全/证据收口 | Frontend | READY_FOR_G2_PRODUCT_REVIEW | `74059db8d9c5f2e62e027f89c6b5b8f4d9cf49bb` | 独立69确认P1关闭，认可未变45UI/20Rust/native继承；DOC70四文档身份/必要引用/无新代码/diffcheck PASS；既有附加pointer断言P2保留，不自动批准G2/G3/INT/Release |
+| FE-G2-GATE73 | 真数据闭环验收 | Controller / Frontend | PRODUCT ACCEPTED；P0/P1/P2=0/0/1 | 代码74059db / 记录f8ec2ed | AUTH/Radar/Source/Signals/视觉键盘范围通过，过程隔离评审的独立性限制已披露；完整FE仍未通过 |
+| FE-001-G3 | Galaxy/持久布局与真实导航 | Frontend | SPATIAL-01准入；尚未实现 | G2 Accepted，feat/fe-001-g3 | [精确范围/下一操作](FE-001-G3-ADMISSION.md)；后续Memory/Opportunity/通知需checkpoint再签；G4/INT/Release/教程未准入 |
 | INT-001 | 集成与缺陷修复 | Integration | 未准入 | ACQ-1、FE-001 | E2E 报告与缺陷闭环 |
 | REL-001 | GitHub Alpha 发布 | Release | 未准入 | INT-001 | 仓库、CI、Tag、Release |
 

@@ -2,7 +2,12 @@
 
 更新时间：2026-10-20（FE-001-G2 当前本地候选、真实原生证据与桌面包摘要同步）。
 
-## 当前状态：Backend READY_FOR_FRONTEND；FE-G2 代码 READY_FOR_G2_PRODUCT_REVIEW（未产品验收）
+## 当前状态：Backend READY_FOR_FRONTEND；FE-G2 PRODUCT ACCEPTED；FE-G3 空间组织准入
+
+- 总控采纳 FE-G2-PRODUCT-GATE73 的 ALLOW：代码 `74059db8d9c5f2e62e027f89c6b5b8f4d9cf49bb`、现状提交 `f8ec2ed972be9c1f52429097820a767b6c3ab381`，承诺的 AUTH/Radar/Source/collect/Signals/视觉与键盘范围验收通过；P0/P1/P2=0/0/1（pointer附加复位断言）。审查者参与过 motion30/记录，属于过程隔离评审而非完全独立第三方；总控独立采集的原生/API/数据库与测试证据分列保留。不将G2通过等同完整FE或集成/发布通过。
+- 当前工作分支 `feat/fe-001-g3` 从干净 `f8ec2ed...` 建立；G2原分支保留。唯一获准G3下一操作见 [FE-G3准入](FE-001-G3-ADMISSION.md)：按账号隔离的Galaxy/布局增量及一次定向验证。Memory/Opportunity/通知后续增量须总控在checkpoint另签，G4/INT/Release/教程尚未准入；Browser/Plugin不恢复。
+
+### G2 验收输入快照（下列旧“待验收”文字记录当时边界，由上方 GATE73 裁定取代）
 
 - 已核实合并的 Backend 产品基线为 `fc180a1d2eba32935fba6ee6c128f9b2d7015574`；本轮未核验或声明当前远端 SHA。G1 基线为 `24e2ebd14ac559ae9251424f30a4295f3006e0a0`。当前本地代码候选 `feat/fe-001-g2-api@74059db8d9c5f2e62e027f89c6b5b8f4d9cf49bb`，已包含 wire27、motion30、pointer39、CAMERA53/56 与测试工具安全修复；现状文档可作后续独立提交，不混作代码验证 SHA。未 push、未 merge，不得冒充 main/远端。
 - Backend **READY_FOR_FRONTEND** 只表示 Static/Native Alpha v0.1 后端交接就绪。FE-G1 骨架已独立验收；总控在 2026-10-13 对 `24e2...` 完成 source/scope、typecheck、13 unit、web build 与 13 UI E2E 检查。后续 G2 原生链路证据与新版视觉验收分别记录，不回填为 G1 基线的独立原生复跑。

@@ -50,6 +50,29 @@ Next Authority Owner: FlowTracer Controller
 
 ## 后续准入与验收
 
+### SPATIAL03 / REVIEW04 检查点（2026-10-21）
+
+- 当前分支基准 `2ffd228080360f2892e9a432f9bf7596a806a609`，八个前端文件形成 Galaxy/本机空间候选；Backend、Rust、依赖与冻结接口未改。
+- SPATIAL03：typecheck、Web build（56 modules）、layout 8/8、Edge 定向 5/5、diffcheck PASS。此前 locator FAIL/两项未运行、后续 whitespace FAIL 均保留，不能改写为第一次全绿。
+- 独立 REVIEW04 绑定精确文件 SHA，关闭“未加载坐标被覆盖丢失”“effect cleanup 后存储警告未重新武装”两项 P1；并确认已保存空远端视图下首个新 Radar 自动 fit。P0/P1/P2=0/0/1，仅 ALLOW 本源码检查点，不是 G3 最终验收。审查者未重试其先前被拒的 Git，branch/HEAD 由总控独立核对；未独立重跑测试。
+- 保留验收事项：live A→B 带延迟保存的界面保证（P2）、已确认删除 Radar 的持久孤儿清理、真实原生进程重开恢复。当前仅在挂载恢复存档坐标；未来引入分页追加或同账号重拉 Radar 时，必须再次对后加载节点应用存档位置，不得丢失未加载引用。
+- Memory/Opportunity/REST 通知尚未实现。G3 产品、G4、INT、Release、教程均未因此通过；Browser disabled / Plugin deferred 不变。
+
+Task ID: FE-G3-SPATIAL-CHECKPOINT05
+Control Epoch: GOV-2.1
+Parent Goal: FE-001 Windows Alpha completion
+Exact Baseline: 2ffd228080360f2892e9a432f9bf7596a806a609 + REVIEW04 核对的八文件候选
+Exact Branch: feat/fe-001-g3
+Authorized Operation: 总控记录上述检查点，定向 diffcheck/白名单核对后仅作本地 commit
+Allowed Files: 本文件；App.tsx、Universe.tsx、GalaxyPanel.tsx、galaxy.css、layout.ts、layout.test.ts、galaxy-layout.spec.ts、radar-create.spec.ts 的已复核候选
+Allowed Tools: apply_patch、只读 Git/hash、定向文档检查、明确白名单 add/commit
+Forbidden Operations: 产品代码再修改、测试重跑、依赖安装、runtime、push/PR/merge、下游准入
+Max Iterations: 1
+Hard Deadline: 本检查点操作开始起15分钟
+Expected Evidence: 精确提交、九文件清单、diffcheck、工作树状态
+Stop Condition: 本地 commit 完成或任一失败即停；后续实现另签操作
+Next Authority Owner: FlowTracer Controller
+
 G3后续每个增量另签有界操作：typed native Memory/Opportunity/Notification接口与最小真实页，保持既有固定loopback、Authorization、refresh/generation、错误和只读action边界。任何缺失契约STOP，不伪造数据填页。
 
 G3验收须有用户隔离/损坏存储/删除引用/无网络写入的测试、跨刷新与真实原生进程重开布局恢复、真实或严格隔离后端Memory/Opportunity链路，以及最终候选完整回归与评审。单项通过不代表G3通过。G4/集成/发布与教程不由本文件自动准入。

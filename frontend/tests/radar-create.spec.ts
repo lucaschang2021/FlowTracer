@@ -133,6 +133,26 @@ test('live Radar create preserves input on failure and inserts only confirmed UU
   await expect(page.locator('[data-radar]')).toBeInViewport({ ratio: 1 });
 });
 
+test('saved empty remote view still fits the first created Radar', async ({ page }) => {
+  await page.addInitScript(record => {
+    const user = { id: '00000000-0000-4000-8000-000000000001', email: 'person@example.com', displayName: 'Explorer', isActive: true };
+    localStorage.setItem('flowtracer:spatial:v1:00000000-0000-4000-8000-000000000001', JSON.stringify({ version: 1, owner: user.id, positions: {}, view: { x: -100000, y: -100000, zoom: 1 }, galaxies: [] }));
+    Object.defineProperty(window, '__TAURI_INTERNALS__', { value: { invoke: async (command: string) => {
+      if (command === 'bridge_status') return { available: true, origin: 'http://127.0.0.1:8000/api/v1' };
+      if (command === 'health_ready') return { ready: true };
+      if (command === 'auth_login') return { authenticated: true, user };
+      if (command === 'users_me') return user;
+      if (command === 'radars_list') return { items: [], page: 1, pageSize: 100, total: 0 };
+      if (command === 'radars_create') return record;
+      throw Error(`Unexpected command: ${command}`);
+    } } });
+  }, created);
+  await page.goto('/'); await page.getByRole('button', { name: '跳过动画' }).click(); await signIn(page, 'person@example.com');
+  await page.getByRole('button', { name: '新建 Radar' }).click();
+  const dialog = page.getByRole('dialog', { name: '新建 Radar' }); await dialog.getByLabel('名称').fill('New Radar'); await dialog.getByLabel('目标').fill('Track change'); await dialog.getByLabel('Radar 类型').selectOption('technology'); await dialog.getByRole('button', { name: '创建 Radar' }).click();
+  await expect(page.locator('[data-radar]')).toHaveCount(1); await expect(page.locator('[data-radar]')).toBeInViewport({ ratio: 1 });
+});
+
 test('account switch fences a late create response from the new session', async ({ page }) => {
   await page.addInitScript(record => {
     let loginCount = 0;

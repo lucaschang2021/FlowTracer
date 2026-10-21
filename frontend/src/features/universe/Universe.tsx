@@ -1,217 +1,102 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent } from 'react';
+import { Icon } from '../../app/Icon';
 import { usePreferences } from '../../app/Preferences';
 import { useReducedMotion } from '../../app/motion';
-import { Icon } from '../../app/Icon';
+import type { RadarLifecycleAction } from '../radars/RadarActionPanel';
 import { DEMO_GALAXY } from './demo';
-import { Planet } from './Planet';
+import { GalaxyPanel } from './GalaxyPanel';
+import { applyPositions, DEMO_OWNER, galaxyBounds, MAX_GALAXIES, MAX_MEMBERS, mergePositions, parseLayout, serializeLayout, storageKey } from './layout';
+import type { Galaxy } from './layout';
 import { fitView, keepInView, movePoint, normalizedWheel, zoomAt } from './model';
 import type { Point, Size, UniverseRadar, View } from './model';
-import type { RadarLifecycleAction } from '../radars/RadarActionPanel';
+import { Planet } from './Planet';
+import './galaxy.css';
 
-type Props = { mode: 'live' | 'demo'; radars: UniverseRadar[]; onChange: (radars: UniverseRadar[]) => void; onLoadDemo?: () => void; onEditRadar?: (id: string, trigger: HTMLButtonElement) => void; onLifecycleRadar?: (id: string, name: string, action: RadarLifecycleAction, trigger: HTMLButtonElement) => void; onSourcesRadar?: (id: string, name: string, trigger: HTMLButtonElement) => void };
-type Gesture = { pointerId: number; start: Point; view: View; radar?: UniverseRadar; moved: boolean; element?: HTMLButtonElement };
+type Props = { mode: 'live' | 'demo'; owner: string; radars: UniverseRadar[]; onChange: (radars: UniverseRadar[]) => void; onGalaxyCount: (count: number) => void; onLoadDemo?: () => void; onEditRadar?: (id: string, trigger: HTMLButtonElement) => void; onLifecycleRadar?: (id: string, name: string, action: RadarLifecycleAction, trigger: HTMLButtonElement) => void; onSourcesRadar?: (id: string, name: string, trigger: HTMLButtonElement) => void };
+type Gesture = { pointerId: number; start: Point; view: View; mode: 'node' | 'pan' | 'marquee'; radar?: UniverseRadar; moved: boolean; element?: HTMLButtonElement };
+type Selection = { kind: 'radar' | 'galaxy'; id: string } | null;
+type Box = { x: number; y: number; width: number; height: number };
 const PANEL_WIDTH = 370;
+const DEMO_GALAXY_UUID = '00000000-0000-4000-8000-000000000001';
 const typeLabels = { academic: '学术', business: '商业', technology: '技术', policy: '政策', market: '市场', custom: '自定义', opportunity: '机会', competitive: '竞争' };
-const descriptions: Record<string, string> = {
-  'demo-ai': 'Model infrastructure, inference efficiency and engineering practice.',
-  'demo-policy': 'AI policy, public rules and industry governance.',
-  'demo-market': 'Example interests in industry shifts and public market research.',
-  'demo-research': 'Frontier papers, reproducible methods and research progress.',
-  'demo-agent': 'Example Radar for agent collaboration and tool use.',
-  'demo-opportunity': 'A visual map of opportunities. No automatic actions.',
-};
+const descriptions: Record<string, string> = { 'demo-ai': 'Model infrastructure, inference efficiency and engineering practice.', 'demo-policy': 'AI policy, public rules and industry governance.', 'demo-market': 'Example interests in industry shifts and public market research.', 'demo-research': 'Frontier papers, reproducible methods and research progress.', 'demo-agent': 'Example Radar for agent collaboration and tool use.', 'demo-opportunity': 'A visual map of opportunities. No automatic actions.' };
 const interactive = (target: EventTarget | null) => target instanceof Element && !!target.closest('button, input, a, select, textarea, [data-ui]');
+const initialGalaxies = (mode: Props['mode']): Galaxy[] => mode === 'demo' ? [{ id: DEMO_GALAXY_UUID, name: DEMO_GALAXY.name, members: [...DEMO_GALAXY.members] }] : [];
 
-export function Universe({ mode, radars, onChange, onLoadDemo, onEditRadar, onLifecycleRadar, onSourcesRadar }: Props) {
-  const { t } = usePreferences();
-  const reduced = useReducedMotion();
-  const [projecting, setProjecting] = useState(!reduced);
-  useEffect(() => {
-    if (reduced) { setProjecting(false); return; }
-    const timer = setTimeout(() => setProjecting(false), 1700);
-    return () => clearTimeout(timer);
-  }, [reduced]);
-  const root = useRef<HTMLDivElement>(null);
-  const layer = useRef<HTMLDivElement>(null);
-  const zoomLabel = useRef<HTMLOutputElement>(null);
-  const view = useRef<View>({ x: 0, y: 0, zoom: 1 });
-  const size = useRef<Size>({ width: 1200, height: 700 });
-  const nodes = useRef(new Map<string, HTMLButtonElement>());
-  const gesture = useRef<Gesture | null>(null);
-  const space = useRef(false);
-  const suppressClick = useRef(false);
-  const frame = useRef<number | null>(null);
-  const panel = useRef<HTMLElement>(null);
-  const [selected, setSelected] = useState<string | null>(null);
+export function Universe({ mode, owner, radars, onChange, onGalaxyCount, onLoadDemo, onEditRadar, onLifecycleRadar, onSourcesRadar }: Props) {
+  const { t } = usePreferences(); const reduced = useReducedMotion();
+  const [projecting, setProjecting] = useState(!reduced), [selected, setSelected] = useState<Selection>(null), [multi, setMulti] = useState<Set<string>>(new Set());
+  const [galaxies, setGalaxies] = useState<Galaxy[]>(() => initialGalaxies(mode)), [marquee, setMarquee] = useState<Box | null>(null), [storageNotice, setStorageNotice] = useState<string | null>(null);
   const [announcement, setAnnouncement] = useState(mode === 'demo' ? t('离线演示已载入。', 'Offline demo loaded.') : t('真实 Radar 星图已载入。', 'Live Radar map loaded.'));
-  const selectedRadar = radars.find(r => r.id === selected);
-  const galaxySelected = mode === 'demo' && selected === DEMO_GALAXY.id;
-  useEffect(() => { if (selected && !galaxySelected && !selectedRadar) setSelected(null); }, [galaxySelected, selected, selectedRadar]);
-  const latest = useRef({ radars, selected, onChange });
-  latest.current = { radars, selected, onChange };
+  const root = useRef<HTMLDivElement>(null), layer = useRef<HTMLDivElement>(null), panel = useRef<HTMLElement>(null), zoomLabel = useRef<HTMLOutputElement>(null);
+  const view = useRef<View>({ x: 0, y: 0, zoom: 1 }), size = useRef<Size>({ width: 1200, height: 700 });
+  const nodes = useRef(new Map<string, HTMLButtonElement>()), galaxyNodes = useRef(new Map<string, HTMLButtonElement>()), gesture = useRef<Gesture | null>(null);
+  const space = useRef(false), suppressClick = useRef(false), frame = useRef<number | null>(null), ready = useRef(false), savedView = useRef(false), saveTimer = useRef<number | null>(null), storageAvailable = useRef(true), mounted = useRef(true);
+  const storedPositions = useRef<Record<string, Point>>({});
+  const latest = useRef({ radars, galaxies, selected, onChange }); latest.current = { radars, galaxies, selected, onChange };
+  const selectedRadar = selected?.kind === 'radar' ? radars.find(radar => radar.id === selected.id) : undefined;
+  const selectedGalaxy = selected?.kind === 'galaxy' ? galaxies.find(galaxy => galaxy.id === selected.id) : undefined;
 
-  const paint = useCallback(() => {
-    frame.current = null;
-    if (layer.current) {
-      const v = view.current;
-      layer.current.style.transform = `translate(${v.x}px, ${v.y}px) scale(${v.zoom})`;
-      layer.current.style.setProperty('--inverse-scale', String(1 / v.zoom));
-    }
-    if (zoomLabel.current) zoomLabel.current.value = `${Math.round(view.current.zoom * 100)}%`;
+  useEffect(() => { if (reduced) { setProjecting(false); return; } const timer = setTimeout(() => setProjecting(false), 1700); return () => clearTimeout(timer); }, [reduced]);
+  useEffect(() => { onGalaxyCount(galaxies.length); }, [galaxies.length, onGalaxyCount]);
+  useEffect(() => { if (selected?.kind === 'radar' && !selectedRadar || selected?.kind === 'galaxy' && !selectedGalaxy) setSelected(null); }, [selected, selectedGalaxy, selectedRadar]);
+  const paint = useCallback(() => { frame.current = null; if (layer.current) { const value = view.current; layer.current.style.transform = `translate(${value.x}px, ${value.y}px) scale(${value.zoom})`; layer.current.style.setProperty('--inverse-scale', String(1 / value.zoom)); } if (zoomLabel.current) zoomLabel.current.value = `${Math.round(view.current.zoom * 100)}%`; }, []);
+  const persist = useCallback((nextRadars = latest.current.radars, nextGalaxies = latest.current.galaxies, reportFailure = true) => { if (!storageAvailable.current) return; try { const positions = mergePositions(storedPositions.current, nextRadars); const raw = serializeLayout(owner, positions, view.current, nextGalaxies); storedPositions.current = positions; localStorage.setItem(storageKey(owner), raw); } catch { if (reportFailure) { storageAvailable.current = false; if (mounted.current) setStorageNotice(t('本机布局存储不可用；本次改动仅保留在内存。', 'Local layout storage is unavailable; changes remain in memory only.')); } } }, [owner, t]);
+  const queueViewSave = useCallback(() => { if (saveTimer.current !== null) window.clearTimeout(saveTimer.current); saveTimer.current = window.setTimeout(() => { saveTimer.current = null; persist(); }, 180); }, [persist]);
+  const updateView = useCallback((next: View, save = true) => { view.current = next; if (frame.current === null) frame.current = requestAnimationFrame(paint); if (save && ready.current) queueViewSave(); }, [paint, queueViewSave]);
+  const commitRadars = (next: UniverseRadar[]) => { latest.current = { ...latest.current, radars: next }; onChange(next); persist(next); };
+  const commitGalaxies = (next: Galaxy[]) => { latest.current = { ...latest.current, galaxies: next }; setGalaxies(next); persist(undefined, next); };
+
+  useLayoutEffect(() => {
+    const element = root.current; if (!element) return; size.current = { width: element.clientWidth, height: element.clientHeight };
+    try { const read = parseLayout(localStorage.getItem(storageKey(owner)), owner); if (read.ok) { savedView.current = true; storedPositions.current = read.value.positions; view.current = read.value.view; const next = applyPositions(radars, read.value.positions); latest.current = { ...latest.current, radars: next, galaxies: read.value.galaxies }; onChange(next); setGalaxies(read.value.galaxies); setAnnouncement(t('已恢复此账户的本机空间布局。', 'Restored this account’s local spatial layout.')); } else if (read.reason !== 'empty') { storageAvailable.current = false; setStorageNotice(t('已忽略损坏或不匹配的布局；当前使用安全的内存布局。', 'Ignored corrupt or mismatched layout; using a safe in-memory layout.')); } } catch { storageAvailable.current = false; setStorageNotice(t('无法读取本机布局；当前使用安全的内存布局。', 'Could not read local layout; using a safe in-memory layout.')); } ready.current = true; paint();
+  // Owner changes remount Universe in App, so delayed saves cannot cross owners.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const updateView = useCallback((next: View) => {
-    view.current = next;
-    if (frame.current === null) frame.current = requestAnimationFrame(paint);
-  }, [paint]);
-  const fit = useCallback(() => {
-    updateView(fitView(latest.current.radars, size.current, latest.current.selected ? PANEL_WIDTH : 0));
-    setAnnouncement(mode === 'demo' ? t('画布已适配全部演示行星。', 'View fitted to all demo planets.') : t('画布已适配全部 Radar。', 'View fitted to all Radars.'));
-  }, [mode, updateView, t]);
-
-  useLayoutEffect(() => {
-    const element = root.current;
-    if (!element) return;
-    const resize = () => {
-      size.current = { width: element.clientWidth, height: element.clientHeight };
-      view.current = fitView(latest.current.radars, size.current, latest.current.selected ? PANEL_WIDTH : 0);
-      paint();
-    };
-    resize();
-    const observer = new ResizeObserver(resize);
-    observer.observe(element);
-    return () => { observer.disconnect(); if (frame.current !== null) cancelAnimationFrame(frame.current); };
-  }, [paint]);
-
-  const previousRadarCount = useRef(radars.length);
-  useLayoutEffect(() => {
-    const wasEmpty = previousRadarCount.current === 0;
-    previousRadarCount.current = radars.length;
-    if (wasEmpty && radars.length > 0) fit();
-  }, [radars.length, fit]);
-
+  useLayoutEffect(() => { const element = root.current; if (!element) return; const resize = () => { size.current = { width: element.clientWidth, height: element.clientHeight }; if (!savedView.current) view.current = fitView(latest.current.radars, size.current, latest.current.selected ? PANEL_WIDTH : 0); paint(); }; resize(); const observer = new ResizeObserver(resize); observer.observe(element); return () => { observer.disconnect(); if (frame.current !== null) cancelAnimationFrame(frame.current); }; }, [paint]);
   useEffect(() => {
-    const element = root.current;
-    if (!element) return;
-    const wheel = (event: WheelEvent) => {
-      if (event.target instanceof Element && event.target.closest('[data-ui]')) return;
-      event.preventDefault();
-      if (gesture.current) return;
-      const bounds = element.getBoundingClientRect();
-      const delta = normalizedWheel(event.deltaY, event.deltaMode, size.current.height);
-      updateView(zoomAt(view.current, { x: event.clientX - bounds.left, y: event.clientY - bounds.top }, Math.exp(-delta * .0018)));
-    };
-    const keyDown = (event: KeyboardEvent) => {
-      if (event.code === 'Space' && !interactive(event.target)) {
-        event.preventDefault(); space.current = true; element.classList.add('pan-ready');
-      }
-    };
-    const release = () => { space.current = false; element.classList.remove('pan-ready'); };
-    const keyUp = (event: KeyboardEvent) => { if (event.code === 'Space') release(); };
-    element.addEventListener('wheel', wheel, { passive: false });
-    window.addEventListener('keydown', keyDown);
-    window.addEventListener('keyup', keyUp);
-    window.addEventListener('blur', release);
-    return () => { element.removeEventListener('wheel', wheel); window.removeEventListener('keydown', keyDown); window.removeEventListener('keyup', keyUp); window.removeEventListener('blur', release); };
-  }, [updateView]);
+    mounted.current = true;
+    const flush = (reportFailure: boolean) => { if (saveTimer.current === null) return; window.clearTimeout(saveTimer.current); saveTimer.current = null; persist(undefined, undefined, reportFailure); };
+    const pageHide = () => flush(true);
+    window.addEventListener('pagehide', pageHide);
+    return () => { window.removeEventListener('pagehide', pageHide); flush(false); mounted.current = false; };
+  }, [persist]);
+  const previousRadarCount = useRef(radars.length);
+  const fit = useCallback(() => { updateView(fitView(latest.current.radars, size.current, latest.current.selected ? PANEL_WIDTH : 0)); setAnnouncement(mode === 'demo' ? t('画布已适配全部演示行星。', 'View fitted to all demo planets.') : t('画布已适配全部 Radar。', 'View fitted to all Radars.')); }, [mode, t, updateView]);
+  useLayoutEffect(() => { const wasEmpty = previousRadarCount.current === 0; previousRadarCount.current = radars.length; if (wasEmpty && radars.length > 0 && !radars.some(radar => storedPositions.current[radar.id])) fit(); }, [radars, fit]);
 
-  const select = (id: string) => {
-    setSelected(id);
-    const point = radars.find(r => r.id === id) ?? (mode === 'demo' ? DEMO_GALAXY : undefined);
-    if (!point) return;
-    updateView(keepInView(view.current, point, size.current, PANEL_WIDTH));
-    setAnnouncement(t(`已选择 ${point.name}。`, `Selected ${point.name}.`));
-  };
-  const closePanel = () => {
-    const id = selected;
-    setSelected(null);
-    if (id) nodes.current.get(id)?.focus({ preventScroll: true });
-  };
-  useEffect(() => { if (selected) panel.current?.focus({ preventScroll: true }); }, [selected]);
+  useEffect(() => { const element = root.current; if (!element) return; const wheel = (event: WheelEvent) => { if (event.target instanceof Element && event.target.closest('[data-ui]')) return; event.preventDefault(); if (gesture.current) return; const bounds = element.getBoundingClientRect(), delta = normalizedWheel(event.deltaY, event.deltaMode, size.current.height); updateView(zoomAt(view.current, { x: event.clientX - bounds.left, y: event.clientY - bounds.top }, Math.exp(-delta * .0018))); }; const keyDown = (event: KeyboardEvent) => { if (event.code === 'Space' && !interactive(event.target)) { event.preventDefault(); space.current = true; element.classList.add('pan-ready'); } }; const release = () => { space.current = false; element.classList.remove('pan-ready'); }; const keyUp = (event: KeyboardEvent) => { if (event.code === 'Space') release(); }; element.addEventListener('wheel', wheel, { passive: false }); window.addEventListener('keydown', keyDown); window.addEventListener('keyup', keyUp); window.addEventListener('blur', release); return () => { element.removeEventListener('wheel', wheel); window.removeEventListener('keydown', keyDown); window.removeEventListener('keyup', keyUp); window.removeEventListener('blur', release); }; }, [updateView]);
 
-  const pointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (event.button !== 0 || !event.isPrimary || gesture.current) return;
-    suppressClick.current = false;
-    const target = event.target as Element;
-    if (target.closest('[data-ui]')) return;
-    const node = target.closest<HTMLButtonElement>('[data-radar]');
-    const radar = node ? radars.find(r => r.id === node.dataset.radar) : undefined;
-    if (!radar && !space.current) return;
-    suppressClick.current = false;
-    gesture.current = { pointerId: event.pointerId, start: { x: event.clientX, y: event.clientY }, view: { ...view.current }, radar: space.current ? undefined : radar, moved: false, element: node ?? undefined };
-    event.currentTarget.setPointerCapture(event.pointerId);
-    event.currentTarget.classList.add('is-dragging');
-  };
-  const pointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
-    const active = gesture.current;
-    if (!active || active.pointerId !== event.pointerId) return;
-    const delta = { x: event.clientX - active.start.x, y: event.clientY - active.start.y };
-    if (!active.moved && Math.hypot(delta.x, delta.y) < 5) return;
-    active.moved = true;
-    if (active.radar && active.element) {
-      const point = movePoint(active.radar, delta, active.view.zoom);
-      active.element.style.left = `${point.x}px`; active.element.style.top = `${point.y}px`;
-    } else updateView({ ...active.view, x: active.view.x + delta.x, y: active.view.y + delta.y });
-  };
-  const pointerEnd = (event: ReactPointerEvent<HTMLDivElement>, cancelled = false) => {
-    const active = gesture.current;
-    if (!active || active.pointerId !== event.pointerId) return;
-    gesture.current = null;
-    event.currentTarget.classList.remove('is-dragging');
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
-    // Pointer capture retargets the synthetic click to the canvas. Consume it
-    // after a node gesture so selecting a node cannot immediately deselect it.
-    suppressClick.current = !!active.radar || active.moved || cancelled;
-    if (active.radar && active.element) {
-      if (cancelled) { active.element.style.left = `${active.radar.x}px`; active.element.style.top = `${active.radar.y}px`; }
-      else if (active.moved) {
-        const point = movePoint(active.radar, { x: event.clientX - active.start.x, y: event.clientY - active.start.y }, active.view.zoom);
-        onChange(radars.map(r => r.id === active.radar?.id ? { ...r, ...point } : r));
-        setAnnouncement(t(`${active.radar.name} 已移动；布局仅保留在当前会话。`, `${active.radar.name} moved; layout lasts only for this session.`));
-      } else if (!space.current) select(active.radar.id);
-    } else if (cancelled) updateView(active.view);
-  };
-  const keyboard = (event: ReactKeyboardEvent<HTMLDivElement>) => {
-    if (event.key === 'Escape' && selected) { event.preventDefault(); closePanel(); return; }
-    if (event.target !== event.currentTarget) return;
-    const delta: Record<string, Point> = { ArrowLeft: { x: 40, y: 0 }, ArrowRight: { x: -40, y: 0 }, ArrowUp: { x: 0, y: 40 }, ArrowDown: { x: 0, y: -40 } };
-    const offset = delta[event.key];
-    if (offset) { event.preventDefault(); updateView({ ...view.current, x: view.current.x + offset.x, y: view.current.y + offset.y }); }
-    if (event.key.toLowerCase() === 'f') { event.preventDefault(); fit(); }
-  };
+  const selectRadar = (id: string) => { setSelected({ kind: 'radar', id }); const point = radars.find(radar => radar.id === id); if (point) updateView(keepInView(view.current, point, size.current, PANEL_WIDTH)); setAnnouncement(t(`已选择 ${point?.name ?? 'Radar'}。`, `Selected ${point?.name ?? 'Radar'}.`)); };
+  const selectGalaxy = (id: string) => { const galaxy = galaxies.find(item => item.id === id); if (!galaxy) return; setSelected({ kind: 'galaxy', id }); setAnnouncement(t(`已选择 Galaxy ${galaxy.name}。`, `Selected Galaxy ${galaxy.name}.`)); };
+  const closePanel = () => { const current = selected; setSelected(null); if (current?.kind === 'radar') nodes.current.get(current.id)?.focus({ preventScroll: true }); else if (current?.kind === 'galaxy') galaxyNodes.current.get(current.id)?.focus({ preventScroll: true }); };
+  useEffect(() => { if (selected?.kind === 'radar') panel.current?.focus({ preventScroll: true }); }, [selected]);
+  const toggleMulti = (id: string) => { if (galaxies.some(galaxy => galaxy.members.includes(id))) { setAnnouncement(t('此 Radar 已属于一个 Galaxy。', 'This Radar already belongs to a Galaxy.')); return; } setMulti(current => { const next = new Set(current); if (next.has(id)) next.delete(id); else next.add(id); return next; }); };
+  const createGalaxy = () => { if (galaxies.length >= MAX_GALAXIES) { setAnnouncement(t('Galaxy 已达到本机布局容量上限。', 'Galaxy capacity reached for this local layout.')); return; } const members = [...multi].filter(id => radars.some(radar => radar.id === id) && !galaxies.some(galaxy => galaxy.members.includes(id))).slice(0, MAX_MEMBERS); if (members.length < 2) { setAnnouncement(t('至少选择两个未分组的 Radar。', 'Select at least two ungrouped Radars.')); return; } const galaxy: Galaxy = { id: crypto.randomUUID(), name: `Galaxy ${galaxies.length + 1}`, members }; commitGalaxies([...galaxies, galaxy]); setMulti(new Set()); setSelected({ kind: 'galaxy', id: galaxy.id }); setAnnouncement(t(`已建立 ${galaxy.name}，没有修改任何 Radar。`, `Created ${galaxy.name} without modifying any Radar.`)); };
 
-  return <div ref={root} className={`universe${projecting && !reduced ? ' is-projecting' : ''}`} data-projection={projecting && !reduced ? 'opening' : 'ready'} data-testid="universe" data-mode={mode} tabIndex={0} aria-label={mode === 'demo' ? t('离线星图画布，方向键平移，F 适配视图', 'Offline star map. Arrow keys to pan, F to fit.') : t('真实 Radar 星图，方向键平移，F 适配视图', 'Live Radar map. Arrow keys to pan, F to fit.')} onKeyDown={keyboard} onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={event => pointerEnd(event)} onPointerCancel={event => pointerEnd(event, true)} onLostPointerCapture={event => { if (gesture.current) pointerEnd(event, true); }} onClick={event => {
-    if (suppressClick.current) { suppressClick.current = false; return; }
-    if (event.target === event.currentTarget) setSelected(null);
-  }}>
-    <div className="map-frame" aria-hidden="true"/>
-    <div className="map-heading"><h1 className="eyebrow">{t('宇宙 / 雷达星图', 'UNIVERSE / RADAR MAP')}</h1><p>{t('循着信号，探索你的宇宙。', 'Follow the signals. Explore your universe.')}</p></div>
-    <div className="holo-projection" aria-hidden="true"><i/><i/><span/></div>
+  const pointerDown = (event: ReactPointerEvent<HTMLDivElement>) => { if (event.button !== 0 || !event.isPrimary || gesture.current) return; suppressClick.current = false; const target = event.target as Element; if (target.closest('[data-ui], .galaxy-shape')) return; const node = target.closest<HTMLButtonElement>('[data-radar]'), radar = node ? radars.find(item => item.id === node.dataset.radar) : undefined; const gestureMode: Gesture['mode'] = space.current ? 'pan' : radar ? 'node' : 'marquee'; gesture.current = { pointerId: event.pointerId, start: { x: event.clientX, y: event.clientY }, view: { ...view.current }, mode: gestureMode, radar, moved: false, element: node ?? undefined }; event.currentTarget.setPointerCapture(event.pointerId); event.currentTarget.classList.add('is-dragging'); };
+  const pointerMove = (event: ReactPointerEvent<HTMLDivElement>) => { const active = gesture.current; if (!active || active.pointerId !== event.pointerId) return; const delta = { x: event.clientX - active.start.x, y: event.clientY - active.start.y }; if (!active.moved && Math.hypot(delta.x, delta.y) < 5) return; active.moved = true; if (active.mode === 'node' && active.radar && active.element) { const point = movePoint(active.radar, delta, active.view.zoom); active.element.style.left = `${point.x}px`; active.element.style.top = `${point.y}px`; } else if (active.mode === 'pan') updateView({ ...active.view, x: active.view.x + delta.x, y: active.view.y + delta.y }, false); else { const bounds = root.current!.getBoundingClientRect(), x1 = active.start.x - bounds.left, y1 = active.start.y - bounds.top, x2 = event.clientX - bounds.left, y2 = event.clientY - bounds.top; setMarquee({ x: Math.min(x1, x2), y: Math.min(y1, y2), width: Math.abs(x2 - x1), height: Math.abs(y2 - y1) }); } };
+  const pointerEnd = (event: ReactPointerEvent<HTMLDivElement>, cancelled = false) => { const active = gesture.current; if (!active || active.pointerId !== event.pointerId) return; gesture.current = null; event.currentTarget.classList.remove('is-dragging'); if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId); suppressClick.current = active.mode === 'node' || active.moved || cancelled;
+    if (active.mode === 'node' && active.radar && active.element) { if (cancelled) { active.element.style.left = `${active.radar.x}px`; active.element.style.top = `${active.radar.y}px`; } else if (active.moved) { const point = movePoint(active.radar, { x: event.clientX - active.start.x, y: event.clientY - active.start.y }, active.view.zoom), next = radars.map(radar => radar.id === active.radar?.id ? { ...radar, ...point } : radar); commitRadars(next); setAnnouncement(t(`${active.radar.name} 已移动并保存在此账户的本机布局。`, `${active.radar.name} moved and saved in this account’s local layout.`)); } else if (!space.current) selectRadar(active.radar.id); }
+    else if (active.mode === 'pan') { if (cancelled) updateView(active.view, false); else if (active.moved) persist(); }
+    else { if (!cancelled && active.moved) { const left = Math.min(active.start.x, event.clientX), right = Math.max(active.start.x, event.clientX), top = Math.min(active.start.y, event.clientY), bottom = Math.max(active.start.y, event.clientY); const ids = [...nodes.current.entries()].filter(([id, node]) => { const box = node.getBoundingClientRect(), cx = box.left + box.width / 2, cy = box.top + box.height / 2; return cx >= left && cx <= right && cy >= top && cy <= bottom && !galaxies.some(galaxy => galaxy.members.includes(id)); }).map(([id]) => id).slice(0, MAX_MEMBERS); setMulti(new Set(ids)); setAnnouncement(ids.length >= 2 ? t(`已框选 ${ids.length} 个 Radar；可建立 Galaxy。`, `${ids.length} Radars selected; ready to create a Galaxy.`) : t('框选至少两个未分组 Radar 才能建立 Galaxy。', 'Marquee at least two ungrouped Radars to create a Galaxy.')); } setMarquee(null); }
+  };
+  const keyboard = (event: ReactKeyboardEvent<HTMLDivElement>) => { if (event.key === 'Escape') { if (multi.size) { event.preventDefault(); setMulti(new Set()); setAnnouncement(t('已取消多选。', 'Selection cancelled.')); return; } if (selected) { event.preventDefault(); closePanel(); return; } } if (event.target !== event.currentTarget) return; const delta: Record<string, Point> = { ArrowLeft: { x: 40, y: 0 }, ArrowRight: { x: -40, y: 0 }, ArrowUp: { x: 0, y: 40 }, ArrowDown: { x: 0, y: -40 } }, offset = delta[event.key]; if (offset) { event.preventDefault(); updateView({ ...view.current, x: view.current.x + offset.x, y: view.current.y + offset.y }); } if (event.key.toLowerCase() === 'f') { event.preventDefault(); fit(); } if (event.key.toLowerCase() === 'g') { event.preventDefault(); createGalaxy(); } };
+
+  return <div ref={root} className={`universe${projecting && !reduced ? ' is-projecting' : ''}`} data-projection={projecting && !reduced ? 'opening' : 'ready'} data-testid="universe" data-mode={mode} tabIndex={0} aria-label={t('Radar 星图。空白拖动框选，空格拖动平移，G 建立 Galaxy，Escape 取消。', 'Radar map. Drag empty space to marquee, Space-drag to pan, G to create a Galaxy, Escape to cancel.')} onKeyDown={keyboard} onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={event => pointerEnd(event)} onPointerCancel={event => pointerEnd(event, true)} onLostPointerCapture={event => { if (gesture.current) pointerEnd(event, true); }} onClick={event => { if (suppressClick.current) { suppressClick.current = false; return; } if (event.target === event.currentTarget) setSelected(null); }}>
+    <div className="map-frame" aria-hidden="true"/><div className="map-heading"><h1 className="eyebrow">{t('宇宙 / 雷达星图', 'UNIVERSE / RADAR MAP')}</h1><p>{t('循着信号，探索你的宇宙。', 'Follow the signals. Explore your universe.')}</p></div><div className="holo-projection" aria-hidden="true"><i/><i/><span/></div>
+    {storageNotice && <div className="storage-notice" role="alert" data-ui>{storageNotice}</div>}{multi.size > 0 && <div className="selection-tools" data-ui><span>{t(`已选择 ${multi.size} 个 Radar`, `${multi.size} Radars selected`)}</span><button disabled={multi.size < 2} onClick={createGalaxy}>{t('建立 Galaxy', 'Create Galaxy')}</button><button onClick={() => setMulti(new Set())}>{t('取消', 'Cancel')}</button></div>}
     {radars.length > 0 ? <div className="projection-field"><div ref={layer} className="world-layer" data-testid="world-layer">
-      {mode === 'demo' && <button className={`galaxy-outline${galaxySelected ? ' selected' : ''}`} style={{ left: DEMO_GALAXY.x, top: DEMO_GALAXY.y }} ref={el => { if (el) nodes.current.set(DEMO_GALAXY.id, el); else nodes.current.delete(DEMO_GALAXY.id); }} aria-label={t('查看 AI Research Galaxy 演示结构', 'View AI Research Galaxy demo structure')} onClick={() => { if (!suppressClick.current) select(DEMO_GALAXY.id); }}><span>AI RESEARCH GALAXY<small>{t('演示星系结构', 'DEMO STRUCTURE')}</small></span></button>}
-      {radars.map(radar => <button key={radar.id} ref={el => { if (el) nodes.current.set(radar.id, el); else nodes.current.delete(radar.id); }} data-radar={radar.id} className={`radar-node world-${radar.color}${selected === radar.id ? ' selected' : ''}`} style={{ left: radar.x, top: radar.y }} aria-label={mode === 'demo' ? t(`查看 ${radar.name}，${radar.type}，演示信号 ${radar.signals} 条`, `View ${radar.name}, ${radar.type}, ${radar.signals} demo signals`) : t(`查看真实 Radar ${radar.name}，${radar.type}`, `View live Radar ${radar.name}, ${radar.type}`)} onClick={event => { if (event.detail === 0) select(radar.id); }} onKeyDown={event => {
-        if (!event.altKey || !event.key.startsWith('Arrow')) return;
-        const deltas: Record<string, Point> = { ArrowLeft: { x: -16, y: 0 }, ArrowRight: { x: 16, y: 0 }, ArrowUp: { x: 0, y: -16 }, ArrowDown: { x: 0, y: 16 } };
-        const delta = deltas[event.key];
-        if (delta) { event.preventDefault(); const point = movePoint(radar, delta, view.current.zoom); onChange(radars.map(r => r.id === radar.id ? { ...r, ...point } : r)); setAnnouncement(t(`${radar.name} 已移动。`, `${radar.name} moved.`)); }
-      }}><Planet id={radar.id} color={radar.color}/><span className="radar-name">{radar.name}</span><span className="radar-meta"><i className={radar.status === 'active' ? '' : radar.status}/>{t(typeLabels[radar.type], radar.type.toUpperCase())} · {mode === 'demo' ? t('演示', 'DEMO') : t('真实', 'LIVE')}</span></button>)}
+      {galaxies.map(galaxy => { const bounds = galaxyBounds(galaxy, radars); return bounds && <button key={galaxy.id} ref={element => { if (element) galaxyNodes.current.set(galaxy.id, element); else galaxyNodes.current.delete(galaxy.id); }} className={`galaxy-shape${selectedGalaxy?.id === galaxy.id ? ' selected' : ''}`} style={{ left: bounds.x, top: bounds.y, width: bounds.width, height: bounds.height }} aria-label={t(`查看 Galaxy ${galaxy.name}`, `View Galaxy ${galaxy.name}`)} onClick={event => { event.stopPropagation(); selectGalaxy(galaxy.id); }}><span>{galaxy.name}<small>{galaxy.members.length} RADARS</small></span></button>; })}
+      {radars.map(radar => <button key={radar.id} ref={element => { if (element) nodes.current.set(radar.id, element); else nodes.current.delete(radar.id); }} data-radar={radar.id} className={`radar-node world-${radar.color}${selectedRadar?.id === radar.id ? ' selected' : ''}${multi.has(radar.id) ? ' multi-selected' : ''}`} style={{ left: radar.x, top: radar.y }} aria-pressed={multi.has(radar.id)} aria-label={mode === 'demo' ? t(`查看 ${radar.name}，${radar.type}，演示信号 ${radar.signals} 条`, `View ${radar.name}, ${radar.type}, ${radar.signals} demo signals`) : t(`查看真实 Radar ${radar.name}，${radar.type}`, `View live Radar ${radar.name}, ${radar.type}`)} onClick={event => { if (event.detail === 0) selectRadar(radar.id); }} onKeyDown={event => { if ((event.shiftKey && event.key === 'Enter') || event.key === ' ') { event.preventDefault(); toggleMulti(radar.id); return; } if (!event.altKey || !event.key.startsWith('Arrow')) return; const deltas: Record<string, Point> = { ArrowLeft: { x: -16, y: 0 }, ArrowRight: { x: 16, y: 0 }, ArrowUp: { x: 0, y: -16 }, ArrowDown: { x: 0, y: 16 } }, delta = deltas[event.key]; if (delta) { event.preventDefault(); const point = movePoint(radar, delta, view.current.zoom), next = radars.map(item => item.id === radar.id ? { ...item, ...point } : item); commitRadars(next); setAnnouncement(t(`${radar.name} 已移动。`, `${radar.name} moved.`)); } }}><Planet id={radar.id} color={radar.color}/><span className="radar-name">{radar.name}</span><span className="radar-meta"><i className={radar.status === 'active' ? '' : radar.status}/>{t(typeLabels[radar.type], radar.type.toUpperCase())} · {mode === 'demo' ? t('演示', 'DEMO') : t('真实', 'LIVE')}</span></button>)}
     </div></div> : <div className="empty-state" data-ui><span className="empty-orbit" aria-hidden="true">✧</span><span className="eyebrow">{t('你的宇宙，从这里开始', 'YOUR UNIVERSE STARTS HERE')}</span><h1>{t('一片安静的星空。', 'A quiet sky.')}</h1>{mode === 'demo' ? <><p>{t('当前没有演示 Radar。载入示例，探索星图交互。', 'No demo Radars here. Load examples to explore the star map.')}</p><button className="text-button" onClick={onLoadDemo}>{t('载入演示 Radar', 'Load demo Radars')} <Icon name="arrow"/></button><small>{t('仅加载本地示例，不创建真实 Radar。', 'Loads local examples only; no real Radars are created.')}</small></> : <><p>{t('此账户目前没有 Radar。点击右上角加号创建。', 'This account has no Radars. Use the plus button to create one.')}</p><small>{t('没有加载演示数据，也没有编造统计。', 'No demo data or invented statistics are shown.')}</small></>}</div>}
-    {selected && <aside ref={panel} tabIndex={-1} className="detail-panel" data-ui aria-labelledby="detail-title" data-testid="detail-panel">
-      <button className="panel-close icon-button" aria-label={t('关闭详情', 'Close details')} onClick={closePanel}><Icon name="close"/></button>
-      <span className="eyebrow">{galaxySelected ? t('星系 / 结构', 'GALAXY / STRUCTURE') : t('雷达 / 行星', 'RADAR / WORLD')}</span>
-      <h2 id="detail-title">{selectedRadar?.name ?? DEMO_GALAXY.name}</h2><p className="panel-summary">{selectedRadar ? t(selectedRadar.description, descriptions[selectedRadar.id] ?? selectedRadar.description) : t('由两个演示 Radar 构成的星系结构。', 'A Galaxy composed of two demo Radars.')}</p>
-      <dl className="detail-facts"><div><dt>{galaxySelected ? t('组内行星', 'Member worlds') : t('Radar 类型', 'Radar type')}</dt><dd>{galaxySelected ? 2 : selectedRadar && t(typeLabels[selectedRadar.type], selectedRadar.type)}</dd></div><div><dt>{mode === 'demo' ? t('演示新信号', 'Demo signals') : t('新信号', 'New signals')}</dt><dd>{galaxySelected ? 9 : selectedRadar?.signals ?? t('未获取', 'Not fetched')}</dd></div><div><dt>{t('数据来源', 'Data source')}</dt><dd>{mode === 'demo' ? t('本地演示', 'LOCAL DEMO') : t('本机 API', 'LOCAL API')}</dd></div></dl>
-      {galaxySelected ? <section className="galaxy-members"><h3>{t('星系结构', 'GALAXY STRUCTURE')}</h3>{radars.filter(r => DEMO_GALAXY.members.some(id => id === r.id)).map(radar => <button key={radar.id} onClick={() => select(radar.id)}><span>✧ {radar.name}</span><small>{t(typeLabels[radar.type], radar.type.toUpperCase())} · RADAR</small><Icon name="arrow"/></button>)}</section> : selectedRadar && <div className="radar-detail-art"><Planet id={`detail-${selectedRadar.id}`} color={selectedRadar.color}/><span className="status-label">{t(selectedRadar.status === 'active' ? '活跃' : selectedRadar.status === 'paused' ? '已暂停' : '已归档', selectedRadar.status.toUpperCase())} · {mode === 'demo' ? t('演示', 'DEMO') : t('真实', 'LIVE')}</span></div>}
-      <p className="scope-note">{galaxySelected ? t('仅展示分组结构；重命名、解散与持久化尚未接入。', 'Structure preview only. Rename, disband and persistence are not connected.') : mode === 'demo' ? t('示例状态，不代表真实采集任务。可拖动行星；键盘聚焦行星后按 Alt + 方向键移动。', 'Demo status, not a real collection task. Drag planets or focus one and use Alt + arrows.') : t('Radar 来自真实本机 API；可编辑、暂停或恢复，并管理来源与采集。', 'This Radar comes from the local API. Edit it, pause or resume it, or manage Sources and collection.')}<br/>{t('所有布局变动仅保留于当前会话。', 'Layout changes last only for this session.')}</p>
-      <button className="text-button panel-fit" onClick={fit}><Icon name="fit"/>{t('适配全部行星', 'Fit all planets')}</button>
-      {mode === 'live' && selectedRadar && <button className="text-button" onClick={event => onSourcesRadar?.(selectedRadar.id, selectedRadar.name, event.currentTarget)}>{t('来源与采集', 'Sources and collection')}</button>}
-      {mode === 'live' && selectedRadar && <button className="text-button" onClick={event => onEditRadar?.(selectedRadar.id, event.currentTarget)}>{t('编辑 Radar', 'Edit Radar')}</button>}
-      {mode === 'live' && selectedRadar?.status === 'active' && <button data-lifecycle-action="pause" className="text-button" onClick={event => onLifecycleRadar?.(selectedRadar.id, selectedRadar.name, 'pause', event.currentTarget)}>{t('暂停 Radar', 'Pause Radar')}</button>}
-      {mode === 'live' && selectedRadar?.status === 'paused' && <button data-lifecycle-action="resume" className="text-button" onClick={event => onLifecycleRadar?.(selectedRadar.id, selectedRadar.name, 'resume', event.currentTarget)}>{t('恢复 Radar', 'Resume Radar')}</button>}
-      {mode === 'live' && selectedRadar && <button data-lifecycle-action="delete" className="text-button" onClick={event => onLifecycleRadar?.(selectedRadar.id, selectedRadar.name, 'delete', event.currentTarget)}>{t('移除 Radar', 'Remove Radar')}</button>}
-    </aside>}
-    <div className="canvas-help" data-ui><p>{t('拖动行星 · 滚轮缩放 · 空格 + 拖动平移', 'Drag planets · Scroll to zoom · Space + drag to pan')}</p><p>{t('Tab / Enter 查看 · Alt + 方向键移动行星 · F 适配', 'Tab / Enter to inspect · Alt + arrows to move · F to fit')}</p></div>
-    <div className="zoom-controls" data-ui aria-label={t('画布缩放', 'Canvas zoom')}><button aria-label={t('缩小星图', 'Zoom out')} onClick={() => updateView(zoomAt(view.current, { x: size.current.width / 2, y: size.current.height / 2 }, 1 / 1.2))}><Icon name="minus"/></button><output ref={zoomLabel} aria-label={t('当前缩放', 'Current zoom')}>100%</output><button aria-label={t('放大星图', 'Zoom in')} onClick={() => updateView(zoomAt(view.current, { x: size.current.width / 2, y: size.current.height / 2 }, 1.2))}><Icon name="plus"/></button><button aria-label={t('适配全部行星', 'Fit all planets')} title={t('适配全部行星（F）', 'Fit all planets (F)')} onClick={fit}><Icon name="fit"/></button></div>
-    <div className="sr-only" role="status" aria-live="polite">{announcement}</div>
+    {marquee && <div className="selection-marquee" style={marquee} aria-hidden="true"/>}
+    {selectedRadar && <aside ref={panel} tabIndex={-1} className="detail-panel" data-ui aria-labelledby="detail-title" data-testid="detail-panel"><button className="panel-close icon-button" aria-label={t('关闭详情', 'Close details')} onClick={closePanel}><Icon name="close"/></button><span className="eyebrow">{t('雷达 / 行星', 'RADAR / WORLD')}</span><h2 id="detail-title">{selectedRadar.name}</h2><p className="panel-summary">{t(selectedRadar.description, descriptions[selectedRadar.id] ?? selectedRadar.description)}</p><dl className="detail-facts"><div><dt>{t('Radar 类型', 'Radar type')}</dt><dd>{t(typeLabels[selectedRadar.type], selectedRadar.type)}</dd></div><div><dt>{mode === 'demo' ? t('演示新信号', 'Demo signals') : t('新信号', 'New signals')}</dt><dd>{selectedRadar.signals ?? t('未获取', 'Not fetched')}</dd></div><div><dt>{t('数据来源', 'Data source')}</dt><dd>{mode === 'demo' ? t('本地演示', 'LOCAL DEMO') : t('本机 API', 'LOCAL API')}</dd></div></dl><div className="radar-detail-art"><Planet id={`detail-${selectedRadar.id}`} color={selectedRadar.color}/><span className="status-label">{t(selectedRadar.status === 'active' ? '活跃' : selectedRadar.status === 'paused' ? '已暂停' : '已归档', selectedRadar.status.toUpperCase())} · {mode === 'demo' ? t('演示', 'DEMO') : t('真实', 'LIVE')}</span></div><p className="scope-note">{mode === 'demo' ? t('示例状态，不代表真实采集任务。', 'Demo state, not a real collection task.') : t('Radar 来自真实本机 API；Galaxy 仅保存本地组织信息。', 'This Radar comes from the local API; Galaxies store local organization only.')}<br/>{t('位置、视图和 Galaxy 保存在当前账户的版本化本机空间中。', 'Position, view and Galaxies are saved in this account’s versioned local space.')}</p><button className="text-button panel-fit" onClick={fit}><Icon name="fit"/>{t('适配全部行星', 'Fit all planets')}</button>{mode === 'live' && <button className="text-button" onClick={event => onSourcesRadar?.(selectedRadar.id, selectedRadar.name, event.currentTarget)}>{t('来源与采集', 'Sources and collection')}</button>}{mode === 'live' && <button className="text-button" onClick={event => onEditRadar?.(selectedRadar.id, event.currentTarget)}>{t('编辑 Radar', 'Edit Radar')}</button>}{mode === 'live' && selectedRadar.status === 'active' && <button data-lifecycle-action="pause" className="text-button" onClick={event => onLifecycleRadar?.(selectedRadar.id, selectedRadar.name, 'pause', event.currentTarget)}>{t('暂停 Radar', 'Pause Radar')}</button>}{mode === 'live' && selectedRadar.status === 'paused' && <button data-lifecycle-action="resume" className="text-button" onClick={event => onLifecycleRadar?.(selectedRadar.id, selectedRadar.name, 'resume', event.currentTarget)}>{t('恢复 Radar', 'Resume Radar')}</button>}{mode === 'live' && <button data-lifecycle-action="delete" className="text-button" onClick={event => onLifecycleRadar?.(selectedRadar.id, selectedRadar.name, 'delete', event.currentTarget)}>{t('移除 Radar', 'Remove Radar')}</button>}</aside>}
+    {selectedGalaxy && <GalaxyPanel galaxy={selectedGalaxy} radars={radars} onClose={closePanel} onRename={name => commitGalaxies(galaxies.map(galaxy => galaxy.id === selectedGalaxy.id ? { ...galaxy, name } : galaxy))} onMember={id => selectRadar(id)} onDisband={() => { commitGalaxies(galaxies.filter(galaxy => galaxy.id !== selectedGalaxy.id)); setSelected(null); setAnnouncement(t('Galaxy 已解散；Radar 保持不变。', 'Galaxy disbanded; Radars are unchanged.')); }}/>}
+    <div className="canvas-help" data-ui><p>{t('空白框选 · 拖动行星 · 滚轮缩放 · 空格 + 拖动平移', 'Marquee empty space · Drag planets · Scroll to zoom · Space + drag to pan')}</p><p>{t('Shift + Enter / Space 多选 · G 建组 · Escape 取消 · F 适配', 'Shift + Enter / Space to select · G to group · Escape to cancel · F to fit')}</p></div>
+    <div className="zoom-controls" data-ui aria-label={t('画布缩放', 'Canvas zoom')}><button aria-label={t('缩小星图', 'Zoom out')} onClick={() => updateView(zoomAt(view.current, { x: size.current.width / 2, y: size.current.height / 2 }, 1 / 1.2))}><Icon name="minus"/></button><output ref={zoomLabel} aria-label={t('当前缩放', 'Current zoom')}>100%</output><button aria-label={t('放大星图', 'Zoom in')} onClick={() => updateView(zoomAt(view.current, { x: size.current.width / 2, y: size.current.height / 2 }, 1.2))}><Icon name="plus"/></button><button aria-label={t('适配全部行星', 'Fit all planets')} title={t('适配全部行星（F）', 'Fit all planets (F)')} onClick={fit}><Icon name="fit"/></button></div><div className="sr-only" role="status" aria-live="polite">{announcement}</div>
   </div>;
 }
+
+export { DEMO_OWNER };

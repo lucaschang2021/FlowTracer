@@ -29,6 +29,17 @@ fn main() {
             api::collection_runs_get,
             api::intelligence_list,
             api::intelligence_get,
+            api::bookmarks_list,
+            api::bookmarks_create,
+            api::bookmarks_update,
+            api::bookmarks_delete,
+            api::memory_search,
+            api::opportunities_list,
+            api::opportunities_get,
+            api::opportunities_action_payload,
+            api::notifications_list,
+            api::notifications_read,
+            api::notifications_read_all,
         ])
         .run(tauri::generate_context!())
         .expect("FlowTracer could not start");

@@ -1,4 +1,5 @@
 import { invoke } from '@tauri-apps/api/core';
+import type { ActionPayload, Bookmark, BookmarkCreateInput, BookmarkPage, MemorySearchInput, MemorySearchResult, NotificationItem, NotificationPage, NotificationQuery, NotificationReadAll, Opportunity, OpportunityPage, OpportunityQuery } from './product';
 
 export type BridgeError = {
   kind: string;
@@ -83,6 +84,17 @@ export const desktopApi = {
   collectionRun: (runId: string, sourceId: string) => call<CollectionRun>('collection_runs_get', { runId, sourceId }),
   intelligence: (input:IntelligenceQuery) => call<IntelligencePage>('intelligence_list', { input }),
   intelligenceDetail: (analysisId:string, radarId:string) => call<IntelligenceDetail>('intelligence_get', { analysisId, radarId }),
+  bookmarks: (page=1,pageSize=20) => call<BookmarkPage>('bookmarks_list',{page,pageSize}),
+  createBookmark: (input:BookmarkCreateInput) => call<Bookmark>('bookmarks_create',{input}),
+  updateBookmark: (bookmarkId:string,note:string|null) => call<Bookmark>('bookmarks_update',{bookmarkId,input:{note}}),
+  deleteBookmark: (bookmarkId:string) => call<void>('bookmarks_delete',{bookmarkId}),
+  searchMemory: (input:MemorySearchInput) => call<MemorySearchResult>('memory_search',{input}),
+  opportunities: (input:OpportunityQuery) => call<OpportunityPage>('opportunities_list',{input}),
+  opportunity: (opportunityId:string) => call<Opportunity>('opportunities_get',{opportunityId}),
+  actionPayload: (opportunityId:string) => call<ActionPayload>('opportunities_action_payload',{opportunityId}),
+  notifications: (input:NotificationQuery) => call<NotificationPage>('notifications_list',{input}),
+  readNotification: (notificationId:string) => call<NotificationItem>('notifications_read',{notificationId}),
+  readAllNotifications: () => call<NotificationReadAll>('notifications_read_all'),
 };
 
 export const errorMessage = (error: unknown) => normalizeError(error);

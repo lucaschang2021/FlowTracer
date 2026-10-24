@@ -1,0 +1,21 @@
+import type { Recommendation } from './desktop';
+
+export type AccountRequest = <T>(operation: () => Promise<T>) => Promise<T>;
+export type Bookmark = { id:string;documentId:string;note:string|null;title:string;canonicalUrl:string;analysisId:string|null;radarId:string|null;summary:string|null;category:string|null;radarScore:number|null;recommendation:Recommendation|null;createdAt:string;updatedAt:string };
+export type BookmarkPage = { items:Bookmark[];page:number;pageSize:number;total:number };
+export type BookmarkCreateInput = { documentId:string;note?:string|null };
+export type MemorySearchInput = { query:string;topK:number;radarId?:string|null;dateFrom?:string|null;dateTo?:string|null;bookmarkedOnly:boolean };
+export type MemorySearchItem = { analysisId:string;documentId:string;radarId:string;title:string;canonicalUrl:string;summary:string|null;category:string|null;radarScore:number|null;recommendation:Recommendation|null;excerpt:string;similarity:number;occurredAt:string;bookmarked:boolean };
+export type MemorySearchResult = { items:MemorySearchItem[];query:string;topK:number };
+export type OpportunityStatus='active'|'expired'|'removed'|'rejected';
+export type OpportunityRecommendation='act_now'|'review'|'watch'|'dismiss';
+export type OpportunityScore={id:string;radarId:string;scoreVersion:string;hardFilterPassed:boolean;disqualifiers:unknown[];fit:number|null;expectedValue:number|null;completionProbability:number|null;effortEfficiency:number|null;timeToDelivery:number|null;competition:number|null;ambiguity:number|null;risk:number|null;overallScore:number|null;recommendation:OpportunityRecommendation;reason:string;scoredAt:string};
+export type Opportunity={id:string;sourceId:string;title:string;platform:string|null;description:string;budgetMin:number|null;budgetMax:number|null;currency:string|null;skills:unknown[];deadline:string|null;publishedAt:string|null;estimatedEffortHours:number|null;deliveryType:string|null;profileVersion:string;sourceUrl:string;status:OpportunityStatus;createdAt:string;updatedAt:string;score:OpportunityScore|null};
+export type OpportunityPage={items:Opportunity[];page:number;pageSize:number;total:number};
+export type OpportunityQuery={page:number;pageSize:number;radarId?:string|null;status?:OpportunityStatus|null;recommendation?:OpportunityRecommendation|null;minScore?:number|null;currency?:string|null;deadline?:string|null};
+export type ActionPayload={opportunityId:string;payloadVersion:string;payload:Record<string,unknown>;payloadHash:string;generatedAt:string};
+export type NotificationStatus='unread'|'read';export type NotificationPriority='normal'|'high'|'critical';export type NotificationKind='intelligence'|'opportunity';
+export type NotificationItem={id:string;kind:NotificationKind;analysisId:string|null;opportunityId:string|null;title:string;content:string;priority:NotificationPriority;reason:string;url:string|null;status:NotificationStatus;createdAt:string;readAt:string|null};
+export type NotificationPage={items:NotificationItem[];page:number;pageSize:number;total:number};
+export type NotificationQuery={page:number;pageSize:number;status?:NotificationStatus|null;priority?:NotificationPriority|null};
+export type NotificationReadAll={updatedCount:number;readAt:string};

@@ -35,7 +35,7 @@ for (const viewport of [{ width: 1366, height: 768 }, { width: 1600, height: 900
     // Wait for the actual fitted camera, not a timeout or a stale 1600px layout.
     const expectedZoom = Math.min((viewport.width - 270) / 880, (viewport.height - 144 - 340) / 345, 1.25);
     await expect.poll(async () => (await camera(page)).zoom).toBeCloseTo(expectedZoom, 5);
-    await expect(page.getByTestId('detail-panel')).toHaveCount(0);
+    await expect(page.getByTestId('galaxy-panel')).toHaveCount(0);
     await expect(page.getByText('离线演示', { exact: true })).toBeVisible();
     const rects = await nodes(page).evaluateAll(elements => elements.map(el => {
       const r = el.getBoundingClientRect(); return { x: r.x, y: r.y, right: r.right, bottom: r.bottom };
@@ -45,14 +45,14 @@ for (const viewport of [{ width: 1366, height: 768 }, { width: 1600, height: 900
     const header = await page.locator('.app-header').evaluate(el => Array.from(el.children).map(child => { const r = child.getBoundingClientRect(); return { left: r.left, right: r.right }; }));
     expect(header[0].right).toBeLessThan(header[1].left); expect(header[1].right).toBeLessThan(header[2].left);
     await page.screenshot({ path: info.outputPath(`canvas-${viewport.width}.png`) });
-    await page.getByRole('button', { name: '查看 AI Research Galaxy 演示结构' }).click();
+    await page.getByRole('button', { name: '查看 Galaxy AI Research Galaxy' }).click();
     await expect(page.getByRole('heading', { name: 'AI Research Galaxy' })).toBeVisible();
-    const panel = await page.getByTestId('detail-panel').boundingBox();
+    const panel = await page.getByTestId('galaxy-panel').boundingBox();
     const zoom = await page.getByRole('button', { name: '缩小星图' }).boundingBox();
     expect(panel!.y + panel!.height).toBeLessThan(zoom!.y);
     await page.screenshot({ path: info.outputPath(`galaxy-${viewport.width}.png`) });
-    await page.getByRole('button', { name: '关闭详情' }).click();
-    await expect(page.getByRole('button', { name: '查看 AI Research Galaxy 演示结构' })).toBeFocused();
+    await page.getByRole('button', { name: '关闭 Galaxy' }).click();
+    await expect(page.getByRole('button', { name: '查看 Galaxy AI Research Galaxy' })).toBeFocused();
   });
 }
 

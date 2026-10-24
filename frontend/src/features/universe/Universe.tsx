@@ -24,7 +24,7 @@ const descriptions: Record<string, string> = { 'demo-ai': 'Model infrastructure,
 const interactive = (target: EventTarget | null) => target instanceof Element && !!target.closest('button, input, a, select, textarea, [data-ui]');
 const initialGalaxies = (mode: Props['mode']): Galaxy[] => mode === 'demo' ? [{ id: DEMO_GALAXY_UUID, name: DEMO_GALAXY.name, members: [...DEMO_GALAXY.members] }] : [];
 
-export function Universe({ mode, owner, radars, onChange, onGalaxyCount, onLoadDemo, onEditRadar, onLifecycleRadar, onSourcesRadar }: Props) {
+export function Universe({ mode, owner, radars, onChange, onGalaxyCount, onLoadDemo, onEditRadar, onLifecycleRadar, onSourcesRadar, deletionHandler }: Props & { deletionHandler?: React.MutableRefObject<((id: string) => void) | null> }) {
   const { t } = usePreferences(); const reduced = useReducedMotion();
   const [projecting, setProjecting] = useState(!reduced), [selected, setSelected] = useState<Selection>(null), [multi, setMulti] = useState<Set<string>>(new Set());
   const [galaxies, setGalaxies] = useState<Galaxy[]>(() => initialGalaxies(mode)), [marquee, setMarquee] = useState<Box | null>(null), [storageNotice, setStorageNotice] = useState<string | null>(null);
@@ -54,6 +54,20 @@ export function Universe({ mode, owner, radars, onChange, onGalaxyCount, onLoadD
   // Owner changes remount Universe in App, so delayed saves cannot cross owners.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  useLayoutEffect(() => {
+    if (!deletionHandler || mode !== 'live') return;
+    // Called only after the owning account's DELETE response passes its epoch fence.
+    const removeConfirmed = (id: string) => {
+      delete storedPositions.current[id];
+      const nextRadars = latest.current.radars.filter(radar => radar.id !== id);
+      const nextGalaxies = latest.current.galaxies.map(galaxy => ({ ...galaxy, members: galaxy.members.filter(member => member !== id) })).filter(galaxy => galaxy.members.length >= 2);
+      latest.current = { ...latest.current, radars: nextRadars, galaxies: nextGalaxies };
+      if (mounted.current) setGalaxies(nextGalaxies);
+      persist(nextRadars, nextGalaxies);
+    };
+    deletionHandler.current = removeConfirmed;
+    return () => { if (deletionHandler.current === removeConfirmed) deletionHandler.current = null; };
+  }, [deletionHandler, mode, persist]);
   useLayoutEffect(() => { const element = root.current; if (!element) return; const resize = () => { size.current = { width: element.clientWidth, height: element.clientHeight }; if (!savedView.current) view.current = fitView(latest.current.radars, size.current, latest.current.selected ? PANEL_WIDTH : 0); paint(); }; resize(); const observer = new ResizeObserver(resize); observer.observe(element); return () => { observer.disconnect(); if (frame.current !== null) cancelAnimationFrame(frame.current); }; }, [paint]);
   useEffect(() => {
     mounted.current = true;

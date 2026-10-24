@@ -17,46 +17,8 @@ function currentOffset(x: number, y: number, phase: number, seconds: number) {
 }
 
 export function OriginalBackdrop({ reduced }: { reduced: boolean }) {
-  const backdrop = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const stars = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const element = backdrop.current;
-    if (!element) return;
-    let frame = 0;
-    let x = 0, y = 0;
-    const reset = () => {
-      cancelAnimationFrame(frame); frame = 0;
-      element.style.translate = '0px 0px';
-    };
-    reset();
-    if (reduced) return;
-    const paint = () => {
-      frame = 0;
-      element.style.translate = `${x.toFixed(2)}px ${y.toFixed(2)}px`;
-    };
-    const move = (event: PointerEvent) => {
-      if (event.pointerType !== 'mouse') return;
-      if (event.buttons || document.hidden) { reset(); return; }
-      x = Math.max(-12, Math.min(12, (event.clientX / Math.max(1, window.innerWidth) - .5) * 24));
-      y = Math.max(-9, Math.min(9, (event.clientY / Math.max(1, window.innerHeight) - .5) * 18));
-      if (!frame) frame = requestAnimationFrame(paint);
-    };
-    const leave = (event: PointerEvent) => { if (!event.relatedTarget) reset(); };
-    window.addEventListener('pointermove', move, { passive: true });
-    window.addEventListener('pointerout', leave, { passive: true });
-    window.addEventListener('blur', reset);
-    window.addEventListener('resize', reset);
-    document.addEventListener('visibilitychange', reset);
-    return () => {
-      window.removeEventListener('pointermove', move);
-      window.removeEventListener('pointerout', leave);
-      window.removeEventListener('blur', reset);
-      window.removeEventListener('resize', reset);
-      document.removeEventListener('visibilitychange', reset);
-      reset();
-    };
-  }, [reduced]);
   useEffect(() => {
     const element = canvas.current;
     const ink = element?.getContext('2d');
@@ -85,7 +47,7 @@ export function OriginalBackdrop({ reduced }: { reduced: boolean }) {
     draw(0); resume(); document.addEventListener('visibilitychange', resume);
     return () => { cancelAnimationFrame(frame); document.removeEventListener('visibilitychange', resume); };
   }, [reduced]);
-  return <div ref={backdrop} className="original-backdrop" data-testid="original-backdrop" aria-hidden="true">
+  return <div className="original-backdrop" data-testid="original-backdrop" aria-hidden="true">
     <div className="original-orbit-system"><div className="original-orbit-art"/></div>
     <div className="original-breath"/><div className="original-ambient"/>
     <div className="original-polar-grid"><svg viewBox="0 0 800 800" focusable="false">

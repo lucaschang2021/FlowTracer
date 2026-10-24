@@ -5,6 +5,9 @@ use std::{env, net::IpAddr, sync::Arc, time::Duration};
 use tauri::State;
 use tokio::sync::Mutex;
 
+mod product;
+pub use product::*;
+
 const DEFAULT_ORIGIN: &str = "http://127.0.0.1:8000/api/v1";
 const REQUEST_LIMIT: usize = 256 * 1024;
 const RESPONSE_LIMIT: usize = 2 * 1024 * 1024;
@@ -398,15 +401,18 @@ enum Operation {
     CollectionRun(String),
     IntelligenceList(String),
     IntelligenceDetail(String),
+    Bookmarks(i64, i64), BookmarkCreate, BookmarkUpdate(String), BookmarkDelete(String), MemorySearch,
+    Opportunities(String), Opportunity(String), ActionPayload(String),
+    Notifications(String), NotificationRead(String), NotificationsReadAll,
 }
 
 impl Operation {
     fn method(&self) -> Method {
         match self {
-            Self::Register | Self::Login | Self::Refresh | Self::Logout | Self::RadarCreate | Self::RadarPause(_) | Self::RadarResume(_) | Self::SourceCreate | Self::SourceBind(_, _) | Self::SourceCollect(_, _) => Method::POST,
-            Self::RadarUpdate(_) => Method::PATCH,
-            Self::RadarDelete(_) | Self::SourceUnbind(_, _) => Method::DELETE,
-            Self::Me | Self::Ready | Self::Radars | Self::RadarDetail(_) | Self::Sources(_, _) | Self::RadarSources(_, _, _) | Self::CollectionRun(_) | Self::IntelligenceList(_) | Self::IntelligenceDetail(_) => Method::GET,
+            Self::Register | Self::Login | Self::Refresh | Self::Logout | Self::RadarCreate | Self::RadarPause(_) | Self::RadarResume(_) | Self::SourceCreate | Self::SourceBind(_, _) | Self::SourceCollect(_, _) | Self::BookmarkCreate | Self::MemorySearch | Self::NotificationRead(_) | Self::NotificationsReadAll => Method::POST,
+            Self::RadarUpdate(_) | Self::BookmarkUpdate(_) => Method::PATCH,
+            Self::RadarDelete(_) | Self::SourceUnbind(_, _) | Self::BookmarkDelete(_) => Method::DELETE,
+            Self::Me | Self::Ready | Self::Radars | Self::RadarDetail(_) | Self::Sources(_, _) | Self::RadarSources(_, _, _) | Self::CollectionRun(_) | Self::IntelligenceList(_) | Self::IntelligenceDetail(_) | Self::Bookmarks(_, _) | Self::Opportunities(_) | Self::Opportunity(_) | Self::ActionPayload(_) | Self::Notifications(_) => Method::GET,
         }
     }
 
@@ -423,6 +429,9 @@ impl Operation {
             Self::SourceBind(radar, source) | Self::SourceUnbind(radar, source) => format!("radars/{radar}/sources/{source}"),
             Self::SourceCollect(source, _) => format!("sources/{source}/collect"), Self::CollectionRun(run) => format!("collection-runs/{run}"),
             Self::IntelligenceList(query) => format!("intelligence?{query}"), Self::IntelligenceDetail(id) => format!("intelligence/{id}"),
+            Self::Bookmarks(page,size)=>format!("bookmarks?page={page}&page_size={size}"),Self::BookmarkCreate=>"bookmarks".into(),Self::BookmarkUpdate(id)|Self::BookmarkDelete(id)=>format!("bookmarks/{id}"),Self::MemorySearch=>"memory/search".into(),
+            Self::Opportunities(query)=>format!("opportunities?{query}"),Self::Opportunity(id)=>format!("opportunities/{id}"),Self::ActionPayload(id)=>format!("opportunities/{id}/action-payload"),
+            Self::Notifications(query)=>format!("notifications?{query}"),Self::NotificationRead(id)=>format!("notifications/{id}/read"),Self::NotificationsReadAll=>"notifications/read-all".into(),
         }
     }
 }
@@ -1370,4 +1379,40 @@ mod tests {
 
     #[tokio::test]
     async fn logout_fences_in_flight_intelligence(){let started=Arc::new(AtomicBool::new(false));let flag=started.clone();let(origin,task)=fake_server(Arc::new(move|request|match request.path.as_str(){"/api/v1/auth/login"=>json_response(200,auth("access","refresh")),"/api/v1/auth/logout"=>Response{status:204,body:String::new(),headers:vec![],delay_ms:0},path if path.starts_with("/api/v1/intelligence?")=>{flag.store(true,Ordering::SeqCst);Response{status:200,body:json!({"items":[],"page":1,"page_size":10,"total":0}).to_string(),headers:vec![],delay_ms:120}},_=>json_response(404,json!({}))})).await;let client=ApiClient::new(&origin).unwrap();client.authenticate(Operation::Login,"a@example.com".into(),"long-password".into(),None).await.unwrap();let pending=tokio::spawn({let client=client.clone();async move{client.intelligence_list(IntelligenceQuery{page:1,page_size:10,radar_id:None,status:None,recommendation:None,category:None,min_score:None}).await}});while !started.load(Ordering::SeqCst){sleep(Duration::from_millis(5)).await;}client.logout().await.unwrap();assert_eq!(pending.await.unwrap().err().unwrap().kind,"stale_session");task.abort();}
+
+    fn product_bookmark()->Value{json!({"id":"00000000-0000-4000-8000-000000000091","document_id":"00000000-0000-4000-8000-000000000051","note":"keep","title":"Policy memory","canonical_url":"https://example.com/memory","analysis_id":"00000000-0000-4000-8000-000000000061","radar_id":"00000000-0000-4000-8000-000000000011","summary":"Verified summary","category":"policy","radar_score":"88.50","recommendation":"must_read","created_at":"2026-10-20T00:00:00Z","updated_at":"2026-10-20T00:00:01Z"})}
+    fn product_opportunity()->Value{json!({"id":"00000000-0000-4000-8000-000000000071","source_id":"00000000-0000-4000-8000-000000000021","title":"Typed integration","platform":"fixture","description":"Read-only opportunity","budget_min":"100.25","budget_max":"250.50","currency":"USD","skills":["rust",{"label":"react"}],"deadline":"2026-12-01T00:00:00Z","published_at":"2026-10-20T00:00:00Z","estimated_effort_hours":"4.5","delivery_type":"fixed","profile_version":"v1","source_url":"https://example.com/opportunity","status":"active","created_at":"2026-10-20T00:00:00Z","updated_at":"2026-10-20T00:00:01Z","score":{"id":"00000000-0000-4000-8000-000000000072","radar_id":"00000000-0000-4000-8000-000000000011","score_version":"v1","hard_filter_passed":true,"disqualifiers":[],"fit":90,"expected_value":80,"completion_probability":70,"effort_efficiency":60,"time_to_delivery":50,"competition":40,"ambiguity":30,"risk":20,"overall_score":"77.75","recommendation":"review","reason":"Human review","scored_at":"2026-10-20T00:00:00Z"}})}
+    fn product_notification(kind:&str,analysis:Value,opportunity:Value,status:&str)->Value{json!({"id":"00000000-0000-4000-8000-000000000081","kind":kind,"analysis_id":analysis,"opportunity_id":opportunity,"title":"Review signal","content":"Plain notification","priority":"high","reason":"Threshold reached","url":null,"status":status,"created_at":"2026-10-20T00:00:00Z","read_at":if status=="read"{json!("2026-10-20T00:00:02Z")}else{Value::Null}})}
+
+    #[tokio::test]
+    async fn product_contract_routes_statuses_and_camel_case(){
+        let (origin,task)=fake_server(Arc::new(move|request|match request.path.as_str(){
+            "/api/v1/auth/login"=>json_response(200,auth("access","refresh")),
+            "/api/v1/bookmarks?page=1&page_size=10"=>{assert_eq!(request.method,"GET");json_response(200,json!({"items":[product_bookmark()],"page":1,"page_size":10,"total":1}))},
+            "/api/v1/bookmarks"=>{assert_eq!(request.method,"POST");assert_eq!(serde_json::from_str::<Value>(&request.body).unwrap(),json!({"document_id":"00000000-0000-4000-8000-000000000051","note":"keep"}));json_response(201,product_bookmark())},
+            "/api/v1/bookmarks/00000000-0000-4000-8000-000000000091" if request.method=="PATCH"=>{assert_eq!(serde_json::from_str::<Value>(&request.body).unwrap(),json!({"note":null}));let mut value=product_bookmark();value["note"]=Value::Null;json_response(200,value)},
+            "/api/v1/bookmarks/00000000-0000-4000-8000-000000000091"=>{assert_eq!(request.method,"DELETE");Response{status:204,body:String::new(),headers:vec![],delay_ms:0}},
+            "/api/v1/memory/search"=>{assert_eq!(request.method,"POST");let body:Value=serde_json::from_str(&request.body).unwrap();assert_eq!(body["query"],"policy");assert_eq!(body["bookmarked_only"],true);json_response(200,json!({"items":[{"analysis_id":"00000000-0000-4000-8000-000000000061","document_id":"00000000-0000-4000-8000-000000000051","radar_id":"00000000-0000-4000-8000-000000000011","title":"Policy memory","canonical_url":"https://example.com/memory","summary":"Verified summary","category":"policy","radar_score":"88.5","recommendation":"must_read","excerpt":"policy excerpt","similarity":"0.95","occurred_at":"2026-10-20T00:00:00Z","bookmarked":true}],"query":"policy","top_k":5}))},
+            path if path.starts_with("/api/v1/opportunities?")=>{assert_eq!(request.method,"GET");assert!(path.contains("radar_id=00000000-0000-4000-8000-000000000011")&&path.contains("min_score=50.5")&&path.contains("currency=USD"));json_response(200,json!({"items":[product_opportunity()],"page":1,"page_size":10,"total":1}))},
+            "/api/v1/opportunities/00000000-0000-4000-8000-000000000071"=>json_response(200,product_opportunity()),
+            "/api/v1/opportunities/00000000-0000-4000-8000-000000000071/action-payload"=>json_response(200,json!({"opportunity_id":"00000000-0000-4000-8000-000000000071","payload_version":"v1","payload":{"requires_human_approval":true,"message":"<b>plain</b>"},"payload_hash":"sha256:test","generated_at":"2026-10-20T00:00:00Z"})),
+            "/api/v1/notifications?page=1&page_size=10&status=unread&priority=high"=>json_response(200,json!({"items":[product_notification("intelligence",json!("00000000-0000-4000-8000-000000000061"),Value::Null,"unread")],"page":1,"page_size":10,"total":1})),
+            "/api/v1/notifications/00000000-0000-4000-8000-000000000081/read"=>{assert_eq!(request.method,"POST");json_response(200,product_notification("intelligence",json!("00000000-0000-4000-8000-000000000061"),Value::Null,"read"))},
+            "/api/v1/notifications/read-all"=>json_response(200,json!({"updated_count":1,"read_at":"2026-10-20T00:00:02Z"})),
+            _=>json_response(404,json!({"path":request.path})),
+        })).await;
+        let client=ApiClient::new(&origin).unwrap();client.authenticate(Operation::Login,"a@example.com".into(),"long-password".into(),None).await.unwrap();let values=client.product_test_contract().await.unwrap();assert_eq!(values.len(),10);assert_eq!(values[1]["documentId"],"00000000-0000-4000-8000-000000000051");assert_eq!(values[1]["radarScore"],88.5);assert!(values[1].get("document_id").is_none());assert_eq!(values[4]["items"][0]["score"]["overallScore"],77.75);assert_eq!(values[6]["payload"]["requires_human_approval"],true);assert_eq!(values[9]["updatedCount"],1);task.abort();
+    }
+
+    #[tokio::test]
+    async fn product_rejects_unsafe_action_payload_and_mismatched_notification_target(){
+        let actions=Arc::new(AtomicUsize::new(0));let action_count=actions.clone();
+        let (origin,task)=fake_server(Arc::new(move|request|match request.path.as_str(){
+            "/api/v1/auth/login"=>json_response(200,auth("access","refresh")),
+            "/api/v1/opportunities/00000000-0000-4000-8000-000000000071/action-payload"=>{let call=action_count.fetch_add(1,Ordering::SeqCst);let payload=if call==0{json!({"requires_human_approval":false})}else if call==1{json!({"message":"missing approval"})}else{json!({"requires_human_approval":true})};let opportunity_id=if call==2{"00000000-0000-4000-8000-000000000099"}else{"00000000-0000-4000-8000-000000000071"};json_response(200,json!({"opportunity_id":opportunity_id,"payload_version":"v1","payload":payload,"payload_hash":"sha256:unsafe","generated_at":"2026-10-20T00:00:00Z"}))},
+            "/api/v1/notifications?page=1&page_size=10"=>json_response(200,json!({"items":[product_notification("opportunity",json!("00000000-0000-4000-8000-000000000061"),Value::Null,"unread")],"page":1,"page_size":10,"total":1})),
+            _=>json_response(404,json!({})),
+        })).await;
+        let client=ApiClient::new(&origin).unwrap();client.authenticate(Operation::Login,"a@example.com".into(),"long-password".into(),None).await.unwrap();for _ in 0..3{assert_eq!(client.product_test_action_payload("00000000-0000-4000-8000-000000000071").await.err().unwrap().kind,"invalid_response");}assert_eq!(client.product_test_notifications().await.err().unwrap().kind,"invalid_response");task.abort();
+    }
 }

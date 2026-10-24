@@ -1,7 +1,5 @@
 /* One continuous canvas beneath intro, sign-in, star map and utility pages. */
-.original-backdrop { position:fixed; inset:-16px; z-index:-1; overflow:hidden; pointer-events:none; isolation:isolate; translate:0 0; transition:translate 180ms ease-out; background:#030b12 url('../assets/intro-stone.jpg') center / 104% 104% no-repeat; animation:original-stone-drift 82s ease-in-out infinite; }
-.quiet-mode .original-backdrop { transition:none; }
-@media (prefers-reduced-motion:reduce) { .original-backdrop { transition:none; } }
+.original-backdrop { position:fixed; inset:-16px; z-index:-1; overflow:hidden; pointer-events:none; isolation:isolate; background:#030b12 url('../assets/intro-stone.jpg') center / 104% 104% no-repeat; animation:original-stone-drift 82s ease-in-out infinite; }
 .original-backdrop::before { content:""; position:absolute; inset:0; z-index:1; background:radial-gradient(ellipse 48% 47% at 50% 51%,rgba(72,149,181,.08),transparent 74%); animation:original-breathe 24s ease-in-out infinite; }
 .original-breath { position:absolute; inset:0; z-index:1; background:radial-gradient(ellipse 60% 65% at 51% 51%,rgba(0,5,9,.19) 20%,rgba(3,11,19,.32) 70%,rgba(1,6,10,.58)); }
 .original-ambient { position:absolute; inset:-7%; z-index:1; background:radial-gradient(ellipse 52% 14% at 25% 42%,rgba(94,172,205,.07),transparent 77%),radial-gradient(ellipse 56% 16% at 78% 66%,rgba(68,150,190,.058),transparent 79%),radial-gradient(ellipse 35% 44% at 24% 62%,rgba(95,169,205,.085),transparent 74%),radial-gradient(ellipse 46% 38% at 78% 34%,rgba(61,135,178,.075),transparent 76%); mix-blend-mode:screen; opacity:.48; animation:original-ambient-drift 52s ease-in-out infinite alternate; }

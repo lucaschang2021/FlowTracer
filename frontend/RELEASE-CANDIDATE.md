@@ -38,8 +38,10 @@ Expected installer directory: `src-tauri/target/release/bundle/nsis/`.
 
 ## Artifact
 
-- Installer path: pending the single authorized locked build
-- SHA-256: pending the single authorized locked build
+- Product code: `679b03210ae8710a1dc7fab697543e3cdb0cd9ad` (subsequent evidence-only commits do not change the binary inputs)
+- Installer path: `src-tauri/target/release/bundle/nsis/FlowTracer_0.1.0_x64-setup.exe`
+- Size: 3,158,992 bytes
+- SHA-256: `095141123C5A18CC1C860C35584F195F99FE4EE736DBC4FFE383E7A7DF81C437`
 
 ## Smoke status
 
@@ -57,7 +59,8 @@ Installation and startup smoke require a separate controller-signed operation. T
 - Controller entry03 selected the same test by file/line: **1/1 PASS**, zero retries. Memory03 then passed one test and failed the new bookmarked-only test because its query was filled during page entry; the failure snapshot showed an empty query and the expected validation error. No production authentication or search behavior was weakened.
 - Controller memory04 waits for page idle and asserts the query value, then changes the draft checkbox after submitting to prove that the applied filter snapshot is retained. The entire Memory file passed **5/5**, zero retries, including one DELETE and preservation of unrelated results. Original failures remain in their separate output directories.
 - Independent source review FE-G4-CODE-REVIEW04: **ALLOW_WITH_P2**, P0/P1/P2=0/0/1 for the new production diff. It verified currentUser NSIS, no updater/new permissions, unchanged Backend/locks and account fencing. Installation remains NOT_RUN; this is not G4 acceptance.
-- Controller NSIS03 compiled the optimized Release app successfully (3m01s), validated/extracted official NSIS 3.11, then failed while downloading the official nsis-tauri-utils v0.5.3 DLL with `unexpected end of file`; no installer was produced. One separately bounded retry, NSIS04, is using the same locked source and Cargo cache; its final result is pending. Logs are retained under `logs/g4-nsis-controller03.log` and `logs/g4-nsis-controller04.log`.
+- Controller NSIS03 compiled the optimized Release app successfully (3m01s), validated/extracted official NSIS 3.11, then failed while downloading the official nsis-tauri-utils v0.5.3 DLL with `unexpected end of file`; no installer was produced by that attempt. One separately bounded retry, NSIS04, passed using the same locked source and Cargo cache. Both official downloads passed Tauri's hash validation; makensis produced the installer identified above. Logs are retained under `logs/g4-nsis-controller03.log` and `logs/g4-nsis-controller04.log`.
+- Controller's one final full UI regression at exact product commit `679b03210ae8710a1dc7fab697543e3cdb0cd9ad`: **71/71 PASS**, zero retries, 6.5m. Evidence: `logs/g4-controller-679b032.log` and `frontend/test-results/g4-controller-679b032/`. This does not relabel the earlier failed targeted runs as passing.
 
 ## Known limits
 

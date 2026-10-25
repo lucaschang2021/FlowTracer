@@ -11,6 +11,7 @@
     "test:e2e": "playwright test",
     "build": "vite build",
     "build:desktop:debug": "tauri build --debug --no-bundle",
+    "build:desktop:nsis": "tauri build --bundles nsis",
     "preview": "vite preview --host 127.0.0.1 --port 1420"
   },
   "dependencies": {

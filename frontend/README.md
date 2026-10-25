@@ -2,9 +2,9 @@
 
 ## Current status · 2026-10-24
 
-G1–G3 passed local product acceptance at `7789fac068915d1846cfcc4d266a1da95b715f5b`: authentication, Radar/Source/collection/Signals, account-isolated Galaxy/layout persistence, Memory, Opportunities and REST notifications. The controller's final UI run passed 69/69 with zero retries; unchanged production input retains 23 unit/22 Rust tests and the locked offline desktop build. Native restart and nonempty backend/native product evidence are recorded in [G3 acceptance](../docs/FE-001-G3-ADMISSION.md).
+G1–G3 passed local product acceptance at `7789fac068915d1846cfcc4d266a1da95b715f5b`: authentication, Radar/Source/collection/Signals, account-isolated Galaxy/layout persistence, Memory, Opportunities and REST notifications. The controller's final UI run passed 69/69 with zero retries; unchanged production input retains 23 unit/22 Rust tests and the locked offline desktop build. Native restart and nonempty backend/native product evidence are recorded in [G3 acceptance](../docs/FE-001-G3-ADMISSION.md). Trial users should follow the [Windows Quick Start](QUICKSTART.md); package identity, hashes and smoke status are recorded in [Release Candidate](RELEASE-CANDIDATE.md).
 
-Browser is disabled; PLUGIN-1 is deferred. No Windows installer, Integration or Release acceptance is claimed. G4 can start only under [its admission](../docs/FE-001-G4-ADMISSION.md) and an exact post-merge controller lease. Credentials remain native-memory-only; restart requires sign-in. Demo and real data stay isolated.
+Browser is disabled; PLUGIN-1 is deferred. A current-user Windows NSIS candidate is configured, but installation/start smoke, Integration and Release acceptance are not claimed. Credentials remain native-memory-only; restart requires sign-in. Demo and real data stay isolated.
 
 Current debug EXE SHA256: `3BFE40C7853FA61F8AE70FE89F678DD7302E11D0F652136C14FA058695608B1B`. This is a debug executable, not an installer.
 

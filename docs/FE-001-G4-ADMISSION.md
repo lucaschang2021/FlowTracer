@@ -38,3 +38,11 @@ Next Authority Owner: FlowTracer Controller
 - 独立源码 Review04 ALLOW_WITH_P2，新 diff P0/P1/P2=0/0/1；删除与另一搜索重叠时的同账户过滤快照显示问题记录为 P2，不涉及后端事实或跨账户写入。继承 native 日期校验 P2 不变。
 - 首次 NSIS 官方工具下载 EOF 失败保留；唯一有界重试通过官方哈希校验并生成 3,158,992 bytes 的 Windows x64 currentUser 安装包。SHA256 `095141123C5A18CC1C860C35584F195F99FE4EE736DBC4FFE383E7A7DF81C437`，位置和完整结果见 [发行候选记录](../frontend/RELEASE-CANDIDATE.md)。依赖锁、Backend/API/Schema/权限未变。
 - 安装、启动、退出与重开 smoke 尚未执行；安装即时确认已向用户提出，在其完成并取得运行证据前不得宣布 G4 PASS、准入 INT 或发布。旧实现/验证 lease 已在各自 checkpoint 到期。
+
+## G4 最终验收 · 2026-10-25
+
+- 总控 **ALLOW_WITH_P2 / PRODUCT ACCEPTED**，产品代码 `679b03210ae8710a1dc7fab697543e3cdb0cd9ad`。未变输入引用独立源码 Review04、71/71 UI、typecheck/23 unit/Web build 与锁定 NSIS 构建，不重复测试。
+- 用户明确确认该哈希安装包。安装结果位于 `C:\Users\liuj\FlowTracer`，与拟定测试目录不同；中间向导页未完整捕获，该观察限制如实保留。HKCU 安装记录、0.1.0 版本、EXE 三字节 NSIS 标记归一化完全匹配均已核验。
+- 原生实测：安装版本启动 → 原始启动画布 → 本机 API 未就绪 → 手动进入明确标识 Demo；Alt+F4 正常退出且进程为零，再开回到启动画布。未输入凭据、未卸载，未声称清洁 Windows 安装或真实后端闭环。详见 [安装证据](../frontend/RELEASE-CANDIDATE.md#smoke-status)。
+- P0/P1=0；同账户重叠搜索/删除的快照显示和继承的日期启发式两个 P2 保留。路径/向导观察限制单列，不更改安全边界。
+- G1–G3 已由 PR #88 合并（`6cc2e0609a25c93d877a2476232bd579928e8547`）。G4 当前本地验收候选，尚未 push/PR/merge；不冒充共享事实。G4 不等于 INT-001/REL-001/教程完成。所有本轮 lease 在 checkpoint 失效，后续阶段须从 post-merge main 另签。Browser disabled / PLUGIN-1 deferred。

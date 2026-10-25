@@ -1,11 +1,11 @@
 # FlowTracer 当前阶段闸门
 
-更新时间：2026-10-24（G3 最终回归、真实原生产品链与产品验收）。
+更新时间：2026-10-25（G4 安装候选验收）。
 
-## 当前状态：Backend READY_FOR_FRONTEND；FE-G1–G3 PRODUCT ACCEPTED；FE-G4 发行候选条件准入
+## 当前状态：Backend READY_FOR_FRONTEND；FE-G1–G4 PRODUCT ACCEPTED；INT/Release 尚未准入
 
 - 总控验收代码 `7789fac068915d1846cfcc4d266a1da95b715f5b`：G3 **ALLOW_WITH_P2**，P0/P1=0。最终提交独立 UI 回归 69/69 passed（0 retry、6.7m）；未变源码继承 23/23 unit、22/22 Rust、typecheck/Web build 与锁定离线 debug 构建。真实原生进程重开恢复，以及非空 Signals→Bookmark/Memory 搜索、Opportunity 评分/只读载荷、两类通知已读链均取得隔离数据库证据。见 [G3 验收记录](FE-001-G3-ADMISSION.md#最终产品验收2026-10-24)。下文旧待验收文字仅记录各自历史检查点。
-- G4 只准准备 Windows 发行候选、最小已知 P2 修正、安装/启动 smoke 与快速开始；按 [G4 准入](FE-001-G4-ADMISSION.md) 在本控制提交合并、总控确认精确 post-merge main 并另签操作后执行。当前不代表安装包、INT-001、REL-001 或教程已完成；Browser disabled / PLUGIN-1 deferred 不变。
+- G4 总控 ALLOW_WITH_P2：产品代码 `679b03210ae8710a1dc7fab697543e3cdb0cd9ad`，完整 UI 71/71、锁定 currentUser NSIS 及实际安装/启动/正常退出/重开/离线提示通过。实际安装路径与计划不同、中间向导未完整观察，详见 [G4 验收](FE-001-G4-ADMISSION.md)。G1–G3 已合并 PR #88；G4 仍是本地验收候选，尚待合并。其后由总控另签精确 post-merge main 的 INT-001；INT/Release/教程未完成或准入。Browser disabled / PLUGIN-1 deferred 不变；下文条件准入及待验收文字仅属各自历史。
 
 - 2026-10-23 用户视觉裁定：在 FE-G3 候选中移除共享背景随鼠标移动的视差，保留原星空自主动画、旋转及 Radar/画布手势；下文 POINTER39 仅为 G2 历史验收证据，不是继续保留该效果的现行要求。此裁定不批准 G4、Integration 或 Release。
 - 2026-10-24 较早 G3 检查点（已由上方最终验收取代）：当时已观察离线演示及隔离真实账户的原生进程重开恢复；隔离后端定向 4 passed，注册/登录、空页面、Radar 创建及恢复已验证，当时尚无非空 Memory/Opportunity 原生证据。详见 [G3 记录](FE-001-G3-ADMISSION.md)；该历史检查点本身未批准 G4/Integration/Release。

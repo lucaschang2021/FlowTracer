@@ -30,7 +30,7 @@ Continue only when `health/live` is `ok`, `health/ready` is `ready` with databas
 
 Run the x64 NSIS installer listed in [`RELEASE-CANDIDATE.md`](RELEASE-CANDIDATE.md). It installs for the current Windows user and does not require administrator elevation. Start FlowTracer from the installed shortcut while the Backend remains ready.
 
-The installer has not yet received the separate install/start smoke gate. See the release-candidate record before relying on it outside the controlled Alpha environment.
+The installer passed the local G4 install/start/exit/reopen smoke gate. See the release-candidate record for the actual install path, observation limits and hashes. Integration and public Release are not yet accepted.
 
 ## First local workflow
 

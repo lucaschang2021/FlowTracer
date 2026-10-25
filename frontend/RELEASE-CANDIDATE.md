@@ -45,11 +45,13 @@ Expected installer directory: `src-tauri/target/release/bundle/nsis/`.
 
 ## Smoke status
 
-- Installer execution: **NOT_RUN**
-- Installed-app launch: **NOT_RUN**
-- Exit/reopen/uninstall: **NOT_RUN**
+- Installer execution/result: **OBSERVED**, 2026-10-25, after the user's explicit confirmation of this installer hash. Setup closed before its intermediate pages were captured; no clean-room installation transcript is claimed.
+- Installed-app launch: **PASS**, actual `C:\Users\liuj\FlowTracer\flowtracer-desktop.exe` (different from the proposed test directory; not relocated or reinstalled). HKCU identifies FlowTracer 0.1.0 at this path; no elevation request was observed.
+- Normal exit/reopen: **PASS**. Backend port 8000 had no listener; login showed `本机 API 未就绪` and did not fall back to fake data. Explicit Demo entry showed offline/sandbox labels. Alt+F4 closed the window, no FlowTracer process remained, and relaunch restored the original startup canvas. Uninstall/another Windows machine/fresh WebView2 provisioning: **NOT_RUN**.
 
-Installation and startup smoke require a separate controller-signed operation. The current operation does not install, launch, elevate, uninstall, or publish the package.
+Controller lease FE-G4-INSTALL-SMOKE05 is complete. An earlier turn was interrupted by the user's Escape key; verification resumed only after user continuation. No authentication form, Backend/Docker, dependency or source change was involved.
+
+Installed EXE: 12,640,256 bytes; SHA-256 `8C303BD71DE89CD4DD9C7780AE8D74CFF5934D06BDA589954AECA154BAA0C848`. It differs from the build EXE only at three bytes: `__TAURI_BUNDLE_TYPE_VAR_NSS` versus `__TAURI_BUNDLE_TYPE_VAR_UNK`. In-memory normalization gives an exact byte match and SHA-256 `2F0A29D0B1CD0886216C338BF292D2E4DB829F3844D9C8F2FAE89813AF88699D`. Locked tauri-utils 2.10.1 maps NSS to NSIS. No executable was patched.
 
 ## Verification record
 

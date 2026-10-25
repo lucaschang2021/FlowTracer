@@ -1,4 +1,16 @@
-# FlowTracer Alpha v0.1 desktop · G2 candidate
+# FlowTracer Alpha v0.1 desktop
+
+## Current status · 2026-10-24
+
+G1–G3 passed local product acceptance at `7789fac068915d1846cfcc4d266a1da95b715f5b`: authentication, Radar/Source/collection/Signals, account-isolated Galaxy/layout persistence, Memory, Opportunities and REST notifications. The controller's final UI run passed 69/69 with zero retries; unchanged production input retains 23 unit/22 Rust tests and the locked offline desktop build. Native restart and nonempty backend/native product evidence are recorded in [G3 acceptance](../docs/FE-001-G3-ADMISSION.md).
+
+Browser is disabled; PLUGIN-1 is deferred. No Windows installer, Integration or Release acceptance is claimed. G4 can start only under [its admission](../docs/FE-001-G4-ADMISSION.md) and an exact post-merge controller lease. Credentials remain native-memory-only; restart requires sign-in. Demo and real data stay isolated.
+
+Current debug EXE SHA256: `3BFE40C7853FA61F8AE70FE89F678DD7302E11D0F652136C14FA058695608B1B`. This is a debug executable, not an installer.
+
+## Historical G2 candidate record
+
+The G2 status and older unimplemented-scope statements in this section are historical and superseded by the current status above.
 
 Tauri 2 + React 19 + TypeScript desktop client. AUTH-01 adds a restricted native
 HTTP bridge for local readiness, register/login/logout/refresh, `users/me`, Radar
@@ -83,18 +95,19 @@ serde_json/tokio set. No global installs are needed.
   remain screen-sized. Initial fit is computed from node bounds and viewport.
 - Focus the canvas and hold Space + drag to pan; arrow keys also pan; F fits all.
 - Tab + Enter selects a planet; Alt + arrow keys moves the focused planet.
-- The dashed Galaxy is a **static example structure**, not saved user grouping.
-- Signals reads the live account's list/detail in real mode; Memory and
-  Opportunity remain explicit placeholders. Demo never substitutes real data.
+- Marquee/keyboard selection creates Galaxy groups; membership, names, positions
+  and view persist locally by account UUID. Disbanding never deletes a Radar.
+- Real mode supports Signals, Memory bookmarks/search, read-only Opportunities
+  and REST notifications. Demo remains explicitly isolated from real data.
 - The shared startup/login/workspace background retains slow grid rotation and
-  subtle mouse-follow parallax. Foreground controls and Radar coordinates do not
-  follow the pointer. Quiet/system reduced motion disables decorative movement;
-  leaving the window, blur and dragging reset pointer offsets. Hidden-window
-  canvas work is paused and listeners/animation frames are cleaned up.
-- Header reset restores the demo. Changes are session-only and disappear on reload.
+  no mouse-follow parallax. Foreground controls and Radar coordinates do not
+  follow the pointer. Quiet/system reduced motion disables decorative movement.
+  Hidden-window canvas work is paused; frames/listeners are cleaned up.
+- Header reset restores the isolated Demo layout. Valid stored layouts survive
+  reload and native restart; real mode requires sign-in after process restart.
 
-G2 authentication, Radar, Source/collection and Signals are branch-local candidates, not a
-completed product stage. G3 grouping / persistence are deliberately not implemented.
+G1–G3 have passed local product acceptance at the code SHA above. G4 installer,
+Integration and Release remain incomplete; GitHub delivery follows exact PR/merge records.
 The empty demo loads fixtures; it does not create backend records.
 
 ## Architecture and original assets

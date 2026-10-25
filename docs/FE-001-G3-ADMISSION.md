@@ -101,3 +101,15 @@ G3验收须有用户隔离/损坏存储/删除引用/无网络写入的测试、
 - FINAL-VERIFY-24 在冻结候选上完成 typecheck、23/23 unit、22/22 locked/offline Rust tests、Web build（60 modules）。唯一一次完整 Edge 集为 63 passed、1 failed、5 未运行、0 retry；1366×768 测试仍查找 G1 的 Galaxy 名称，原始失败保存在 `frontend/test-results/g3-final-verify-24/`。
 - RESPONSIVE-TEST-REPAIR25 仅更新 `frontend/tests/universe.spec.ts` 的 Galaxy 按钮、面板 testid 和关闭按钮定位，匹配现有 G3 控件；没有降低几何、遮挡、截图或焦点断言。一次全文件定向为 6/6 passed、0 retry，覆盖三种尺寸和此前未运行项；生产源码、依赖和既有原生程序未变。结果保存在 `frontend/test-results/g3-responsive25/`。原全量失败仍保留，最终提交的独立完整回归尚待执行。
 - 非空原生验证已在新 tmpfs `_test` 库通过现有后端服务准备 Memory/Embedding、Opportunity ingest/evaluation/action-payload 和两条 Notification；首次 seed 在创建事实前因诊断脚本误用 SecretStr 停止，修正后成功，未改产品代码。缓存 PostgreSQL 标签核实后使用 `--pull=never`，未采用不同版本依赖。窗口最小化与用户输入保护暂阻止后续桌面操作；不得把已准备的数据库事实冒充桌面显示或操作成功。
+
+### 最终产品验收（2026-10-24）
+
+- 验收代码：`7789fac068915d1846cfcc4d266a1da95b715f5b`。总控在该干净提交执行唯一一次独立完整 Edge 集：**69/69 passed、0 retry、6.7m**；日志 `logs/g3-controller-7789fac.log`，产物 `frontend/test-results/g3-controller-7789fac/`。此前全量失败及定向修正证据原样保留；本次结果关闭该旧定位失败，不将前后两次计数拼成一次全绿。
+- 产品源码和锁文件与已有 23/23 unit、22/22 Rust、typecheck/Web build、锁定离线原生构建的输入相同；测试定位修正不改变程序。真实原生 EXE SHA256 仍为 `3BFE40C7853FA61F8AE70FE89F678DD7302E11D0F652136C14FA058695608B1B`。
+- 20:22–20:27 +08，唯一 tmpfs 数据库 `flowtracer_g3_ftg3_native_mvmdbmyl_test`，PostgreSQL/Redis 仅绑定 loopback；用户手动注册一次。首次环境准备因未保留上一回合环境缓存而在配置校验处拒绝，尚未执行迁移；重建完整测试环境矩阵后从空库升级至 `20261006_0009`。未改后端、依赖或迁移。
+- 本地 Fixture 经现有 Graph/Embedding、Opportunity ingest/evaluation 服务生成 1 个 Document、1 个评分机会、1 个不可执行载荷、2 条通知；仅 Fake Provider 与本地数据库，无公网采集。原生窗口读取真实 Signals，创建收藏、Memory 列出同一 Document、搜索返回该记录，修改备注后从服务端重新读取，再二次确认移除收藏。
+- 原生 Opportunity 显示 `Landing page refresh`、USD 50–60、分数 `86.55`、`act_now`，读取 `opportunity-action-v1` 与 `requires_human_approval=true`；没有报价、沟通、付款或执行入口。原生 Settings 显示 intelligence/opportunity 两类通知，先单条已读、再 read-all；数据库最终为 bookmarks=0、read_notifications=2（均含 read_at）、unread_notifications=0、action_payloads=1。
+- 该 Fixture 在注册之后直接建立 Backend 事实，因此当前会话中的 Radar 清单未重新登录加载，footer 仍为初次载入的 0；此证据不声称 Radar 外部新增实时同步、Fake Embedding 语义质量、全 Worker/Browser 或真实外部站点采集。G2 采集生产路径、此前原生布局重开证据分别继承，不混作同一次测试。
+- 窗口正常退出；API 正常 shutdown；两个专属容器/临时账户/数据精确删除，label 容器计数和三个端口监听计数均为 0。用户其他容器、网络、持久卷不变。
+- 总控源代码复核独立于前端实现作者，核对固定 loopback/无 redirect/proxy、会话代次 fencing、用户分区存储、明确删除后的引用清理、typed API/HTTP 状态、只读 payload/人工批准、文本安全渲染与 Demo 隔离；Backend/API/Schema/lock 无差异。结论 **ALLOW_WITH_P2，P0=0、P1=0、P2=2**：① native 日期过滤启发式校验仍由 Backend 严格校验兜底；②删除收藏后已有搜索结果的 bookmarked 标签保留旧搜索快照，重查后更新，数据库事实正确。第二项纳入 G4 最小修正。该复核不是完全独立第三方组织审计。
+- G3 交付完成；G4 仅按独立准入启动，INT-001、REL-001 与教程未因此通过。旧 G3 lease 到期，不自动恢复 Browser 或 PLUGIN-1。

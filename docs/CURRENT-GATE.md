@@ -1,14 +1,17 @@
 # FlowTracer 当前阶段闸门
 
-更新时间：2026-10-20（FE-001-G2 当前本地候选、真实原生证据与桌面包摘要同步）。
+更新时间：2026-10-24（G3 最终回归、真实原生产品链与产品验收）。
 
-## 当前状态：Backend READY_FOR_FRONTEND；FE-G2 PRODUCT ACCEPTED；FE-G3 空间组织准入
+## 当前状态：Backend READY_FOR_FRONTEND；FE-G1–G3 PRODUCT ACCEPTED；FE-G4 发行候选条件准入
+
+- 总控验收代码 `7789fac068915d1846cfcc4d266a1da95b715f5b`：G3 **ALLOW_WITH_P2**，P0/P1=0。最终提交独立 UI 回归 69/69 passed（0 retry、6.7m）；未变源码继承 23/23 unit、22/22 Rust、typecheck/Web build 与锁定离线 debug 构建。真实原生进程重开恢复，以及非空 Signals→Bookmark/Memory 搜索、Opportunity 评分/只读载荷、两类通知已读链均取得隔离数据库证据。见 [G3 验收记录](FE-001-G3-ADMISSION.md#最终产品验收2026-10-24)。下文旧待验收文字仅记录各自历史检查点。
+- G4 只准准备 Windows 发行候选、最小已知 P2 修正、安装/启动 smoke 与快速开始；按 [G4 准入](FE-001-G4-ADMISSION.md) 在本控制提交合并、总控确认精确 post-merge main 并另签操作后执行。当前不代表安装包、INT-001、REL-001 或教程已完成；Browser disabled / PLUGIN-1 deferred 不变。
 
 - 2026-10-23 用户视觉裁定：在 FE-G3 候选中移除共享背景随鼠标移动的视差，保留原星空自主动画、旋转及 Radar/画布手势；下文 POINTER39 仅为 G2 历史验收证据，不是继续保留该效果的现行要求。此裁定不批准 G4、Integration 或 Release。
-- 2026-10-24 G3 检查点：离线演示及隔离真实账户均已观察到原生进程重开后的布局恢复；独立临时 `_test` 库迁移后 Memory/Opportunity 后端定向 4 passed。真实账户桌面端已验证注册/登录、空 Radar/Signals/Memory/Opportunity、创建 Radar 与重开后的行星位置；尚无非空 Memory/Opportunity 桌面链路证据。详见 [G3 准入记录](FE-001-G3-ADMISSION.md)。这些定向证据不替代最终完整回归或独立产品验收；G4/Integration/Release 仍未准入。
+- 2026-10-24 较早 G3 检查点（已由上方最终验收取代）：当时已观察离线演示及隔离真实账户的原生进程重开恢复；隔离后端定向 4 passed，注册/登录、空页面、Radar 创建及恢复已验证，当时尚无非空 Memory/Opportunity 原生证据。详见 [G3 记录](FE-001-G3-ADMISSION.md)；该历史检查点本身未批准 G4/Integration/Release。
 
 - 总控采纳 FE-G2-PRODUCT-GATE73 的 ALLOW：代码 `74059db8d9c5f2e62e027f89c6b5b8f4d9cf49bb`、现状提交 `f8ec2ed972be9c1f52429097820a767b6c3ab381`，承诺的 AUTH/Radar/Source/collect/Signals/视觉与键盘范围验收通过；P0/P1/P2=0/0/1（pointer附加复位断言）。审查者参与过 motion30/记录，属于过程隔离评审而非完全独立第三方；总控独立采集的原生/API/数据库与测试证据分列保留。不将G2通过等同完整FE或集成/发布通过。
-- 当前工作分支 `feat/fe-001-g3` 从干净 `f8ec2ed...` 建立；G2原分支保留。唯一获准G3下一操作见 [FE-G3准入](FE-001-G3-ADMISSION.md)：按账号隔离的Galaxy/布局增量及一次定向验证。Memory/Opportunity/通知后续增量须总控在checkpoint另签，G4/INT/Release/教程尚未准入；Browser/Plugin不恢复。
+- G3 实现分支 `feat/fe-001-g3` 与 G2 原分支保留。G3 已在上方精确代码提交验收；旧实现 lease 均已在 checkpoint 失效。G4 启动须满足上方条件并使用新任务；INT/Release/教程另行准入，Browser/Plugin 不恢复。
 
 ### G2 验收输入快照（下列旧“待验收”文字记录当时边界，由上方 GATE73 裁定取代）
 

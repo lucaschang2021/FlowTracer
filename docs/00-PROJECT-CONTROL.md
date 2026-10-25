@@ -3,6 +3,7 @@
 ## 1. 文档地位
 
 - 输入基线：用户提供的《FlowTracer 技术设计文档 Alpha v0.1》。
+- 前端现状（2026-10-24）：G1–G3 已完成本地产品验收；代码 `7789fac068915d1846cfcc4d266a1da95b715f5b` 的总控完整 UI 69/69、原生布局重开及非空 Memory/Opportunity/通知证据见 [G3 验收记录](FE-001-G3-ADMISSION.md)。G4 仅按 [发行候选准入](FE-001-G4-ADMISSION.md) 的合并/精确启动条件执行；Integration、Release 与教程尚未完成。以下 2026-10-07 段落为后端交接时的历史状态，Frontend 未准入的旧表述已由本条取代；不代表当前安装包或产品已发布。
 - 当前状态（2026-10-07）：BE-1..BE-8、AG-0..AG-6、ACQ WP-1/WP-2 与收口 Phase 0-5 已完成；审核方在精确代码提交 `01155294f151cb1c453ddbaf8af6ed34ef3228c1` 上完成独立验收，**READY_FOR_FRONTEND（后端交接就绪）**。证据见 [独立验收记录](78-ACQ1-INDEPENDENT-ACCEPTANCE.md) 与 [收口计划](71-ACQ1-CLOSURE-PLAN.md)。Dynamic/Advanced Browser 保持 disabled、R3 真实执行 BLOCKED；Frontend、Integration、Release 仍未准入或实现。PLUGIN-1 为 **POST-v0.1 / deferred**，不构成 Frontend 前置条件。GitHub 接入事实以精确 PR/merge SHA 为准。
 - 历史说明：此前 FT-GOV-V2.1（governance-only）修订期的阶段/结论描述已由上述状态取代；治理仍以 [GOVERNANCE-V2](GOVERNANCE-V2.md) 为准，本文件不构成任何下游准入。
 - 项目正式名称：FlowTracer。
@@ -110,8 +111,8 @@
 
 - 已完成（本地候选）：Backend Alpha Core、Architecture Governance Pass、ACQ Contract Freeze、WP-1/WP-2，以及收口 Phase 0-5（WP-4..WP-8 收口实现与交接）；溯源见 `docs/71` §9 与 `docs/72`–`docs/77`。
 - 独立验收已完成：精确代码提交 `01155294f151cb1c453ddbaf8af6ed34ef3228c1` 上 504 tests / 89.49% coverage、静态/迁移/运行门禁通过且 P0/P1=0；详见 `docs/78`。此后仅文档状态同步，不重复未变代码的全量测试。
-- 保持阻塞/未准入：R3 BLOCKED、Browser dynamic disabled；R4/R5、正式 WP-3、Frontend、Integration、Release 未准入。PLUGIN-1 为 POST-v0.1 / deferred，不参与 Alpha v0.1 准入链。
-- 当前来源：交付候选本地 `main@48c2e2260f303ef0b18470a4d31fb6cb8f73070d`，复核代码 `01155294f151cb1c453ddbaf8af6ed34ef3228c1`；历史 GOV-2.1/R3 记录不构成当前工程续权。
+- 当前前端：G1–G3 已在 `7789fac068915d1846cfcc4d266a1da95b715f5b` 完成本地验收；G4 仅按其独立条件准入启动，Integration、Release 尚未完成。R3 incomplete/deferred、Browser dynamic disabled，R4/R5 与正式 WP-3 不恢复。PLUGIN-1 为 POST-v0.1 / deferred，不参与 Alpha v0.1 准入链。
+- 后端交接来源（历史）：本地 `main@48c2e2260f303ef0b18470a4d31fb6cb8f73070d`，复核代码 `01155294f151cb1c453ddbaf8af6ed34ef3228c1`；现行阶段以 CURRENT-GATE 顶部与精确 PR/merge 为准，历史记录不提供工程续权。
 
 ## 8. Memory 演进边界（接任总控必须遵守）
 

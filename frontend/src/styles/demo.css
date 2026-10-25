@@ -1,0 +1,131 @@
+/* Celestial atlas: navy mineral fields, brass coordinates, ivory typography.
+   Original procedural art; no third-party game assets or external font requests. */
+.celestial-background { position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:-1; background:radial-gradient(ellipse at 50% -10%,#9f865341,transparent 50%),radial-gradient(ellipse at 10% 65%,#29487366,transparent 45%),radial-gradient(ellipse at 92% 45%,#2863623b,transparent 45%),#080f1d; }
+.celestial-background::before,.stellar-flow { content:""; position:absolute; inset:-8%; background:url('../assets/starfield.svg') repeat; background-size:620px 434px; opacity:.8; }
+.stellar-flow { background-size:970px 679px; background-position:200px 80px; opacity:.45; animation:stellar-drift 48s ease-in-out infinite alternate,stellar-breath 13s ease-in-out infinite alternate; }
+.nebula-cloud { position:absolute; inset:-20%; background:radial-gradient(ellipse at 32% 50%,#466b9126,transparent 24%),radial-gradient(ellipse at 65% 38%,#9c8d6830,transparent 27%),radial-gradient(ellipse at 47% 65%,#41638a4a,transparent 24%); transform:rotate(-24deg); animation:nebula-drift 75s ease-in-out infinite alternate; }
+.celestial-grid { position:absolute; width:140vmax; height:140vmax; top:50%; left:50%; color:#bdc9d0; opacity:.065; transform:translate(-50%,-50%); animation:celestial-turn 260s linear infinite; }
+.cosmic-vignette { position:absolute; inset:0; background:radial-gradient(ellipse at 50% 40%,transparent 28%,#02071199 100%); box-shadow:inset 0 0 90px #02061077; }
+@keyframes celestial-turn { to { transform:translate(-50%,-50%) rotate(360deg); } }
+@keyframes stellar-drift { to { transform:translate(22px,-15px) rotate(.5deg); } }
+@keyframes stellar-breath { to { opacity:.75; } }
+@keyframes nebula-drift { to { transform:translate(2%,1%) rotate(-17deg) scale(1.05); } }
+
+.app-shell { background:#070e1a; }
+.app-header { background:linear-gradient(#080f1c,#0a1320); border-bottom-color:#9b947e42; }
+.main-nav button { font-family:inherit; letter-spacing:.1em; }
+.brand-tagline { letter-spacing:.2em; }
+.universe { background:transparent; }
+.map-frame { position:absolute; inset:14px; pointer-events:none; border:1px solid #a8b8cc18; }
+.map-heading { top:29px; left:35px; }
+.map-heading p { color:#aebdcb; }
+.world-horizon { position:absolute; z-index:-1; pointer-events:none; width:1100px; height:1100px; bottom:-800px; left:50%; transform:translateX(-50%); opacity:.5; filter:drop-shadow(0 -7px 20px #c6d7d656); }
+.world-horizon .planet { width:100%; height:100%; }
+.world-horizon .planet>circle,.world-horizon .planet>.planet-orbits { display:none; }
+.radar-node { width:230px; height:200px; padding:0; justify-content:center; border-radius:50%; }
+.radar-node .planet { width:var(--planet-size,150px); height:var(--planet-size,150px); filter:drop-shadow(0 0 17px #6f9cb82e); }
+.radar-node.world-blue { --planet-size:178px; }
+.radar-node.world-ice { --planet-size:118px; }
+.radar-node.world-gold { --planet-size:136px; }
+.radar-node.world-teal { --planet-size:168px; }
+.radar-node.world-violet { --planet-size:200px; }
+.radar-node.world-silver { --planet-size:138px; }
+.radar-name { max-width:240px; font:12px/1.5 var(--serif); letter-spacing:.2em; text-transform:uppercase; text-shadow:0 2px 8px #000; margin-top:-10px; }
+.radar-meta { font-size:9px; letter-spacing:.1em; color:#b4c6d3; margin-top:8px; padding:4px 7px; background:#06101f85; }
+.radar-meta i { width:4px; height:4px; }
+.radar-node.selected::before { width:var(--planet-size); height:var(--planet-size); left:50%; top:50%; transform:translate(-50%,-64%); border:1px solid #d7c69777; box-shadow:0 0 30px #cdb6830c; }
+.galaxy-outline { width:320px; height:370px; border:1px solid #a1b1c030; background:radial-gradient(ellipse,#46799b08,transparent 75%); }
+.galaxy-outline::after { content:""; position:absolute; inset:10px; border:1px dashed #91b4ce22; border-radius:50%; pointer-events:none; }
+.galaxy-outline>span { bottom:-14px; font-size:9px; letter-spacing:.17em; }
+.galaxy-outline small { font-size:8px; }
+.planet-orbits { opacity:.4; }
+.detail-panel { background:linear-gradient(135deg,#121c2bf7,#07101ffb); border-color:#a4adbb66; }
+.canvas-help { background:linear-gradient(90deg,#06101acc,transparent); padding:9px 14px; left:22px; bottom:18px; }
+.status-bar { background:#080f1a; border-top-color:#a1a18b45; }
+.utility-page { background:radial-gradient(ellipse at 75% 30%,#2f403e38,transparent 50%),radial-gradient(ellipse at 25% 0%,#29314a,#080f1b 65%); }
+.utility-page h1 { font-size:32px; }
+.signals-page { height:100%; overflow:auto; padding:42px 70px 70px; background:radial-gradient(ellipse at 75% 30%,#2f403e38,transparent 50%),radial-gradient(ellipse at 25% 0%,#29314a,#080f1b 65%); color:#e8e5dc; }
+.signals-page h1 { font:32px var(--serif); margin:10px 0; }
+.signal-filters { display:grid; grid-template-columns:repeat(4,minmax(130px,1fr)) auto; gap:12px; align-items:end; margin:28px 0; padding:18px; border:1px solid #53627580; background:#081321cc; }
+.signal-filters label { display:grid; gap:7px; color:#aebdca; font-size:11px; letter-spacing:.06em; }
+.signal-filters select,.signal-filters input { min-height:40px; padding:8px 10px; color:#f2eee4; background:#07111f; border:1px solid #526276; font:inherit; }
+.signal-list { display:grid; gap:12px; max-width:1100px; padding:0; list-style:none; }
+.signal-list button { width:100%; display:grid; grid-template-columns:1fr auto; gap:8px 22px; text-align:left; padding:18px 20px; color:#dce4e8; background:#0a1727d9; border:1px solid #53627580; }
+.signal-list button:hover,.signal-list button:focus-visible { border-color:#d8c9a8; background:#102136; }
+.signal-list strong { grid-column:1; font:18px var(--serif); color:#f0e8d7; }
+.signal-list button>span:not(:first-child),.signal-list small { grid-column:1; color:#aabaca; overflow-wrap:anywhere; }
+.signal-list b { grid-column:2; grid-row:2/5; align-self:center; color:#d8c9a8; font:24px var(--serif); }
+.signal-status,.signal-recommendation { display:inline-block; margin-right:8px; padding:3px 7px; border:1px solid #637285; color:#b8c8d5; font-size:9px; letter-spacing:.1em; text-transform:uppercase; }
+.signal-status.completed { border-color:#5a9c8566; color:#9bd2bd; }.signal-status.failed { border-color:#a75f5f88; color:#e6a39d; }
+.signal-pagination { display:flex; align-items:center; gap:18px; margin-top:22px; }
+.signal-state { max-width:760px; padding:22px; border:1px solid #53627580; background:#0a1727d9; }.signal-state h2 { font:20px var(--serif); }
+.signal-detail { max-width:960px; margin-top:24px; padding:28px; border:1px solid #53627580; background:#0a1727e8; }.signal-detail h2 { font:28px var(--serif); margin:14px 0 8px; }.signal-detail h3 { margin-top:28px; color:#e8dcc0; font:17px var(--serif); }
+.signal-url { color:#91a7bb; overflow-wrap:anywhere; }.signal-facts { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:24px 0; }.signal-facts div { padding:12px; border:1px solid #46576a; }.signal-facts dt { color:#8498aa; font-size:10px; text-transform:uppercase; }.signal-facts dd { margin:6px 0 0; }.signal-content { white-space:pre-wrap; line-height:1.8; overflow-wrap:anywhere; }
+.settings-list { max-width:1000px; }
+.language-select { display:inline-flex; align-items:center; gap:14px; color:#b7c5d3; font-size:12px; }
+.language-select select { font:inherit; color:#ece9dc; min-width:140px; min-height:40px; border:1px solid #647080; border-radius:2px; padding:8px 12px; background:#101c2c; }
+select:focus-visible { outline:2px solid #e4d4ae; outline-offset:4px; }
+.entry-screen { height:100dvh; min-height:640px; overflow:hidden; isolation:isolate; position:relative; display:grid; place-items:center; outline:none; }
+.entry-toolbar { position:absolute; inset:28px 38px auto; display:flex; align-items:center; justify-content:space-between; z-index:2; }
+.entry-version { color:#7d91a8; margin-left:10px; letter-spacing:.15em; }
+.entry-footer { position:absolute; bottom:28px; left:38px; right:38px; display:flex; justify-content:space-between; font-size:10px; letter-spacing:.12em; color:#a1b0bf; }
+.entry-intro .celestial-background { background:radial-gradient(ellipse at 50% 50%,#132b35,transparent 65%),#030b12; }
+.entry-intro .celestial-grid { opacity:.065; }
+.intro-art { width:min(850px,74vw); display:flex; flex-direction:column; align-items:center; transform:translateY(-25px); pointer-events:none; }
+.intro-wordmark { width:100%; height:auto; filter:drop-shadow(0 0 14px #dad6b72b); }
+.intro-emblem { width:218px; height:218px; margin-top:-10px; filter:drop-shadow(0 0 9px #cdd9d117); }
+.intro-start { position:absolute; top:72%; font-size:13px; letter-spacing:.13em; color:#a7b0b3; padding:16px 24px; }
+.entry-skip { position:absolute; right:38px; bottom:80px; display:flex; align-items:center; gap:12px; color:#c4cfd8; font-size:12px; min-height:40px; }
+.entry-skip svg { width:16px; }
+.demo-login { width:430px; padding:40px; border:1px solid #7486986b; background:linear-gradient(140deg,#102030f2,#08121feb); box-shadow:0 25px 100px #0005; position:relative; }
+.demo-login::before { content:""; position:absolute; top:-1px; left:40px; right:40px; height:1px; background:linear-gradient(90deg,transparent,#dacba4,transparent); }
+.demo-login h1 { font:32px/1.4 var(--serif); margin:19px 0 12px; letter-spacing:.04em; }
+.demo-login>p { font-size:13px; color:#acbfce; line-height:1.9; }
+.demo-identity { display:flex; align-items:center; gap:14px; padding:23px 0; margin:25px 0 16px; border-block:1px solid #4b5b6c7a; }
+.identity-mark { width:42px; height:42px; display:grid; place-items:center; border:1px solid #b8c2c8; color:#e8dfc8; font:24px var(--serif); border-radius:50%; }
+.demo-identity strong { font-weight:400; font-size:14px; }
+.demo-identity small { display:block; margin-top:6px; color:#9db0c4; font-size:11px; }
+.demo-identity>.demo-badge { margin-left:auto; }
+.demo-login .demo-login-note { font-size:12px; margin:0 0 26px; }
+.login-enter { min-height:48px; width:100%; display:flex; align-items:center; justify-content:space-between; padding:12px 18px; background:#d8c9a8; color:#101a26; border:1px solid #ebdfc3; font-size:13px; }
+.login-enter:hover { color:#101a26; background:#eee3c9; }
+.login-enter svg { width:18px; }
+.login-back { display:block; margin:20px auto 0; font-size:12px; color:#b2c3d3; min-height:32px; }
+@media(max-width:1200px) { .radar-node { width:210px; } .radar-name { font-size:10px; letter-spacing:.13em; } .app-header { gap:16px; } .main-nav { gap:18px; } .header-actions { gap:8px; } .utility-page,.signals-page { padding:35px 55px; } .setting-row { gap:20px; } .signal-filters { grid-template-columns:repeat(2,1fr); } }
+@media(max-height:760px) { .radar-node .planet { width:calc(var(--planet-size)*.8); height:calc(var(--planet-size)*.8); } .radar-node { height:176px; } .intro-emblem { width:170px; height:170px; } .demo-login { padding:27px 36px; } }
+@media(prefers-reduced-motion:reduce) { .celestial-grid,.stellar-flow,.nebula-cloud { animation:none; } }
+
+.auth-panel { width:min(470px,calc(100vw - 80px)); padding:31px 38px 28px; }
+.auth-panel h1 { margin-bottom:6px; }
+.auth-panel>p { margin-bottom:16px; }
+.auth-tabs { display:grid; grid-template-columns:1fr 1fr; border-bottom:1px solid #53627580; margin:18px 0; }
+.auth-tabs button { min-height:38px; color:#91a7bb; border-bottom:2px solid transparent; }
+.auth-tabs button[aria-selected="true"] { color:#f0e7d2; border-bottom-color:#d8c9a8; }
+.auth-form { display:grid; gap:12px; }
+.auth-form label { display:grid; gap:6px; color:#aebdca; font-size:11px; letter-spacing:.06em; }
+.auth-form input { width:100%; min-height:42px; padding:9px 12px; color:#f2eee4; background:#07111f; border:1px solid #526276; border-radius:2px; }
+.auth-form .login-enter { margin-top:4px; }
+.login-enter:disabled { opacity:.45; cursor:not-allowed; }
+.connection-state { display:grid; grid-template-columns:auto 1fr; align-items:center; gap:8px; margin:13px 0; color:#a8b8c7; font-size:11px; }
+.connection-state small { grid-column:2; color:#71869b; overflow-wrap:anywhere; }
+.status-dot { width:7px; height:7px; border-radius:50%; background:#8a7d62; box-shadow:0 0 8px #8a7d6280; }
+.status-dot.ready { background:#70b89b; box-shadow:0 0 8px #70b89b99; }
+.status-dot.down { background:#b66b65; box-shadow:0 0 8px #b66b6599; }
+.auth-error { color:#e6a39d!important; font-size:11px!important; overflow-wrap:anywhere; }
+.auth-error small { display:block; margin-top:5px; color:#b98985; }
+.demo-divider { display:flex; align-items:center; gap:10px; color:#788da0; font-size:9px; letter-spacing:.13em; margin:15px 0 10px; }
+.demo-divider::before,.demo-divider::after { content:""; height:1px; flex:1; background:#42506478; }
+.demo-enter { width:100%; min-height:40px; display:flex; align-items:center; justify-content:center; gap:12px; border:1px solid #56687a; color:#c6d2dc; }
+.demo-enter svg { width:16px; }
+.live-badge { border-color:#5a9c8566; color:#9bd2bd; background:#4a9a790d; }
+.live-status { color:#8fc7ad; }
+.radar-meta i.archived { background:#778491; box-shadow:none; }
+@media(max-height:760px) { .auth-panel { padding:20px 34px 18px; } .auth-panel>p,.auth-panel .demo-login-note { display:none; } .auth-tabs { margin:10px 0; } .auth-form { gap:8px; } }
+.radar-create-scrim { position:fixed; inset:0; z-index:30; display:grid; place-items:center; background:#030913ca; padding:20px; }
+.radar-create-panel { position:relative; width:min(480px,100%); max-height:90vh; overflow:auto; padding:34px; background:#0a1727; border:1px solid #6b7890; box-shadow:0 25px 85px #000a; color:#e8e5dc; }
+.radar-create-panel h2 { margin:12px 0; }
+.radar-create-panel form { display:grid; gap:15px; margin-top:20px; }
+.radar-create-panel label { display:grid; gap:7px; font-size:12px; color:#cdd7df; }
+.radar-create-panel input,.radar-create-panel textarea,.radar-create-panel select { box-sizing:border-box; width:100%; padding:10px 12px; color:#f2eee4; background:#07111f; border:1px solid #526276; border-radius:2px; font:inherit; }
+.radar-create-panel textarea { min-height:74px; resize:vertical; }
+.radar-create-panel .button-row { justify-content:flex-end; }

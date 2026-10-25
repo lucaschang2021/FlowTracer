@@ -1,15 +1,35 @@
 # FlowTracer 当前阶段闸门
 
-更新时间：2026-10-07（独立收口验收）。
+更新时间：2026-10-24（G3 最终回归、真实原生产品链与产品验收）。
 
-## 当前状态：READY_FOR_FRONTEND（后端交接就绪）；Browser 分支保持 disabled
+## 当前状态：Backend READY_FOR_FRONTEND；FE-G1–G3 PRODUCT ACCEPTED；FE-G4 发行候选条件准入
 
-- 事实基准：Phase 0-5 原交付候选 `48c2e2260f303ef0b18470a4d31fb6cb8f73070d`；独立复核代码提交 `01155294f151cb1c453ddbaf8af6ed34ef3228c1`。验收命令、结果与限制见 [独立验收记录](78-ACQ1-INDEPENDENT-ACCEPTANCE.md)；历史实现溯源见 [`docs/71`](71-ACQ1-CLOSURE-PLAN.md) §9、[`docs/72`](72-ACQ1-CLOSURE-P0-REPORT.md)–[`docs/77`](77-ACQ1-CLOSURE-P5-REPORT.md)。GitHub 接入/合并事实以对应 PR 的精确 SHA 为准，不由本地包推断。
-- 已完成 **本地候选实现范围**：WP-1/WP-2；WP-4 生产路由收口；WP-5 I2 受控抓取执行；WP-6 I2 写路径切换与 Change/Artifact 读取 API；WP-7 生命周期与重评；WP-8 整链验收与交接。Phase 0-5 均有阶段报告，交付方报告为 500 passed / 92.29%。
-- **READY_FOR_FRONTEND 已判定**：`docs/71` §6 条件 1-8 的交付与独立验收证据成立；审核方在精确代码提交上复核，P0/P1=0。该状态只表示 Static/Native Alpha v0.1 后端交接就绪，不自动准入 Frontend。
+- 总控验收代码 `7789fac068915d1846cfcc4d266a1da95b715f5b`：G3 **ALLOW_WITH_P2**，P0/P1=0。最终提交独立 UI 回归 69/69 passed（0 retry、6.7m）；未变源码继承 23/23 unit、22/22 Rust、typecheck/Web build 与锁定离线 debug 构建。真实原生进程重开恢复，以及非空 Signals→Bookmark/Memory 搜索、Opportunity 评分/只读载荷、两类通知已读链均取得隔离数据库证据。见 [G3 验收记录](FE-001-G3-ADMISSION.md#最终产品验收2026-10-24)。下文旧待验收文字仅记录各自历史检查点。
+- G4 只准准备 Windows 发行候选、最小已知 P2 修正、安装/启动 smoke 与快速开始；按 [G4 准入](FE-001-G4-ADMISSION.md) 在本控制提交合并、总控确认精确 post-merge main 并另签操作后执行。当前不代表安装包、INT-001、REL-001 或教程已完成；Browser disabled / PLUGIN-1 deferred 不变。
+
+- 2026-10-23 用户视觉裁定：在 FE-G3 候选中移除共享背景随鼠标移动的视差，保留原星空自主动画、旋转及 Radar/画布手势；下文 POINTER39 仅为 G2 历史验收证据，不是继续保留该效果的现行要求。此裁定不批准 G4、Integration 或 Release。
+- 2026-10-24 较早 G3 检查点（已由上方最终验收取代）：当时已观察离线演示及隔离真实账户的原生进程重开恢复；隔离后端定向 4 passed，注册/登录、空页面、Radar 创建及恢复已验证，当时尚无非空 Memory/Opportunity 原生证据。详见 [G3 记录](FE-001-G3-ADMISSION.md)；该历史检查点本身未批准 G4/Integration/Release。
+
+- 总控采纳 FE-G2-PRODUCT-GATE73 的 ALLOW：代码 `74059db8d9c5f2e62e027f89c6b5b8f4d9cf49bb`、现状提交 `f8ec2ed972be9c1f52429097820a767b6c3ab381`，承诺的 AUTH/Radar/Source/collect/Signals/视觉与键盘范围验收通过；P0/P1/P2=0/0/1（pointer附加复位断言）。审查者参与过 motion30/记录，属于过程隔离评审而非完全独立第三方；总控独立采集的原生/API/数据库与测试证据分列保留。不将G2通过等同完整FE或集成/发布通过。
+- G3 实现分支 `feat/fe-001-g3` 与 G2 原分支保留。G3 已在上方精确代码提交验收；旧实现 lease 均已在 checkpoint 失效。G4 启动须满足上方条件并使用新任务；INT/Release/教程另行准入，Browser/Plugin 不恢复。
+
+### G2 验收输入快照（下列旧“待验收”文字记录当时边界，由上方 GATE73 裁定取代）
+
+- 已核实合并的 Backend 产品基线为 `fc180a1d2eba32935fba6ee6c128f9b2d7015574`；本轮未核验或声明当前远端 SHA。G1 基线为 `24e2ebd14ac559ae9251424f30a4295f3006e0a0`。当前本地代码候选 `feat/fe-001-g2-api@74059db8d9c5f2e62e027f89c6b5b8f4d9cf49bb`，已包含 wire27、motion30、pointer39、CAMERA53/56 与测试工具安全修复；现状文档可作后续独立提交，不混作代码验证 SHA。未 push、未 merge，不得冒充 main/远端。
+- Backend **READY_FOR_FRONTEND** 只表示 Static/Native Alpha v0.1 后端交接就绪。FE-G1 骨架已独立验收；总控在 2026-10-13 对 `24e2...` 完成 source/scope、typecheck、13 unit、web build 与 13 UI E2E 检查。后续 G2 原生链路证据与新版视觉验收分别记录，不回填为 G1 基线的独立原生复跑。
+- [FE-001-G2 准入](FE-001-G2-ADMISSION.md)冻结真实接口范围。Radar CRUD、Source create/bind/分页/单次 collect poll、Signals 列表/详情及 lifecycle/focus 已实现。VERIFY62 在 `755ba90205a1b13f8215e32c620efe941535bffb` 上唯一 full UI `45/45 passed`（4.1m，0 retries）。670的 typecheck/15 unit/20 Rust/locked-offline desktop build PASS；740只改Vitest开发依赖，VERIFY67重新取得15 unit/typecheck/build及全依赖/生产依赖audit均0。按独立安全65引用未变产品/生产依赖的UI、Rust、native证据，不混称同一次全量。
+- 真实原生 FLOW31 已通过 1 个 Radar、1 个 RSS Source 绑定、唯一 collect queued、guarded 离线生产处理、UI 自动 `queued → succeeded` 且计数 `1/1/0/0`、Signals 真实列表/详情（77.6、正文）及返回 Canvas；这关闭指定原生链路缺口，但不是 Worker/Router/WS/notification、完整安全矩阵或全面 native E2E。PACKAGE32（SHA-256 `BB2B948AF880F0DF4C0878CCBE47C4385F4DCEEBDD8EC042628251369B30280D`）随后在 NATIVE35/36 中真实启动并通过离线 Demo 旋转/前景分离/详情面板观察；初始静止由应用“减少动态效果”开启造成，仅关闭该应用偏好，未改系统设置。原生未独立计时完整 120s 周期，精确周期依据 CSS 与此前 Edge 定向证据。
+- POINTER39 根据用户明确要求增加共享背景的小幅鼠标视差（水平最大 12px、垂直最大 9px、180ms 平滑），不移动 Radar/导航/面板，不改变拖动缩放或 Backend；quiet/system reduced-motion 关闭跟随，失焦/离开/拖动复位。typecheck/web build 通过；一次 Edge 定向集取得 4 PASS、1 测试解析 FAIL、1 未运行，失败是 CSS 将零位移序列化为单值 `0px`。ASSERTION40 只规范化测试读取，针对未完成两项取得 2/2 PASS；不冒充一次六项全绿。PACKAGE42 离线桌面构建通过，新 exe SHA-256 `8B2A0D1D5E641BB0366BCF10691E7C313F9C960C17BF2A447C4BBAFA6B8384C6`，PREVIEW43 已打开到离线 Demo；精确指针位移断言来自 Edge，不声明全面 native/E2E。resume/keyboard 后由 NATIVE51 定向关闭，见下文；FE-G2 仍未产品验收。
 - 仍禁用/阻塞：Dynamic/Advanced Browser **disabled**（`BROWSER_DYNAMIC_ENABLED=False`，`allow_browser=True` fail-closed）；R3 真实执行为 **BLOCKED**，须另签 B 阶段 lease；R4/R5 未准入。R3 离线增量位于分支 `feat/acq1-r3-fail-closed-offline`（docs/54/55/56/59 在该分支，**未合并**）。
-- 未准入：Frontend（FE-001）、Integration（INT-001）、Release（REL-001）。PLUGIN-1 已移出 Alpha v0.1 关键路径，状态为 **POST-v0.1 / deferred**，不构成 Frontend 前置条件。
-- 执行权：当前无任何未决 lease/授权；任何新工作（含收口各阶段、R3 真实执行、Frontend 准入）须按 `GOVERNANCE-V2 §12` 另签完整 NEW TASK AUTHORITY。
+- 阶段分离：FE-G2 operation admission 不等于 FE-001 产品验收。Integration（INT-001）与 Release（REL-001）仍未准入；PLUGIN-1 为 **POST-v0.1 / deferred**，不构成 Frontend 前置条件。
+- NATIVE-LIFECYCLE51 已在隔离原生环境验证同一 Radar `active → paused → active`，对应 pause/resume 各一次成功 POST；Tab/Enter、取消确认、确认后焦点恢复及 Escape 返回节点均通过。CLEANUP52 已精确清理本轮测试窗口、账号、tmpfs 数据与专属容器/网络，其他资源未动。不代表完整 FE-G2 产品验收。
+- CAMERA53 只在节点数0→非0时自动fit，修正首个Radar不可见和详情过时说明。除早期13项定向外，现已进入755的45项full与最新desktop包；新exe SHA256 `AC2A2361B02A7BBFC053C27F0AA647F26E9EFBAC809A013FE74BDB41103ACD14`，未重新启动原生认证。当前候选已本地提交，产品Stage Gate仍须单独裁定。
+- CAMERA-REVIEW54 两文件 SHA 匹配，源码复核 P0/P1/P2=`0/0/1`，无源码 BLOCK；P2 为 viewport 回归未显式构造旧 camera 必定离屏的前置条件，后续需补强确定性，不把 13 项通过写成该缺陷修复前必定失败的证明。未因此重跑认证或完整原生流程；源码复核不替代最终提交的 Stage Gate。
+- CAMERA-REGRESSION56 已加强 REVIEW54 的离屏前置：聚焦空画布并右移超过一屏，以真实 worldX 确认旧相机坐标 < -500px，再断言不按 F 新节点完整可见；typecheck/build 与唯一 create 目标 1 PASS。RECORD55 的 README 标识检查失败保留；本轮补齐 CAMERA53 标识重新定向检查。REVIEW57 只读裁定后停点，不提供 full regression、原生包更新或提交许可。
+- REVIEW57 已裁定该测试前置P2关闭，P0/P1/P2=0/0/0。VERIFY59曾因旧entry断言230s而10PASS/1FAIL/34未运行；REPAIR60仅对齐已批准120s并目标PASS，755随后45项全绿。失败证据保留，不将未运行项改写为通过。
+- AUDIT64归因开发链Vitest/mocker/tinypool的moderate1/critical2；独立安全65裁定P1、非已证实桌面运行漏洞。SECURITY66仅pin Vitest4.1.11+lock，禁用安装scripts、无audit-fix/force；生产依赖变化0、tinypool移除。首个PS审计包装失败保留；VERIFY67显式审计全依赖及omit-dev均0、15unit/typecheck/build PASS，独立69复核关闭状态。Browser仍disabled，Backend/API/schema/生产依赖未变。
+- SECURITY-CLOSURE69 已独立核SHA/锁图，确认安全P1关闭、源码/依赖P0/P1/P2=0/0/0，认可未变UI/Rust/native证据继承。DOC70 四份现状文档身份/必要引用/代码未变/diffcheck PASS。代码 `74059db...` 为 READY_FOR_G2_PRODUCT_REVIEW；仍保留 REVIEW46 附加pointer断言P2，不准入G3/INT/Release。总控 DOC71 仅记录该结果并定向检查；COMMIT72 仅允许四文档本地提交，截止23:18+08、MaxIterations=1，无push/PR/merge，完成即STOP。
+- 执行权：上述实施/验证/预览 lease 均在各自 checkpoint 停点；EVIDENCE37/38 因原 FE 执行端 Git 权限失败，未写文档，不能追认成功。50/51/52/53 已停点；CAMERA-REVIEW54 为单独有界只读源码复核，NATIVE-CAMERA-RECORD55 仅同步四份现状文档并定向检查后停点。记录不授权后续修改、原生验证、commit/push/PR/merge 或下一阶段。G2 尚未产品验收，G3、INT-001 与 REL-001 仍未准入；下一操作须按 `GOVERNANCE-V2 §12` 另签。
 - 能力与证据指针：`docs/68-ACQ1-CAPABILITY-MANIFEST.md`（I1 能力清单）、`docs/69`（阶段报告）、`docs/70`（交付包说明书）、`docs/71`（收口计划）。
 
 ## 历史操作记录（以下不提供 live authority）

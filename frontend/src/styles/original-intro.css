@@ -1,0 +1,28 @@
+/* One continuous canvas beneath intro, sign-in, star map and utility pages. */
+.original-backdrop { position:fixed; inset:-16px; z-index:-1; overflow:hidden; pointer-events:none; isolation:isolate; background:#030b12 url('../assets/intro-stone.jpg') center / 104% 104% no-repeat; animation:original-stone-drift 82s ease-in-out infinite; }
+.original-backdrop::before { content:""; position:absolute; inset:0; z-index:1; background:radial-gradient(ellipse 48% 47% at 50% 51%,rgba(72,149,181,.08),transparent 74%); animation:original-breathe 24s ease-in-out infinite; }
+.original-breath { position:absolute; inset:0; z-index:1; background:radial-gradient(ellipse 60% 65% at 51% 51%,rgba(0,5,9,.19) 20%,rgba(3,11,19,.32) 70%,rgba(1,6,10,.58)); }
+.original-ambient { position:absolute; inset:-7%; z-index:1; background:radial-gradient(ellipse 52% 14% at 25% 42%,rgba(94,172,205,.07),transparent 77%),radial-gradient(ellipse 56% 16% at 78% 66%,rgba(68,150,190,.058),transparent 79%),radial-gradient(ellipse 35% 44% at 24% 62%,rgba(95,169,205,.085),transparent 74%),radial-gradient(ellipse 46% 38% at 78% 34%,rgba(61,135,178,.075),transparent 76%); mix-blend-mode:screen; opacity:.48; animation:original-ambient-drift 52s ease-in-out infinite alternate; }
+.original-orbit-system { position:absolute; inset:0; z-index:0; transform-origin:center; animation:original-turn 280s linear infinite; }
+.original-orbit-art { position:absolute; inset:0; background:url('../assets/intro-orbits.webp') center / 100% 100% no-repeat; opacity:.26; mix-blend-mode:screen; filter:brightness(1.25) saturate(.65); }
+.original-polar-grid { position:absolute; top:50%; left:50%; height:240%; aspect-ratio:1; z-index:1; transform:translate(-50%,-50%); opacity:.64; mix-blend-mode:screen; mask-image:radial-gradient(circle,#000 58%,rgba(0,0,0,.7) 77%,transparent 98%); }
+.original-polar-grid svg { display:block; width:100%; height:100%; shape-rendering:geometricPrecision; transform-origin:50% 50%; animation:original-turn 120s linear infinite; }
+.original-polar-lines,.original-polar-secondary,.original-polar-accents { fill:none; vector-effect:non-scaling-stroke; }
+.original-polar-lines { stroke:rgba(155,210,226,.26); stroke-width:1; }
+.original-polar-secondary { stroke:rgba(145,202,221,.14); stroke-width:.8; stroke-dasharray:3 8; }
+.original-polar-accents { stroke:rgba(190,230,239,.38); stroke-width:1.2; }
+.original-polar-accents circle { fill:rgba(201,238,244,.46); stroke:none; }
+.original-flowing-stars { position:absolute; inset:0; width:100%; height:100%; z-index:1; opacity:.92; mix-blend-mode:screen; }
+.original-stars { position:absolute; inset:-2%; z-index:1; animation:original-stars-drift 72s ease-in-out infinite alternate; }
+.original-stars i { position:absolute; left:var(--x); top:var(--y); width:2px; height:2px; border-radius:50%; background:#c7e8f3; opacity:.12; box-shadow:0 0 4px 1px rgba(168,216,238,.26),0 0 15px 4px rgba(90,170,207,.12); animation:original-star-breathe var(--t) ease-in-out var(--d) infinite alternate; }
+.original-stars i:nth-child(3n) { width:1px; height:1px; }
+.original-stars i:nth-child(4n) { width:3px; height:3px; }
+.entry-intro .intro-art { position:absolute; inset:0; width:100%; transform:none; }
+.entry-intro .intro-wordmark { position:absolute; width:54%; height:auto; left:50%; top:30.7%; transform:translateX(-50%); filter:drop-shadow(0 0 5px rgba(240,239,223,.16)); }
+.entry-intro .intro-emblem { position:absolute; width:17%; max-width:190px; height:auto; left:50%; top:39.5%; margin:0; transform:translateX(-50%); filter:drop-shadow(0 0 7px rgba(233,238,230,.13)); }
+@keyframes original-stone-drift { 0% { background-position:38% 57%; background-size:103% 103%; } 50% { background-position:63% 42%; background-size:107% 107%; } 100% { background-position:44% 53%; background-size:103% 103%; } }
+@keyframes original-breathe { 0%,100% { opacity:.34; transform:scale(1); } 50% { opacity:.72; transform:scale(1.012); } }
+@keyframes original-turn { to { transform:rotate(360deg); } }
+@keyframes original-stars-drift { from { transform:translate3d(-.8%,.5%,0); } to { transform:translate3d(1.2%,-1%,0); } }
+@keyframes original-star-breathe { 0%,100% { opacity:.08; transform:scale(.8); box-shadow:0 0 2px 1px rgba(168,216,238,.12); } 50% { opacity:.55; transform:scale(1.8); box-shadow:0 0 8px 2px rgba(168,216,238,.35),0 0 20px 6px rgba(90,170,207,.14); } }
+@keyframes original-ambient-drift { 0% { opacity:.32; transform:translate(-2.4%,1.1%) scale(1); } 50% { opacity:.7; transform:translate(1.8%,-1.7%) scale(1.035); } 100% { opacity:.4; transform:translate(2.6%,.8%) scale(1.012); } }

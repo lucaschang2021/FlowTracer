@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="420" viewBox="0 0 600 420">
+  <!-- Original deterministic star tile for FlowTracer G1. No external source assets. -->
+  <g fill="#b6c7dd" opacity=".36">
+    <circle cx="18" cy="25" r=".65"/><circle cx="83" cy="114" r=".8"/><circle cx="142" cy="34" r=".5"/><circle cx="243" cy="62" r=".7"/><circle cx="326" cy="12" r=".6"/><circle cx="441" cy="74" r=".6"/><circle cx="566" cy="35" r=".8"/><circle cx="542" cy="159" r=".6"/><circle cx="473" cy="210" r=".5"/><circle cx="351" cy="150" r=".8"/><circle cx="296" cy="236" r=".65"/><circle cx="178" cy="191" r=".8"/><circle cx="58" cy="258" r=".5"/><circle cx="120" cy="331" r=".8"/><circle cx="266" cy="357" r=".6"/><circle cx="340" cy="302" r=".5"/><circle cx="420" cy="383" r=".7"/><circle cx="570" cy="346" r=".65"/><circle cx="518" cy="405" r=".5"/><circle cx="19" cy="392" r=".6"/>
+  </g>
+  <g fill="#bed2e9" opacity=".17">
+    <circle cx="42" cy="46" r="1"/><circle cx="166" cy="102" r="1.1"/><circle cx="284" cy="25" r="1"/><circle cx="480" cy="138" r="1"/><circle cx="396" cy="255" r="1.2"/><circle cx="159" cy="267" r="1"/><circle cx="218" cy="390" r="1.1"/><circle cx="589" cy="226" r="1"/>
+  </g>
+  <g stroke="#bad4ea" stroke-width=".6" opacity=".33"><path d="M210 129h6m-3-3v6M517 296h6m-3-3v6M65 356h4m-2-2v4"/></g>
+</svg>

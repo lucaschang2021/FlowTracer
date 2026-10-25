@@ -20,5 +20,13 @@
       "devCsp": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' ws://127.0.0.1:1420; object-src 'none'; base-uri 'none'"
     }
   },
-  "bundle": { "active": false, "icon": ["icons/icon.ico", "icons/icon.png"] }
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"],
+    "createUpdaterArtifacts": false,
+    "icon": ["icons/icon.ico", "icons/icon.png"],
+    "windows": {
+      "nsis": { "installMode": "currentUser" }
+    }
+  }
 }

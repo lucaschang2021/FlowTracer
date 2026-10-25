@@ -4,9 +4,9 @@
 
 **M0：架构初步冻结 — 已完成**
 
-**当前阶段：Backend READY_FOR_FRONTEND；FE-G1–G3 已验收；FE-G4 发行候选条件准入**
+**当前阶段：Backend READY_FOR_FRONTEND；FE-G1–G4 已本地验收；INT/Release 尚未准入**
 
-Backend Alpha Core、Architecture Governance Pass 与 Static/Native ACQ-1 已完成。G2 验收代码 `74059db`，G3 验收代码 `7789fac068915d1846cfcc4d266a1da95b715f5b`：总控完整 UI 69/69（0 retry）、原生布局重开、真实 Signals→Memory 收藏/搜索/备注/移除、Opportunity 86.55/只读载荷及两类通知已读均已有隔离证据；P0/P1=0，两个 P2 见 [G3 记录](FE-001-G3-ADMISSION.md)。尚无发行安装包验收；G4 仅在本控制变更合并并由总控提供精确 post-merge main 后，按 [G4 准入](FE-001-G4-ADMISSION.md) 启动新任务。GitHub 产品接入事实以 PR/merge SHA 为准，不将本地验收冒充 main。Browser disabled、R3 incomplete/deferred；PLUGIN-1 deferred；INT-001、REL-001 与教程未准入。
+Backend Alpha Core、Architecture Governance Pass 与 Static/Native ACQ-1 已完成。G2 验收代码 `74059db`，G3 验收代码 `7789fac068915d1846cfcc4d266a1da95b715f5b`：总控完整 UI 69/69（0 retry）、原生布局重开、真实 Signals→Memory 收藏/搜索/备注/移除、Opportunity 86.55/只读载荷及两类通知已读均已有隔离证据；P0/P1=0，两个 P2 见 [G3 记录](FE-001-G3-ADMISSION.md)。G4 在 `679b032` 本地验收：71 UI、currentUser NSIS 及安装/启动/正常退出/重开/离线提示通过，路径及观察限制见 [G4 记录](FE-001-G4-ADMISSION.md)。G1–G3 已合并 PR #88，G4 尚待合并；INT 须从其精确 post-merge main 另签。GitHub 产品接入事实以 PR/merge SHA 为准，不将本地验收冒充 main。Browser disabled、R3 incomplete/deferred；PLUGIN-1 deferred；INT-001、REL-001 与教程未准入。
 
 本次来源基准：`main@1c7b15a7a285cd183a94ddca460f023163700a4c`（PR #85 merge）；新控制 PR 合并后 main 是其后代。现行合同 [GOVERNANCE-V2 §12](GOVERNANCE-V2.md#12-governance-v21--live-authority--in-flight-task-control)、§11.6/§11.7 与 [CURRENT-GATE](CURRENT-GATE.md) 优先，历史行不提供执行权。PR #79 DO NOT MERGE；本修订不处理其共享状态。
 
@@ -15,7 +15,7 @@ Backend Alpha Core、Architecture Governance Pass 与 Static/Native ACQ-1 已完
 | ID | 工作项 | 负责人窗口 | 状态 | 依赖 | 验收产物 |
 | --- | --- | --- | --- | --- | --- |
 | FE-G1..G3 | 星图、真实产品链、Galaxy/本机布局、Memory/Opportunity/REST 通知 | Frontend / 总控 | 已验收（代码 7789fac，P0/P1=0） | Backend READY_FOR_FRONTEND | 69 UI、23 unit、22 Rust；原生/API/数据库证据见 FE-001-G3-ADMISSION |
-| FE-G4 | Windows 发行候选 | 新 G4 任务 / 总控 | 条件准入，尚未执行 | 本控制变更 merge + 精确启动 SHA | 安装包、smoke、快速开始；非 INT/Release PASS |
+| FE-G4 | Windows 发行候选 | G4 任务 / 总控 | PRODUCT ACCEPTED / ALLOW_WITH_P2；本地尚待合并 | main@6cc2e06；代码679b032 | 71 UI、NSIS、安装/退出/重开/离线提示；见 G4 记录；非 INT/Release PASS |
 | FT-GOV-V2.1 | Live Authority / In-Flight Control Amendment | 总控 | 完成（PR #83 合并，旧工程未恢复） | main@335c6a2；FT-GOV-002 | merge 673f4b8；GOVERNANCE-V2 §12；GOV-2.1 |
 | R3-HOST-CONTRACT | 最小 host approval/runtime/监督绑定合同 | 总控 | 完成（PR #84 合并） | GOV-2.1 | merge a215051；GOVERNANCE-V2 §11.6 |
 | R3-H1-OFFLINE | Host identity/监督/cleanup 离线 adapter | Backend / GitHub | 完成（仅离线；PR #85 合并） | R3-HOST-CONTRACT | candidate 7f4a108；merge 1c7b15a；24/24 与 Backend CI PASS；非 runtime PASS |
@@ -88,7 +88,7 @@ Backend Alpha Core、Architecture Governance Pass 与 Static/Native ACQ-1 已完
 | ACQ-1-WP8 | ACQ-1 Final（价值闭环 E2E、可重复启动、性能基线、秘密扫描、能力清单与交接文档） | Backend / Architecture | 完成；独立验收通过；**READY_FOR_FRONTEND** | Browser 分支保持 disabled；Frontend 未自动准入 | `docs/67`–`docs/78`；交付侧 500/92.29% 为历史证据；独立 504 passed/89.49% 见 `docs/78` |
 | ACQ-1-WP3-B | R3 真实执行证据（B 阶段） | Backend | 未准入；离线增量就绪 | 需真实执行 lease + 锁定环境 | R3 离线增量与 `docs/54/55/56/59` 位于分支 `feat/acq1-r3-fail-closed-offline`（未合并）；R3 仍 BLOCKED |
 | PLUGIN-1 | 后续插件工作包 | 待定 | **POST-v0.1 / deferred** | 不在 Alpha v0.1 关键路径；不阻塞 FE-001 | 尚无正式准入或架构基线；不得视为已实现 |
-| FE-001 | 前端产品阶段 | Frontend | G1–G3 已验收；G4 发行候选待完成 | Backend `fc180a1`；分阶段准入 | 7789fac 的 G3 记录；安装包未验收，不自动进入 INT-001 |
+| FE-001 | 前端产品阶段 | Frontend | G1–G4 已本地验收；G4 尚待合并 | Backend `fc180a1`；分阶段准入 | G3 7789fac / G4 679b032；安装候选验收不自动进入 INT-001 |
 | FE-001-G1 | 桌面 UI 骨架与用户确认视觉 | Frontend | 本地候选已独立验收；未 push/未 merge | Backend `fc180a1` | local `24e2ebd`；source/scope、typecheck、13 unit、web build、13 UI E2E；后续 G2 原生证据不回填为 G1 独立复跑 |
 | FE-001-G2 | 真实 API 接入 | Frontend | PRODUCT ACCEPTED（代码 74059db；记录 f8ec2ed） | G1 + 冻结Handoff/OpenAPI | Radar CRUD、Source/collect/poll、Signals；45 UI、20 Rust、15 unit、锁定原生构建及审计；FLOW31/NATIVE51 的原生链与历史失败分列保留，见 [G2 记录](FE-001-G2-ADMISSION.md)。G3 的后续验收见其独立行，不回填为 G2 当时证据 |
 | FE-G2-CAMERA56 | 首个 Radar 可见性回归补强 | Frontend | REVIEW57 P0/P1/P2=0/0/0 | CAMERA53 / REVIEW54 | 空画布右移超过一屏、旧camera坐标<-500px，创建后不按F完整可见；目标PASS且进入755 full45，新包已包含；不替代G2产品门 |

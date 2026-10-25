@@ -1,10 +1,10 @@
 # FlowTracer Alpha v0.1 desktop
 
-## Current status · 2026-10-24
+## Current status · 2026-10-25
 
-G1–G3 passed local product acceptance at `7789fac068915d1846cfcc4d266a1da95b715f5b`: authentication, Radar/Source/collection/Signals, account-isolated Galaxy/layout persistence, Memory, Opportunities and REST notifications. The controller's final UI run passed 69/69 with zero retries; unchanged production input retains 23 unit/22 Rust tests and the locked offline desktop build. Native restart and nonempty backend/native product evidence are recorded in [G3 acceptance](../docs/FE-001-G3-ADMISSION.md).
+G1–G3 passed local product acceptance at `7789fac068915d1846cfcc4d266a1da95b715f5b`: authentication, Radar/Source/collection/Signals, account-isolated Galaxy/layout persistence, Memory, Opportunities and REST notifications. The controller's final UI run passed 69/69 with zero retries; unchanged production input retains 23 unit/22 Rust tests and the locked offline desktop build. Native restart and nonempty backend/native product evidence are recorded in [G3 acceptance](../docs/FE-001-G3-ADMISSION.md). Trial users should follow the [Windows Quick Start](QUICKSTART.md); package identity, hashes and smoke status are recorded in [Release Candidate](RELEASE-CANDIDATE.md).
 
-Browser is disabled; PLUGIN-1 is deferred. No Windows installer, Integration or Release acceptance is claimed. G4 can start only under [its admission](../docs/FE-001-G4-ADMISSION.md) and an exact post-merge controller lease. Credentials remain native-memory-only; restart requires sign-in. Demo and real data stay isolated.
+Browser is disabled; PLUGIN-1 is deferred. G4 passed local acceptance at `679b032`: 71/71 UI tests, a locked current-user NSIS installer, installed-app launch, normal exit, reopen and truthful Backend-unavailable behavior. The actual install path and incomplete wizard observation are disclosed in the Release Candidate record. G4 is not yet merged; Integration, Release and the in-app tutorial remain unaccepted. Credentials remain native-memory-only; restart requires sign-in. Demo and real data stay isolated.
 
 Current debug EXE SHA256: `3BFE40C7853FA61F8AE70FE89F678DD7302E11D0F652136C14FA058695608B1B`. This is a debug executable, not an installer.
 
@@ -106,7 +106,7 @@ serde_json/tokio set. No global installs are needed.
 - Header reset restores the isolated Demo layout. Valid stored layouts survive
   reload and native restart; real mode requires sign-in after process restart.
 
-G1–G3 have passed local product acceptance at the code SHA above. G4 installer,
+G1–G4 have passed local product acceptance (G4 product code `679b032`).
 Integration and Release remain incomplete; GitHub delivery follows exact PR/merge records.
 The empty demo loads fixtures; it does not create backend records.
 

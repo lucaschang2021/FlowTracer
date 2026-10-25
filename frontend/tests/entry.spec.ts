@@ -89,3 +89,9 @@ test('system reduced motion and unavailable storage keep entry usable', async ({
   await page.getByRole('button', { name: '进入演示星图' }).click();
   await expect(page.locator('[data-radar]')).toHaveCount(6);
 });
+
+test('live settings describe available product capabilities without internal gate language', async ({ page }) => {
+  const user = { id: '00000000-0000-4000-8000-000000000001', email: 'person@example.com', displayName: 'Explorer', isActive: true };
+  await page.addInitScript(user => { Object.defineProperty(window, '__TAURI_INTERNALS__', { value: { invoke: async (command: string) => { if (command === 'bridge_status') return { available: true }; if (command === 'health_ready') return { ready: true }; if (command === 'auth_login') return { authenticated: true, user }; if (command === 'users_me') return user; if (command === 'radars_list') return { items: [], page: 1, pageSize: 100, total: 0 }; if (command === 'notifications_list') return { items: [], page: 1, pageSize: 10, total: 0, unreadCount: 0 }; throw Error(`Unexpected command: ${command}`); } } }); }, user);
+  await page.goto('/');await page.getByRole('button',{name:'跳过动画'}).click();await expect(page.locator('.stage-scene')).toHaveAttribute('data-motion','idle');const email=page.getByLabel('邮箱'),password=page.getByLabel('密码');await email.fill(user.email);await password.fill('not-a-real-password');await expect(email).toHaveValue(user.email);await expect(password).toHaveValue('not-a-real-password');await page.getByRole('button',{name:'登录并载入星图'}).click();await expect(page.getByTestId('universe')).toHaveAttribute('data-mode','live');await expect(page.locator('.stage-scene')).toHaveAttribute('data-motion','idle');await page.getByRole('button',{name:'设置',exact:true}).click();await expect(page.getByText('已连接本机 FlowTracer 服务，可使用 Radar、Source、采集、Signals、Memory、Opportunity 与应用内通知。')).toBeVisible();await expect(page.getByText(/G3|候选|lease/i)).toHaveCount(0);
+});

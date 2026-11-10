@@ -1,12 +1,10 @@
 # FlowTracer Alpha v0.1 desktop
 
-## Current status · 2026-10-25
+## Current status · 2026-11-10
 
-G1–G3 passed local product acceptance at `7789fac068915d1846cfcc4d266a1da95b715f5b`: authentication, Radar/Source/collection/Signals, account-isolated Galaxy/layout persistence, Memory, Opportunities and REST notifications. The controller's final UI run passed 69/69 with zero retries; unchanged production input retains 23 unit/22 Rust tests and the locked offline desktop build. Native restart and nonempty backend/native product evidence are recorded in [G3 acceptance](../docs/FE-001-G3-ADMISSION.md). Trial users should follow the [Windows Quick Start](QUICKSTART.md); package identity, hashes and smoke status are recorded in [Release Candidate](RELEASE-CANDIDATE.md).
+G1–G4 are merged on `main` through `7751f39d765aa56fa2252b0d12c1a731a4e1417e`. The current Alpha release-preparation candidate adds a visible Source-purpose choice, its restricted Tauri mapping, a fixed frosted sign-in panel, and an isolated seven-step guided practice. Trial users should follow the [Windows Quick Start](QUICKSTART.md); the locally verified unsigned package identity, evidence and limits are in [Release Candidate](RELEASE-CANDIDATE.md).
 
-Browser is disabled; PLUGIN-1 is deferred. G4 passed local acceptance at `679b032`: 71/71 UI tests, a locked current-user NSIS installer, installed-app launch, normal exit, reopen and truthful Backend-unavailable behavior. The actual install path and incomplete wizard observation are disclosed in the Release Candidate record. G4 is not yet merged; Integration, Release and the in-app tutorial remain unaccepted. Credentials remain native-memory-only; restart requires sign-in. Demo and real data stay isolated.
-
-Current debug EXE SHA256: `3BFE40C7853FA61F8AE70FE89F678DD7302E11D0F652136C14FA058695608B1B`. This is a debug executable, not an installer.
+Browser is disabled; PLUGIN-1 is deferred. The complete guided-practice flow passed in Edge; the installed Windows candidate passed entry, Radar creation, exit and resume smoke checks. A controlled local Integration run also passed one collection, both notification kinds, unread-to-read handling and strict cleanup. The native Windows smoke was not a complete seven-step tutorial run, and local fixtures/test AI are not public-internet or production-provider evidence. Session tokens remain in native memory only; restart requires sign-in. Demo, practice and real data stay isolated. No public GitHub Release has been made.
 
 ## Historical G2 candidate record
 
@@ -107,7 +105,7 @@ serde_json/tokio set. No global installs are needed.
   reload and native restart; real mode requires sign-in after process restart.
 
 G1–G4 have passed local product acceptance (G4 product code `679b032`).
-Integration and Release remain incomplete; GitHub delivery follows exact PR/merge records.
+This paragraph is a historical G1–G4 checkpoint. The current tutorial/integration candidate status is summarized at the top of this file; public Release remains unpublished.
 The empty demo loads fixtures; it does not create backend records.
 
 ## Architecture and original assets

@@ -5,5 +5,6 @@ import './styles/app.css';
 import './styles/demo.css';
 import './styles/original-intro.css';
 import './styles/motion.css';
+import './styles/frosted.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><App /></React.StrictMode>);

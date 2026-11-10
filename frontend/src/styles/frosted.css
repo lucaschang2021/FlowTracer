@@ -1,0 +1,175 @@
+/* Shared frosted material, matched to the approved translucent sign-in panel.
+   Only surfaces blur their backdrop; the original canvas and its gestures stay intact. */
+:root {
+  --frost-panel:
+    radial-gradient(ellipse at 0 0,rgba(199,224,239,.1),transparent 55%),
+    radial-gradient(ellipse at 100% 100%,rgba(191,172,131,.05),transparent 50%),
+    linear-gradient(145deg,rgba(27,43,56,.2),rgba(10,21,34,.34));
+  --frost-card:linear-gradient(145deg,rgba(33,52,66,.25),rgba(9,21,32,.38));
+  --frost-field:linear-gradient(180deg,rgba(2,10,18,.36),rgba(8,19,33,.19));
+  --frost-border:rgba(215,232,245,.28);
+  --frost-divider:rgba(198,217,227,.18);
+  --frost-ink:#f4f1e9;
+  --frost-secondary:#c1ced9;
+  --frost-focus:#e9dcc0;
+  --frost-shadow:0 20px 56px -18px #0008,inset 0 1px 0 #ffffff26,inset 0 -1px 0 #ffffff0d;
+}
+
+/* Full-page surfaces remain transparent so the same starfield connects every page. */
+.stage-scene .app-shell :is(.utility-page,.signals-page,.product-page) {
+  background:linear-gradient(145deg,#06101a24,#06101a4d);
+  color:var(--frost-ink);
+  scrollbar-color:#73899c80 transparent;
+}
+.app-shell :is(.utility-page,.signals-page,.product-page)>:is(h1,.eyebrow,.page-summary,.muted),
+.app-shell .section-heading { text-shadow:0 2px 10px #000c; }
+.app-shell :is(.muted,.panel-summary,.scope-note,.settings-list p,.setting-row small) { color:var(--frost-secondary); }
+
+/* Bars and floating canvas tools share the same translucent material. */
+.stage-scene .app-shell :is(.app-header,.status-bar),
+.app-shell :is(.zoom-controls,.selection-tools,.canvas-help,.storage-notice) {
+  background:var(--frost-panel);
+  border-color:var(--frost-border);
+  -webkit-backdrop-filter:blur(8px) saturate(115%);
+  backdrop-filter:blur(8px) saturate(115%);
+  box-shadow:inset 0 1px 0 #ffffff12;
+}
+.app-shell :is(.zoom-controls,.selection-tools,.canvas-help,.storage-notice) { border-radius:14px; }
+.app-shell .canvas-help { border:1px solid var(--frost-divider); color:var(--frost-secondary); }
+.app-shell .zoom-controls button { border-radius:9px; }
+.app-shell .zoom-controls button:first-child { background:#d7e8f51a; }
+.app-shell .zoom-controls button:hover { background:#d7e8f529; }
+.app-shell .status-bar>div { border-color:var(--frost-divider); }
+.app-shell .brand-tagline { color:#b7c9d8; }
+.app-shell .main-nav { gap:12px; }
+.app-shell .main-nav button {
+  align-self:center;
+  min-height:44px;
+  padding:10px 14px;
+  border:1px solid transparent;
+  border-radius:12px;
+  color:var(--frost-secondary);
+}
+.app-shell .main-nav button[aria-current] {
+  color:var(--frost-ink);
+  border-color:var(--frost-divider);
+  background:linear-gradient(150deg,#d7e8f51f,#d7e8f509);
+  box-shadow:inset 0 1px 0 #ffffff14;
+}
+.app-shell .main-nav button[aria-current]::after { left:14px; right:14px; bottom:5px; height:1px; }
+.app-shell .main-nav button:hover { color:var(--frost-ink); background-color:#d7e8f510; }
+
+/* Main panels: radar/galaxy details, creation/edit/collection/confirmation dialogs,
+   Signals, Memory, Opportunities, notifications, settings and demo guide. */
+.app-shell :is(.detail-panel,.guide-dialog,.radar-create-panel,.signal-filters,
+  .product-filters,.signal-detail,.product-detail,.signal-state,.product-state,.settings-list) {
+  background:var(--frost-panel);
+  border:1px solid var(--frost-border);
+  border-radius:22px;
+  color:var(--frost-ink);
+  -webkit-backdrop-filter:blur(8px) saturate(115%);
+  backdrop-filter:blur(8px) saturate(115%);
+  box-shadow:var(--frost-shadow);
+  scrollbar-color:#73899c80 transparent;
+}
+.app-shell .detail-panel::after { background:none; }
+.app-shell .settings-list { padding:4px 28px 24px; }
+.app-shell .settings-list>div,.app-shell .setting-row { border-color:var(--frost-divider); }
+.app-shell .settings-list>.setting-row:last-child { border-bottom:0; }
+.app-shell .product-detail { padding:26px; margin-top:24px; }
+.app-shell :is(.modal-scrim,.radar-create-scrim) { background:rgba(2,8,15,.32); }
+.app-shell .guide-dialog { max-height:calc(100dvh - 48px); overflow:auto; }
+.app-shell .notification-panel { border-color:var(--frost-divider); }
+.app-shell :is(.radar-detail-art,.galaxy-members,.galaxy-members button) { border-color:var(--frost-divider); }
+.app-shell .galaxy-members button { border-radius:10px; padding-left:8px; }
+.app-shell .galaxy-members button:hover { background:#d7e8f512; }
+
+/* Repeated content stays light. Avoid stacking expensive blur layers inside settings. */
+.app-shell :is(.signal-list button,.product-row,.product-list article) {
+  background:var(--frost-card);
+  border:1px solid var(--frost-border);
+  border-radius:16px;
+  color:var(--frost-ink);
+  -webkit-backdrop-filter:blur(8px) saturate(115%);
+  backdrop-filter:blur(8px) saturate(115%);
+  box-shadow:inset 0 1px 0 #ffffff12;
+}
+.app-shell :is(.signal-list button,.product-row):hover {
+  background:linear-gradient(145deg,#526b8047,#14283b66);
+  border-color:#dfd3b5a6;
+}
+.app-shell .settings-list :is(.product-filters,.product-list article) {
+  -webkit-backdrop-filter:none;
+  backdrop-filter:none;
+  background:rgba(9,20,29,.22);
+  box-shadow:inset 0 1px 0 #ffffff0d;
+}
+.app-shell .notification-item[aria-label*="unread"] { border-color:#d9c48c99; }
+.app-shell :is(.signal-facts>div,.payload-code,.safe-values code) {
+  background:var(--frost-field);
+  border:1px solid var(--frost-divider);
+  border-radius:12px;
+}
+.app-shell .payload-code { color:#d6e3ed; }
+.app-shell .approval-note { border-radius:0 12px 12px 0; background:#d8c9a80d; }
+.app-shell :is(.signal-status,.signal-recommendation,.tag-row span) { border-radius:7px; }
+.app-shell :is(.product-list small,.signal-facts dt,.galaxy-members small) { color:#b4c5d3; }
+.app-shell :is(.signal-url,.signal-list small,.signal-list button>span:not(:first-child)) { color:var(--frost-secondary); }
+
+/* Consistent inset fields and glass buttons, with opaque native option menus. */
+.app-shell :is(input:not([type="checkbox"]):not([type="radio"]),textarea,select) {
+  background:var(--frost-field);
+  border:1px solid #bdd4e64d;
+  border-radius:11px;
+  color:var(--frost-ink);
+  box-shadow:inset 0 2px 5px #0002,0 1px 0 #ffffff08;
+}
+.app-shell select option { background:#112130; color:var(--frost-ink); }
+.app-shell :is(.text-button,.product-pages button,.selection-tools button) {
+  background:linear-gradient(150deg,#c8dcea1a,#c8dcea08);
+  border:1px solid #d7e8f547;
+  border-radius:11px;
+  color:#e1e8ed;
+  box-shadow:inset 0 1px 0 #ffffff12;
+}
+.app-shell .icon-button { background:#c8dcea0d; border-color:#d7e8f542; }
+.app-shell :is(.text-button,.product-pages button,.selection-tools button,.icon-button):hover:enabled {
+  background-color:#c8dcea21;
+  border-color:#d7e8f580;
+}
+.app-shell :is(.text-button,.product-pages button,.selection-tools button):active:enabled { box-shadow:inset 0 2px 5px #0003; }
+.app-shell :is(button,input,textarea,select):focus-visible { outline:2px solid var(--frost-focus); outline-offset:3px; }
+.app-shell button:disabled { opacity:.55; }
+.app-shell .danger-button { color:#ffc1b9!important; background-color:#6b253526; }
+.app-shell .storage-notice,.app-shell .product-state { border-color:#d9b88e66; }
+.app-shell .auth-error { color:#ffd0ca!important; }
+
+@media(max-width:1200px) {
+  .app-shell .main-nav { gap:4px; }
+  .app-shell .main-nav button { padding-inline:8px; }
+  .app-shell .settings-list { padding-inline:20px; }
+}
+@supports not (backdrop-filter:blur(1px)) {
+  :root {
+    --frost-panel:linear-gradient(145deg,#152432f2,#0b1623f2);
+    --frost-card:linear-gradient(145deg,#1a2a38ef,#0b1928ef);
+  }
+}
+@media(forced-colors:active) {
+  .app-shell :is(.app-header,.status-bar,.zoom-controls,.selection-tools,.canvas-help,.storage-notice,
+    .detail-panel,.guide-dialog,.radar-create-panel,.signal-filters,.product-filters,.signal-detail,
+    .product-detail,.signal-state,.product-state,.settings-list,.signal-list button,.product-row,
+    .product-list article,.payload-code,.safe-values code,.signal-facts>div,.text-button,
+    .product-pages button,.icon-button,.selection-tools button,input,textarea,select) {
+    background:Canvas!important;
+    color:CanvasText!important;
+    border-color:ButtonText!important;
+    box-shadow:none;
+    -webkit-backdrop-filter:none;
+    backdrop-filter:none;
+  }
+  .app-shell .main-nav button[aria-current] { border-color:Highlight; color:Highlight; }
+  .app-shell :is(button,input,textarea,select):focus-visible { outline-color:Highlight; }
+  .app-shell button:disabled { color:GrayText!important; opacity:1; }
+  .app-shell .danger-button { color:LinkText!important; }
+}

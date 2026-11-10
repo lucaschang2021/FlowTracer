@@ -4,7 +4,7 @@
 
 [当前闸门](docs/CURRENT-GATE.md) · [交付看板](docs/02-DELIVERY-BOARD.md) · [Backend 开发](backend/DEVELOPMENT.md) · [English](#english)
 
-> **Alpha 状态：** FlowTracer v0.1 后端 Static/Native 主链已完成独立验收，达到 **READY_FOR_FRONTEND（后端交接就绪）**；产品尚未发布。精确代码提交 `01155294f151cb1c453ddbaf8af6ed34ef3228c1` 的 504 项测试、89.49% 覆盖率及运行/迁移证据见 [独立验收记录](docs/78-ACQ1-INDEPENDENT-ACCEPTANCE.md)。WP-3 Browser 仍 disabled/deferred（R3 BLOCKED）；PLUGIN-1 为 POST-v0.1/deferred。Frontend G1–G3 已完成本地产品验收（代码 `7789fac`，完整 UI 69/69）；G4 已本地验收（代码 `679b032`、UI 71/71、NSIS 安装/启动/重开），尚待合并；Integration 与 Release 未完成。详见 [G3 验收记录](docs/FE-001-G3-ADMISSION.md)。交付入口见 [交付包说明书](docs/70-ACQ1-DELIVERY-PACKAGE.md)。
+> **Alpha 状态：** G1–G4 已合并到 `main@7751f39d765aa56fa2252b0d12c1a731a4e1417e`。当前发布准备候选增加来源用途选择、固定磨砂登录框和隔离的七步交互练习；七步 Edge 回归已通过，安装版 Windows 冒烟覆盖进入练习、创建 Radar、退出和续接。受控本机 Integration 还通过了单次采集、分析/机会两类通知未读到已读及严格清理。Windows 未执行完整七步原生流程，测试 AI/本地 fixture 不代表公网采集或生产 AI。安装包未签名，尚未创建 GitHub Release。
 
 ## 中文
 
@@ -34,8 +34,9 @@ Radar 是 FlowTracer 的核心领域对象，不是项目名称。项目正式�
 | ACQ-1 WP-4..WP-8 | 完成并通过独立后端验收 | Static/Native Router、受控发现、变更情报、Opportunity 与整链 E2E；独立结果 504 tests / 89.49% coverage，见 [验收记录](docs/78-ACQ1-INDEPENDENT-ACCEPTANCE.md)；**READY_FOR_FRONTEND** |
 | PLUGIN-1 | POST-v0.1 / deferred | 不在 Alpha v0.1 关键路径，不构成 Frontend 前置依赖；尚未实现，未形成正式准入或架构基线 |
 | Frontend G1–G3 | 已验收 | 真实桌面产品链、Galaxy/布局、Memory/Opportunity/通知；代码 `7789fac`，UI 69/69 |
-| Frontend G4 | 本地验收完成，尚待合并 | 代码 `679b032`、71 UI、NSIS 安装/启动/退出/重开；见 [G4 记录](docs/FE-001-G4-ADMISSION.md) |
-| Integration / Release | 待完成 | 集成、Alpha 发布及后续应用内教程 |
+| Frontend G4 | 已合并 | `main@7751f39d` 包含已验收 G4 |
+| 教程 / 本机集成 | 本地候选已验收 | 七步 Edge；Windows 进入/创建/续接；受控单次采集与两类通知 |
+| Release | 未发布 | 未签名安装候选；无 Git 标签、安装包上传或 GitHub Release |
 
 已实现能力以已合并代码和精确验收证据为准；阶段门禁见[当前闸门](docs/CURRENT-GATE.md)和[交付看板](docs/02-DELIVERY-BOARD.md)。开放中的 PR、准入许可和计划能力不视为已实现；PLUGIN-1 为 POST-v0.1 / deferred，不参与 Alpha v0.1 准入顺序。
 
@@ -74,7 +75,7 @@ Radar 是 FlowTracer 的核心领域对象，不是项目名称。项目正式�
 
 ACQ-1 Phase 0-5 本地候选能力与禁用能力清单见 [能力清单](docs/68-ACQ1-CAPABILITY-MANIFEST.md)；完整门禁矩阵、限制声明与接收指引见 [交付包说明书](docs/70-ACQ1-DELIVERY-PACKAGE.md)，I1 历史快照见 [最终阶段报告](docs/69-ACQ1-FINAL-STAGE-REPORT.md)，收口执行与独立验收条件见 [收口计划](docs/71-ACQ1-CLOSURE-PLAN.md) 及 `docs/72`–`docs/77`。
 
-**Browser 仍为 disabled**：WP-3 未准入，R3 真实执行 BLOCKED（需另签执行 lease）；R3 离线增量位于分支 `feat/acq1-r3-fail-closed-offline`（未合并）。`semantic-change-v1`、机会平台授权、多币种 FX 与外部执行适配器仍未实现；Frontend G1–G3 已本地验收；G4 已本地验收，尚待合并；Integration、Release 待完成。PLUGIN-1 为 POST-v0.1 / deferred，不阻塞 Frontend。下游工作须按治理另行书面准入。历史阻塞记录保留于 [WP-3 Readiness Blocker](docs/37-ACQ1-WP3-READINESS-BLOCKER.md)。
+**Browser 仍为 disabled**：WP-3 未准入，R3 真实执行 BLOCKED（需另签执行 lease）；R3 离线增量位于分支 `feat/acq1-r3-fail-closed-offline`（未合并）。`semantic-change-v1`、机会平台授权、多币种 FX 与外部执行适配器仍未实现；G1–G4 已合并，当前教程/本机 Integration 候选已完成上述有界本地验收，Release 尚未发布。PLUGIN-1 为 POST-v0.1 / deferred。历史阻塞记录保留于 [WP-3 Readiness Blocker](docs/37-ACQ1-WP3-READINESS-BLOCKER.md)。
 
 ### 技术栈
 
@@ -104,32 +105,9 @@ FlowTracer/
 
 ### 快速开始
 
-后端启动步骤如下；G1–G3 桌面客户端的开发启动与验证见 [前端说明](frontend/README.md)。Windows 安装候选已本地验收（见 [记录](frontend/RELEASE-CANDIDATE.md)），尚待合并；Integration 与 Release 未完成。
+先阅读 [Windows 快速上手](frontend/QUICKSTART.md) 和 [发布候选说明](frontend/RELEASE-CANDIDATE.md)。交互练习使用隔离的本地示例数据，不需要后端；真实登录和采集需要单独启动本机后端。
 
-要求：Git、Docker Desktop（Linux containers）和 Docker Compose。
-
-```bash
-git clone https://github.com/lucaschang2021/FlowTracer.git
-cd FlowTracer
-docker compose -f infra/compose.yaml build api
-docker compose -f infra/compose.yaml up -d --wait postgres redis
-docker compose -f infra/compose.yaml run --rm api alembic upgrade head
-docker compose -f infra/compose.yaml up -d api worker
-```
-
-API 启动后可检查存活状态：
-
-```bash
-curl http://127.0.0.1:8000/api/v1/health/live
-```
-
-停止本地服务：
-
-```bash
-docker compose -f infra/compose.yaml down
-```
-
-使用 `uv` 在宿主机开发、执行迁移或运行质量检查时，请遵循 [Backend 开发指南](backend/DEVELOPMENT.md)。示例配置只用于本地开发，切勿复用默认凭据。
+仓库自带 Compose 不是终端用户部署方案：默认把 API 8000、PostgreSQL 5432 和 Redis 6379 发布到所有主机接口，包含开发凭据，并使用测试 AI provider。不要把它作为公网或共享网络服务直接启动。开发者需要真实连接时，应先建立仅限本机的配置，再遵循 [Alpha Operations](backend/ALPHA-OPERATIONS.md) 和 [Backend 开发指南](backend/DEVELOPMENT.md)。
 
 ### 关键文档
 
@@ -167,7 +145,7 @@ FlowTracer 当前交付顺序（含未准入的待办阶段）：
 POST-v0.1（deferred）：PLUGIN-1
 ```
 
-BE-1..BE-8、WP-1、WP-2 与 WP-4..WP-8 已完成后端实现与独立验收（见 [验收记录](docs/78-ACQ1-INDEPENDENT-ACCEPTANCE.md)），**READY_FOR_FRONTEND**。WP-3 Browser 保持 disabled 且未准入；Frontend G1–G3 已本地验收；G4 已本地验收，尚待合并；Integration 与 Release 待完成。PLUGIN-1 为 POST-v0.1 / deferred，不构成 Frontend 前置条件。验收模式、证据边界与移交方式见 [交付包说明书](docs/70-ACQ1-DELIVERY-PACKAGE.md)。
+BE-1..BE-8、WP-1、WP-2 与 WP-4..WP-8 已完成后端实现与独立验收（见 [验收记录](docs/78-ACQ1-INDEPENDENT-ACCEPTANCE.md)），**READY_FOR_FRONTEND**。WP-3 Browser 保持 disabled 且未准入；G1–G4 已合并，教程/本机 Integration 候选已完成有界本地验收，Release 尚未发布。PLUGIN-1 为 POST-v0.1 / deferred，不构成 Frontend 前置条件。
 
 PLUGIN-1 已明确移至 POST-v0.1 / deferred：不在 Alpha v0.1 关键路径，不阻塞 Frontend，尚未准入或实现。本文不为其补写架构、接口或仓库文档链接。
 
@@ -177,7 +155,7 @@ PLUGIN-1 已明确移至 POST-v0.1 / deferred：不在 Alpha v0.1 关键路径�
 - 采集链路限制协议、端口、重定向、DNS/IP、响应类型、大小和超时；测试不得访问公网。
 - API、任务和查询必须实施用户所有权隔离；不得泄漏正文、查询、向量、凭据或跨用户数据。
 - Alpha 使用 PostgreSQL + pgvector 作为唯一 Memory 事实源；不引入 Qdrant、Milvus、Neo4j、知识图谱、多模型 Router 或 Agent。
-- FlowTracer v0.1 仍是开发中的 Alpha；目前没有可下载的正式桌面版本或 GitHub Release。
+- FlowTracer v0.1 仍是开发中的 Alpha；当前安装候选未签名、未上传，且没有 GitHub Release。
 
 ---
 
@@ -185,7 +163,7 @@ PLUGIN-1 已明确移至 POST-v0.1 / deferred：不在 Alpha v0.1 关键路径�
 
 **A personal desktop AI intelligence system for continuous acquisition, traceable analysis, and long-term Memory—designed to surface and preserve high-value information.**
 
-> **Alpha status:** FlowTracer v0.1's Static/Native backend path has passed independent acceptance and is **READY_FOR_FRONTEND** (backend handoff ready); the product is not released. The exact code commit `01155294f151cb1c453ddbaf8af6ed34ef3228c1` passed 504 tests with 89.49% coverage, plus migration and runtime checks; see the [independent acceptance record](docs/78-ACQ1-INDEPENDENT-ACCEPTANCE.md). WP-3 Browser remains disabled/deferred (R3 BLOCKED), and PLUGIN-1 remains POST-v0.1/deferred. Frontend G1–G3 passed local product acceptance at `7789fac` (69/69 UI tests); G4 passed local acceptance at `679b032` (71/71 UI, NSIS install/start/reopen) but is not yet merged; Integration and Release remain incomplete. See the [G3 record](docs/FE-001-G3-ADMISSION.md). See the [delivery package](docs/70-ACQ1-DELIVERY-PACKAGE.md).
+> **Alpha status:** G1–G4 are merged through `main@7751f39d765aa56fa2252b0d12c1a731a4e1417e`. The release-preparation candidate adds Source-purpose selection, a fixed frosted sign-in panel, and isolated seven-step guided practice. The complete flow passed in Edge; the installed Windows candidate passed practice entry, Radar creation, exit and resume smoke checks. A controlled local Integration run passed one collection, both notification kinds, unread-to-read handling and strict cleanup. Windows did not run the complete seven-step native flow, and test AI/local fixtures are not public-internet or production-provider evidence. The installer is unsigned and no GitHub Release exists.
 
 ### Product Positioning
 
@@ -213,8 +191,9 @@ Radar is FlowTracer's core domain object, not the project name. The official pro
 | ACQ-1 WP-4..WP-8 | Complete; independently accepted for backend handoff | Static/Native Router, controlled discovery, change intelligence, Opportunity, and end-to-end verification; independent result: 504 tests / 89.49% coverage ([record](docs/78-ACQ1-INDEPENDENT-ACCEPTANCE.md)); **READY_FOR_FRONTEND** |
 | PLUGIN-1 | POST-v0.1 / deferred | Outside the Alpha v0.1 critical path and not a Frontend prerequisite; not implemented, with no formal admission or architecture baseline |
 | Frontend G1–G3 | Accepted | Native product paths, Galaxy/layout, Memory/Opportunity/notifications; code `7789fac`, 69/69 UI tests |
-| Frontend G4 | Locally accepted, not yet merged | Code `679b032`, 71 UI, NSIS install/start/exit/reopen; see [G4 record](docs/FE-001-G4-ADMISSION.md) |
-| Integration / Release | Incomplete | Integration, Alpha release and subsequent in-app tutorial |
+| Frontend G4 | Merged | Accepted G4 is included in `main@7751f39d` |
+| Tutorial / local integration | Locally accepted candidate | Seven-step Edge flow; Windows entry/create/resume; controlled collection and two notification kinds |
+| Release | Not published | Unsigned local installer candidate; no tag, installer upload, or GitHub Release |
 
 Implemented capabilities are determined by merged code and exact acceptance evidence; phase gates are recorded in the [current gate](docs/CURRENT-GATE.md) and [delivery board](docs/02-DELIVERY-BOARD.md). Open pull requests, admission approvals, and planned capabilities are not treated as implemented. PLUGIN-1 is POST-v0.1 / deferred and is not part of the Alpha v0.1 admission order.
 
@@ -227,7 +206,7 @@ User registration/sign-in                    ✅ BE-2 completed
   → Cleaning, deduplication, AI summary/score  ✅ BE-5 completed
   → Chunking, embeddings, and Memory Search    ✅ BE-6 completed
   → Notification, WebSocket, and run retry      ✅ BE-7 completed
-  → Tauri desktop feed and knowledge base      ✅ G1–G4 locally accepted; Integration/Release pending
+  → Tauri desktop feed and knowledge base      ✅ G1–G4 merged; bounded local Integration accepted
 ```
 
 ### Implemented Today
@@ -253,7 +232,7 @@ The original provider-side baseline is local `main@48c2e2260f303ef0b18470a4d31fb
 
 The Phase 0-5 local-candidate capabilities and disabled-capability list are in the [capability manifest](docs/68-ACQ1-CAPABILITY-MANIFEST.md); the full gate matrix, limitations, and receiver guide are in the [delivery package](docs/70-ACQ1-DELIVERY-PACKAGE.md). The [final stage report](docs/69-ACQ1-FINAL-STAGE-REPORT.md) is the historical I1 snapshot; closure execution and independent-acceptance criteria are in the [closure plan](docs/71-ACQ1-CLOSURE-PLAN.md) and `docs/72`–`docs/77`.
 
-**Browser remains disabled:** WP-3 is not admitted and R3 real execution is BLOCKED pending a separate execution lease; the R3 offline increment sits on the branch `feat/acq1-r3-fail-closed-offline` (unmerged). `semantic-change-v1`, opportunity platform authorization, multi-currency FX, and external execution adapters remain unimplemented. Frontend G1–G3 passed local acceptance; G4 is locally accepted and pending merge; Integration and Release remain incomplete. PLUGIN-1 is POST-v0.1 / deferred and does not block Frontend; downstream work requires separate written admission under the governance rules. Historical blocker records remain at the [WP-3 readiness blocker](docs/37-ACQ1-WP3-READINESS-BLOCKER.md).
+**Browser remains disabled:** WP-3 is not admitted and R3 real execution is BLOCKED pending a separate execution lease; the R3 offline increment sits on the branch `feat/acq1-r3-fail-closed-offline` (unmerged). `semantic-change-v1`, opportunity platform authorization, multi-currency FX, and external execution adapters remain unimplemented. G1–G4 are merged; the tutorial/local Integration candidate completed the bounded local acceptance summarized above, while Release remains unpublished. PLUGIN-1 is POST-v0.1 / deferred. Historical blocker records remain at the [WP-3 readiness blocker](docs/37-ACQ1-WP3-READINESS-BLOCKER.md).
 
 ### Technology Stack
 
@@ -283,32 +262,9 @@ FlowTracer/
 
 ### Quick Start
 
-Backend startup is documented below; see the [desktop instructions](frontend/README.md) for the G1–G3 development client. The Windows installer candidate is locally accepted ([record](frontend/RELEASE-CANDIDATE.md)) but not yet merged; Integration and Release remain incomplete.
+Start with the [Windows Quick Start](frontend/QUICKSTART.md) and [Release Candidate](frontend/RELEASE-CANDIDATE.md). Guided practice uses isolated local sample data and needs no Backend; live sign-in and collection require a separately started local Backend.
 
-Requirements: Git, Docker Desktop with Linux containers, and Docker Compose.
-
-```bash
-git clone https://github.com/lucaschang2021/FlowTracer.git
-cd FlowTracer
-docker compose -f infra/compose.yaml build api
-docker compose -f infra/compose.yaml up -d --wait postgres redis
-docker compose -f infra/compose.yaml run --rm api alembic upgrade head
-docker compose -f infra/compose.yaml up -d api worker
-```
-
-After the API starts, check liveness:
-
-```bash
-curl http://127.0.0.1:8000/api/v1/health/live
-```
-
-Stop the local services with:
-
-```bash
-docker compose -f infra/compose.yaml down
-```
-
-For host development with `uv`, migrations, and quality checks, follow the [Backend development guide](backend/DEVELOPMENT.md). Example configuration is for local development only; never reuse default credentials.
+The stock Compose file is not an end-user deployment recipe: API 8000, PostgreSQL 5432 and Redis 6379 are published on all host interfaces, development credentials are present, and the default AI provider is for testing. Do not start it as a public or shared-network service. Developers who need live mode must first create a loopback-restricted configuration, then follow [Alpha Operations](backend/ALPHA-OPERATIONS.md) and the [Backend development guide](backend/DEVELOPMENT.md).
 
 ### Authoritative Documents
 
@@ -346,7 +302,7 @@ Architecture freeze → BE-1..BE-8 → ACQ-1 WP-1..WP-8
 POST-v0.1 (deferred): PLUGIN-1
 ```
 
-BE-1..BE-8, WP-1, WP-2, and WP-4..WP-8 are complete and independently accepted for backend handoff: **READY_FOR_FRONTEND** ([record](docs/78-ACQ1-INDEPENDENT-ACCEPTANCE.md)). WP-3 Browser remains disabled and not admitted. Frontend G1–G3 passed local acceptance; G4 is locally accepted and pending merge; Integration and Release remain incomplete. PLUGIN-1 is POST-v0.1 / deferred and is not a Frontend prerequisite. Acceptance mode, evidence boundaries, and handover steps are in the [delivery package](docs/70-ACQ1-DELIVERY-PACKAGE.md).
+BE-1..BE-8, WP-1, WP-2, and WP-4..WP-8 are complete and independently accepted for backend handoff: **READY_FOR_FRONTEND** ([record](docs/78-ACQ1-INDEPENDENT-ACCEPTANCE.md)). WP-3 Browser remains disabled and not admitted. G1–G4 are merged; the tutorial/local Integration candidate completed bounded local acceptance, while Release remains unpublished. PLUGIN-1 is POST-v0.1 / deferred and is not a Frontend prerequisite.
 
 PLUGIN-1 is explicitly POST-v0.1 / deferred. It is outside the Alpha v0.1 critical path, does not block Frontend, and is neither admitted nor implemented. This README does not define its architecture, interfaces, or repository document links.
 

@@ -5,7 +5,7 @@ const radarId = '00000000-0000-4000-8000-000000000011';
 const sourceId = '00000000-0000-4000-8000-000000000021';
 const runId = '00000000-0000-4000-8000-000000000031';
 const radar = { id: radarId, name: 'Source Radar', description: 'Sources', goal: 'Track feeds', radarType: 'technology', categories: [], keywords: [], status: 'active', notificationThreshold: 75 };
-const source = { id: sourceId, name: 'Primary feed', sourceType: 'rss', url: 'https://example.com/feed', normalizedUrl: 'https://example.com/feed', pollIntervalMinutes: 60, status: 'active' };
+const source = { id: sourceId, name: 'Primary feed', sourceType: 'rss', url: 'https://example.com/feed', normalizedUrl: 'https://example.com/feed', pollIntervalMinutes: 60, status: 'active', sourceFamily: 'generic_web' };
 const user = { id: '00000000-0000-4000-8000-000000000001', email: 'person@example.com', displayName: 'Explorer', isActive: true };
 
 async function signIn(page: Page) {
@@ -20,11 +20,11 @@ async function openSources(page: Page) {
 
 test('create then bind keeps the created identity across a failed bind retry', async ({ page }) => {
   await page.addInitScript(({ radar, user, source }) => {
-    const state = window as typeof window & { __calls?: Record<string, number> }; state.__calls = { create: 0, bind: 0 };
+    const state = window as typeof window & { __calls?: Record<string, number>; __inputs?: unknown[] }; state.__calls = { create: 0, bind: 0 }; state.__inputs = [];
     Object.defineProperty(window, '__TAURI_INTERNALS__', { value: { invoke: async (command: string, args?: { input?: unknown }) => {
       if (command === 'bridge_status') return { available: true }; if (command === 'health_ready') return { ready: true }; if (command === 'auth_login') return { authenticated: true, user }; if (command === 'users_me') return user; if (command === 'radars_list') return { items: [radar], page: 1, pageSize: 100, total: 1 };
       if (command === 'sources_list' || command === 'radar_sources_list') return { items: [], page: 1, pageSize: 20, total: 0 };
-      if (command === 'sources_create') { state.__calls!.create += 1; return source; }
+      if (command === 'sources_create') { state.__calls!.create += 1; state.__inputs!.push(args!.input); return source; }
       if (command === 'radar_sources_bind') { state.__calls!.bind += 1; if (state.__calls!.bind === 1) throw { kind: 'api', message: 'Bind conflict', status: 409 }; return; }
       throw Error(`Unexpected command: ${command} ${JSON.stringify(args)}`);
     } } });
@@ -33,6 +33,39 @@ test('create then bind keeps the created identity across a failed bind retry', a
   await dialog.getByLabel('来源名称').fill('Primary feed'); await dialog.getByLabel(/来源 URL/).fill(source.url); await dialog.getByRole('button', { name: '创建并绑定' }).click();
   await expect(dialog.getByRole('alert')).toContainText('Bind conflict'); await expect(dialog).toContainText('重试不会重复创建'); await dialog.getByRole('button', { name: '重试绑定' }).click();
   await expect.poll(() => page.evaluate(() => (window as typeof window & { __calls?: Record<string, number> }).__calls)).toEqual({ create: 1, bind: 2 }); await expect(dialog.getByLabel('来源名称')).toHaveValue('');
+  expect(await page.evaluate(() => (window as typeof window & { __inputs?: Array<{ sourceFamily?: string }> }).__inputs)).toEqual([expect.objectContaining({ sourceFamily: 'generic_web' })]);
+});
+
+test('opportunity Radar visibly defaults create purpose and sends the explicit family', async ({ page }) => {
+  const opportunityRadar = { ...radar, radarType: 'opportunity', name: 'Opportunity Radar' };
+  const opportunitySource = { ...source, sourceFamily: 'opportunity' };
+  await page.addInitScript(({ radar, user, source }) => {
+    const state = window as typeof window & { __input?: { sourceFamily?: string } };
+    Object.defineProperty(window, '__TAURI_INTERNALS__', { value: { invoke: async (command: string, args?: { input?: { sourceFamily?: string } }) => {
+      if (command === 'bridge_status') return { available: true }; if (command === 'health_ready') return { ready: true }; if (command === 'auth_login') return { authenticated: true, user }; if (command === 'users_me') return user; if (command === 'radars_list') return { items: [radar], page: 1, pageSize: 100, total: 1 };
+      if (command === 'sources_list' || command === 'radar_sources_list') return { items: [], page: 1, pageSize: 20, total: 0 };
+      if (command === 'sources_create') { state.__input = args!.input; return source; }
+      if (command === 'radar_sources_bind') return;
+      throw Error(`Unexpected command: ${command}`);
+    } } });
+  }, { radar: opportunityRadar, user, source: opportunitySource });
+  await page.goto('/'); await page.getByRole('button', { name: '跳过动画' }).click(); await signIn(page); const dialog = await openSources(page);
+  await expect(dialog.getByLabel('来源用途')).toHaveValue('opportunity'); await dialog.getByLabel('来源名称').fill('Opportunity feed'); await dialog.getByLabel(/来源 URL/).fill(source.url); await dialog.getByRole('button', { name: '创建并绑定' }).click();
+  await expect.poll(() => page.evaluate(() => (window as typeof window & { __input?: { sourceFamily?: string } }).__input?.sourceFamily)).toBe('opportunity');
+});
+
+test('existing source families stay visible, including legacy and missing responses', async ({ page }) => {
+  const legacy = { ...source, id: '00000000-0000-4000-8000-000000000022', name: 'Policy archive', sourceFamily: 'policy' };
+  const missing = { ...source, id: '00000000-0000-4000-8000-000000000023', name: 'Unclassified feed', sourceFamily: undefined };
+  await page.addInitScript(({ radar, user, sources }) => {
+    Object.defineProperty(window, '__TAURI_INTERNALS__', { value: { invoke: async (command: string) => {
+      if (command === 'bridge_status') return { available: true }; if (command === 'health_ready') return { ready: true }; if (command === 'auth_login') return { authenticated: true, user }; if (command === 'users_me') return user; if (command === 'radars_list') return { items: [radar], page: 1, pageSize: 100, total: 1 };
+      if (command === 'sources_list' || command === 'radar_sources_list') return { items: sources, page: 1, pageSize: 20, total: sources.length };
+      throw Error(`Unexpected command: ${command}`);
+    } } });
+  }, { radar, user, sources: [source, legacy, missing] });
+  await page.goto('/'); await page.getByRole('button', { name: '跳过动画' }).click(); await signIn(page); const dialog = await openSources(page);
+  await expect(dialog).toContainText('Primary feed'); await expect(dialog).toContainText('普通信号'); await expect(dialog).toContainText('Policy archive'); await expect(dialog).toContainText('政策'); await expect(dialog).toContainText('Unclassified feed'); await expect(dialog).toContainText('未返回用途');
 });
 
 test('collect suppresses duplicate pending clicks, gets immediately, and polls to terminal status', async ({ page }) => {

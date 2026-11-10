@@ -14,7 +14,7 @@ const choices: { value: RadarType; zh: string; en: string }[] = [
   { value: 'opportunity', zh: '机会', en: 'Opportunity' },
 ];
 
-export function RadarCreatePanel({ onCreate, onClose }: { onCreate: (input: RadarCreateInput) => Promise<void>; onClose: () => void }) {
+export function RadarCreatePanel({ onCreate, onClose, practice = false }: { onCreate: (input: RadarCreateInput) => Promise<void>; onClose: () => void; practice?: boolean }) {
   const { t } = usePreferences();
   const [name, setName] = useState('');
   const [goal, setGoal] = useState('');
@@ -76,7 +76,7 @@ export function RadarCreatePanel({ onCreate, onClose }: { onCreate: (input: Rada
   return <div className="radar-create-scrim" data-ui><section ref={panel} className="radar-create-panel" role="dialog" aria-modal="true" aria-labelledby="radar-create-title" onKeyDown={keyboard}>
     <button type="button" className="panel-close icon-button" aria-label={t('关闭新建 Radar', 'Close Create Radar')} disabled={busy} onClick={onClose}>×</button>
     <span className="eyebrow">FLOWTRACER / RADAR</span><h2 id="radar-create-title">{t('新建 Radar', 'Create Radar')}</h2>
-    <p>{t('保存成功后才会把真实 Radar 放进星图。', 'The live Radar appears on the map only after the API confirms creation.')}</p>
+    <p>{practice ? t('练习适配器确认成功后，Radar 才会出现在星图中。', 'The Radar appears only after the local practice adapter confirms success.') : t('保存成功后才会把真实 Radar 放进星图。', 'The live Radar appears on the map only after the API confirms creation.')}</p>
     <form onSubmit={event => void submit(event)}>
       <label>{t('名称', 'Name')}<input ref={nameInput} value={name} onChange={event => setName(event.target.value)} maxLength={120} required/></label>
       <label>{t('目标', 'Goal')}<textarea value={goal} onChange={event => setGoal(event.target.value)} maxLength={4000} required/></label>

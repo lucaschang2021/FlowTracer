@@ -19,11 +19,12 @@ type EntryProps = {
   onContinue: () => void;
   onBack: () => void;
   onDemo: () => void;
+  onTutorial: () => void;
   onAuthenticate: (kind: 'login' | 'register', credentials: Credentials) => Promise<void>;
   bridge: { available: boolean; origin?: string; ready: boolean | null; busy: boolean; error?: BridgeError };
 };
 
-export function Entry({ stage, onContinue, onBack, onDemo, onAuthenticate, bridge }: EntryProps) {
+export function Entry({ stage, onContinue, onBack, onDemo, onTutorial, onAuthenticate, bridge }: EntryProps) {
   const { t, quiet } = usePreferences();
   const [systemQuiet, setSystemQuiet] = useState(() => matchMedia('(prefers-reduced-motion: reduce)').matches);
   const entry = useRef<HTMLDivElement>(null);
@@ -34,7 +35,7 @@ export function Entry({ stage, onContinue, onBack, onDemo, onAuthenticate, bridg
     event.preventDefault(); onContinue();
   }}>
     <header className="entry-toolbar"><span className="eyebrow">FLOWTRACER <span className="entry-version">/ 0.1 ALPHA</span></span><LanguageSelect/></header>
-    {stage === 'intro' ? <><IntroArtwork reduced={quiet || systemQuiet}/><button className="intro-start" onClick={onContinue}>{t('按任意键开始', 'PRESS ANY KEY TO START')}</button><button className="entry-skip" onClick={onContinue}>{t('跳过动画', 'Skip intro')} <Icon name="arrow"/></button></> : <><AuthPanel {...bridge} onAuthenticate={onAuthenticate} onDemo={onDemo}/><button className="login-back" onClick={onBack}>{t('返回启动画面', 'Back to startup')}</button></>}
+    {stage === 'intro' ? <><IntroArtwork reduced={quiet || systemQuiet}/><button className="intro-start" onClick={onContinue}>{t('按任意键开始', 'PRESS ANY KEY TO START')}</button><button className="entry-skip" onClick={onContinue}>{t('跳过动画', 'Skip intro')} <Icon name="arrow"/></button></> : <><AuthPanel {...bridge} onAuthenticate={onAuthenticate} onDemo={onDemo} onTutorial={onTutorial}/><button className="login-back" onClick={onBack}>{t('返回启动画面', 'Back to startup')}</button></>}
     <footer className="entry-footer"><span>{stage === 'intro' ? t('启动画布', 'STARTUP CANVAS') : bridge.available ? t('真实模式 · 本机 API', 'LIVE MODE · LOCAL API') : t('网页预览 · 桌面桥不可用', 'WEB PREVIEW · DESKTOP BRIDGE UNAVAILABLE')}</span><span>{t('启动 / 登录 / 星图', 'INTRO / SIGN-IN / UNIVERSE')}</span></footer>
   </main>;
 }

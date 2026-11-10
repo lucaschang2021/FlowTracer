@@ -13,9 +13,10 @@ type Props = {
   error?: BridgeError;
   onAuthenticate: (kind: 'login' | 'register', credentials: Credentials) => Promise<void>;
   onDemo: () => void;
+  onTutorial: () => void;
 };
 
-export function AuthPanel({ available, origin, ready, busy, error, onAuthenticate, onDemo }: Props) {
+export function AuthPanel({ available, origin, ready, busy, error, onAuthenticate, onDemo, onTutorial }: Props) {
   const { t } = usePreferences();
   const [kind, setKind] = useState<'login' | 'register'>('login');
   const [email, setEmail] = useState('');
@@ -43,12 +44,15 @@ export function AuthPanel({ available, origin, ready, busy, error, onAuthenticat
     </form>
     <div className="connection-state" role="status">
       <span className={`status-dot ${ready === true ? 'ready' : ready === false ? 'down' : ''}`}/>
-      {available ? ready === true ? t('本机 API 已就绪', 'Local API ready') : ready === false ? t('本机 API 未就绪', 'Local API not ready') : t('正在检查本机 API', 'Checking local API') : t('普通网页预览无法使用桌面桥', 'Desktop bridge unavailable in browser preview')}
-      {origin && <small>{origin}</small>}
+      <span>{available ? ready === true ? t('本机 API 已就绪', 'Local API ready') : ready === false ? t('本机 API 未就绪', 'Local API not ready') : t('正在检查本机 API', 'Checking local API') : t('普通网页预览无法使用桌面桥', 'Desktop bridge unavailable in browser preview')}</span>
+      <small>{origin ?? '\u00a0'}</small>
     </div>
-    {error && <p className="auth-error" role="alert">{error.message}{error.requestId ? <small>Request ID: {error.requestId}</small> : null}</p>}
+    <div className="auth-feedback">
+      {error && <p className="auth-error" role="alert" tabIndex={0}>{error.message}{error.requestId ? <small>Request ID: {error.requestId}</small> : null}</p>}
+    </div>
     <div className="demo-divider"><span>{t('或进入隔离演示', 'OR USE ISOLATED DEMO')}</span></div>
     <button type="button" className="demo-enter" onClick={onDemo}>{t('进入演示星图', 'Enter demo universe')}<Icon name="arrow"/></button>
+    <button type="button" className="tutorial-entry" onClick={onTutorial}>{t('开始交互教程', 'Start interactive tutorial')}<Icon name="arrow"/></button>
     <p className="demo-login-note">{t('演示模式使用本地示例并持续标识；连接失败不会自动切换。', 'Demo uses labeled local fixtures. Connection failures never switch modes automatically.')}</p>
   </section>;
 }

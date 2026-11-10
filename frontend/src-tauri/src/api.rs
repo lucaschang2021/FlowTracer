@@ -152,6 +152,14 @@ struct RadarPage {
 #[serde(rename_all = "lowercase")]
 enum SourceType { Rss, Url, Api }
 
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
+enum SourceFamily { Policy, Academic, Finance, Corporate, Technology, Community, Event, Opportunity, GenericWeb }
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
+enum SourceCreateFamily { GenericWeb, Opportunity }
+
 #[derive(Clone, Deserialize)]
 struct SourceResponse {
     id: String,
@@ -161,6 +169,8 @@ struct SourceResponse {
     normalized_url: String,
     poll_interval_minutes: i64,
     status: ResourceStatus,
+    #[serde(default)]
+    source_family: Option<SourceFamily>,
 }
 
 #[derive(Deserialize)]
@@ -168,7 +178,7 @@ struct SourcePage { items: Vec<SourceResponse>, page: i64, page_size: i64, total
 
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
-pub struct SourceCreateInput { name: String, source_type: SourceType, url: String, poll_interval_minutes: i64 }
+pub struct SourceCreateInput { name: String, source_type: SourceType, url: String, poll_interval_minutes: i64, source_family: Option<SourceCreateFamily> }
 
 impl SourceCreateInput {
     fn payload(mut self) -> Result<Vec<u8>, BridgeError> {
@@ -180,15 +190,16 @@ impl SourceCreateInput {
         if !matches!(parsed.scheme(), "http" | "https") || !parsed.username().is_empty() || parsed.password().is_some() {
             return Err(BridgeError::local("invalid_input", "Source URL must be HTTP(S) without embedded credentials"));
         }
-        serde_json::to_vec(&json!({"name":self.name,"source_type":self.source_type,"url":self.url,"poll_interval_minutes":self.poll_interval_minutes}))
-            .map_err(|_| BridgeError::local("invalid_input", "Source request could not be encoded"))
+        let mut payload=json!({"name":self.name,"source_type":self.source_type,"url":self.url,"poll_interval_minutes":self.poll_interval_minutes});
+        if let Some(family)=self.source_family { payload["source_family"]=json!(family); }
+        serde_json::to_vec(&payload).map_err(|_| BridgeError::local("invalid_input", "Source request could not be encoded"))
     }
 }
 
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct SourceView { id: String, name: String, source_type: SourceType, url: String, normalized_url: String, poll_interval_minutes: i64, status: ResourceStatus }
-impl From<SourceResponse> for SourceView { fn from(value: SourceResponse) -> Self { Self { id:value.id,name:value.name,source_type:value.source_type,url:value.url,normalized_url:value.normalized_url,poll_interval_minutes:value.poll_interval_minutes,status:value.status } } }
+pub struct SourceView { id: String, name: String, source_type: SourceType, url: String, normalized_url: String, poll_interval_minutes: i64, status: ResourceStatus, #[serde(skip_serializing_if = "Option::is_none")] source_family: Option<SourceFamily> }
+impl From<SourceResponse> for SourceView { fn from(value: SourceResponse) -> Self { Self { id:value.id,name:value.name,source_type:value.source_type,url:value.url,normalized_url:value.normalized_url,poll_interval_minutes:value.poll_interval_minutes,status:value.status,source_family:value.source_family } } }
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -1303,11 +1314,25 @@ mod tests {
     }
 
     fn source(id: &str, source_type: &str) -> Value {
-        json!({"id":id,"name":"Primary feed","source_type":source_type,"url":"https://example.com/feed","normalized_url":"https://example.com/feed","poll_interval_minutes":60,"status":"active"})
+        json!({"id":id,"name":"Primary feed","source_type":source_type,"url":"https://example.com/feed","normalized_url":"https://example.com/feed","poll_interval_minutes":60,"status":"active","source_family":"opportunity"})
     }
 
     fn source_input() -> SourceCreateInput {
-        SourceCreateInput { name:" Primary feed ".into(),source_type:SourceType::Rss,url:" https://example.com/feed ".into(),poll_interval_minutes:60 }
+        SourceCreateInput { name:" Primary feed ".into(),source_type:SourceType::Rss,url:" https://example.com/feed ".into(),poll_interval_minutes:60,source_family:Some(SourceCreateFamily::Opportunity) }
+    }
+
+    #[test]
+    fn source_family_create_contract_is_restricted_optional_and_legacy_responses_remain_compatible() {
+        let omitted:SourceCreateInput=serde_json::from_value(json!({"name":"Feed","sourceType":"rss","url":"https://example.com/feed","pollIntervalMinutes":60})).unwrap();
+        let omitted_payload:Value=serde_json::from_slice(&omitted.payload().unwrap()).unwrap();assert!(omitted_payload.get("source_family").is_none());
+        let generic:SourceCreateInput=serde_json::from_value(json!({"name":"Feed","sourceType":"url","url":"https://example.com/feed","pollIntervalMinutes":60,"sourceFamily":"generic_web"})).unwrap();
+        assert_eq!(serde_json::from_slice::<Value>(&generic.payload().unwrap()).unwrap()["source_family"],"generic_web");
+        assert!(serde_json::from_value::<SourceCreateInput>(json!({"name":"Feed","sourceType":"rss","url":"https://example.com/feed","pollIntervalMinutes":60,"sourceFamily":"policy"})).is_err());
+        assert!(serde_json::from_value::<SourceCreateInput>(json!({"name":"Feed","sourceType":"rss","url":"https://example.com/feed","pollIntervalMinutes":60,"unexpected":true})).is_err());
+        let legacy:SourceResponse=serde_json::from_value(json!({"id":"00000000-0000-4000-8000-000000000021","name":"Legacy","source_type":"url","url":"https://example.com/feed","normalized_url":"https://example.com/feed","poll_interval_minutes":60,"status":"active","source_family":"policy"})).unwrap();
+        assert_eq!(legacy.source_family,Some(SourceFamily::Policy));
+        let missing:SourceResponse=serde_json::from_value(json!({"id":"00000000-0000-4000-8000-000000000021","name":"Legacy","source_type":"url","url":"https://example.com/feed","normalized_url":"https://example.com/feed","poll_interval_minutes":60,"status":"active"})).unwrap();
+        assert_eq!(missing.source_family,None);assert!(serde_json::to_value(SourceView::from(missing)).unwrap().get("sourceFamily").is_none());
     }
 
     #[tokio::test]
@@ -1318,14 +1343,14 @@ mod tests {
             "/api/v1/auth/login"=>json_response(200,auth("access","refresh")),
             "/api/v1/sources?page=2&page_size=20"=>{assert_eq!(request.method,"GET");json_response(200,json!({"items":[source_value.clone()],"page":2,"page_size":20,"total":21}))},
             "/api/v1/radars/00000000-0000-4000-8000-000000000011/sources?page=1&page_size=20"=>json_response(200,json!({"items":[source_value.clone()],"page":1,"page_size":20,"total":1})),
-            "/api/v1/sources"=>{assert_eq!(request.method,"POST");assert_eq!(serde_json::from_str::<Value>(&request.body).unwrap(),json!({"name":"Primary feed","source_type":"rss","url":"https://example.com/feed","poll_interval_minutes":60}));json_response(201,created.clone())},
+            "/api/v1/sources"=>{assert_eq!(request.method,"POST");assert_eq!(serde_json::from_str::<Value>(&request.body).unwrap(),json!({"name":"Primary feed","source_type":"rss","url":"https://example.com/feed","poll_interval_minutes":60,"source_family":"opportunity"}));json_response(201,created.clone())},
             "/api/v1/radars/00000000-0000-4000-8000-000000000011/sources/00000000-0000-4000-8000-000000000021"=>{assert!(matches!(request.method.as_str(),"POST"|"DELETE"));Response{status:204,body:String::new(),headers:vec![],delay_ms:0}},
             "/api/v1/sources/00000000-0000-4000-8000-000000000021/collect"=>{assert_eq!(request.method,"POST");assert_eq!(request.idempotency_key.as_deref(),Some("00000000-0000-4000-8000-000000000041"));Response{status:202,body:json!({"run_id":"00000000-0000-4000-8000-000000000031","status":"succeeded"}).to_string(),headers:vec![("Location".into(),"/api/v1/collection-runs/00000000-0000-4000-8000-000000000031".into())],delay_ms:0}},
             "/api/v1/collection-runs/00000000-0000-4000-8000-000000000031"=>json_response(200,json!({"id":"00000000-0000-4000-8000-000000000031","source_id":"00000000-0000-4000-8000-000000000021","trigger_type":"manual","status":"succeeded","started_at":"2026-10-20T00:00:00Z","finished_at":"2026-10-20T00:00:01Z","fetched_count":3,"created_count":2,"duplicate_count":1,"failed_count":0,"error_code":null,"error_message":null,"created_at":"2026-10-20T00:00:00Z","updated_at":"2026-10-20T00:00:01Z"})),
             _=>json_response(404,json!({})),
         })).await;
         let client=ApiClient::new(&origin).unwrap();client.authenticate(Operation::Login,"a@example.com".into(),"long-password".into(),None).await.unwrap();
-        assert_eq!(client.list_sources(2,20).await.unwrap().total,21);assert_eq!(client.list_radar_sources(radar.into(),1,20).await.unwrap().total,1);assert_eq!(client.create_source(source_input()).await.unwrap().id,source_id);
+        assert_eq!(client.list_sources(2,20).await.unwrap().total,21);assert_eq!(client.list_radar_sources(radar.into(),1,20).await.unwrap().total,1);let created=client.create_source(source_input()).await.unwrap();assert_eq!(created.id,source_id);assert_eq!(created.source_family,Some(SourceFamily::Opportunity));
         client.bind_source(radar.into(),source_id.into(),true).await.unwrap();client.bind_source(radar.into(),source_id.into(),false).await.unwrap();
         assert_eq!(client.collect_source(source_id.into(),key.into()).await.unwrap().status,CollectionRunStatus::Succeeded);let view=client.collection_run(run.into(),source_id.into()).await.unwrap();assert_eq!(view.created_count,2);let bridge=serde_json::to_value(&view).unwrap();assert_eq!(bridge["sourceId"],source_id);assert_eq!(bridge["fetchedCount"],3);assert!(bridge.get("source_id").is_none());task.abort();
     }
@@ -1333,8 +1358,8 @@ mod tests {
     #[tokio::test]
     async fn source_collection_rejects_bad_inputs_status_location_enum_and_identity() {
         assert!(ApiClient::pagination(0,20).is_err());assert!(ApiClient::pagination(1,101).is_err());
-        assert!(SourceCreateInput{name:"x".into(),source_type:SourceType::Api,url:"https://example.com".into(),poll_interval_minutes:60}.payload().is_err());
-        assert!(SourceCreateInput{name:"x".into(),source_type:SourceType::Url,url:"https://user:secret@example.com".into(),poll_interval_minutes:60}.payload().is_err());
+        assert!(SourceCreateInput{name:"x".into(),source_type:SourceType::Api,url:"https://example.com".into(),poll_interval_minutes:60,source_family:None}.payload().is_err());
+        assert!(SourceCreateInput{name:"x".into(),source_type:SourceType::Url,url:"https://user:secret@example.com".into(),poll_interval_minutes:60,source_family:None}.payload().is_err());
         let collects=Arc::new(AtomicUsize::new(0));let count=collects.clone();
         let (origin,task)=fake_server(Arc::new(move |request| match request.path.as_str(){
             "/api/v1/auth/login"=>json_response(200,auth("access","refresh")),
